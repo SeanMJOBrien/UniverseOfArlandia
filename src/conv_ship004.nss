@@ -1,0 +1,21 @@
+////////////////////////////////////////////////////////////////////////////////
+void main(){
+////////////////////////////////////////////////////////////////////////////////
+int iLandPlaces = GetLocalInt(OBJECT_SELF,"LandPlaces");
+int iStep = GetLocalInt(OBJECT_SELF,"Step");
+//
+string sAreaDest;string sName;int iDist;int iPrice;int i;int iNum;
+////////////////////////////////////////////////////////////////////////////////
+while(i<10){i++;SetLocalInt(OBJECT_SELF,"ChoiceDone"+IntToString(i),1);SetCustomToken(10430+i,"");}i=0;
+////////////////////////////////////////////////////////////////////////////////
+while((i<10)&&(iNum<iLandPlaces))
+ {
+i++;iNum = i+(iStep*10);
+sAreaDest = GetLocalString(OBJECT_SELF,"LandPlaceDest"+IntToString(iNum));
+sName = GetLocalString(OBJECT_SELF,"LandPlaceName"+IntToString(iNum));
+
+SetCustomToken(10430+i,sName);
+DeleteLocalInt(OBJECT_SELF,"ChoiceDone"+IntToString(i));
+ }
+////////////////////////////////////////////////////////////////////////////////
+}
