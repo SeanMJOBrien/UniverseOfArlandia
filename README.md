@@ -1,5 +1,6 @@
 # UniverseOfArlandia
 The Module:
+
 Universe of Arlandia is a module of randomly generated worlds, which can be travelled
 between using spaceships (Spelljammer turn based combat not yet integreted). Players can
 build seaships, airships, and spaceships for travel. Not that the worlds aren't always
@@ -21,6 +22,7 @@ are features for the DM to do some of this, but I do not fully understand them o
 they are used.
 
 The Gist:
+
 This is a persistent world module for Neverwinter Nights 1. It does need a NWNXEE
 server and MySQL service. MySQL is used to run the world altogether, and isn't optional.
 I've done my best to work out all of the kinks, moving it from the old NWNX to NWNXEE.
