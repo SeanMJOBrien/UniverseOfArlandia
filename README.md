@@ -6,6 +6,19 @@ build seaships, airships, and spaceships for travel. Not that the worlds aren't 
 (random, remember) large enough to have oceans or seas, so the worlds need to be larger,
 and maybe take into account how much is ocean. To do this the MySQL storage of the world
 needs to be rewritten.
+The module is designed for a variety of levels, but is fairly generic in the way spawns
+are handled. This can easily be spiced up by adding new creatures and conditions.
+I'd like to add more mission types. Currently they are fetch, gather, or kill in the 
+most direct and bland way. "Find me 5 iron ingots and bring them to x, y coordinates for
+a reward."The server restarts every 8 realtime hours, and on start it generates these
+missions in random locations. There is no reason not to create all kinds of single or
+multi-area quests that have a variety of subjects and types.
+Currently these missions are also only good while the srever runs, and are reset on
+server restart every 8 realtime hours. More complex quests could carry over, or a whole
+campaign could be tracked in the DB.
+I'm hoping to add to the DM tools to allow the DM to craft the world more easily. There
+are features for the DM to do some of this, but I do not fully understand them or how
+they are used.
 
 The Gist:
 This is a persistent world module for Neverwinter Nights 1. It does need a NWNXEE
