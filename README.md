@@ -1,5 +1,7 @@
 # UniverseOfArlandia
 The Module: (Universe of Arlandia by TheRack)
+- Website: http://142.47.88.45/
+- Web map of explored areas of one world: http://142.47.88.45/galaxy.php?planet=Arland
 
 In 2011 TheRack had abandoned this module and bequeethed to me (he's alive, I assume,
 the server died frmo lack of players) his module and said to do as I please with it. He
