@@ -14,12 +14,31 @@ most direct and bland way. "Find me 5 iron ingots and bring them to x, y coordin
 a reward."The server restarts every 8 realtime hours, and on start it generates these
 missions in random locations. There is no reason not to create all kinds of single or
 multi-area quests that have a variety of subjects and types.
-Currently these missions are also only good while the srever runs, and are reset on
+Currently these missions are also only good while the server runs, and are reset on
 server restart every 8 realtime hours. More complex quests could carry over, or a whole
 campaign could be tracked in the DB.
 I'm hoping to add to the DM tools to allow the DM to craft the world more easily. There
 are features for the DM to do some of this, but I do not fully understand them or how
 they are used.
+
+Issues:
+- Placeables are used for arriving Airships and Spaceships. They can be more varried, and
+perhaps be made static with NWNXEE, though there appears to be limitations.
+- Ships of all kinds are limited to the owner PC. Party PCs should be made cutscene 
+invisible and forced to follow the "ship" (polymorphed PC). OR, failing that, an area
+above and/or bellow decks where they can wait and RP. Arty speach can be used between
+the owner and the rest of the party for this purpose in both cases.
+- NWNEE offers copyArea(), which should be used to copy temlate areas. Currently there are
+simply 7 forest areas that are used over and over, and once you need an 8th for another PC
+they are stuck until one is vacated. This looks like it will be fairly simple (for someone
+more skilled).
+- Troops. Henchmen are available at Taverns, they are static 3rd lebel fighters. When you
+return to the server they appear again, same as the day you hired them. TROOPS on the other
+hand can be equipped as you please and can be trained (you must build a Barracks in your
+own Domain (area for which you clear and purchase a deed) at several levels.
+The issue is that some options break the storage in the DB, confusing players. I think
+this is a simple logic issue, as if you do not use advanced features, like commanding one
+to wait here or guard this area everything works fine.
 
 The Gist:
 
