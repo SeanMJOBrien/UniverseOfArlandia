@@ -1,5 +1,9 @@
 # UniverseOfArlandia
-The Module:
+The Module: (Universe of Arlandia by TheRack)
+
+In 2011 TheRack had abandoned this module and bequeethed to me (he's alive, I assume,
+the server died frmo lack of players) his module and said to do as I please with it. He
+was moving on to a more fantasy based endeavor. I have simply updated it for NWNXEE.
 
 Universe of Arlandia is a module of randomly generated worlds, which can be travelled
 between using spaceships (Spelljammer turn based combat not yet integreted). Players can
