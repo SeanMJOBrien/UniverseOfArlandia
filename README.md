@@ -1,9 +1,12 @@
 # UniverseOfArlandia
 The Module: (Universe of Arlandia by TheRack)
-- Website: http://142.47.88.45/
+- Website: http://142.47.88.45/  (click right sidebar for maps of other worlds (which
+I haven't explored yet, so might not be much to see)
 - Web map of explored areas of one world: http://142.47.88.45/galaxy.php?planet=Arland
+- Hak files required for Linux server (ALL lowercase!):
+     http://142.47.99.185/uoa/UOAlowercaseHaks4Linux.7z
 
-In 2011 TheRack had abandoned this module and bequeethed to me (he's alive, I assume,
+In 2011 TheRack had abandoned this module and bequeathed to me (he's alive, I assume,
 the server died frmo lack of players) his module and said to do as I please with it. He
 was moving on to a more fantasy based endeavor. I have simply updated it for NWNXEE.
 
