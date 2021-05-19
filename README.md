@@ -26,16 +26,18 @@ are features for the DM to do some of this, but I do not fully understand them o
 they are used.
 
 Issues:
-- Placeables are used for arriving Airships and Spaceships. They can be more varried, and
-perhaps be made static with NWNXEE, though there appears to be limitations.
-- Ships of all kinds are limited to the owner PC. Party PCs should be made cutscene 
+- Placeables are used for arriving Airships and Spaceships. They can be more varried (as
+well as the above and below deck areas for commercial travel), and perhaps be made static
+with NWNXEE, though there appears to be limitations as to removing them when they leave.
+- Ships of all types are limited to the owner PC. Party PCs should be made cutscene 
 invisible and forced to follow the "ship" (polymorphed PC). OR, failing that, an area
-above and/or bellow decks where they can wait and RP. Arty speach can be used between
-the owner and the rest of the party for this purpose in both cases.
+above and/or bellow decks where they can wait and RP (this is done for commercial travel).
+Party speach can be used between the owner and the rest of the party for this purpose in
+both cases.
 - NWNEE offers copyArea(), which should be used to copy temlate areas. Currently there are
-simply 7 forest areas that are used over and over, and once you need an 8th for another PC
-they are stuck until one is vacated. This looks like it will be fairly simple (for someone
-more skilled).
+simply 7 forest "template" areas that are used over and over, and once you need an 8th for
+another PC they are stuck until one is vacated. This looks like it would be fairly simple
+(for someone more skilled).
 - Troops. Henchmen are available at Taverns, they are static 3rd lebel fighters. When you
 return to the server they appear again, same as the day you hired them. TROOPS on the other
 hand can be equipped as you please and can be trained (you must build a Barracks in your
@@ -43,6 +45,8 @@ own Domain (area for which you clear and purchase a deed) at several levels.
 The issue is that some options break the storage in the DB, confusing players. I think
 this is a simple logic issue, as if you do not use advanced features, like commanding one
 to wait here or guard this area everything works fine.
+Frankly my current thoughts are to remove them in their current form and make more varied
+versions. As well, have more content in which they are not needed due to allied NPCs.
 
 The Gist:
 
@@ -68,4 +72,3 @@ to be sure they are available and easy to find.
 
 The website will also be included, this offers a realtime map of the explored areas
 of each world as well as crafting info.
-
