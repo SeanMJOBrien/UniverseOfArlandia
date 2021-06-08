@@ -1,3 +1,5 @@
+You can email me at qlippoth@speakeasy.net
+
 # UniverseOfArlandia
 The Module: (Universe of Arlandia by TheRack)
 Check out the currently live website at http://qlippoth.dyndns.org
