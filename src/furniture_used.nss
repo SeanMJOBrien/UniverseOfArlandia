@@ -1,0 +1,20 @@
+////////////////////////////////////////////////////////////////////////////////
+void main(){
+////////////////////////////////////////////////////////////////////////////////
+object oPC = GetLastUsedBy();
+string sName = GetName(oPC);
+object oArea = GetArea(oPC);
+string sMaster = GetLocalString(oArea,"Master");
+////////////////////////////////////////////////////////////////////////////////
+if(sName==sMaster)
+ {
+DeleteLocalInt(oPC,"PlaceFurniture");
+SetLocalObject(oPC,"Furniture",OBJECT_SELF);
+AssignCommand(oPC,ActionStartConversation(oPC,"furniture",TRUE,FALSE));
+ }
+else if(GetTag(OBJECT_SELF)=="chair")
+ {
+if(GetIsObjectValid(oPC)){AssignCommand(oPC,ActionSit(OBJECT_SELF));}
+ }
+////////////////////////////////////////////////////////////////////////////////
+}
