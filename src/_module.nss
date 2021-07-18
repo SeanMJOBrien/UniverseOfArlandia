@@ -78,7 +78,7 @@ int iHenchsPrice =      50;                     //*// Price of non-domain henchs
 int iInn =              10;                     //*// Price of one night sleep at the inn.
 ////////////////////////////////////////////////////////////////////////////////
 // Maps (website)
-int iShowAreas =        0;                      //*// 1 = Show the areas totally revealed on the website planet maps.  Qlippoth changed to 1
+int iShowAreas =        0;                      //*// 1 = Show the areas totally revealed on the website planet maps.
 int iShowInterests =    0;                      //*// 1 = Show the interests on the website planets maps even if not discovered.
 ////////////////////////////////////////////////////////////////////////////////
 // Missions
@@ -93,7 +93,7 @@ int iPlanetsMaxSize =   100;                    //*// Max size of the planets. D
 int iReboot =           8;                      //*// Reboot server after iReboot real hours. Players will be warned since 30 min before reboot.
 ////////////////////////////////////////////////////////////////////////////////
 // Resting
-int iWeight = 20;                                //*// Max weight players can carry on their chest when resting.   Qlippoth changed from 1
+int iWeight = 1;                                //*// Max weight players can carry on their chest when resting.
 int iBedrollBrake =     20;                     //*// Bedroll brake after iBedrollBrake rests.
 int iBedrollBrakeProb = 50;                     //*// Probabiliy in % the bedroll brakes.
 int iRestBonus =        10;                     //*// Bonus hit points when players sleep with a bedroll.
@@ -118,28 +118,35 @@ int iTorch =            20;                     //*// Torch burn out after iTorc
 int iAirship1 =         10;                     //*// Hour of the first airship.
 int iAirship2 =         14;                     //*// Hour of the second airship.
 int iAirship3 =         18;                     //*// Hour of the third airship.
-int iAirshipCost =      1;                     //*// GP price for each area crossed with an airship.
+int iAirshipCost =      10;                     //*// GP price for each area crossed with an airship.
 int iAirshipSec =       5;                      //*// Seconds of travel for each area crossed with an airship.
 //
 int iStarship =         12;                     //*// Hour of the starship.
-int iStarshipCost =     1;                    //*// GP price for each area crossed with a starship.
-int iStarshipDist =     12;                      //*// Max. distance (in areas) a starship can cross.
+int iStarshipCost =     100;                    //*// GP price for each area crossed with a starship.
+int iStarshipDist =     6;                      //*// Max. distance (in areas) a starship can cross.
 int iStarshipSec =      60;                     //*// Seconds of travel for each area crossed with a starship.
 //
-int iStarshipLvl =      2;                      //*// Players must be min. level iStarshipLvl to be able to travel in the Universe (starships or personal starships).
-int iStarshipPass =     1;                    //*// Cost of the intergalactical star pass.
+int iStarshipLvl =      6;                      //*// Players must be min. level iStarshipLvl to be able to travel in the Universe (starships or personal starships).
+int iStarshipPass =     100;                    //*// Cost of the intergalactical star pass.
 ////////////////////////////////////////////////////////////////////////////////
 // UOA references
 int iUOAreferences =    30;                     //*// Number of references in the UOA book.
 ////////////////////////////////////////////////////////////////////////////////
 // Wear values
 //  Categorie                   Days
-int iCatA = 100;            int iWearA = 8;     int iFixA = 50; //*// items with gold value up to iCatA will brake after iWearA days and the fix will cost iFixA % of the item price.
-int iCatB = 1500;           int iWearB = 16;    int iFixB = 25; //*// items with gold value up to iCatB will brake after iWearB days and the fix will cost iFixB % of the item price.
-int iCatC = 5000;           int iWearC = 32;    int iFixC = 12; //*// items with gold value up to iCatC will brake after iWearC days and the fix will cost iFixC % of the item price.
-int iCatD = 20000;          int iWearD = 64;    int iFixD = 6;  //*// items with gold value up to iCatD will brake after iWearD days and the fix will cost iFixD % of the item price.
-                            int iWearE = 128;   int iFixE = 3;  //*// items with gold value up to iCatE will brake after iWearE days and the fix will cost iFixE % of the item price.
-////////////////////////////////////////////////////////////////////////////////
+/*int iCatA = 100;            int iWearA = 8;     int iFixA = 50; // items with gold value up to iCatA will brake after iWearA days and the fix will cost iFixA % of the item price.
+int iCatB = 1500;           int iWearB = 16;    int iFixB = 25; // items with gold value up to iCatB will brake after iWearB days and the fix will cost iFixB % of the item price.
+int iCatC = 5000;           int iWearC = 32;    int iFixC = 12; // items with gold value up to iCatC will brake after iWearC days and the fix will cost iFixC % of the item price.
+int iCatD = 20000;          int iWearD = 64;    int iFixD = 6;  // items with gold value up to iCatD will brake after iWearD days and the fix will cost iFixD % of the item price.
+                            int iWearE = 128;   int iFixE = 3;  // items with gold value up to iCatE will brake after iWearE days and the fix will cost iFixE % of the item price.
+*/
+int iCatA = 100;            int iWearA = 32;     int iFixA = 50; //*// items with gold value up to iCatA will brake after iWearA days and the fix will cost iFixA % of the item price.
+int iCatB = 1500;           int iWearB = 64;    int iFixB = 25; //*// items with gold value up to iCatB will brake after iWearB days and the fix will cost iFixB % of the item price.
+int iCatC = 5000;           int iWearC = 128;    int iFixC = 12; //*// items with gold value up to iCatC will brake after iWearC days and the fix will cost iFixC % of the item price.
+int iCatD = 20000;          int iWearD = 256;    int iFixD = 6;  //*// items with gold value up to iCatD will brake after iWearD days and the fix will cost iFixD % of the item price.
+                            int iWearE = 512;   int iFixE = 3;  //*// items with gold value up to iCatE will brake after iWearE days and the fix will cost iFixE % of the item price.
+
+///////////////////////////////////////////////////////////////////////////////
 
 
 
