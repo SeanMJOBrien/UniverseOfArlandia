@@ -4,8 +4,8 @@ You can email me at qlippoth@speakeasy.net
 The Module: (Universe of Arlandia by TheRack)
 Check out the currently live website at http://qlippoth.dyndns.org
 (click right sidebar for maps of other worlds (which I haven't explored yet, so might not be much to see)
-- Web map of explored areas of one world: http://142.47.88.45/galaxy.php?planet=Arland
-- Hak files required for Linux server (ALL lowercase!):
+- Web map of explored areas of one world: http://qlippoth.dyndns.org/galaxy.php?planet=Arland
+- Hak files required for Linux server (ALL lowercase! You can also use these for the client side):
      http://142.47.99.185/uoa/UOAlowercaseHaks4Linux.7z
 
 THIS IS NOW STATIC! - old website: http://142.47.88.45/
