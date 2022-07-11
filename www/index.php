@@ -33,13 +33,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-// Connect to the MySQL server on Wamp
+// Connect to the MySQL server on XAMPP
 include("uoa.php");
-$link = @ mysqli_connect("$host:3306", $user, $pass)
+$link = @ mysqli_connect("$host:3306", $user, $pass, $data)
 // if no connexion
 or die ("service offline");
-// Select the base
-mysqli_select_db($link,$data);
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ?>
 
@@ -168,8 +166,9 @@ else
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Galaxies & planets menu
 $galaxy = "Galaxy";
-$result = mysqli_query($link,"SELECT val FROM pwdata WHERE name='$galaxy'") or die(mysql_error());
-$galaxies = @ mysqli_fetch_assoc();
+$result = mysqli_query($link,"SELECT val FROM pwdata WHERE name='$galaxy'") or die(mysql_error($link));
+$galaxies = @ mysqli_fetch_assoc($result);
+$galaxies = implode($galaxies);
 $galaxytot = substr($galaxies, strlen($galaxies)-4, 3);
 $t1 = 0;
 ?>

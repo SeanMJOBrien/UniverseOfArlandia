@@ -20,10 +20,8 @@
 $sql = '127.0.0.1';	// Database IP adress
 $port = '3306';			// Database port
 $host = '127.0.0.1';	// NWserver host
-$user = 'root';			// Database user
-$pass = 'n0n0no';			// Database password
-//$user = 'web';			// Database user
-//$pass = 'webpass';			// Database password
+$user = 'web';			// Database user
+$pass = 'webpass';			// Database password
 $data = 'uoa';			// Database name
 //
 $nwnport = "5121";		// NWN server port

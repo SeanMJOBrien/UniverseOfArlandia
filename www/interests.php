@@ -24,11 +24,9 @@ error_reporting(E_ALL);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connect to the MySQL server on Wamp
 include("uoa.php");
-$link = @ mysql_connect ("$host:$port", $user, $pass)
+$link = mysqli_connect ("$host:$port", $user, $pass, $data)
 // if no connexion
 or die ("service offline");
-// Select the base
-mysql_select_db("$data");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Planet + Area
@@ -39,12 +37,24 @@ $planet = $_GET['planet'];
 $area = $_GET['area'];
 $interests = $planet."&".$area."&Interests";
 // Other variables
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$interests'") or die(mysql_error());
-$interest = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$interests'") or die(mysql_error());
+$interest = mysqli_fetch_assoc($result);
 $interest = str_replace("~","'" , $interest);
+$interest = @ implode($interest);
 // Name
 $inttype = substr($interest, 0, 1);
-$name1pos = strpos($interest,"&2&");$name1 = substr($interest, 0, $name1pos);$name2pos = strpos($name1,"&1&");$name2 = strlen($name1);$name = substr($name1, $name2pos+3);if($inttype=="D"){$title = "Domain";}else if($inttype=="1"){$title = $name;}else if($inttype=="2"){$title = "Dungeon";}else if($inttype=="3"){$title = "Castle";}else if($inttype=="4"){$title = "Ruins";}else if($inttype=="5"){$title = "Animal reserve";}else if($inttype=="6"){$title = "Resource mountain";}else if($inttype=="7"){$title = "Amusement place";}
+$name1pos = strpos($interest,"&2&");
+$name1 = substr($interest, 0, $name1pos);
+$name2pos = strpos($name1,"&1&");
+$name2 = strlen($name1);
+$name = substr($name1, $name2pos+3);if($inttype=="D"){$title = "Domain";
+}else if($inttype=="1"){$title = $name;
+}else if($inttype=="2"){$title = "Dungeon";
+}else if($inttype=="3"){$title = "Castle";
+}else if($inttype=="4"){$title = "Ruins";
+}else if($inttype=="5"){$title = "Animal reserve";
+}else if($inttype=="6"){$title = "Resource mountain";
+}else if($inttype=="7"){$title = "Amusement place";}
 $var1pos = strpos($interest,"&3&");$var1 = substr($interest, 0, $var1pos);$var2pos = strpos($var1,"&2&");$var2 = strlen($var1);$var = substr($var1, $var2pos+3);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Titles and general infos
@@ -52,7 +62,7 @@ $var1pos = strpos($interest,"&3&");$var1 = substr($interest, 0, $var1pos);$var2p
 
 <center><font=Bell MT><font size=4><font bold=True><font color=#66CCFF><u><?php echo "$title" ?> informations</u></center>
 
-<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="interests.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">actualise</a></u> - <u><a href="galaxy.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">back to map</a></u></p>
+<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="interests.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">update</a></u> - <u><a href="galaxy.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">back to map</a></u></p>
 
 
 <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse" bordercolor="#404040" width="100%">
@@ -177,8 +187,9 @@ if($var8b>2)
 
 <?php
 $mail = $planet."&".$area."&Mailbox";
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$mail'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$mail'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
+$result = @ implode($result);
 
 if(($result=="")||($result=="0")){ ?> <font=Bell MT><font size=4><font bold=True><font color=#66CCFF>Mailbox : <font color=#FFC800>empty</font> <?php }
 else{ ?> <font=Bell MT><font size=4><font bold=True><font color=#66CCFF>Mailbox : <font color=#00FF00>mail</font> <?php }
@@ -234,16 +245,18 @@ else if($inttype=="1")
 <?php
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 $saletot = $planet."&".$area."&SaleShopTot";
-$saletot = mysql_query("SELECT val FROM pwdata WHERE name='$saletot'") or die(mysql_error());
-$saletot = @ mysql_result($saletot,0);
+$saletot = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$saletot'") or die(mysql_error());
+$saletot = mysqli_fetch_assoc($saletot);
 $saletot = str_replace("~","'" , $saletot);
+$saletot = @ implode($saletot);
 $ittot = 0;
 
 while($saletot>0)
   {
 $sale = $planet."&".$area."&SaleShop".$saletot;
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$sale'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$sale'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
+$result = implode($result);
 $result = str_replace("~","'" , $result);
 $Var = substr($result,-4,3);if($Var<10){$Var = substr($Var, -1);}else if($Var<100){$Var = substr($Var, -2);}
 //
@@ -321,18 +334,20 @@ $iT++;
 <?php
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 $board = $planet."&DHBoardTot";
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$board'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$board'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
 $result = str_replace("~","'" , $result);
+$result = @ implode($result);
 $messagenumbers = $result;
 
 while($messagenumbers>0)
   {
 
 $All = $planet."&DHBoard".$messagenumbers;
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$All'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$All'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
 $result = str_replace("~","'" , $result);
+$result = @ implode($result);
 $All = $result;
 
 $author1pos = strpos($All,"_A_");$author = substr($All, 0, $author1pos);
@@ -345,17 +360,19 @@ $messagenumbers--;
   }
 
 $board = $planet."&".$area."&BoardTot";
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$board'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$board'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
 $result = str_replace("~","'" , $result);
+$result = @ implode($result);
 $messagenumbers = $result;
 
 while($messagenumbers>0)
   {
 $All = $planet."&".$area."&Board".$messagenumbers;
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$All'") or die(mysql_error());
-$result = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$All'") or die(mysql_error());
+$result = mysqli_fetch_assoc($result);
 $result = str_replace("~","'" , $result);
+$result = @ implode($result);
 $All = $result;
 
 $author1pos = strpos($All,"_A_");$author = substr($All, 0, $author1pos);
@@ -409,15 +426,17 @@ $dungeonfamily1pos = strpos($dungeon,"_D_");$dungeonfamily1 = substr($dungeon, 0
 $dungeonfull1pos = strpos($dungeon,"_E_");$dungeonfull1 = substr($dungeon, 0, $dungeonfull1pos);$dungeonfull2pos = strpos($dungeonfull1,"_D_");$dungeonfull2 = strlen($dungeonfull1);$dungeonfull = substr($dungeonfull1, $dungeonfull2pos+3);
 
 $dungeonfullTot = "Dungeons";
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$dungeonfullTot'") or die(mysql_error());
-$dungeonfullTot = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$dungeonfullTot'") or die(mysql_error());
+$dungeonfullTot = mysqli_fetch_assoc($result);
+$dungeonfullTot = @ implode($dungeonfullTot);
 $count = 0;$check = 0;
 
 while($dungeonfullTot>0)
  {
 $dungeonfullAct = "Dungeons".$dungeonfullTot;
-$result = mysql_query("SELECT val FROM pwdata WHERE name='$dungeonfullAct'") or die(mysql_error());
-$dungeonfullAct = @ mysql_result($result,0);
+$result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$dungeonfullAct'") or die(mysql_error());
+$dungeonfullAct = mysqli_fetch_assoc($result);
+$dungeonfullAct = @ implode($dungeonfullAct);
 
 $dungeonplanet1pos = strpos($dungeonfullAct,"_A_");$dungeonplanet = substr($dungeonfullAct, 0, $dungeonplanet1pos);
 $dungeonarea1pos = strpos($dungeonfullAct,"_B_");$dungeonarea1 = substr($dungeonfullAct, 0, $dungeonarea1pos);$dungeonarea2pos = strpos($dungeonarea1,"_A_");$dungeonarea2 = strlen($dungeonarea1);$dungeonarea = substr($dungeonarea1, $dungeonarea2pos+3);
@@ -504,14 +523,14 @@ else { ?> <font=Bell MT><font size=4><font bold=True><font color=#66CCFF>Pen <?p
 
 
 
-<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="interests.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">actualise</a></u> - <u><a href="galaxy.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">back to map</a></u></p>
+<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="interests.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">update</a></u> - <u><a href="galaxy.php?planet=<?php echo "$planet" ?>&area=<?php echo "$area" ?>&login=<?php echo "$login" ?>&galaxyx=<?php echo "$galaxyx" ?>&galaxyy=<?php echo "$galaxyy" ?> ">back to map</a></u></p>
 
 <br/>
 
 <?php
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Disconnect from the server
-mysql_close($link);
+mysqli_close($link);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ?>
