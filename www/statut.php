@@ -29,11 +29,10 @@ error_reporting(E_ALL);
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connect to the MySQL server on XAMPP
 include("uoa.php");
-$link = mysqli_connect("$host:$port", $user, $pass, $data)
+@ $link = mysqli_connect("$host:$port", $user, $pass, $data)
 // if no connection
-or die ("service offline");
+or die("<a4><size=0> All services <font face=Arial color=#FF0000 size=3>OFFLINE" . PHP_EOL . "<a4><font face=Arial color=#FFFFFF size=1> __________________" . PHP_EOL . "Please contact" . PHP_EOL . "<a4><font face=Arial color=#00E600 size=1> Qlippoth" . PHP_EOL . "@Speakeasy.net</a4>\n");
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,14 +50,14 @@ $arrContextOptions=array(
 );  
 // Need to add check and message when server is NOT running, which is the point
 // 1. Server not running, 2. MySQL not running, 3. 404 on URL
-$me = file_get_contents("https://api.nwn.beamdog.net/v1/servers/9EGU9XH+hrXUJlfoKjKt+VfpOjBzY58QkC1lQiy0M2U=", false, stream_context_create($arrContextOptions));
+@ $me = file_get_contents("https://api.nwn.beamdog.net/v1/servers/e8JvAQaON879m59+G5Nln+iIku8bwW8H7QiH0qKrITQ=", false, stream_context_create($arrContextOptions));
 $jsonreceived = 'current_players';
-$player_count = json_decode($me)->{'current_players'};
+@ $player_count = json_decode($me)->{'current_players'};
 //
 //
 if($me==NULL)
  {
-print("<a4><font face=Arial color=#FF0000 size=2>Offline</a4>\n");
+print("<a4><font face=Arial color=#FF0000 size=2>NWN Server is <font face=Arial color=#FF0000 size=3>OFFLINE</a4>" . PHP_EOL . "<a4><font face=Arial color=#FFFFFF size=1> Please contact" . PHP_EOL . "<a4><font face=Arial color=#00E600 size=1> Qlippoth" . PHP_EOL . "@Speakeasy.net</a4>");
  } 
 else
 { 

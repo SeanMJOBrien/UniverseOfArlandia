@@ -24,9 +24,9 @@ error_reporting(E_ALL);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connect to the MySQL server on Wamp
 include("uoa.php");
-$link = mysqli_connect ("$host:$port", $user, $pass, $data)
-// if no connexion
-or die ("service offline");
+@ $link = mysqli_connect("$host:$port", $user, $pass, $data)
+// if no connection
+or die("<a4><size=0> Database is <font face=Arial color=#FF0000 size=3>OFFLINE" . PHP_EOL . "<a4><font face=Arial color=#FFFFFF size=1> __________________" . PHP_EOL . "Please contact" . PHP_EOL . "<a4><font face=Arial color=#00E600 size=1> Qlippoth" . PHP_EOL . "@Speakeasy.net</a4>\n");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Planet + Area

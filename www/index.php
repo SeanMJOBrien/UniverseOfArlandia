@@ -37,7 +37,8 @@ error_reporting(E_ALL);
 include("uoa.php");
 $link = @ mysqli_connect("$host:3306", $user, $pass, $data)
 // if no connexion
-or die ("service offline");
+or ("Failed to connect to MySQL: ")
+ 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ?>
 
@@ -69,24 +70,17 @@ or die ("service offline");
 <br>
 
 <b><font face="Arial" color="#66CCFF" size="2"><u>
-      Server statut</u> :</font></b><p><b><font face="Arial" size="2">
+      Server status</u> :</font></b><p><b><font face="Arial" size="2">
 
-<iframe name="Statut" marginwidth="1" marginheight="1" height="90" width="100%" scrolling="no" align="absmiddle" border="0" frameborder="1" src="statut.php"></iframe>
+<iframe name="Status" marginwidth="1" marginheight="1" height="90" width="100%" scrolling="no" align="absmiddle" border="0" frameborder="1" src="statut.php"></iframe>
 
 </p>
 
-      <b><font face="Arial" color="#66CCFF" size="2"> <u>Connexion</u> :</font>
+      <b><font face="Arial" color="#66CCFF" size="2"> <u>Connection</u> :</font>
       <br><br>
-
-      <font face="Arial" color="#b9b9c8" size="2">
-      <a style="text-decoration: none" target="UOA_Frame" href="uoa.nwl">Direct connect</a><br>
-      <a style="text-decoration: none" target="UOA_Frame" href="nwlaunch-setup-0.1.1.exe">Install launcher</a><br>
-      <br>
 	  
       <font face="Arial" color="#FFFFFF" size="1">Direct IP :<br>
-      <font face="Arial" color="#00E600" size="1">uoa.no-ip.org<br>
-      <font face="Arial" color="#FFFFFF" size="1">Gamespy :<br>
-      <font face="Arial" color="#00E600" size="1">PW Story<br>
+      <font face="Arial" color="#00E600" size="1">uoanwn.homeip.net<br>
       </font></b>
 
       <br>
@@ -166,9 +160,9 @@ else
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Galaxies & planets menu
 $galaxy = "Galaxy";
-$result = mysqli_query($link,"SELECT val FROM pwdata WHERE name='$galaxy'") or die(mysql_error($link));
-$galaxies = @ mysqli_fetch_assoc($result);
-$galaxies = implode($galaxies);
+@ $result = mysqli_query($link,"SELECT val FROM pwdata WHERE name='$galaxy'") or die();
+$galaxies = mysqli_fetch_assoc($result);
+$galaxies = @ implode($galaxies);
 $galaxytot = substr($galaxies, strlen($galaxies)-4, 3);
 $t1 = 0;
 ?>
