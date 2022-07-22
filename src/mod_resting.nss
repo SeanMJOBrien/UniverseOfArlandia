@@ -100,10 +100,11 @@ if((GetStringLeft(GetTag(oArea),3)=="gaz")&&(GetLocalInt(oPC,"Flying")==1)){Appl
 // Misc
 SetCreatureWingType(CREATURE_WING_TYPE_NONE,oPC);
 ////////////////////////////////////////////////////////////////////////////////
-// Forbid spells
+// Forbid spells - Qlippoth has forbidden the forbidding
 n=10;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_CONTINUAL_FLAME);n--;}
+/*
 n=10;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_DARKFIRE);n--;}
-n=10;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_FLAME_WEAPON);n--;}
+n=10;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_FLAME_WEAPON);n--;}*/
 ////////////////////////////////////////////////////////////////////////////////
 // First
 int a = 16;int b;if(GetLocalInt(oGoldbag,"Uoabook"+IntToString(a))!=1){SetLocalInt(oGoldbag,"Uoabook"+IntToString(a),1);while(b<iUOAreferences){b++;SetLocalInt(oPC,"ChoiceDone"+IntToString(b),1);}DeleteLocalInt(oPC,"ChoiceDone"+IntToString(a));DelayCommand(2.0,AssignCommand(oPC,ActionStartConversation(oPC,"uoa",TRUE,FALSE)));}

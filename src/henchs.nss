@@ -487,18 +487,17 @@ SetLocalInt(oPC,"Mounted",1);
 // Hench takes melee weapon
 else if(iHenchAction==11)
  {
-AssignCommand(oHench,ActionUnequipItem(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,oHench)));
-AssignCommand(oHench,ActionUnequipItem(GetItemInSlot(INVENTORY_SLOT_RIGHTHAND,oHench)));
+AssignCommand(oHench,ActionEquipMostEffectiveArmor());
 AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_ASHLW001"),INVENTORY_SLOT_LEFTHAND));
-AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_WSWLS001"),INVENTORY_SLOT_RIGHTHAND));
+AssignCommand(oHench,ActionEquipMostDamagingMelee());
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Hench takes range weapon
 else if(iHenchAction==12)
  {
-AssignCommand(oHench,ActionUnequipItem(GetItemInSlot(INVENTORY_SLOT_LEFTHAND,oHench)));
-AssignCommand(oHench,ActionUnequipItem(GetItemInSlot(INVENTORY_SLOT_RIGHTHAND,oHench)));
-AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_WBWLN001"),INVENTORY_SLOT_RIGHTHAND));
+AssignCommand(oHench,ActionEquipMostEffectiveArmor());
+AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_ASHLW001"),INVENTORY_SLOT_LEFTHAND));
+AssignCommand(oHench, ActionEquipMostDamagingRanged());
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Henchs casern save
