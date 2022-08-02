@@ -496,7 +496,7 @@ AssignCommand(oHench,ActionEquipMostDamagingMelee());
 else if(iHenchAction==12)
  {
 AssignCommand(oHench,ActionEquipMostEffectiveArmor());
-AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_ASHLW001"),INVENTORY_SLOT_LEFTHAND));
+//AssignCommand(oHench,ActionEquipItem(GetItemPossessedBy(oHench,"NW_ASHLW001"),INVENTORY_SLOT_LEFTHAND));
 AssignCommand(oHench, ActionEquipMostDamagingRanged());
  }
 ////////////////////////////////////////////////////////////////////////////////
