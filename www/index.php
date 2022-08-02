@@ -47,9 +47,9 @@ or ("Failed to connect to MySQL: ")
   <center>
   <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" height="100%" background="UOA_BG.jpg">
     <tr>
-      <td width="12%" align="center" height="20%">
+      <td width="12%" align="center" height="60px">
       &nbsp;</td>
-      <td width="76%" align="center" height="20%">
+      <td width="76%" align="center" height="60px">
       
 	  <br>
 		<font face="Arial" color="#82AAFF" size="9"><b><i>The Universe of Arlandia</i></b></font>
@@ -58,7 +58,7 @@ or ("Failed to connect to MySQL: ")
 	  <br>
 	  <br>  
 	  
-      <td width="12%" align="center" height="20%">
+      <td width="12%" align="center" height="60px">
       &nbsp;</td>
     </tr>
     <tr>
