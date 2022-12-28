@@ -1,4 +1,4 @@
-You can email me at qlippoth@speakeasy.net
+You can email me at SeanMJOBrien@gmail.com
 
 # UniverseOfArlandia
 The Module: (Universe of Arlandia by TheRack)
@@ -6,9 +6,7 @@ Check out the currently live website at http://qlippoth.dyndns.org
 (click right sidebar for maps of other worlds (which I haven't explored yet, so might not be much to see)
 - Web map of explored areas of one world: http://qlippoth.dyndns.org/galaxy.php?planet=Arland
 - Hak files required for Linux server (ALL lowercase! You can also use these for the client side):
-     http://142.47.99.185/uoa/UOAlowercaseHaks4Linux.7z
-
-THIS IS NOW STATIC! - old website: http://142.47.88.45/
+     http://45.62.217.211/uoa/UOAlowercaseHaks4Linux.7z
 
 A more stable server is running as Universe of Arlandia.
 You'll need the haks first, and the password to play is "us".
