@@ -18,9 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Connect to the MySQL server on Wamp
 include("uoa.php");
-@ $link = mysqli_connect ("$host:$port", $user, $pass, $data)
+$link = @ mysqli_connect ("$host:$port", $user, $pass, $data)
 // if no connexion
-or die ("<a4><font face=Arial color=#FF0000 size=5>ALL Services OFFLINE" . PHP_EOL . "<a4><font face=Arial color=#FFFFFF size=5> Please contact" . PHP_EOL . "<a4><font face=Arial color=#00E600 size=5> Qlippoth@Speakeasy.net</a4>\n");
+or die ("service offline");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Planet name
 $galaxyx = @ $_GET['galaxyx'];if($galaxyx==""){$galaxyx = 0;}
@@ -42,7 +42,7 @@ $tiletype = substr($tiletype1, $tiletype2pos+5);
 if($planet=="infos")
  {
 ?>
-<br><p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="galaxy.php?planet=<?php echo "$planet" ?> ">update</a></u></p>
+<br><p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="galaxy.php?planet=<?php echo "$planet" ?> ">actualise</a></u></p>
 
 <table border="0" cellpadding="5" cellspacing="0" style="border-collapse: collapse" bordercolor="#FFFFFF" width="100%">
   <tr>
@@ -58,7 +58,7 @@ if($planet=="infos")
 $reboot = "Reboot";
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$reboot'")or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 
 if($result=="")
   {
@@ -102,11 +102,10 @@ $players = mysqli_fetch_assoc($result);
 
 while($players>0)
   {
-$players = @ implode($players);
+$players = implode($players);
 $player = "Player".$players;
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$player'")or die(mysql_error());
 $player = mysqli_fetch_array($result);
-$player = @ implode($player);
 
 $var11pos = strpos($player,"&1&");$var1 = substr($player, 0, $var11pos);$var1 = str_replace("~","'",$var1);
 $var21pos = strpos($player,"&2&");$var21 = substr($player, 0, $var21pos);$var22pos = strpos($var21,"&1&");$var22 = strlen($var21);$var2 = substr($var21, $var22pos+3);$var2 = str_replace("~","'",$var2);
@@ -134,7 +133,7 @@ $players--;
 
 </table>
 
-<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="galaxy.php?planet=<?php echo "$planet" ?> ">update</a></u></p><br>
+<p align=right><font=Bell MT><font size=2><font bold=True><font color=#FFFFFF><u><a href="galaxy.php?planet=<?php echo "$planet" ?> ">actualise</a></u></p><br>
 <?php
  }
 
@@ -181,7 +180,7 @@ $size = 30;
 $system = $system."SystemCenter";
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$system'")or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 
 $systempos = strpos($result,"_");
 $systemx = substr($result, 0, $systempos);
@@ -224,7 +223,7 @@ else
  {
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$planet'")or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 $size1pos = strpos($result,"&002&");$size1 = substr($result, 0, $size1pos);$size2pos = strpos($size1,"&001&");$size2 = strlen($size1);$size = substr($size1, $size2pos+5);
  }
 $Y = $size/2+1;
@@ -248,7 +247,7 @@ if($planet!="Space"){
 <?php
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$planet'") or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 $descr1pos = strpos($result,"&010&");$descr1 = substr($result, 0, $descr1pos);$descr2pos = strpos($descr1,"&009&");$descr2 = strlen($descr1);$descr = substr($descr1, $descr2pos+5);
 $descr = str_replace("~","'",$descr);
 if(($descr=="")||($descr=="0")){$descr = "no description";}
@@ -277,7 +276,7 @@ if(($descr=="")||($descr=="0")){$descr = "no description";}
 // Planet Position and Level
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$planet'") or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 $position1pos = strpos($result,"&001&");$position = substr($result, 0, $position1pos);
 $level1pos = strpos($result,"&009&");$level1 = substr($result, 0, $level1pos);$level2pos = strpos($level1,"&008&");$level2 = strlen($level1);$level = substr($level1, $level2pos+5);if(($level=="")||($level==0)){$level = "unknown";}
 ?>
@@ -307,7 +306,7 @@ $level1pos = strpos($result,"&009&");$level1 = substr($result, 0, $level1pos);$l
 // Day/Night
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='Calendar'") or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 $time1pos = strpos($result,"/C4/");$time1 = substr($result, 0, $time1pos);$time2pos = strpos($time1,"/C3/");$time2 = strlen($time1);$time = substr($time1, $time2pos+4);
 
      if(($time>=8)&&($time<=20)){echo "<img src=time_day.gif    alt=Day />";}
@@ -324,7 +323,7 @@ else				{echo "<img src=time_night.gif  alt=Night />";}
 
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$planet'") or die(mysql_error());
 $result = mysqli_fetch_assoc($result);
-$result = @ implode($result);
+$result = implode($result);
 $weather1pos = strpos($result,"&011&");$weather1 = substr($result, 0, $weather1pos);$weather2pos = strpos($weather1,"&010&");$weather2 = strlen($weather1);$weather = substr($weather1, $weather2pos+5);
 
      if($weather=="0") {echo "<img src=weather_clear.gif  alt=Clear />";}
@@ -448,7 +447,9 @@ $area = str_replace("-", "m", $area);
 $interests = $planet."&".$area."&Interests";
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$interests'") or die(mysql_error());
 $interests = mysqli_fetch_assoc($result);
-$interests = @implode($interests);
+//var_dump($result);
+@ $interests = implode([$interests]);
+//var_dump($interests);
 
 // Interest
 $interest1pos = strpos($interests,"&1&");$interest = substr($interests, 0, $interest1pos);
@@ -471,8 +472,8 @@ $planetshow = "Space".$area;
 $planetshow = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$planetshow'") or die(mysql_error());
 $planetshow = mysqli_fetch_assoc($planetshow);
 //$planetshow = implode($planetshow);
-$planetshow1pos = @ strpos(implode($planetshow),"&005&");
-$planetshow1 = @ substr(implode($planetshow), 0, $planetshow1pos);
+@ $planetshow1pos = strpos(implode([$planetshow] ),"&005&");
+@ $planetshow1 = substr(implode([$planetshow]), 0, $planetshow1pos);
 $planetshow2pos = strpos($planetshow1,"&004&");
 $planetshow2 = strlen($planetshow1);
 $planetshow1 = substr($planetshow1, $planetshow2pos+5);

@@ -39,7 +39,7 @@ $interests = $planet."&".$area."&Interests";
 // Other variables
 $result = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$interests'") or die(mysql_error());
 $interest = mysqli_fetch_assoc($result);
-$interest = str_replace("~","'" , $interest);
+@ $interest = str_replace("~","'" , [$interest]);
 $interest = @ implode($interest);
 // Name
 $inttype = substr($interest, 0, 1);
@@ -247,7 +247,7 @@ else if($inttype=="1")
 $saletot = $planet."&".$area."&SaleShopTot";
 $saletot = mysqli_query($link, "SELECT val FROM pwdata WHERE name='$saletot'") or die(mysql_error());
 $saletot = mysqli_fetch_assoc($saletot);
-$saletot = str_replace("~","'" , $saletot);
+$saletot = str_replace("~","'" , [$saletot]);
 $saletot = @ implode($saletot);
 $ittot = 0;
 
@@ -282,7 +282,7 @@ $saletot--;
   }
 //
 
-@ sort($Array);
+sort([$Array]);
 
 //
 $iT = 0;
