@@ -71,7 +71,7 @@ I've done my best to work out all of the kinks, moving it from the old NWNX to N
 I plan to do more in the future, but my time is very limited, and my skills even moreso.
 
 Apache is not required, but the web map and some other info is only available through
-Apache and PHP 7.
+Apache and PHP 7 (now 8, woth a lot of performace nehancements).
 
 The original author (Entirely by TheRack) released it to me years ago to do wiht as
 I please, and it has been a fun learning exercise, but real life (Covid) and work leave
