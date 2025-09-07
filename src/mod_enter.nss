@@ -111,11 +111,11 @@ else if((iRace==11)&&(iLevel>=20)&&(GetAppearanceType(oPC)!=APPEARANCE_TYPE_OGRE
 else if((iRace==12)&&(iLevel>=20)&&(GetAppearanceType(oPC)!=APPEARANCE_TYPE_ORC_CHIEFTAIN_A)){SetCreatureAppearanceType(oPC,APPEARANCE_TYPE_ORC_CHIEFTAIN_A);}
 else if((iRace==13)&&(iLevel>=20)&&(GetAppearanceType(oPC)!=APPEARANCE_TYPE_TROLL_CHIEFTAIN)){SetCreatureAppearanceType(oPC,APPEARANCE_TYPE_TROLL_CHIEFTAIN);}
 else if((iRace==14)||(iRace==15)){SetCreatureAppearanceType(oPC,iAppOrig-1);}
-// Forbid spell continual flame & darkfire
+// Forbid spell continual flame & darkfire - Qlippoth: Cont Flame is a gold exploit
 n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_CONTINUAL_FLAME);n--;}
-n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_DARKFIRE);n--;}
-n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_FLAME_WEAPON);n--;}
-n=2; while(n>0){DecrementRemainingFeatUses(oPC,FEAT_PALADIN_SUMMON_MOUNT);n--;}
+//n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_DARKFIRE);n--;}
+//n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_FLAME_WEAPON);n--;}
+n=2; while(n>0){DecrementRemainingFeatUses(oPC,FEAT_PALADIN_SUMMON_MOUNT);n--;} //Mounbt might not work right, need to test
 // Automatic talents for classes
 if((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)&&(GetLocalInt(oGoldbag,"Cartographer")==0)){SetLocalInt(oGoldbag,"Cartographer",1);}
 if((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)&&(GetLocalInt(oGoldbag,"Leader")==0)){SetLocalInt(oGoldbag,"Leader",1);}

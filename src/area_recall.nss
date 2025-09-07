@@ -266,6 +266,8 @@ object oPlacard4 = GetLocalObject(OBJECT_SELF,"placard4");SetName(oPlacard4,sAre
 if((iReady!=1)&&((GetStringLeft(GetTag(OBJECT_SELF),6)=="tavern")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="townhall")))
  {
 oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench001",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
+oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench010",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
+oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench020",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Place objects
