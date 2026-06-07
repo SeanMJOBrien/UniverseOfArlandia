@@ -1,0 +1,338 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 5
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "CRP Store Template"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpm_generic_mer"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6789
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Alchemist"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store005"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Animals"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store011"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Architect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store016"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Armors"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store003"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Bank"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store010"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Blacksmith"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store012"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Castle"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "storecastle"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Clothes"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store008"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store General"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Inn"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store014"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Jeweler"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store006"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Library"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store009"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Magic"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store004"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Mountain"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "storemountain"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Players"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store000"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Rogues"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store007"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Tavern"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store013"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Temple"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store015"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Tower"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "storetower"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Trainer"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store017"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Store Weapons"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "store002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      }
+    ]
+  }
+}

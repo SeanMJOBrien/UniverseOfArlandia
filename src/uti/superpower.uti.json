@@ -1,0 +1,113 @@
+{
+  "__data_type": "UTI ",
+  "AddCost": {
+    "type": "dword",
+    "value": 0
+  },
+  "BaseItem": {
+    "type": "int",
+    "value": 24
+  },
+  "Charges": {
+    "type": "byte",
+    "value": 0
+  },
+  "Comment": {
+    "type": "cexostring",
+    "value": ""
+  },
+  "Cost": {
+    "type": "dword",
+    "value": 0
+  },
+  "Cursed": {
+    "type": "byte",
+    "value": 1
+  },
+  "DescIdentified": {
+    "type": "cexolocstring",
+    "value": {
+      "0": "The Super Power item can be activated to enhance the character. Use it on yourself to configure it and on the ground to activate it.\n\n\nPowers list :\n\n- level 1 : strength +0\n            dexterity : +0\n            constitution : +2\n            intelligence +0\n            wisdom : +2\n            charisma +2\n- level 2 : strength +0\n            dexterity : +2\n            constitution : +4\n            intelligence +2\n            wisdom : +4\n            charisma +4\n- level 3 : strength +2\n            dexterity : +4\n            constitution : +6\n            intelligence +4\n            wisdom : +6\n            charisma +6\n- level 4 : strength +4\n            dexterity : +6\n            constitution : +8\n            intelligence +6\n            wisdom : +8\n            charisma +8\n- level 5 : strength +6\n            dexterity : +8\n            constitution : +10\n            intelligence +8\n            wisdom : +10\n            charisma +10\n\n\nEach activation costs 100 xps."
+    }
+  },
+  "Description": {
+    "type": "cexolocstring",
+    "value": {
+      "0": "The Super Power item can be activated to enhance the character. Use it on yourself to configure it and on the ground to activate it.\n\n\nPowers list :\n\n- level 1 : strength +0\n            dexterity : +0\n            constitution : +2\n            intelligence +0\n            wisdom : +2\n            charisma +2\n- level 2 : strength +0\n            dexterity : +2\n            constitution : +4\n            intelligence +2\n            wisdom : +4\n            charisma +4\n- level 3 : strength +2\n            dexterity : +4\n            constitution : +6\n            intelligence +4\n            wisdom : +6\n            charisma +6\n- level 4 : strength +4\n            dexterity : +6\n            constitution : +8\n            intelligence +6\n            wisdom : +8\n            charisma +8\n- level 5 : strength +6\n            dexterity : +8\n            constitution : +10\n            intelligence +8\n            wisdom : +10\n            charisma +10\n\n\nEach activation costs 100 xps."
+    }
+  },
+  "Identified": {
+    "type": "byte",
+    "value": 1
+  },
+  "LocalizedName": {
+    "type": "cexolocstring",
+    "value": {
+      "0": "Super Power"
+    }
+  },
+  "ModelPart1": {
+    "type": "byte",
+    "value": 121
+  },
+  "PaletteID": {
+    "type": "byte",
+    "value": 2
+  },
+  "Plot": {
+    "type": "byte",
+    "value": 1
+  },
+  "PropertiesList": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "ChanceAppear": {
+          "type": "byte",
+          "value": 100
+        },
+        "CostTable": {
+          "type": "byte",
+          "value": 3
+        },
+        "CostValue": {
+          "type": "word",
+          "value": 8
+        },
+        "Param1": {
+          "type": "byte",
+          "value": 255
+        },
+        "Param1Value": {
+          "type": "byte",
+          "value": 0
+        },
+        "PropertyName": {
+          "type": "word",
+          "value": 15
+        },
+        "Subtype": {
+          "type": "word",
+          "value": 329
+        }
+      }
+    ]
+  },
+  "StackSize": {
+    "type": "word",
+    "value": 1
+  },
+  "Stolen": {
+    "type": "byte",
+    "value": 0
+  },
+  "Tag": {
+    "type": "cexostring",
+    "value": "superpower"
+  },
+  "TemplateResRef": {
+    "type": "resref",
+    "value": "superpower"
+  }
+}

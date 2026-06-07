@@ -1,0 +1,490 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 5
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 1082
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 6
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Allowed Resting Trigger"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_allow_rest"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Description Message"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_play_msg"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Listening Trigger"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_listen"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Toggle Player Jumping"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_no_jumping"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6790
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 16
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Dwarven Stonework Detector"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_dwf_autosrc"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Elven Automatic Search Check"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpt_elf_autosrc"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 9129
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Area Transition"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "trig_transitions"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Baths"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "trig_baths"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Encounters"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "trig_encounters"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Transition"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "trig_transiti001"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      },
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 11
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Deep Pit Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pittraprug001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Falling Brick Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "fallingbricktrap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pit Trap - Easy"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crpt_pittrap01"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Razor Wire Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "razorwiretrap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rolling Rock Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rollingrocktrap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Rug Pit Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pittraprug"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Swinging Blade Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rollingrocktr001"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Swinging Rock Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "rollingrocktr002"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 53181
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 12
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Flood Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "floodtrap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pit Trap - Average"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crpt_pittrap02"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Wall Blade Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wallbladetrap"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Whirling Blade Trap"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "whirlingbladetra"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 2255
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 13
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pit Trap - Strong"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crpt_pittrap03"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 2256
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 14
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pit Trap - Deadly"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crpt_pittrap04"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 2257
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 15
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pit Trap - Fatal"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "crpt_pittrap05"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 53182
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 5563
+        }
+      }
+    ]
+  }
+}

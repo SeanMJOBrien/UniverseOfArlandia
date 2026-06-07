@@ -1,0 +1,14 @@
+{
+  "name": "uoa-browser-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report test-results/report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "__data_type": "JRL ",
+  "Categories": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 0
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "All the missions you take can be seen by activating the UOA book. Then choose the \"missions\" category."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Missions"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 1
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "Missions"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 1,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "Welcome to the Universe of Arlandia.\n\nNormally you should find here some rules on how to play in this world. We will not bother you with rules now because you have a huge world to discover. Just use the PvP behaviour rules you find on every server. By playing in the world of UOA you will learn by yourself how to manage the players like a good DM.\n\nHowever here is a small description about the items you have received the first time you entered this world :\n\n- Analyser : This item lets you analyse some details of creatures or items.\n\n- DMFI One Ring : This ring is your secondary tool which let you make a lot of things including effects, sounds, PC or NPC changes, etc. Note that some options are also available in the UOA DM Tool, so they are better linked to this world.\n\n- Goldbag : The goldbag hold some local variables.\n\n- UOA : This FAQ (Frequently Asked Questions) book will give you any information (or rules) you need to play. So use it at any time when you need some rules or explanations about something. It will be updated regularly. Activate it to open  it.\n\n- DM Tool : This is your main DM tool. It lets you control a lot of aspects of the game and the world. Activate it either on the ground or on a PC / NPC and you will get a lot of options to control.\n\nFor more information visit our website : http://www.simtotal.com/uoa\n\nTheRack, builder, scripter and conceptor of UOA."
+                }
+              }
+            },
+            {
+              "__struct_id": 1,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 2
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "Welcome to the Universe of Arlandia.\n\nNormally you should find here some rules on how to play in this world. We will not bother you with rules now because you have a huge world to discover. Just use the PvP behaviour rules you find on every server. By playing in the world of UOA you will learn by yourself how to survive alone or with friends.\n\nHowever here is a small description about the items you have received the first time you entered this world :\n\n- Analyser : This item lets you analyse some details of creatures or items.\n\n- Goldbag : The goldbag hold your gold and all the server and local variables, too. It has the appropriate weight related to the money contained inside.\n\n- Help : If you get stucked somewhere, this item can try to unstuck you be teleporting you a few meters in front of where you're facing.\n\n- UOA : This FAQ (Frequently Asked Questions) book will give you any information (or rules) you need to play. So use it at any time when you need some rules or explanations about something. It will be updated regularly. Activate it to open  it.\n\n- PC Autofollow Widget : When you activate it on another player or NPC you will automatically follow your target without doing anything.\n\n- PC Dicebag : This item let you make dice runs. Useful for some role-playing situations.\n\n- PC Emote Wand : This item gives additionnal emotes to activate.\n\n- [Race] : This item, named like your class, gives you the possibility to speak in your racial language without the initial game language bug. Activate it once when you arrive on the server and then use this gramatic each time you want to speak in your language (will not work for humans as they already speak in their language) : /dm [text]\n\nFor more information visit our website : http://www.simtotal.com/uoa\n\nTheRack, builder, scripter and conceptor of UOA."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "UOA Rules"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 0
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "UOA Rules"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
+      }
+    ]
+  }
+}
