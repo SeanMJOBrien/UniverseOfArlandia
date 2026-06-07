@@ -1,0 +1,316 @@
+{
+  "__data_type": "ITP ",
+  "MAIN": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 0
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6688
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 1
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6689
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 2
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Airship/Starship"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_airstarship"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Bank"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_bank"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Blacksmith"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_blacksmith"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin City Doors"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_citydoors"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin General Shop"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_generalshop"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Inn"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_inn"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Player Shop"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_playershop"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Plotgiver"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_plotgiver"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Sewers"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_sewers"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Special Shop"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_specialshop"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Tavern"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_tavern"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Temple"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_temple"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Pin Town Hall"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pin_townhall"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "WP Chest"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wp_chest"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "WP Encounters"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wp_encounters"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "WP Ruins"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "wp_ruins"
+                    }
+                  }
+                ]
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6690
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 3
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6691
+              }
+            },
+            {
+              "__struct_id": 0,
+              "ID": {
+                "type": "byte",
+                "value": 4
+              },
+              "STRREF": {
+                "type": "dword",
+                "value": 6692
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6687
+        }
+      },
+      {
+        "__struct_id": 0,
+        "ID": {
+          "type": "byte",
+          "value": 5
+        },
+        "LIST": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Default Respawn Location"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpw_respawn"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Hidden Object Marker"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpw_hidden_obj"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Rally Point"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpw_rallypoint"
+              }
+            },
+            {
+              "__struct_id": 0,
+              "NAME": {
+                "type": "cexostring",
+                "value": "Sound Waypoint"
+              },
+              "RESREF": {
+                "type": "resref",
+                "value": "crpw_soundemit"
+              }
+            }
+          ]
+        },
+        "STRREF": {
+          "type": "dword",
+          "value": 6798
+        }
+      }
+    ]
+  }
+}
