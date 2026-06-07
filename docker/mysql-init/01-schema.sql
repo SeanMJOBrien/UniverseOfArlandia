@@ -1,0 +1,6 @@
+USE uoa;
+CREATE TABLE IF NOT EXISTS pwdata (
+    name VARCHAR(255) NOT NULL,
+    val  TEXT,
+    PRIMARY KEY (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

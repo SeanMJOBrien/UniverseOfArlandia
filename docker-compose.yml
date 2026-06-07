@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: uoa
+      MYSQL_USER: uoa
+      MYSQL_PASSWORD: ${DB_PASS:-uoa}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    ports:
+      - "3307:3306"
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_USER: uoa
+      DB_PASS: ${DB_PASS:-uoa}
+      DB_NAME: uoa
+      NWN_PORT: "5121"
+      DM_PASSWORD: ${DM_PASSWORD:-dmpassword}
+      CHROME_BINARY: /usr/bin/chromium
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/www/node_modules
+      - ${HOME}/.claude/.credentials.json:/root/.claude/.credentials.json:ro
+    ports:
+      - "88:80"
+    working_dir: /var/www/html
+
+volumes:
+  db_data:

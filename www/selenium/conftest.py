@@ -38,7 +38,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 PORT             = int(os.environ.get("SELENIUM_PORT", "8766"))
 BASE_URL         = f"http://localhost:{PORT}"
 SITE_ROOT        = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-CHROME_BINARY    = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+CHROME_BINARY    = os.environ.get("CHROME_BINARY", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome")
 SCREENSHOTS_DIR  = os.path.join(os.path.dirname(__file__), "screenshots")
 REPORT_DIR       = os.path.join(os.path.dirname(__file__), "report")
 
