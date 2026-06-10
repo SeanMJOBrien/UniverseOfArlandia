@@ -3,7 +3,7 @@ FROM php:8.4-apache
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libxml2-dev libonig-dev curl ca-certificates gnupg \
+    libxml2-dev libonig-dev curl ca-certificates gnupg git \
     python3 python3-pip \
     chromium \
     && rm -rf /var/lib/apt/lists/*
@@ -30,6 +30,9 @@ RUN npm ci && npx playwright install --with-deps chromium
 # Python / Selenium
 COPY www/selenium/requirements.txt /tmp/sel-req.txt
 RUN pip3 install --break-system-packages -r /tmp/sel-req.txt
+
+# Non-root user for Claude Code (matches host UID so bind-mount files are writable)
+RUN useradd -m -s /bin/bash -u 1000 dev
 
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

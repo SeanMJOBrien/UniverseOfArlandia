@@ -15,5 +15,4 @@ $dmlogin = getenv('DM_PASSWORD') ?: 'dmpassword';
 ?>
 PHPEOF
 
-mkdir -p /root/.claude
 exec "$@"
