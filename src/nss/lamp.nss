@@ -98,7 +98,7 @@ void main()
     int nInitialized = GetLocalInt(OBJECT_SELF, "CEP_L_LIGHTINITIALIZED");
     //0 if the first time this function has run for this torch, 1 if it has run before
     //used so that non-cycling placeables use less CPU time.
-    if (nInitialized == 1 & nLightCycle == 0) return;   //if torch is non cycling and has been initialized, quit
+    if (nInitialized == 1 && nLightCycle == 0) return;   //if torch is non cycling and has been initialized, quit
 
     int nAmIOn = GetLocalInt(OBJECT_SELF, "CEP_L_AMION");
     string sLightConst = GetLocalString(OBJECT_SELF, "CEP_L_LIGHTCONST");

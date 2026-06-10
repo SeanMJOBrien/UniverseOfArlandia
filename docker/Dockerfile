@@ -34,6 +34,9 @@ RUN pip3 install --break-system-packages -r /tmp/sel-req.txt
 # Non-root user for Claude Code (matches host UID so bind-mount files are writable)
 RUN useradd -m -s /bin/bash -u 1000 dev
 
+# Allow dev to self-update Claude Code (npm global install is root-owned by default)
+RUN chown -R dev:dev /usr/lib/node_modules/@anthropic-ai/claude-code
+
 COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

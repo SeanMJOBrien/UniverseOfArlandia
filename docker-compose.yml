@@ -40,6 +40,7 @@ services:
       - .:/var/www/html
       - /var/www/html/www/node_modules
       - ${HOME}/.claude:/home/dev/.claude
+      - ${HOME}/.claude-docker.json:/home/dev/.claude.json
     ports:
       - "88:80"
     working_dir: /var/www/html
