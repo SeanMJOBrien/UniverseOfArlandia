@@ -1,0 +1,6 @@
+.git
+www/node_modules
+www/test-results
+www/selenium/report
+www/selenium/screenshots
+.env
