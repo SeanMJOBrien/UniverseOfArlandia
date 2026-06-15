@@ -274,28 +274,75 @@ $tiletype   = encoded_field($planet_row, 3);
 <?php else: ?>
 
     <?php
-    $planetname = ($planet === 'Space') ? $system : $planet;
     $showAreas     = get_pw('ShowAreas');
     $showInterests = get_pw('ShowInterests');
     $showPlanets   = get_pw('ShowPlanets');
 
     if ($planet === 'Space') {
         $size = 30;
-        $center = get_pw($system . 'SystemCenter');
-        $sep    = strpos($center, '_');
-        $sysx   = ($sep !== false) ? (int)substr($center, 0, $sep) : 0;
-        $sysy   = ($sep !== false) ? (int)substr($center, $sep + 1) : 0;
-        if ($sysx !== 0) $galaxyx = (int)($sysx / ($size / 2));
-        if ($sysy !== 0) $galaxyy = (int)($sysy / ($size / 2));
+        $half = (int)($size / 2);
+
+        // Map every known system to its home sector (galaxyx/galaxyy of its SystemCenter)
+        $system_centers = [];
+        foreach ($pwdata_cache as $key => $val) {
+            if (substr($key, -12) === 'SystemCenter') {
+                $sep = strpos($val, '_');
+                if ($sep !== false) {
+                    $system_centers[substr($key, 0, -12)] = [
+                        'gx' => (int)((int)substr($val, 0, $sep) / $half),
+                        'gy' => (int)((int)substr($val, $sep + 1) / $half),
+                    ];
+                }
+            }
+        }
+
+        // Jump to a system's home sector when arriving via system=
+        if ($system !== '' && isset($system_centers[$system])) {
+            $galaxyx = $system_centers[$system]['gx'];
+            $galaxyy = $system_centers[$system]['gy'];
+        }
+
+        // Displayed system = whichever known system's home sector is nearest
+        // (Chebyshev distance) to the current sector, recomputed on every load.
+        // Each sector step is 15 tiles, so anything more than 2 sectors (30
+        // tiles) from every known system's home sector is just open space.
+        $max_system_dist = 2;
+        $planetname = '';
+        $best_dist  = null;
+        foreach ($system_centers as $name => $center) {
+            $dist = max(abs($galaxyx - $center['gx']), abs($galaxyy - $center['gy']));
+            if ($best_dist === null || $dist < $best_dist) {
+                $best_dist  = $dist;
+                $planetname = $name;
+            }
+        }
+        if ($best_dist === null) {
+            $planetname = ($system !== '') ? $system : 'Space';
+        } elseif ($best_dist > $max_system_dist) {
+            $planetname = 'Space';
+        }
     } else {
         $size = (int)encoded_field(get_pw($planet), 2);
+        $planetname = $planet;
     }
     $Y = (int)($size / 2) + 1;
     ?>
 
     <br>
     <div style="text-align:center;">
-        <p><span class="lbl"><u><?= htmlspecialchars($planetname) ?></u></span></p>
+        <p><span class="lbl"><u><?php
+        if ($planet === 'Space' && isset($system_centers[$planetname])) {
+            $center = $system_centers[$planetname];
+            $center_url = 'galaxy.php?' . http_build_query([
+                'planet'  => 'Space',
+                'galaxyx' => $center['gx'],
+                'galaxyy' => $center['gy'],
+            ]);
+            echo '<a href="' . htmlspecialchars($center_url) . '">' . htmlspecialchars($planetname) . '</a>';
+        } else {
+            echo htmlspecialchars($planetname);
+        }
+        ?></u></span></p>
 
     <?php if ($planet === 'Space'): ?>
         <table border="0" cellpadding="0" cellspacing="0">
