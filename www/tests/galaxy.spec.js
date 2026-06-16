@@ -66,7 +66,7 @@ test.describe('galaxy.php?planet=infos — player admin panel', () => {
   });
 
   test('player table has expected column headers', async ({ page }) => {
-    const table = page.locator('table').first();
+    const table = page.locator('[data-testid="player-table"]');
     await expect(table).toBeVisible();
     await expect(table.locator('td').filter({ hasText: 'Player' }).first()).toBeVisible();
     await expect(table.locator('td').filter({ hasText: 'Character' }).first()).toBeVisible();
@@ -79,7 +79,7 @@ test.describe('galaxy.php?planet=infos — player admin panel', () => {
     // The table renders either player rows with action buttons, the "No player data
     // found" message (when pwdata has zero Player* keys), or silently empty rows
     // (when Player* records exist but have no account name set). All three are valid.
-    await expect(page.locator('table').first()).toBeVisible();
+    await expect(page.locator('[data-testid="player-table"]')).toBeVisible();
     await expect(page.locator('body')).not.toContainText('Fatal error');
     // If the "No player data found" message is present it should be inside the table
     const emptyMsg = page.locator('text=No player data found');
@@ -142,7 +142,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
 
   test('renders map grid table with multiple rows', async ({ page }) => {
     // The map is a <table> with rows of tile cells
-    const mapTable = page.locator('table').filter({ has: page.locator('td img') }).last();
+    const mapTable = page.locator('table.map-grid');
     await expect(mapTable).toBeVisible();
     const rowCount = await mapTable.locator('tr').count();
     expect(rowCount).toBeGreaterThanOrEqual(2);
@@ -187,13 +187,13 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   test('axis labels pan by exactly 15 tiles after an East click', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
-    const before = (await page.locator('table.map-grid tr:nth-child(1) td:not(:first-child)').allTextContents())
+    const before = (await page.locator('td.map-col-label').allTextContents())
       .map(Number);
 
     await arrowLink(page, 'East').click();
     await page.waitForLoadState('domcontentloaded');
 
-    const after = (await page.locator('table.map-grid tr:nth-child(1) td:not(:first-child)').allTextContents())
+    const after = (await page.locator('td.map-col-label').allTextContents())
       .map(Number);
 
     expect(after.length).toBe(before.length);
@@ -205,13 +205,13 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   test('axis labels pan by exactly 15 tiles after a North click', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
-    const before = (await page.locator('table.map-grid tr:nth-child(n+2) td:first-child').allTextContents())
+    const before = (await page.locator('td.map-row-label').allTextContents())
       .map(Number);
 
     await arrowLink(page, 'North').click();
     await page.waitForLoadState('domcontentloaded');
 
-    const after = (await page.locator('table.map-grid tr:nth-child(n+2) td:first-child').allTextContents())
+    const after = (await page.locator('td.map-row-label').allTextContents())
       .map(Number);
 
     expect(after.length).toBe(before.length);
@@ -248,10 +248,10 @@ test.describe('galaxy.php?planet=Space — space map', () => {
     await expect(page.locator('table.map-grid')).toBeVisible();
     await expect(page.locator('img[alt="North"]')).toBeVisible();
 
-    const headerLabels = await page.locator('table.map-grid tr:nth-child(1) td:not(:first-child)').allTextContents();
+    const headerLabels = await page.locator('td.map-col-label').allTextContents();
     expect(headerLabels.some((t) => t.trim().startsWith('-'))).toBe(true);
 
-    const rowLabels = await page.locator('table.map-grid tr:nth-child(n+2) td:first-child').allTextContents();
+    const rowLabels = await page.locator('td.map-row-label').allTextContents();
     expect(rowLabels.some((t) => t.trim().startsWith('-'))).toBe(true);
 
     await expect(page.locator('body')).not.toContainText('Fatal error');
@@ -260,7 +260,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
 
   test('heading remains non-blank after arrow navigation drops system=', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&system=Meth&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('span.lbl u').first()).toHaveText('Meth');
+    await expect(page.locator('[data-testid="map-heading"]')).toHaveText('Meth');
 
     await arrowLink(page, 'East').click();
     await page.waitForLoadState('domcontentloaded');
@@ -268,19 +268,19 @@ test.describe('galaxy.php?planet=Space — space map', () => {
     // system= is dropped by the arrow link, but $planetname is derived from
     // galaxyx/galaxyy on every render, so the heading must never go blank
     // (the original bug) — regardless of which system "wins" at this sector.
-    const heading = (await page.locator('span.lbl u').first().textContent())?.trim();
+    const heading = (await page.locator('[data-testid="map-heading"]').textContent())?.trim();
     expect(heading).toBeTruthy();
     await expect(page.locator('body')).not.toContainText('Fatal error');
   });
 
   test('heading switches to a different system when panning into its territory', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
-    const here = (await page.locator('span.lbl u').first().textContent())?.trim();
+    const here = (await page.locator('[data-testid="map-heading"]').textContent())?.trim();
 
     test.skip(here === 'Space', 'No *SystemCenter data seeded — skipping system-transition test');
 
     await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=0', { waitUntil: 'domcontentloaded' });
-    const there = (await page.locator('span.lbl u').first().textContent())?.trim();
+    const there = (await page.locator('[data-testid="map-heading"]').textContent())?.trim();
 
     expect(there).not.toBe('Space');
     expect(there).not.toBe(here);
@@ -288,13 +288,13 @@ test.describe('galaxy.php?planet=Space — space map', () => {
 
   test('heading shows "Space" when far (>2 sectors / 30 tiles) from any known system', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('span.lbl u').first()).toHaveText('Space');
+    await expect(page.locator('[data-testid="map-heading"]')).toHaveText('Space');
     await expect(page.locator('body')).not.toContainText('Fatal error');
   });
 
   test('clicking the heading centers the viewport on that system\'s home sector', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=3&galaxyy=0', { waitUntil: 'domcontentloaded' });
-    const heading = page.locator('span.lbl u').first();
+    const heading = page.locator('[data-testid="map-heading"]');
     const name = (await heading.textContent())?.trim();
 
     test.skip(name === 'Space', 'No *SystemCenter data seeded — heading is not a link');
@@ -308,13 +308,13 @@ test.describe('galaxy.php?planet=Space — space map', () => {
     expect(url.searchParams.get('planet')).toBe('Space');
 
     // After recentering, the same name should still be nearest (distance 0)
-    await expect(page.locator('span.lbl u').first()).toHaveText(name);
+    await expect(page.locator('[data-testid="map-heading"]')).toHaveText(name);
     await expect(page.locator('body')).not.toContainText('Fatal error');
   });
 
   test('heading is plain text (not a link) when showing "Space"', async ({ page }) => {
     await page.goto('/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
-    const heading = page.locator('span.lbl u').first();
+    const heading = page.locator('[data-testid="map-heading"]');
     await expect(heading).toHaveText('Space');
     expect(await heading.locator('a').count()).toBe(0);
   });
@@ -377,7 +377,7 @@ test.describe('galaxy.php?planet=<name> — planet surface map', () => {
   });
 
   test('renders map grid table', async ({ page }) => {
-    const mapTable = page.locator('table').filter({ has: page.locator('td img') }).last();
+    const mapTable = page.locator('table.map-grid');
     await expect(mapTable).toBeVisible();
   });
 });

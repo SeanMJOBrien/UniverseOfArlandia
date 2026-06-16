@@ -185,7 +185,7 @@ $tiletype   = encoded_field($planet_row, 3);
 
 <?php if ($planet === 'infos'): ?>
 
-    <p class="nav-link"><a href="galaxy.php?planet=infos"><u>Actualise</u></a></p>
+    <p class="nav-link"><a data-testid="refresh-link" href="galaxy.php?planet=infos"><u>Actualise</u></a></p>
 
     <?php if ($is_dm): ?>
     <p class="nav-link"><a href="playerLocations.php">All Characters</a></p>
@@ -203,7 +203,7 @@ $tiletype   = encoded_field($planet_row, 3);
         </div>
     <?php endif; ?>
 
-    <table class="data-table">
+    <table class="data-table" data-testid="player-table">
         <tr>
             <td class="col-header"><u>Player</u> :</td>
             <td class="col-header"><u>Character</u> :</td>
@@ -227,7 +227,7 @@ $tiletype   = encoded_field($planet_row, 3);
                 $var5 = str_replace('~', "'", between($p, '&4&', '&5&'));
                 if ($var1 === '') continue;
                 ?>
-                <tr>
+                <tr data-player-account="<?= htmlspecialchars($var1) ?>" data-player-char="<?= htmlspecialchars($var2) ?>">
                     <td><?= htmlspecialchars($var1) ?></td>
                     <td><?= htmlspecialchars($var2) ?><?php if ($var5 === '1') echo ' <span style="color:#FF0000">(DM)</span>'; ?></td>
                     <td><?= htmlspecialchars($var3) ?></td>
@@ -236,7 +236,7 @@ $tiletype   = encoded_field($planet_row, 3);
                         <?php if ($is_dm): ?>
                         <form method="post" action="galaxy.php?planet=infos" style="margin:0;">
                             <input type="hidden" name="reset_player_char_name" value="<?= htmlspecialchars($var2) ?>">
-                            <button type="submit" class="action-button"
+                            <button type="submit" class="action-button" data-testid="btn-reset-coords"
                                 onclick="return confirm('Reset coordinates for ' + <?= json_encode($var2) ?> + ' to 0,0?')">
                                 Set to 0,0
                             </button>
@@ -261,7 +261,7 @@ $tiletype   = encoded_field($planet_row, 3);
         }
         ?>
     </table>
-    <p class="nav-link"><a href="galaxy.php?planet=infos"><u>Actualise</u></a></p>
+    <p class="nav-link"><a data-testid="refresh-link" href="galaxy.php?planet=infos"><u>Actualise</u></a></p>
 
 <?php elseif (substr($tiletype, 0, 1) === 'b' || substr($tiletype, 0, 1) === 's'): ?>
 
@@ -330,7 +330,7 @@ $tiletype   = encoded_field($planet_row, 3);
 
     <br>
     <div style="text-align:center;">
-        <p><span class="lbl"><u><?php
+        <p><span class="lbl"><u data-testid="map-heading" data-name="<?= htmlspecialchars($planetname) ?>"><?php
         if ($planet === 'Space' && isset($system_centers[$planetname])) {
             $center = $system_centers[$planetname];
             $center_url = 'galaxy.php?' . http_build_query([
@@ -411,7 +411,7 @@ $tiletype   = encoded_field($planet_row, 3);
     <?php endif; ?>
 
     <br>
-    <table class="map-grid" border="1" cellpadding="0" cellspacing="0" bordercolor="#C0C0C0">
+    <table class="map-grid" data-galaxyx="<?= $galaxyx ?>" data-galaxyy="<?= $galaxyy ?>" border="1" cellpadding="0" cellspacing="0" bordercolor="#C0C0C0">
     <?php
     $tile_map = [
         '01' => 'clouds',    '02' => 'desert',    '03' => 'foothills', '04' => 'forest',
@@ -431,11 +431,11 @@ $tiletype   = encoded_field($planet_row, 3);
             // Header row: column numbers
             echo '<td><img src="black.gif"></td>';
             for ($X = -$half; $X < $half + 1; $X++) {
-                echo '<td style="background:#005064;text-align:center;">' . ($X + $galaxyx * 15) . '</td>';
+                echo '<td class="map-col-label" style="background:#005064;text-align:center;">' . ($X + $galaxyx * 15) . '</td>';
             }
         } else {
             // Row label
-            echo '<td style="background:#005064;text-align:center;">' . ($Y + $galaxyy * 15) . '</td>';
+            echo '<td class="map-row-label" style="background:#005064;text-align:center;">' . ($Y + $galaxyy * 15) . '</td>';
 
             for ($X = -$half; $X < $half + 1; $X++) {
                 $XX = $X + $galaxyx * 15;
@@ -449,8 +449,6 @@ $tiletype   = encoded_field($planet_row, 3);
                 $show = (substr($tiletype, -1) === '*');
                 if ($show) $tiletype = substr($tiletype, 0, -1);
                 if ($planet !== 'Space') $tiletype = $tile_map[$tiletype] ?? $tiletype;
-
-                echo '<td class="map-tile">';
 
                 $area_key  = str_replace('-', 'm', $XX . '_' . $YY);
                 $interests = get_pw($planet . '&' . $area_key . '&Interests');
@@ -467,9 +465,11 @@ $tiletype   = encoded_field($planet_row, 3);
                 $alt = $area_key . ' : ' . ucwords($tiletype);
                 if (strpos($tiletype, 'city') === 0) { $tiletype = 'city'; $alt = $area_key . ' : ' . $iname; }
 
-                $tile_visible = !empty($tiletype) && ($is_dm || $show || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
+                $tile_visible  = !empty($tiletype) && ($is_dm || $show || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
                 $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
 
+                // Compute tiletype2 before opening <td> so data-tile is available.
+                $tiletype2 = '';
                 if ($tile_visible || $space_visible) {
                     if ($planet === 'Space') {
                         if (!empty($space_data)) {
@@ -489,7 +489,11 @@ $tiletype   = encoded_field($planet_row, 3);
                             $tiletype2 = $tiletype;
                         }
                     }
+                }
 
+                echo '<td class="map-tile" data-tile="' . htmlspecialchars($tiletype2) . '" data-coords="' . $XX . ',' . $YY . '">';
+
+                if ($tile_visible || $space_visible) {
                     $href = '';
                     if ($tiletype === 'city' || (ctype_digit($interest2) && $interest2 > 0) || $interest2 === 'D') {
                         $href = 'interests.php?planet=' . urlencode($planet) . '&area=' . urlencode($area_key) . '&galaxyx=' . $galaxyx . '&galaxyy=' . $galaxyy;

@@ -39,15 +39,14 @@ def _click_arrow(driver, direction: str) -> None:
 
 
 def _heading_u(driver):
-    """Return the <u> element inside span.lbl that shows the current system/planet name."""
-    return driver.find_element(By.CSS_SELECTOR, "span.lbl u")
+    """Return the map-heading element (system or planet name)."""
+    return driver.find_element(By.CSS_SELECTOR, "[data-testid='map-heading']")
 
 
 def _col_labels(driver) -> list:
-    """Numeric X-axis column labels from the map-grid header row."""
-    rows = driver.find_element(By.CSS_SELECTOR, "table.map-grid").find_elements(By.TAG_NAME, "tr")
+    """Numeric X-axis column labels from the map-grid (td.map-col-label)."""
     labels = []
-    for td in rows[0].find_elements(By.TAG_NAME, "td")[1:]:
+    for td in driver.find_elements(By.CSS_SELECTOR, "td.map-col-label"):
         try:
             labels.append(int(td.text.strip()))
         except ValueError:
@@ -56,16 +55,13 @@ def _col_labels(driver) -> list:
 
 
 def _row_labels(driver) -> list:
-    """Numeric Y-axis row labels from the map-grid data rows."""
-    rows = driver.find_element(By.CSS_SELECTOR, "table.map-grid").find_elements(By.TAG_NAME, "tr")
+    """Numeric Y-axis row labels from the map-grid (td.map-row-label)."""
     labels = []
-    for row in rows[1:]:
-        tds = row.find_elements(By.TAG_NAME, "td")
-        if tds:
-            try:
-                labels.append(int(tds[0].text.strip()))
-            except ValueError:
-                pass
+    for td in driver.find_elements(By.CSS_SELECTOR, "td.map-row-label"):
+        try:
+            labels.append(int(td.text.strip()))
+        except ValueError:
+            pass
     return labels
 
 
@@ -113,7 +109,7 @@ class TestGalaxyInfos:
         if not db_available:
             pytest.skip("Database not connected")
         driver.get(f"{base_url}/galaxy.php?planet=infos")
-        table = driver.find_element(By.CSS_SELECTOR, "table")
+        table = driver.find_element(By.CSS_SELECTOR, "[data-testid='player-table']")
         table_text = table.text
         for col in ("Player", "Character", "Planet", "Area", "Action"):
             assert col in table_text, f'Missing column header: "{col}"'
@@ -125,16 +121,16 @@ class TestGalaxyInfos:
         body_text = driver.find_element(By.CSS_SELECTOR, "body").text
         assert "Fatal error" not in body_text
         # Table must always be present
-        assert driver.find_element(By.CSS_SELECTOR, "table").is_displayed()
+        assert driver.find_element(By.CSS_SELECTOR, "[data-testid='player-table']").is_displayed()
 
     def test_reset_buttons_form_structure(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
         driver.get(f"{base_url}/galaxy.php?planet=infos")
-        buttons = driver.find_elements(By.CSS_SELECTOR, "button.action-button")
-        if not buttons:
+        try:
+            btn = driver.find_element(By.CSS_SELECTOR, "[data-testid='btn-reset-coords']")
+        except Exception:
             pytest.skip("No player data in DB")
-        btn = buttons[0]
         assert "Set to 0,0" in btn.text
         form = driver.execute_script("return arguments[0].closest('form')", btn)
         assert form.get_attribute("method") == "post"
@@ -145,9 +141,8 @@ class TestGalaxyInfos:
         if not db_available:
             pytest.skip("Database not connected")
         driver.get(f"{base_url}/galaxy.php?planet=infos")
-        links = driver.find_elements(By.XPATH, '//a[contains(.,"Actualise")]')
-        assert len(links) > 0, "No 'Actualise' link found"
-        href = links[0].get_attribute("href")
+        link = driver.find_element(By.CSS_SELECTOR, "[data-testid='refresh-link']")
+        href = link.get_attribute("href")
         assert "galaxy.php" in href and "planet=infos" in href
 
     def test_reset_success_feedback_message(self, driver, base_url, db_available):
