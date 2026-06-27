@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_string_utils"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +19,7 @@ int iHenchs = GetLocalInt(oPC,"Henchs");
 int iGate = GetLocalInt(oPC,"Gate");
 ////////////////////////////////////////////////////////////////////////////////
 object oTargetArea;object oPlanet;object oHenchs;object oParty;location lLoc;string sTargetArea;string sNewArea;
-string sCount1;string sCount2;string sAreaNumber;string sPlanetType;string sAll;string sPlanetPlace;string sPlanetOrb;string sSystem;string sTot;
+string sPlanetType;string sPlanetPlace;string sPlanetOrb;string sSystem;string sTot;
 int iCheck;int iCheck2;int iNewArea;int iParty;int iXP;int iVar;int i;int j;int k;
 ////////////////////////////////////////////////////////////////////////////////
 string sPlanet = GetPersistentString(oModule,sPlanetDest);
@@ -30,12 +31,8 @@ string sY = GetStringRight(sAreaDest,GetStringLength(sAreaDest)-iM);
 int iX = StringToInt(sX);if(GetStringLeft(sX,1)=="m"){iX = -StringToInt(GetStringRight(sX,GetStringLength(sX)-1));}
 int iY = StringToInt(sY);if(GetStringLeft(sY,1)=="m"){iY = -StringToInt(GetStringRight(sY,GetStringLength(sY)-1));}
 
-string sVar = GetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX));
-
-if(iY<=-10){sCount1 = "-"+IntToString(-iY);}else if(iY<0){sCount1 = "-0"+IntToString(-iY);}else if(iY<10){sCount1 = "+0"+IntToString(iY);}else{sCount1 = "+"+IntToString(iY);}sCount1 = "&"+sCount1+"&";
-if(iY-1<=-10){sCount2 = "-"+IntToString(-iY+1);}else if(iY-1<0){sCount2 = "-0"+IntToString(-iY+1);}else if(iY-1<10){sCount2 = "+0"+IntToString(iY-1);}else{sCount2 = "+"+IntToString(iY-1);}sCount2 = "&"+sCount2+"&";
-if(iY==-iPlanetSize/2){sNewArea = GetStringLeft(sVar,FindSubString(sVar,sCount1));}else{sNewArea = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,sCount1)),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,sCount1)))-FindSubString(sVar,sCount2)-5);}
-string sDiscovArea = sNewArea;
+sNewArea = GetAreaTile(oModule,sPlanetDest,iX,iY);
+string sDiscovArea = sNewArea + (IsAreaTileDiscovered(oModule,sPlanetDest,iX,iY) ? "*" : "");
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,8 +129,8 @@ SetPersistentInt(oModule,"Space"+sAreaDest+"Show",1);
 else if((sPlanetDest!="Space")&&(GetStringRight(sDiscovArea,1)!="*"))
   {
 iNewArea = 1;
-sVar = InsertString(sVar,"*",FindSubString(sVar,sCount1));
-SetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX),sVar);
+string sColKey = sPlanetDest+"AreasX"+IntToString(iX);
+SetPersistentString(oModule,sColKey,SetColTileDiscovered(GetPersistentString(oModule,sColKey),iY,TRUE));
   }
  }
 ////////////////////////////////////////////////////////////////////////////////

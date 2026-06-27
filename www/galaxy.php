@@ -102,6 +102,95 @@ function get_pw(string $key): string {
     return $pwdata_cache[$key] ?? '';
 }
 
+function build_tile_data(
+    string $planet, int $XX, int $YY, int $half,
+    bool $is_dm, $showAreas, $showInterests,
+    int $galaxyx, int $galaxyy
+): array {
+    static $tile_map = [
+        '01' => 'clouds',    '02' => 'desert',    '03' => 'foothills', '04' => 'forest',
+        '05' => 'frozenland','22' => 'gaz',        '06' => 'ground',    '07' => 'hills',
+        '08' => 'moon',      '09' => 'mountain',   '10' => 'mountsnow', '11' => 'mounts',
+        '12' => 'ocean',     '13' => 'plain',      '14' => 'river',     '15' => 'rural',
+        '16' => 'ruralcastle','17' => 'ruralswamp','18' => 'seafloor',  '19' => 'snow',
+        '20' => 'swamp',     '21' => 'tropical',
+    ];
+    static $interest_map = ['D' => 'doma', '1' => 'town', '2' => 'dung', '3' => 'cast', '4' => 'ruin', '5' => 'anre', '6' => 'remo', '7' => 'amus'];
+    static $alt_map      = ['D' => 'Domain', '2' => 'Dungeon', '3' => 'Castle', '4' => 'Ruins', '5' => 'Animal reserve', '6' => 'Resource mountain', '7' => 'Amusement place'];
+
+    $tile_col  = get_pw($planet . 'AreasX' . $XX);
+    $curr_key  = '&' . tile_key($YY) . '&';
+    $prev_key  = ($YY === -$half) ? '' : '&' . tile_key($YY - 1) . '&';
+    $tiletype  = between($tile_col, $prev_key, $curr_key);
+
+    $show = (substr($tiletype, -1) === '*');
+    if ($show) $tiletype = substr($tiletype, 0, -1);
+    if ($planet !== 'Space') $tiletype = $tile_map[$tiletype] ?? $tiletype;
+
+    $area_key  = str_replace('-', 'm', $XX . '_' . $YY);
+    $interests = get_pw($planet . '&' . $area_key . '&Interests');
+    $interest2 = substr(between($interests, '', '&1&'), 0, 1);
+    $iname     = between($interests, '&1&', '&2&');
+    $visible   = between($interests, '&3&', '&4&');
+
+    if ($visible == 0 && !$is_dm) $interest2 = '';
+
+    $space_data  = get_pw('Space' . $area_key);
+    $planet_show = between($space_data, '&004&', '&005&');
+    $show2       = get_pw('Space' . $area_key . 'Show');
+
+    $alt = $area_key . ' : ' . ucwords($tiletype);
+    if (strpos($tiletype, 'city') === 0) { $tiletype = 'city'; $alt = $area_key . ' : ' . $iname; }
+
+    $tile_visible  = !empty($tiletype) && ($is_dm || $show || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
+    $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
+
+    $tiletype2 = '';
+    $href = '';
+    if ($tile_visible || $space_visible) {
+        if ($planet === 'Space') {
+            if (!empty($space_data)) {
+                $iname    = between($space_data, '', '&001&');
+                $tiletype = between($space_data, '&003&', '&004&');
+                $alt      = $area_key . ' : ' . $iname;
+            } else {
+                $tiletype = 'space';
+            }
+            $tiletype2 = $tiletype;
+        } else {
+            if (isset($interest_map[$interest2])) {
+                $display_name = ($interest2 === '1') ? $iname : ($alt_map[$interest2] ?? $interest2);
+                $alt          = $area_key . ' : ' . $display_name;
+                $tiletype2    = $tiletype . '_' . $interest_map[$interest2];
+            } else {
+                $tiletype2 = $tiletype;
+            }
+        }
+
+        if ($tiletype === 'city' || (ctype_digit($interest2) && $interest2 > 0) || $interest2 === 'D') {
+            $href = 'interests.php?planet=' . urlencode($planet) . '&area=' . urlencode($area_key) . '&galaxyx=' . $galaxyx . '&galaxyy=' . $galaxyy;
+        } elseif ($planet === 'Space' && $tiletype !== '') {
+            $href = 'galaxy.php?planet=' . urlencode($iname) . '&galaxyx=' . $galaxyx . '&galaxyy=' . $galaxyy;
+        }
+    }
+
+    return compact('XX', 'YY', 'tiletype2', 'alt', 'href', 'tile_visible', 'space_visible');
+}
+
+function render_map_tile(array $t): string {
+    $out = '<td class="map-tile" data-tile="' . htmlspecialchars($t['tiletype2']) . '" data-coords="' . $t['XX'] . ',' . $t['YY'] . '">';
+    if ($t['tile_visible'] || $t['space_visible']) {
+        $img = '<img src="' . htmlspecialchars($t['tiletype2']) . '.gif" alt="' . htmlspecialchars($t['alt']) . '">';
+        if ($t['href'] !== '') {
+            $out .= '<a title="' . htmlspecialchars($t['alt']) . '" href="' . htmlspecialchars($t['href']) . '">' . $img . '</a>';
+        } else {
+            $out .= $img;
+        }
+    }
+    $out .= '</td>';
+    return $out;
+}
+
 $planet_row = get_pw($planet);
 $tiletype   = encoded_field($planet_row, 3);
 ?>
@@ -413,17 +502,7 @@ $tiletype   = encoded_field($planet_row, 3);
     <br>
     <table class="map-grid" data-galaxyx="<?= $galaxyx ?>" data-galaxyy="<?= $galaxyy ?>" border="1" cellpadding="0" cellspacing="0" bordercolor="#C0C0C0">
     <?php
-    $tile_map = [
-        '01' => 'clouds',    '02' => 'desert',    '03' => 'foothills', '04' => 'forest',
-        '05' => 'frozenland','22' => 'gaz',        '06' => 'ground',    '07' => 'hills',
-        '08' => 'moon',      '09' => 'mountain',   '10' => 'mountsnow', '11' => 'mounts',
-        '12' => 'ocean',     '13' => 'plain',      '14' => 'river',     '15' => 'rural',
-        '16' => 'ruralcastle','17' => 'ruralswamp','18' => 'seafloor',  '19' => 'snow',
-        '20' => 'swamp',     '21' => 'tropical',
-    ];
-    $interest_map = ['D' => 'doma', '1' => 'town', '2' => 'dung', '3' => 'cast', '4' => 'ruin', '5' => 'anre', '6' => 'remo', '7' => 'amus'];
-    $alt_map      = ['D' => 'Domain', '2' => 'Dungeon', '3' => 'Castle', '4' => 'Ruins', '5' => 'Animal reserve', '6' => 'Resource mountain', '7' => 'Amusement place'];
-    $half         = (int)($size / 2);
+    $half = (int)($size / 2);
 
     while ($Y > -($half + 1)) {
         echo '<tr>';
@@ -438,77 +517,10 @@ $tiletype   = encoded_field($planet_row, 3);
             echo '<td class="map-row-label" style="background:#005064;text-align:center;">' . ($Y + $galaxyy * 15) . '</td>';
 
             for ($X = -$half; $X < $half + 1; $X++) {
-                $XX = $X + $galaxyx * 15;
-                $YY = $Y + $galaxyy * 15;
-
-                $tile_col  = get_pw($planet . 'AreasX' . $XX);
-                $curr_key  = '&' . tile_key($YY) . '&';
-                $prev_key  = ($YY === -$half) ? '' : '&' . tile_key($YY - 1) . '&';
-                $tiletype  = between($tile_col, $prev_key, $curr_key);
-
-                $show = (substr($tiletype, -1) === '*');
-                if ($show) $tiletype = substr($tiletype, 0, -1);
-                if ($planet !== 'Space') $tiletype = $tile_map[$tiletype] ?? $tiletype;
-
-                $area_key  = str_replace('-', 'm', $XX . '_' . $YY);
-                $interests = get_pw($planet . '&' . $area_key . '&Interests');
-                $interest2 = substr(between($interests, '', '&1&'), 0, 1);
-                $iname     = between($interests, '&1&', '&2&');
-                $visible   = between($interests, '&3&', '&4&');
-
-                if ($visible == 0 && !$is_dm) $interest2 = '';
-
-                $space_data  = get_pw('Space' . $area_key);
-                $planet_show = between($space_data, '&004&', '&005&');
-                $show2       = get_pw('Space' . $area_key . 'Show');
-
-                $alt = $area_key . ' : ' . ucwords($tiletype);
-                if (strpos($tiletype, 'city') === 0) { $tiletype = 'city'; $alt = $area_key . ' : ' . $iname; }
-
-                $tile_visible  = !empty($tiletype) && ($is_dm || $show || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
-                $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
-
-                // Compute tiletype2 before opening <td> so data-tile is available.
-                $tiletype2 = '';
-                if ($tile_visible || $space_visible) {
-                    if ($planet === 'Space') {
-                        if (!empty($space_data)) {
-                            $iname    = between($space_data, '', '&001&');
-                            $tiletype = between($space_data, '&003&', '&004&');
-                            $alt      = $area_key . ' : ' . $iname;
-                        } else {
-                            $tiletype = 'space';
-                        }
-                        $tiletype2 = $tiletype;
-                    } else {
-                        if (isset($interest_map[$interest2])) {
-                            $display_name = ($interest2 === '1') ? $iname : ($alt_map[$interest2] ?? $interest2);
-                            $alt          = $area_key . ' : ' . $display_name;
-                            $tiletype2    = $tiletype . '_' . $interest_map[$interest2];
-                        } else {
-                            $tiletype2 = $tiletype;
-                        }
-                    }
-                }
-
-                echo '<td class="map-tile" data-tile="' . htmlspecialchars($tiletype2) . '" data-coords="' . $XX . ',' . $YY . '">';
-
-                if ($tile_visible || $space_visible) {
-                    $href = '';
-                    if ($tiletype === 'city' || (ctype_digit($interest2) && $interest2 > 0) || $interest2 === 'D') {
-                        $href = 'interests.php?planet=' . urlencode($planet) . '&area=' . urlencode($area_key) . '&galaxyx=' . $galaxyx . '&galaxyy=' . $galaxyy;
-                    } elseif ($planet === 'Space' && $tiletype !== '') {
-                        $href = 'galaxy.php?planet=' . urlencode($iname) . '&galaxyx=' . $galaxyx . '&galaxyy=' . $galaxyy;
-                    }
-
-                    $img = '<img src="' . htmlspecialchars($tiletype2) . '.gif" alt="' . htmlspecialchars($alt) . '">';
-                    if ($href !== '') {
-                        echo '<a title="' . htmlspecialchars($alt) . '" href="' . htmlspecialchars($href) . '">' . $img . '</a>';
-                    } else {
-                        echo $img;
-                    }
-                }
-                echo '</td>';
+                echo render_map_tile(build_tile_data(
+                    $planet, $X + $galaxyx * 15, $Y + $galaxyy * 15, $half,
+                    $is_dm, $showAreas, $showInterests, $galaxyx, $galaxyy
+                ));
             }
         }
         echo '</tr>';

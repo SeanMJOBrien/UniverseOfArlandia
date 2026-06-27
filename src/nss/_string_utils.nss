@@ -96,3 +96,81 @@ string LetterField(string sData, int n)
     string sPrev = (n > 1) ? "&" + GetSubString("ABCDEFGHIJKLMNOPQRSTUVWXYZ", n - 2, 1) + "&" : "";
     return Between(sData, sPrev, sCurr);
 }
+
+// ---------------------------------------------------------------------------
+// Area tile column helpers
+//
+// Planet area grids are stored one X-column per pwdata key
+// (<Planet>AreasX<iX>). Each column string encodes terrain codes using
+// signed, zero-padded Y-coordinate delimiters: &+05&, &-03&, etc.
+// Discovery is flagged by appending "*" to the terrain code (e.g. "04*").
+//
+// These helpers replace the repeated sCount1/sCount2 blobs scattered across
+// transitions.nss, _galaxy.nss, conv_dm015.nss, and conv_dm042.nss.
+// They mirror PHP's tile_key() helper in helpers.php.
+// ---------------------------------------------------------------------------
+
+// Format a Y coordinate as the &±YY& tile column delimiter.
+// Mirrors PHP tile_key() in helpers.php.
+string AreaTileKey(int iY)
+{
+    if (iY <= -10) return "&-" + IntToString(-iY) + "&";
+    if (iY <    0) return "&-0" + IntToString(-iY) + "&";
+    if (iY <   10) return "&+0" + IntToString(iY)  + "&";
+    return "&+" + IntToString(iY) + "&";
+}
+
+// Return the raw entry (terrain code, possibly ending in "*") at row iY in
+// a column string. Returns "" if iY is not found.
+string _GetRawTile(string sCol, int iY)
+{
+    string sKey  = AreaTileKey(iY);
+    string sPrev = AreaTileKey(iY - 1);
+    // If the previous key doesn't exist we are at the bottom of the column.
+    if (FindSubString(sCol, sPrev) == -1)
+        return GetStringLeft(sCol, FindSubString(sCol, sKey));
+    return Between(sCol, sPrev, sKey);
+}
+
+// Return the terrain code at (iX, iY) on sPlanet, stripping "*" if present.
+string GetAreaTile(object oModule, string sPlanet, int iX, int iY)
+{
+    string sCol = GetPersistentString(oModule, sPlanet + "AreasX" + IntToString(iX));
+    string sRaw = _GetRawTile(sCol, iY);
+    if (GetStringRight(sRaw, 1) == "*")
+        return GetStringLeft(sRaw, GetStringLength(sRaw) - 1);
+    return sRaw;
+}
+
+// Return TRUE if the tile at (iX, iY) on sPlanet has been discovered.
+int IsAreaTileDiscovered(object oModule, string sPlanet, int iX, int iY)
+{
+    string sCol = GetPersistentString(oModule, sPlanet + "AreasX" + IntToString(iX));
+    return (GetStringRight(_GetRawTile(sCol, iY), 1) == "*");
+}
+
+// Return sCol with the discovery marker at iY set (iDiscovered=TRUE) or
+// cleared (iDiscovered=FALSE). Caller writes result back with SetPersistentString.
+string SetColTileDiscovered(string sCol, int iY, int iDiscovered)
+{
+    string sKey = AreaTileKey(iY);
+    string sRaw = _GetRawTile(sCol, iY);
+    int bHas = (GetStringRight(sRaw, 1) == "*");
+    if (iDiscovered == bHas) return sCol; // already correct
+    string sBase = bHas ? GetStringLeft(sRaw, GetStringLength(sRaw) - 1) : sRaw;
+    string sNew  = iDiscovered ? (sBase + "*") : sBase;
+    int iPos = FindSubString(sCol, sKey) - GetStringLength(sRaw);
+    return GetStringLeft(sCol, iPos) + sNew + GetStringRight(sCol, GetStringLength(sCol) - iPos - GetStringLength(sRaw));
+}
+
+// Return sCol with the terrain code at iY replaced by sCode (preserves "*").
+// Caller writes result back with SetPersistentString.
+string SetColTile(string sCol, int iY, string sCode)
+{
+    string sKey = AreaTileKey(iY);
+    string sRaw = _GetRawTile(sCol, iY);
+    int bDiscovered = (GetStringRight(sRaw, 1) == "*");
+    string sNew = bDiscovered ? (sCode + "*") : sCode;
+    int iPos = FindSubString(sCol, sKey) - GetStringLength(sRaw);
+    return GetStringLeft(sCol, iPos) + sNew + GetStringRight(sCol, GetStringLength(sCol) - iPos - GetStringLength(sRaw));
+}

@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_string_utils"
 ////////////////////////////////////////////////////////////////////////////////
 // Universe of Arlandia - Galaxy Settings
 ////////////////////////////////////////////////////////////////////////////////
@@ -1187,9 +1188,7 @@ sArea = sX+"_"+sY;
 
 sVar2 = GetPersistentString(oModule,sPlanet+"AreasX"+IntToString(iX));
 
-if(iY<=-10){sCount1 = "-"+IntToString(-iY);}else if(iY<0){sCount1 = "-0"+IntToString(-iY);}else if(iY<10){sCount1 = "+0"+IntToString(iY);}else{sCount1 = "+"+IntToString(iY);}sCount1 = "&"+sCount1+"&";
-if(iY-1<=-10){sCount2 = "-"+IntToString(-iY+1);}else if(iY-1<0){sCount2 = "-0"+IntToString(-iY+1);}else if(iY-1<10){sCount2 = "+0"+IntToString(iY-1);}else{sCount2 = "+"+IntToString(iY-1);}sCount2 = "&"+sCount2+"&";
-if(iY==-iPlanetSize/2){sOldArea = GetStringLeft(sVar2,FindSubString(sVar2,sCount1));}else{sOldArea = GetStringRight(GetStringLeft(sVar2,FindSubString(sVar2,sCount1)),GetStringLength(GetStringLeft(sVar2,FindSubString(sVar2,sCount1)))-FindSubString(sVar2,sCount2)-5);}
+sOldArea = _GetRawTile(sVar2,iY);
 
 if(GetStringRight(sOldArea,1)!="*")
         {
@@ -1233,8 +1232,7 @@ else if((sPlanet=="")&&(sArea=="X_X")){sNewArea = "";sInterest = "";sName = "";s
 if((iCheck==0)&&(sNewArea!=AREAS_OCEAN)){iRandomTot = Random(100)+1;if(iRandomTot<=iPlanetInteresTot){SetLocalString(oModule,"InterestPlanet",sPlanet);SetLocalString(oModule,"InterestArea",sArea);ExecuteScript("interests",oModule);sInterest = GetLocalString(oModule,"Interest");sName = GetLocalString(oModule,"Name");sVar = GetLocalString(oModule,"Var");}if(sInterest!=""){iCheck = 1;}}
 ////////////////////////////////////////////////////////////////////////////////
 // Areas variable
-sCount = IntToString(iY);if(iY<=-10){sCount = "-"+IntToString(-iY);}else if(iY<0){sCount = "-0"+IntToString(-iY);}else if(iY<10){sCount = "+0"+IntToString(iY);}else{sCount = "+"+IntToString(iY);}sCount = "&"+sCount+"&";
-sVarAreas = sVarAreas+sNewArea+sCount;
+sVarAreas = sVarAreas+sNewArea+AreaTileKey(iY);
 // Store area interests variable
 if(iCheck==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests",sInterest+"&1&"+sName+"&2&"+sVar+"&3&1&4&");}else{DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Interests");}
 //
