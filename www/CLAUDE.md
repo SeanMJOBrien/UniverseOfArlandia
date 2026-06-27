@@ -8,13 +8,13 @@ This is the web frontend for **Universe of Arlandia (UOA)**, a custom persistent
 
 ## Running locally
 
-Serve via Apache with PHP and MySQL (XAMPP on Windows, or equivalent). The site root should point to this directory. The NWN game server runs separately on port `5121` (see `NWNX.ini`).
+Docker is the primary local dev environment — `docker compose up` from the repo root starts Apache + MySQL on port 88. The Apache DocumentRoot is `www/public/` (see `docker/apache-uoa.conf`).
 
-To test PHP pages, visit them in a browser via the local Apache server (e.g. `http://localhost/uoa-www/index.php`).
+To test PHP pages: `http://localhost:88/index.php`.
 
 ## Configuration
 
-All DB credentials and game settings live in `uoa.php` — this file is `include()`d by every PHP script that needs a DB connection:
+All DB credentials and game settings live in `public/uoa.php` — this file is `include()`d by every PHP script that needs a DB connection:
 
 ```
 $host = '127.0.0.1'
@@ -25,7 +25,7 @@ $nwnport = "5121"
 $dmlogin = "uoadm"
 ```
 
-Do **not** commit credential changes to `uoa.php`.
+Do **not** commit credential changes to `public/uoa.php`.
 
 ## Architecture
 
@@ -45,19 +45,33 @@ Key naming conventions:
 
 Negative coordinates in keys are stored with `m` replacing `-` (e.g., `m3_5` = `-3,5`).
 
-### PHP pages
+### Directory layout
 
-| File | Role |
-|---|---|
-| `index.php` | Main shell — 3-column layout (nav, iframe content, star systems). Reads galaxy/planet list from DB and renders the right-side navigation. Contains the DM login form. |
-| `galaxy.php` | Planet/space map viewer. Renders a 2D grid of tile GIFs for a planet or star system. Also serves the DM admin panel (`?planet=infos`) for viewing online players and resetting stuck character coordinates. |
-| `statut.php` | Server status widget rendered in an iframe on the left sidebar. Pings the NWN server using the BNES/BNXI UDP protocol (via `ServerInfo.php`) and queries `pwdata` for live player count. Auto-refreshes every 60 seconds. |
-| `interests.php` | Detail view for a map area (town, dungeon, castle, domain, etc.). Reads nested interest sub-records from `pwdata`. |
-| `uoa.php` | Config-only file. No logic — only sets `$host`, `$user`, `$pass`, `$data`, `$nwnport`, `$dmlogin`. |
-| `ServerInfo.php` | UDP packet library implementing the NWN BNES/BNER, BNLM/BNLR, BNDS/BNDR, BNXI/BNXR protocol pairs for querying a live NWN server. |
-| `database-mysql.php` | Generic DB abstraction layer (a separate older codebase). Defines `DB_Connect`, `DB_Insert`, `DB_GetArray`, etc. via a global `$db_link`. Not used by the main UOA pages (which use `mysqli_*` directly). |
-| `logging.php` | Single helper `console_log()` — echoes a `<script>console.log()</script>` block. |
-| `playerInfo.php` | Supplementary player info display. |
+```
+www/
+  *.gif / *.jpg       terrain tile GIFs and domain/screenshot JPGs (served via AliasMatch)
+  public/             Apache DocumentRoot — all PHP and HTML served from here
+    index.php         Main shell — 3-column layout (nav, iframe content, star systems)
+    galaxy.php        Planet/space map viewer and DM admin panel (?planet=infos)
+    interests.php     Detail view for a map area (town, dungeon, castle, domain, etc.)
+    statut.php        Server status widget (iframe); pings NWN server via UDP
+    map-data.php      JSON API — returns tile grid for a planet or Space sector
+    helpers.php       Shared PHP helpers: between(), tile_key(), encoded_field()
+    uoa.php           Config only: DB credentials, NWN port, DM password
+    ServerInfo.php    UDP library for NWN BNES/BNER/BNXI/BNXR server queries
+    database-mysql.php  Legacy DB abstraction layer (not used by main pages)
+    logging.php       console_log() helper — echoes a <script>console.log()</script> block
+    playerInfo.php    Supplementary player info display
+    css/              Lightbox 2 stylesheet
+    js/               Lightbox 2 + Prototype/Scriptaculous scripts
+    images/           Lightbox UI chrome assets
+    news_fichiers/    Images embedded in news.html
+    Factory_fichiers/ Images embedded in factory.html
+    *.html            Static content pages (classes, crafting, races, downloads, etc.)
+```
+
+The AliasMatch in `docker/apache-uoa.conf` maps bare `/forest.gif` and `/Dom_01.jpg`
+requests to `www/` so PHP pages can reference tile images without path prefixes.
 
 ### Map tile system
 
@@ -66,11 +80,11 @@ Tile types are two-digit codes in `pwdata` that map to named GIF files (e.g., `"
 Interest type codes (first character of interest `val`):
 - `D` = Domain, `1` = Town, `2` = Dungeon, `3` = Castle, `4` = Ruins, `5` = Animal reserve, `6` = Resource mountain, `7` = Amusement place
 
-### Frontend assets
+### Map tile images
 
-- `css/lightbox.css` + `js/lightbox.js` (+ `prototype.js`, `scriptaculous.js`, `effects.js`, `builder.js`) — Lightbox 2 image gallery, used on screenshot pages.
-- All map tile GIFs (`forest.gif`, `plain_town.gif`, etc.) live in the root directory alongside the PHP files.
-- `images/` — Lightbox UI chrome assets only.
+All map tile GIFs (`forest.gif`, `plain_town.gif`, etc.) and domain/screenshot JPGs live
+in `www/` (not in `public/`). They are web-accessible via the AliasMatch rule in the
+Apache config and are referenced from PHP output as bare filenames.
 
 ### DM area
 
