@@ -50,16 +50,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -274,16 +275,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1!="")){iNumR = iNum;if(iNumR>iNum11){iNumR = iNum11;}if(iNumR>iNum12){iNumR = iNum12;}if(iNumR>iDomainContainer-iNum1){iNumR = iDomainContainer-iNum1;}iNum1 = iNum1+iNumR;iNum11 = iNum11-iNumR;iNum12 = iNum12-iNumR;}
-else if((i==2)&&(sBP2!="")){iNumR = iNum;if(iNumR>iNum21){iNumR = iNum21;}if(iNumR>iNum22){iNumR = iNum22;}if(iNumR>iDomainContainer-iNum2){iNumR = iDomainContainer-iNum2;}iNum2 = iNum2+iNumR;iNum21 = iNum21-iNumR;iNum22 = iNum22-iNumR;}
-else if((i==3)&&(sBP3!="")){iNumR = iNum;if(iNumR>iNum31){iNumR = iNum31;}if(iNumR>iNum32){iNumR = iNum32;}if(iNumR>iDomainContainer-iNum3){iNumR = iDomainContainer-iNum3;}iNum3 = iNum3+iNumR;iNum31 = iNum31-iNumR;iNum32 = iNum32-iNumR;}
-else if((i==4)&&(sBP4!="")){iNumR = iNum;if(iNumR>iNum41){iNumR = iNum41;}if(iNumR>iNum42){iNumR = iNum42;}if(iNumR>iDomainContainer-iNum4){iNumR = iDomainContainer-iNum4;}iNum4 = iNum4+iNumR;iNum41 = iNum41-iNumR;iNum42 = iNum42-iNumR;}
-else if((i==5)&&(sBP5!="")){iNumR = iNum;if(iNumR>iNum51){iNumR = iNum51;}if(iNumR>iNum52){iNumR = iNum52;}if(iNumR>iDomainContainer-iNum5){iNumR = iDomainContainer-iNum5;}iNum5 = iNum5+iNumR;iNum51 = iNum51-iNumR;iNum52 = iNum52-iNumR;}
+     if((i==1)&&(sBP1!="")){iNumR = iNum;if(iNumR>iNum11){iNumR = iNum11;}if(iNumR>iNum12){iNumR = iNum12;}if(iNumR>iDomainContainer-iNum1){iNumR = iDomainContainer-iNum1;}if(iNumR<0){iNumR=0;}iNum1 = iNum1+iNumR;iNum11 = iNum11-iNumR;iNum12 = iNum12-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2!="")){iNumR = iNum;if(iNumR>iNum21){iNumR = iNum21;}if(iNumR>iNum22){iNumR = iNum22;}if(iNumR>iDomainContainer-iNum2){iNumR = iDomainContainer-iNum2;}if(iNumR<0){iNumR=0;}iNum2 = iNum2+iNumR;iNum21 = iNum21-iNumR;iNum22 = iNum22-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3!="")){iNumR = iNum;if(iNumR>iNum31){iNumR = iNum31;}if(iNumR>iNum32){iNumR = iNum32;}if(iNumR>iDomainContainer-iNum3){iNumR = iDomainContainer-iNum3;}if(iNumR<0){iNumR=0;}iNum3 = iNum3+iNumR;iNum31 = iNum31-iNumR;iNum32 = iNum32-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4!="")){iNumR = iNum;if(iNumR>iNum41){iNumR = iNum41;}if(iNumR>iNum42){iNumR = iNum42;}if(iNumR>iDomainContainer-iNum4){iNumR = iDomainContainer-iNum4;}if(iNumR<0){iNumR=0;}iNum4 = iNum4+iNumR;iNum41 = iNum41-iNumR;iNum42 = iNum42-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5!="")){iNumR = iNum;if(iNumR>iNum51){iNumR = iNum51;}if(iNumR>iNum52){iNumR = iNum52;}if(iNumR>iDomainContainer-iNum5){iNumR = iDomainContainer-iNum5;}if(iNumR<0){iNumR=0;}iNum5 = iNum5+iNumR;iNum51 = iNum51-iNumR;iNum52 = iNum52-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -370,16 +372,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -460,16 +463,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -533,16 +537,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
