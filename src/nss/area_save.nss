@@ -153,7 +153,7 @@ SetPersistentString(oModule,"Dungeons"+IntToString(iDungeons),sPlanet+"_A_"+sAre
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Delete variables
-DeleteLocalString(oModule,sPlanet+"_"+sArea);
+DeleteLocalObject(oModule,sPlanet+"_"+sArea);
 DeleteLocalString(oModule,GetLocalString(OBJECT_SELF,"Var"));
 DeleteLocalString(oModule,"Trans1"+sPlanet+sArea);
 DeleteLocalString(oModule,"Trans2"+sPlanet+sArea);
@@ -194,17 +194,6 @@ DeleteLocalInt(OBJECT_SELF,"DungeonFamily");
 DeleteLocalInt(OBJECT_SELF,"DDLevel");
 DeleteLocalObject(OBJECT_SELF,"CampEntry");
 DeleteLocalInt(OBJECT_SELF,"Used");
-// Restore original ambiance
-if((!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")&&(GetStringLeft(GetTag(OBJECT_SELF),10)!="underwater"))
- {
-SetSkyBox(GetLocalInt(OBJECT_SELF,"DefaultSkyBox"),OBJECT_SELF);
-SetFogColor(FOG_TYPE_SUN,GetLocalInt(OBJECT_SELF,"DefaultFogColorDay"),OBJECT_SELF);
-SetFogColor(FOG_TYPE_MOON,GetLocalInt(OBJECT_SELF,"DefaultFogColorNight"),OBJECT_SELF);
-SetFogAmount(FOG_TYPE_ALL,GetLocalInt(OBJECT_SELF,"DefaultFogAmount"),OBJECT_SELF);
-MusicBattleChange(OBJECT_SELF,GetLocalInt(OBJECT_SELF,"DefaultMusicBattle"));
-MusicBackgroundChangeDay(OBJECT_SELF,GetLocalInt(OBJECT_SELF,"DefaultMusicDay"));
-MusicBackgroundChangeNight(OBJECT_SELF,GetLocalInt(OBJECT_SELF,"DefaultMusicNight"));
-SetWeather(OBJECT_SELF,WEATHER_CLEAR);
- }
 ////////////////////////////////////////////////////////////////////////////////
+DestroyArea(OBJECT_SELF);
 }

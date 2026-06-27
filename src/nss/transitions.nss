@@ -12,7 +12,7 @@ string sAreaDest = GetLocalString(oPC,"AreaDest");
 float fX = GetLocalFloat(oPC,"fX");
 float fY = GetLocalFloat(oPC,"fY");
 float fFacing = GetLocalFloat(oPC,"fFacing");
-string sAreaChosen = GetLocalString(oModule,sPlanetDest+"_"+sAreaDest);
+object oAreaChosen = GetLocalObject(oModule,sPlanetDest+"_"+sAreaDest);
 string sNewAreaSpecial = GetLocalString(oPC,"NewAreaSpecial");
 int iHenchs = GetLocalInt(oPC,"Henchs");
 int iGate = GetLocalInt(oPC,"Gate");
@@ -40,9 +40,9 @@ string sDiscovArea = sNewArea;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Area already used
-if(sAreaChosen!="")
+if(GetIsObjectValid(oAreaChosen))
  {
-iCheck = 1;oTargetArea = GetObjectByTag(sAreaChosen);
+iCheck = 1;oTargetArea = oAreaChosen;
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Else pick up area in DB
@@ -106,26 +106,18 @@ else if(sNewArea=="21"){sNewArea = "tropical";}
 else if(sNewArea=="22"){sNewArea = "gaz";}
 else if(sNewArea=="23"){sNewArea = "test";}
 ////////////////////////////////////////////////////////////////////////////////
-// Check if an area is free
-i=0;
-while(i<10)
-  {
-i++;if(i<10){sAreaNumber = "00"+IntToString(i);}else{sAreaNumber = "0"+IntToString(i);}
-sTargetArea = sNewArea+sAreaNumber;oTargetArea = GetObjectByTag(sTargetArea);
-
-if((GetIsObjectValid(oTargetArea))&&(GetLocalInt(oTargetArea,"Used")<1))
-   {
+// Clone template area for this coordinate
 if(sNewAreaSpecial!=""){sAreaDest = sAreaDest+"_Ship";}
-
+oTargetArea = CopyArea(GetObjectByTag(sNewArea+"000"));
+if(GetIsObjectValid(oTargetArea))
+  {
 SetLocalInt(oTargetArea,"Used",1);
-SetLocalString(oModule,sPlanetDest+"_"+sAreaDest,sTargetArea);
+SetLocalObject(oModule,sPlanetDest+"_"+sAreaDest,oTargetArea);
 SetLocalString(oTargetArea,"Planet",sPlanetDest);
 SetLocalString(oTargetArea,"Area",sAreaDest);
 if(k>0){SetLocalString(oTargetArea,"PlanetOrb",sPlanetOrb);SetLocalString(oTargetArea,"PlanetType",sPlanetType);}
 if((GetStringLeft(GetTag(oTargetArea),5)!="space")&&(GetStringLeft(GetTag(oTargetArea),10)!="underwater")){ExecuteScript("area_ambiances",oTargetArea);}
 iCheck = 2;
-break;
-   }
   }
  }
 ////////////////////////////////////////////////////////////////////////////////
@@ -176,10 +168,8 @@ else{AssignCommand(oPC,ActionJumpToLocation(lLoc));DeleteLocalInt(oPC,"Gate");}
   }
 else if(iCheck==2)
   {
-DeleteLocalInt(oTargetArea,"Used");
-DeleteLocalString(oModule,sPlanetDest+"_"+sAreaDest);
-DeleteLocalString(oTargetArea,"Planet");
-DeleteLocalString(oTargetArea,"Area");
+DeleteLocalObject(oModule,sPlanetDest+"_"+sAreaDest);
+DestroyArea(oTargetArea);
   }
  }
 else
