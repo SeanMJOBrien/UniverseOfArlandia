@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Universe of Arlandia — Main Console</title>
+<meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="lcars-frame">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="lcars-header">
+    <div class="lcars-header__cap" aria-hidden="true"></div>
+    <div class="lcars-header__bar">
+      <span class="lcars-header__title">The Universe of Arlandia</span>
+      <span class="lcars-header__sub">For Neverwinter Nights — the universe is infinite</span>
+    </div>
+    <div class="lcars-header__cap--end" aria-hidden="true"></div>
+  </header>
+
+  <!-- ===================== SIDEBAR / NAV ===================== -->
+  <nav class="lcars-sidebar" aria-label="Main navigation">
+    <div class="lcars-sidebar__elbow" aria-hidden="true"></div>
+
+    <div class="lcars-sidebar__group">
+      <span class="lcars-block--label">Module</span>
+      <a class="lcars-block lcars-block--gold lcars-block--w-full is-active" href="news.html">Home / News</a>
+      <a class="lcars-block lcars-block--orange lcars-block--w-wide" href="../description.html">Description</a>
+      <a class="lcars-block lcars-block--orange lcars-block--w-medium" href="../screenshots.html">Screenshots</a>
+      <a class="lcars-block lcars-block--orange lcars-block--w-narrow" href="../interests.html">Interests</a>
+      <a class="lcars-block lcars-block--orange lcars-block--w-wide" href="../domains.html">Domains</a>
+      <a class="lcars-block lcars-block--orange lcars-block--w-medium" href="../crafting.html">Crafting</a>
+    </div>
+
+    <div class="lcars-sidebar__group">
+      <span class="lcars-block--label">Characters</span>
+      <a class="lcars-block lcars-block--paleblue lcars-block--w-full" href="../races.html">Races</a>
+      <a class="lcars-block lcars-block--paleblue lcars-block--w-medium" href="../classes.html">Classes</a>
+      <a class="lcars-block lcars-block--paleblue lcars-block--w-wide" href="../feats.html">Feats</a>
+      <a class="lcars-block lcars-block--paleblue lcars-block--w-narrow" href="../grades.html">Grades</a>
+      <a class="lcars-block lcars-block--paleblue lcars-block--w-medium" href="../talents.html">Talents</a>
+    </div>
+
+    <div class="lcars-sidebar__group">
+      <span class="lcars-block--label">Community</span>
+      <a class="lcars-block lcars-block--lilac lcars-block--w-wide" href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a>
+      <a class="lcars-block lcars-block--lilac lcars-block--w-full" href="../downloads.html">Downloads</a>
+      <a class="lcars-block lcars-block--lilac lcars-block--w-medium" href="../links.html">Links</a>
+      <a class="lcars-block lcars-block--lilac lcars-block--w-narrow" href="../contact.html">Contact</a>
+    </div>
+
+    <div class="lcars-dm">
+      <h4>DM Console Access</h4>
+      <form action="#" onsubmit="return false;">
+        <label for="dm-password">Access Code</label>
+        <input type="password" id="dm-password" name="dm-password" placeholder="••••••••" autocomplete="off">
+        <button type="submit">Connect</button>
+      </form>
+    </div>
+
+    <div class="lcars-sidebar__filler" aria-hidden="true"></div>
+  </nav>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="lcars-main">
+
+    <!-- HERO -->
+    <section class="lcars-hero">
+      <div class="lcars-hero__main">
+        <h1>Main Console</h1>
+        <p>
+          Welcome to the central operations display for the Universe of Arlandia —
+          an infinite, persistent universe for Neverwinter Nights. Explore newly
+          charted star systems, monitor server status, and review the latest
+          dispatches from command.
+        </p>
+      </div>
+      <div class="lcars-hero__readout">
+        <div class="lcars-readout-row">
+          <span>Stardate Sync</span>
+          <span>1372.03.18</span>
+        </div>
+        <div class="lcars-readout-row">
+          <span>Local Time</span>
+          <span>14:32</span>
+        </div>
+        <div class="lcars-readout-row">
+          <span>Sector</span>
+          <span>Meth System</span>
+        </div>
+        <div class="lcars-readout-row">
+          <span>Console</span>
+          <span>LCARS-05</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVER STATUS -->
+    <section class="lcars-panel" aria-labelledby="status-title">
+      <div class="lcars-panel__title">
+        <span class="lcars-chip lcars-chip--orange" id="status-title">Server Status</span>
+        <span class="lcars-rule" aria-hidden="true"></span>
+      </div>
+      <div class="lcars-status-grid">
+        <div class="lcars-status-cell lcars-status-cell--online">
+          <span class="label">Status</span>
+          <span class="value is-online">Online</span>
+        </div>
+        <div class="lcars-status-cell lcars-status-cell--orange">
+          <span class="label">Players Online</span>
+          <span class="value">7</span>
+        </div>
+        <div class="lcars-status-cell lcars-status-cell--lilac">
+          <span class="label">In-Game Date</span>
+          <span class="value">Year 1372, Month 3, Day 18</span>
+        </div>
+        <div class="lcars-status-cell lcars-status-cell--lilac">
+          <span class="label">In-Game Time</span>
+          <span class="value">14:32</span>
+        </div>
+        <div class="lcars-status-cell lcars-status-cell--orange">
+          <span class="label">Next Reboot</span>
+          <span class="value">3h 47m</span>
+        </div>
+        <div class="lcars-status-cell lcars-status-cell--red">
+          <span class="label">Direct Connect</span>
+          <span class="value">uoanwn.homeip.net</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STAR SYSTEMS -->
+    <section class="lcars-panel" aria-labelledby="systems-title">
+      <div class="lcars-panel__title">
+        <span class="lcars-chip lcars-chip--lilac" id="systems-title">Charted Star Systems</span>
+        <span class="lcars-rule" aria-hidden="true"></span>
+      </div>
+      <div class="lcars-systems">
+        <div class="lcars-system">
+          <div class="lcars-system__name">Meth System</div>
+          <div class="lcars-system__planets">
+            <a class="lcars-planet-chip" href="#">Arland</a>
+            <a class="lcars-planet-chip" href="#">Tyrra</a>
+            <a class="lcars-planet-chip" href="#">Vornak</a>
+            <a class="lcars-planet-chip" href="#">Kethis</a>
+          </div>
+        </div>
+        <p class="lcars-system-note">Meth System: 11 planets, 8 moons total — Arland is the primary starting world.</p>
+
+        <div class="lcars-system">
+          <div class="lcars-system__name">Solhaven System</div>
+          <div class="lcars-system__planets">
+            <a class="lcars-planet-chip" href="#">Kaldris</a>
+            <a class="lcars-planet-chip" href="#">Pthera</a>
+          </div>
+        </div>
+
+        <div class="lcars-system">
+          <div class="lcars-system__name">Drakon Reach</div>
+          <div class="lcars-system__planets">
+            <a class="lcars-planet-chip" href="#">Skarn</a>
+            <a class="lcars-planet-chip" href="#">Orobus</a>
+            <a class="lcars-planet-chip" href="#">Veyth</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LATEST NEWS PREVIEW -->
+    <section class="lcars-panel" aria-labelledby="news-title">
+      <div class="lcars-panel__title">
+        <span class="lcars-chip lcars-chip--red" id="news-title">Latest Transmissions</span>
+        <span class="lcars-rule" aria-hidden="true"></span>
+      </div>
+      <div class="lcars-news-preview">
+        <div class="lcars-news-item">
+          <div class="lcars-news-item__date">02.03.2020</div>
+          <div class="lcars-news-item__body">
+            <h3>UOA Server Reopening Under New Management</h3>
+            <div class="meta">Filed by Qlippoth</div>
+            <p>
+              UoA is back online under NWN:EE. Hak files are available in the
+              Downloads section while NWSync support is finalized. Check the
+              Crafting page to see what's craftable, and reach out if you'd
+              like to help build the world.
+            </p>
+          </div>
+        </div>
+        <div class="lcars-news-item">
+          <div class="lcars-news-item__date">12.08.2011</div>
+          <div class="lcars-news-item__body">
+            <h3>UOA Server Closed</h3>
+            <div class="meta">Filed by TheRack</div>
+            <p>
+              The official UOA server has closed due to low player counts. All
+              files needed to play or host the UOA world remain available in
+              the Downloads section, with setup instructions included.
+            </p>
+          </div>
+        </div>
+        <div class="lcars-news-item">
+          <div class="lcars-news-item__date">25.12.2010</div>
+          <div class="lcars-news-item__body">
+            <h3>Merry Christmas</h3>
+            <div class="meta">Filed by TheRack</div>
+            <p>
+              The UOA team wishes all players a merry Christmas and happy new
+              year as the server enters full operational status. Come explore
+              a very rich and huge world!
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="lcars-more-link"><a href="news.html">View Full Transmission Log &rarr;</a></p>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="lcars-footer">
+    <div class="lcars-footer__cap" aria-hidden="true"></div>
+    <div class="lcars-footer__bar">&copy; TheRack, all rights reserved, 2009-2011</div>
+    <div class="lcars-footer__cap--end" aria-hidden="true"></div>
+  </footer>
+
+</div>
+</body>
+</html>

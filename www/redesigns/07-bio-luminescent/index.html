@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <title>The Universe of Arlandia</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="spore-field" aria-hidden="true">
+    <span class="spore spore--cyan spore--s1"></span>
+    <span class="spore spore--magenta spore--s2"></span>
+    <span class="spore spore--cyan spore--s3"></span>
+    <span class="spore spore--magenta spore--s4"></span>
+    <span class="spore spore--cyan spore--s5"></span>
+    <span class="spore spore--magenta spore--s6"></span>
+    <span class="spore spore--cyan spore--s7"></span>
+    <span class="spore spore--magenta spore--s8"></span>
+  </div>
+
+  <div class="page-shell">
+
+    <header class="site-header">
+      <h1 class="site-title">The Universe of <span class="accent">Arlandia</span></h1>
+      <p class="site-tagline">For Neverwinter Nights &mdash; The universe is infinite</p>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-group">
+          <span class="nav-group-label">Module</span>
+          <a href="news.html" class="active">Home/News</a>
+          <a href="../description.html">Description</a>
+          <a href="../screenshots.html">Screenshots</a>
+          <a href="../interests.html">Interests</a>
+          <a href="../domains.html">Domains</a>
+          <a href="../crafting.html">Crafting</a>
+        </div>
+        <div class="nav-divider" aria-hidden="true"></div>
+        <div class="nav-group">
+          <span class="nav-group-label">Characters</span>
+          <a href="../races.html">Races</a>
+          <a href="../classes.html">Classes</a>
+          <a href="../feats.html">Feats</a>
+          <a href="../grades.html">Grades</a>
+          <a href="../talents.html">Talents</a>
+        </div>
+        <div class="nav-divider" aria-hidden="true"></div>
+        <div class="nav-group">
+          <span class="nav-group-label">Community</span>
+          <a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a>
+          <a href="../downloads.html">Downloads</a>
+          <a href="../links.html">Links</a>
+          <a href="../contact.html">Contact</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="hub-grid">
+
+      <section class="panel" aria-labelledby="status-heading">
+        <h2 id="status-heading"><span class="glow-dot" aria-hidden="true"></span> Server Status</h2>
+        <ul class="status-list">
+          <li>
+            <span class="status-label">Status</span>
+            <span class="status-online-pill"><span class="glow-dot" aria-hidden="true"></span> Online</span>
+          </li>
+          <li>
+            <span class="status-label">Players online</span>
+            <span class="status-value is-online">7</span>
+          </li>
+          <li>
+            <span class="status-label">In-game date/time</span>
+            <span class="status-value">Year 1372, Month 3, Day 18 &mdash; 14:32</span>
+          </li>
+          <li>
+            <span class="status-label">Next reboot</span>
+            <span class="status-value">3h 47m</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="panel panel--magenta panel--alt" aria-labelledby="connect-heading">
+        <h2 id="connect-heading"><span class="glow-dot glow-dot--magenta" aria-hidden="true"></span> Connection Info</h2>
+        <p>Drop straight into the Arlandia biome cluster &mdash; point your NWN:EE client at the direct-connect address below.</p>
+        <span class="connect-code">uoanwn.homeip.net</span>
+        <p class="dm-note">NWSync should fetch the required haks automatically. If not, grab them from the Downloads page.</p>
+      </section>
+
+      <section class="panel panel--full" aria-labelledby="systems-heading">
+        <h2 id="systems-heading"><span class="glow-dot" aria-hidden="true"></span> Known Star Systems</h2>
+        <p>A living catalogue of the systems charted so far by Arlandia's explorers and spies.</p>
+
+        <div class="system-block">
+          <h3 class="system-name">Meth System</h3>
+          <p class="system-meta">11 planets &middot; 8 moons total &mdash; Arland is the main starting planet</p>
+          <div class="planet-chips">
+            <a href="#" class="planet-chip planet-chip--main">Arland</a>
+            <a href="#" class="planet-chip">Tyrra</a>
+            <a href="#" class="planet-chip">Vornak</a>
+            <a href="#" class="planet-chip">Kethis</a>
+          </div>
+        </div>
+
+        <div class="system-block">
+          <h3 class="system-name">Solhaven System</h3>
+          <p class="system-meta">2 charted planets</p>
+          <div class="planet-chips">
+            <a href="#" class="planet-chip">Kaldris</a>
+            <a href="#" class="planet-chip">Pthera</a>
+          </div>
+        </div>
+
+        <div class="system-block">
+          <h3 class="system-name">Drakon Reach</h3>
+          <p class="system-meta">3 charted planets</p>
+          <div class="planet-chips">
+            <a href="#" class="planet-chip">Skarn</a>
+            <a href="#" class="planet-chip">Orobus</a>
+            <a href="#" class="planet-chip">Veyth</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel--magenta" aria-labelledby="dm-heading">
+        <h2 id="dm-heading"><span class="glow-dot glow-dot--magenta" aria-hidden="true"></span> DM Console Access</h2>
+        <p>Dungeon Masters may authenticate here to access live area maps and oversight tools.</p>
+        <form class="dm-form" action="#" onsubmit="return false;">
+          <div class="field">
+            <label for="dm-password">DM Password</label>
+            <input type="password" id="dm-password" name="dm-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="off">
+          </div>
+          <button type="submit" class="btn-glow">Connect</button>
+        </form>
+        <p class="dm-note">Decorative only in this concept &mdash; no backend connection.</p>
+      </section>
+
+      <section class="panel panel--full" aria-labelledby="news-heading">
+        <h2 id="news-heading"><span class="glow-dot" aria-hidden="true"></span> Latest Transmissions</h2>
+        <ul class="news-preview-list">
+          <li class="news-card news-card--featured">
+            <div class="news-meta">
+              <span class="news-date">02.03.2020</span>
+              <span class="news-author">by Qlippoth</span>
+            </div>
+            <h3>UOA server REOPENING under new Management. Now with backwards AMERICAN dates&hellip; Sorry.</h3>
+            <p>UoA is coming back online under NWN:EE. Haks are available in Downloads while NWSync support is finalised. Check the Crafting page to see what you can build &mdash; homes, Guild Halls, factories, even airships and spaceships.</p>
+            <a href="news.html" class="read-more-link">Read full transmission &rarr;</a>
+          </li>
+          <li class="news-card">
+            <div class="news-meta">
+              <span class="news-date">12.08.2011</span>
+              <span class="news-author">by TheRack</span>
+            </div>
+            <h3>UOA server closed</h3>
+            <p>The official UOA server has closed due to low population. All files needed to play or host the world remain available in Downloads.</p>
+            <a href="news.html" class="read-more-link">Read full transmission &rarr;</a>
+          </li>
+          <li class="news-card">
+            <div class="news-meta">
+              <span class="news-date">25.12.2010</span>
+              <span class="news-author">by TheRack</span>
+            </div>
+            <h3>Merry Christmas</h3>
+            <p>The UOA team wishes all players a merry christmas and happy new year as the server settles into full operation.</p>
+            <a href="news.html" class="read-more-link">Read full transmission &rarr;</a>
+          </li>
+        </ul>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; TheRack, all rights reserved, 2009-2011.</p>
+    </footer>
+
+  </div>
+
+</body>
+</html>

@@ -48,30 +48,29 @@ Negative coordinates in keys are stored with `m` replacing `-` (e.g., `m3_5` = `
 ### Directory layout
 
 ```
-www/
-  *.gif / *.jpg       terrain tile GIFs and domain/screenshot JPGs (served via AliasMatch)
-  public/             Apache DocumentRoot — all PHP and HTML served from here
-    index.php         Main shell — 3-column layout (nav, iframe content, star systems)
-    galaxy.php        Planet/space map viewer and DM admin panel (?planet=infos)
-    interests.php     Detail view for a map area (town, dungeon, castle, domain, etc.)
-    statut.php        Server status widget (iframe); pings NWN server via UDP
-    map-data.php      JSON API — returns tile grid for a planet or Space sector
-    helpers.php       Shared PHP helpers: between(), tile_key(), encoded_field()
-    uoa.php           Config only: DB credentials, NWN port, DM password
-    ServerInfo.php    UDP library for NWN BNES/BNER/BNXI/BNXR server queries
-    database-mysql.php  Legacy DB abstraction layer (not used by main pages)
-    logging.php       console_log() helper — echoes a <script>console.log()</script> block
-    playerInfo.php    Supplementary player info display
+www/                  Apache DocumentRoot — PHP and HTML files served from here
+  index.php           Main shell — 3-column layout (nav, iframe content, star systems)
+  galaxy.php          Planet/space map viewer and DM admin panel (?planet=infos)
+  interests.php       Detail view for a map area (town, dungeon, castle, domain, etc.)
+  statut.php          Server status widget (iframe); pings NWN server via UDP
+  map-data.php        JSON API — returns tile grid for a planet or Space sector
+  helpers.php         Shared PHP helpers: between(), tile_key(), encoded_field()
+  uoa.php             Config only: DB credentials, NWN port, DM password
+  ServerInfo.php      UDP library for NWN BNES/BNER/BNXI/BNXR server queries
+  database-mysql.php  Legacy DB abstraction layer (not used by main pages)
+  logging.php         console_log() helper
+  playerInfo.php      Supplementary player info display
+  *.html              Static content pages (classes, crafting, races, downloads, etc.)
+  app/
+    assets/           All terrain tile GIFs and domain/screenshot JPGs
     css/              Lightbox 2 stylesheet
     js/               Lightbox 2 + Prototype/Scriptaculous scripts
-    images/           Lightbox UI chrome assets
+    images/           Lightbox UI chrome assets (close, loading, nav arrows)
     news_fichiers/    Images embedded in news.html
     Factory_fichiers/ Images embedded in factory.html
-    *.html            Static content pages (classes, crafting, races, downloads, etc.)
 ```
 
-The AliasMatch in `docker/apache-uoa.conf` maps bare `/forest.gif` and `/Dom_01.jpg`
-requests to `www/` so PHP pages can reference tile images without path prefixes.
+PHP pages reference assets with `app/assets/forest.gif` etc. (root-relative from DocumentRoot).
 
 ### Map tile system
 
@@ -82,9 +81,9 @@ Interest type codes (first character of interest `val`):
 
 ### Map tile images
 
-All map tile GIFs (`forest.gif`, `plain_town.gif`, etc.) and domain/screenshot JPGs live
-in `www/` (not in `public/`). They are web-accessible via the AliasMatch rule in the
-Apache config and are referenced from PHP output as bare filenames.
+All terrain tile GIFs (`forest.gif`, `plain_town.gif`, etc.) and domain/screenshot JPGs
+live in `www/app/assets/`. They are referenced from PHP and HTML as `app/assets/forest.gif`
+(root-relative from the DocumentRoot `www/`).
 
 ### DM area
 

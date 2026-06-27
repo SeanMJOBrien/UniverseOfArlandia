@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Universe of Arlandia — Command Briefing</title>
+<meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="hazard-strip" role="presentation"></div>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="brand">
+      <div class="brand-emblem" aria-hidden="true"></div>
+      <div class="brand-text">
+        <h1>Universe of Arlandia</h1>
+        <p>Imperial Command Network &mdash; The Universe Is Infinite</p>
+      </div>
+    </div>
+    <div class="masthead-meta">
+      <span class="clearance">Clearance Level: Visitor</span>
+      <span>Channel // NWN Persistent World Relay</span>
+      <span>Uplink Status: <span class="status-dot" aria-hidden="true"></span>Nominal</span>
+    </div>
+  </div>
+
+  <nav class="command-nav" aria-label="Primary navigation">
+    <div class="command-nav-inner">
+      <div class="nav-group">
+        <span class="nav-group-label">Module</span>
+        <ul class="nav-links">
+          <li><a href="news.html" class="active">Home / News</a></li>
+          <li><a href="../description.html">Description</a></li>
+          <li><a href="../screenshots.html">Screenshots</a></li>
+          <li><a href="../interests.html">Interests</a></li>
+          <li><a href="../domains.html">Domains</a></li>
+          <li><a href="../crafting.html">Crafting</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Characters</span>
+        <ul class="nav-links">
+          <li><a href="../races.html">Races</a></li>
+          <li><a href="../classes.html">Classes</a></li>
+          <li><a href="../feats.html">Feats</a></li>
+          <li><a href="../grades.html">Grades</a></li>
+          <li><a href="../talents.html">Talents</a></li>
+        </ul>
+      </div>
+      <div class="nav-group">
+        <span class="nav-group-label">Community</span>
+        <ul class="nav-links">
+          <li><a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a></li>
+          <li><a href="../downloads.html">Downloads</a></li>
+          <li><a href="../links.html">Links</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="shell">
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-tag">Briefing Room // Sector Overview</span>
+      <h2>The <span>Universe</span> of Arlandia</h2>
+      <p>
+        Universe of Arlandia for Neverwinter Nights &mdash; the universe is infinite.
+        A persistent world spanning star systems, frontier domains, and contested
+        ground. Review the operational status below, scan known systems, and
+        report to your duty station.
+      </p>
+      <div class="hero-actions">
+        <a href="news.html" class="btn btn-primary">Open News Feed</a>
+        <a href="../description.html" class="btn">Module Briefing</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel-grid">
+
+    <!-- Server status -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>Server Status</h3>
+        <span class="tag">Live Telemetry (Demo)</span>
+      </div>
+      <div class="panel-body">
+        <p class="status-line"><span class="status-dot" aria-hidden="true"></span>Status: <strong>Online</strong></p>
+        <div class="readout-grid">
+          <div class="readout">
+            <span class="label">Players Online</span>
+            <span class="value">7</span>
+          </div>
+          <div class="readout">
+            <span class="label">In-Game Date</span>
+            <span class="value">Y1372 / M03 / D18</span>
+          </div>
+          <div class="readout">
+            <span class="label">In-Game Time</span>
+            <span class="value">14:32</span>
+          </div>
+          <div class="readout">
+            <span class="label">Next Reboot</span>
+            <span class="value alert">3H 47M</span>
+          </div>
+        </div>
+        <p class="connect-line">
+          Direct Connect &mdash; <strong>uoanwn.homeip.net</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- DM Console -->
+    <div class="panel">
+      <div class="panel-header">
+        <h3>DM Console Access</h3>
+        <span class="tag">Restricted</span>
+      </div>
+      <div class="panel-body dm-console">
+        <p class="note">
+          Dungeon Masters: authenticate below to access the area override
+          console and live map overlays. Standard travellers may disregard.
+        </p>
+        <form class="dm-form" action="#" method="post" onsubmit="return false;">
+          <label for="dm-password" class="visually-hidden">DM Password</label>
+          <input type="password" id="dm-password" name="dm-password" placeholder="DM ACCESS CODE" autocomplete="off">
+          <button type="submit" class="btn btn-primary">Connect</button>
+        </form>
+        <p class="dm-status"><span class="status-dot offline" aria-hidden="true"></span>Console Link: Standby</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Star systems / holoprojector -->
+  <section class="panel">
+    <div class="panel-header">
+      <h3>Known Star Systems</h3>
+      <span class="tag">Holoprojection Array</span>
+    </div>
+    <div class="panel-body holo-wrap">
+      <div class="holo-display" aria-hidden="true">
+        <div class="ring r1"></div>
+        <div class="ring r2"></div>
+        <div class="ring r3"></div>
+        <div class="crosshair"></div>
+        <div class="holo-core"></div>
+      </div>
+
+      <div class="systems-list">
+        <div class="system-block">
+          <h4>Meth System</h4>
+          <p class="system-meta">11 planets &middot; 8 moons &middot; Arland designated homeworld</p>
+          <div class="chip-row">
+            <a href="#" class="chip chip-home">Arland</a>
+            <a href="#" class="chip">Tyrra</a>
+            <a href="#" class="chip">Vornak</a>
+            <a href="#" class="chip">Kethis</a>
+          </div>
+        </div>
+
+        <div class="system-block">
+          <h4>Solhaven System</h4>
+          <p class="system-meta">2 charted planets</p>
+          <div class="chip-row">
+            <a href="#" class="chip">Kaldris</a>
+            <a href="#" class="chip">Pthera</a>
+          </div>
+        </div>
+
+        <div class="system-block">
+          <h4>Drakon Reach</h4>
+          <p class="system-meta">3 charted planets &middot; frontier territory</p>
+          <div class="chip-row">
+            <a href="#" class="chip">Skarn</a>
+            <a href="#" class="chip">Orobus</a>
+            <a href="#" class="chip">Veyth</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest news preview -->
+  <section class="panel">
+    <div class="panel-header">
+      <h3>Incoming Transmissions</h3>
+      <span class="tag">Latest 3 Entries</span>
+    </div>
+    <div class="panel-body">
+      <div class="news-preview-list">
+
+        <article class="news-item">
+          <p class="news-meta">
+            <span class="news-date">02.03.2020</span>
+            <span class="news-author">Qlippoth</span>
+          </p>
+          <h3>UOA Server Reopening Under New Management</h3>
+          <p>
+            Now with backwards AMERICAN dates&hellip; sorry. UoA is back online under
+            NWN:EE. Required hak files are in the Downloads section &mdash; check the
+            Crafting page to plan ahead.
+          </p>
+        </article>
+
+        <article class="news-item">
+          <p class="news-meta">
+            <span class="news-date">12.08.2011</span>
+            <span class="news-author">TheRack</span>
+          </p>
+          <h3>UOA Server Closed</h3>
+          <p>
+            The official UOA server has closed due to low population. All files
+            needed to play or host the UOA world remain available in Downloads.
+          </p>
+        </article>
+
+        <article class="news-item">
+          <p class="news-meta">
+            <span class="news-date">25.12.2010</span>
+            <span class="news-author">TheRack</span>
+          </p>
+          <h3>Merry Christmas</h3>
+          <p>
+            The UOA team wishes all players a merry christmas and a happy new
+            year. The server enters its full operational run &mdash; come join a
+            rich and huge world.
+          </p>
+        </article>
+
+      </div>
+      <p class="more-link">
+        <a href="news.html" class="btn">View Full Transmission Log</a>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="command-footer">
+  <div class="hazard-strip" role="presentation"></div>
+  &copy; TheRack, all rights reserved, 2009-2011.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,727 @@
+/* ============================================================
+   Universe of Arlandia — "Neon Cyberpunk" redesign concept
+   Shared stylesheet for index.html and news.html
+   ============================================================ */
+
+:root {
+  --bg-deep:      #05050a;
+  --bg-panel:     #0c0c16;
+  --bg-panel-2:   #11111f;
+  --magenta:      #ff2bd6;
+  --magenta-dim:  #99146f;
+  --cyan:         #00fff7;
+  --cyan-dim:     #0a8e8a;
+  --text-main:    #e8f7ff;
+  --text-dim:     #93a3c4;
+  --grid-line:    rgba(0, 255, 247, 0.06);
+  --grid-line-2:  rgba(255, 43, 214, 0.05);
+  --font-display: "Orbitron", "Segoe UI", "Trebuchet MS", sans-serif;
+  --font-mono:    "Share Tech Mono", "Consolas", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+
+  /* Faint neon grid-line background pattern */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      var(--grid-line) 0px,
+      var(--grid-line) 1px,
+      transparent 1px,
+      transparent 48px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--grid-line-2) 0px,
+      var(--grid-line-2) 1px,
+      transparent 1px,
+      transparent 48px
+    ),
+    radial-gradient(ellipse at top, #1a0a2e 0%, var(--bg-deep) 55%);
+  background-attachment: fixed;
+}
+
+/* ------------------------------------------------------------
+   Layout shell
+   ------------------------------------------------------------ */
+
+.site-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.25rem 3rem;
+}
+
+/* ------------------------------------------------------------
+   Header / hero
+   ------------------------------------------------------------ */
+
+.site-header {
+  padding: 2.5rem 0 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--magenta-dim);
+  position: relative;
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--text-main);
+  text-shadow:
+    0 0 4px var(--cyan),
+    0 0 12px var(--cyan),
+    0 0 28px var(--magenta);
+  position: relative;
+  display: inline-block;
+  animation: flicker 6s infinite;
+}
+
+/* Glitch layers using ::before / ::after duplicate text via attr-less trick:
+   we duplicate the title text in markup with aria-hidden spans for the effect */
+.site-title .glitch-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: transparent;
+}
+
+.site-title .glitch-layer::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+.site-title .glitch-layer--cyan::before {
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  animation: glitch-shift-cyan 4.2s infinite linear;
+  clip-path: inset(0 0 60% 0);
+}
+
+.site-title .glitch-layer--magenta::before {
+  color: var(--magenta);
+  text-shadow: 0 0 8px var(--magenta);
+  animation: glitch-shift-magenta 4.6s infinite linear;
+  clip-path: inset(45% 0 0 0);
+}
+
+@keyframes glitch-shift-cyan {
+  0%, 92%, 100% { transform: translate(0, 0); opacity: 0; }
+  93% { transform: translate(-2px, -1px); opacity: 0.8; }
+  95% { transform: translate(2px, 1px); opacity: 0.6; }
+  97% { transform: translate(-1px, 0); opacity: 0.8; }
+  98% { transform: translate(0, 0); opacity: 0; }
+}
+
+@keyframes glitch-shift-magenta {
+  0%, 90%, 100% { transform: translate(0, 0); opacity: 0; }
+  91% { transform: translate(3px, 1px); opacity: 0.8; }
+  94% { transform: translate(-2px, -1px); opacity: 0.6; }
+  96% { transform: translate(1px, 0); opacity: 0.8; }
+  97.5% { transform: translate(0, 0); opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 95%, 100% { opacity: 1; }
+  96% { opacity: 0.84; }
+  97% { opacity: 1; }
+  98% { opacity: 0.9; }
+}
+
+.site-tagline {
+  font-family: var(--font-mono);
+  color: var(--cyan);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0;
+  opacity: 0.85;
+}
+
+/* ------------------------------------------------------------
+   Navigation
+   ------------------------------------------------------------ */
+
+.site-nav {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 2.5rem;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-group-title {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta);
+  margin: 0 0 0.25rem;
+}
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.1rem;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.nav-links a:hover,
+.nav-links a:focus {
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
+.nav-links a[aria-current="page"] {
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta);
+  border-bottom: 1px solid var(--magenta);
+}
+
+/* ------------------------------------------------------------
+   Panels — angular / beveled with clip-path
+   ------------------------------------------------------------ */
+
+.panel {
+  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+  border: 1px solid var(--cyan-dim);
+  padding: 1.75rem 1.75rem 1.5rem;
+  position: relative;
+  clip-path: polygon(
+    0 14px, 14px 0,
+    100% 0,
+    100% calc(100% - 14px), calc(100% - 14px) 100%,
+    0 100%
+  );
+  box-shadow:
+    0 0 18px rgba(0, 255, 247, 0.08),
+    inset 0 0 30px rgba(255, 43, 214, 0.03);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-top: 2px solid var(--magenta);
+  clip-path: polygon(0 14px, 14px 0, 40% 0, 40% 2px, 0 2px);
+  opacity: 0.9;
+}
+
+.panel-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 1rem;
+  margin: 0 0 1.1rem;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  border-bottom: 1px solid rgba(0, 255, 247, 0.25);
+  padding-bottom: 0.6rem;
+}
+
+.panel-title .accent {
+  color: var(--magenta);
+  text-shadow: 0 0 8px var(--magenta);
+}
+
+/* ------------------------------------------------------------
+   Main content grid (index)
+   ------------------------------------------------------------ */
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.75rem;
+  margin-top: 2.5rem;
+}
+
+.content-grid .panel--wide {
+  grid-column: 1 / -1;
+}
+
+/* ------------------------------------------------------------
+   Server status panel
+   ------------------------------------------------------------ */
+
+.status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem 1.5rem;
+}
+
+.status-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px dashed rgba(0, 255, 247, 0.15);
+}
+
+.status-label {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.status-value {
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+}
+
+.status-value.is-online {
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+}
+
+.status-value.is-online::before {
+  content: "\25CF";
+  display: inline-block;
+  margin-right: 0.4em;
+  animation: pulse-dot 1.6s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; text-shadow: 0 0 6px var(--cyan); }
+  50% { opacity: 0.35; text-shadow: 0 0 2px var(--cyan); }
+}
+
+.connect-info {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 43, 214, 0.2);
+}
+
+.connect-info code {
+  display: inline-block;
+  background: #000;
+  border: 1px solid var(--magenta-dim);
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta);
+  padding: 0.3rem 0.7rem;
+  margin-top: 0.4rem;
+  letter-spacing: 0.06em;
+  font-size: 0.95rem;
+}
+
+/* ------------------------------------------------------------
+   Star systems panel
+   ------------------------------------------------------------ */
+
+.system-block {
+  margin-bottom: 1.25rem;
+}
+
+.system-block:last-child {
+  margin-bottom: 0;
+}
+
+.system-name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--magenta);
+  text-shadow: 0 0 6px var(--magenta);
+  margin: 0 0 0.6rem;
+}
+
+.system-meta {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  margin: -0.4rem 0 0.6rem;
+  display: block;
+}
+
+.planet-chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.planet-chips a {
+  display: inline-block;
+  color: var(--cyan);
+  text-decoration: none;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--cyan-dim);
+  background: rgba(0, 255, 247, 0.04);
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.planet-chips a:hover,
+.planet-chips a:focus {
+  color: var(--bg-deep);
+  background: var(--cyan);
+  box-shadow: 0 0 14px var(--cyan);
+}
+
+/* ------------------------------------------------------------
+   DM Console widget
+   ------------------------------------------------------------ */
+
+.dm-console {
+  font-family: var(--font-mono);
+}
+
+.dm-console p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  margin-top: 0;
+}
+
+.dm-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.dm-form label {
+  position: absolute;
+  left: -9999px;
+}
+
+.dm-form input[type="password"] {
+  flex: 1 1 180px;
+  background: #000;
+  border: 1px solid var(--cyan-dim);
+  color: var(--cyan);
+  padding: 0.65rem 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  outline: none;
+}
+
+.dm-form input[type="password"]::placeholder {
+  color: rgba(0, 255, 247, 0.35);
+}
+
+.dm-form input[type="password"]:focus {
+  box-shadow: 0 0 10px var(--cyan);
+  border-color: var(--cyan);
+}
+
+.dm-form button {
+  flex: 0 0 auto;
+  background: transparent;
+  border: 1px solid var(--magenta);
+  color: var(--magenta);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  font-family: var(--font-display);
+  padding: 0.65rem 1.5rem;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dm-form button:hover,
+.dm-form button:focus {
+  background: var(--magenta);
+  color: #05050a;
+  box-shadow: 0 0 16px var(--magenta);
+}
+
+.dm-console .console-readout {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: var(--cyan-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------
+   Latest news preview (index)
+   ------------------------------------------------------------ */
+
+.news-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.news-preview-item {
+  border-left: 2px solid var(--magenta);
+  padding-left: 1rem;
+}
+
+.news-preview-item .news-date {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  letter-spacing: 0.12em;
+  margin-bottom: 0.25rem;
+}
+
+.news-preview-item h3 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.news-preview-item h3 a {
+  color: var(--text-main);
+  text-decoration: none;
+}
+
+.news-preview-item h3 a:hover,
+.news-preview-item h3 a:focus {
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+}
+
+.news-preview-item p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+}
+
+.news-preview-byline {
+  color: var(--magenta);
+  font-style: normal;
+}
+
+.view-all-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: var(--cyan);
+  text-decoration: none;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  border: 1px solid var(--cyan-dim);
+  padding: 0.6rem 1.4rem;
+  clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.view-all-link:hover,
+.view-all-link:focus {
+  background: var(--cyan);
+  color: var(--bg-deep);
+  box-shadow: 0 0 16px var(--cyan);
+}
+
+/* ------------------------------------------------------------
+   News page — timeline
+   ------------------------------------------------------------ */
+
+.news-timeline {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.news-entry {
+  background: linear-gradient(160deg, var(--bg-panel) 0%, var(--bg-panel-2) 100%);
+  border: 1px solid var(--cyan-dim);
+  border-left: 3px solid var(--magenta);
+  padding: 1.5rem 1.75rem;
+  clip-path: polygon(
+    0 14px, 14px 0,
+    100% 0,
+    100% calc(100% - 14px), calc(100% - 14px) 100%,
+    0 100%
+  );
+  box-shadow: 0 0 14px rgba(0, 255, 247, 0.06);
+}
+
+.news-entry-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 255, 247, 0.15);
+  padding-bottom: 0.6rem;
+}
+
+.news-entry-date {
+  font-family: var(--font-mono);
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+}
+
+.news-entry-author {
+  font-size: 0.8rem;
+  color: var(--magenta);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.news-entry h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 1.15rem;
+  margin: 0 0 0.6rem;
+  color: var(--text-main);
+}
+
+.news-entry p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+/* Archive (collapsed older entries) */
+.news-archive {
+  margin-top: 2rem;
+}
+
+.news-archive summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  padding: 0.9rem 1.25rem;
+  border: 1px solid var(--cyan-dim);
+  background: var(--bg-panel);
+  clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  list-style: none;
+}
+
+.news-archive summary::-webkit-details-marker {
+  display: none;
+}
+
+.news-archive summary::after {
+  content: " \25BC";
+  font-size: 0.7rem;
+  color: var(--magenta);
+}
+
+.news-archive[open] summary::after {
+  content: " \25B2";
+}
+
+.news-archive .news-timeline {
+  margin-top: 1.25rem;
+}
+
+/* ------------------------------------------------------------
+   Footer
+   ------------------------------------------------------------ */
+
+.site-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--magenta-dim);
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+}
+
+.site-footer .accent {
+  color: var(--cyan);
+  text-shadow: 0 0 6px var(--cyan);
+}
+
+/* ------------------------------------------------------------
+   Responsive tweaks
+   ------------------------------------------------------------ */
+
+@media (max-width: 600px) {
+  .site-header {
+    padding: 1.75rem 0 1.25rem;
+  }
+
+  .panel {
+    padding: 1.25rem 1.1rem;
+  }
+
+  .status-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+
+  .news-entry-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .site-title,
+  .glitch-layer--cyan::before,
+  .glitch-layer--magenta::before,
+  .status-value.is-online::before {
+    animation: none;
+  }
+}

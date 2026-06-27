@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News &mdash; The Universe of Arlandia</title>
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"></circle>
+          <ellipse cx="12" cy="12" rx="10" ry="4"></ellipse>
+          <ellipse cx="12" cy="12" rx="4" ry="10" transform="rotate(45 12 12)"></ellipse>
+        </svg>
+      </span>
+      <span class="brand-text">
+        Universe of Arlandia
+        <small>Mission Control</small>
+      </span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav" onclick="document.getElementById('sidenav').classList.toggle('open'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') !== 'true');">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div class="topbar-status">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="label-text">Server status: Online &middot; 7 players</span>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Primary navigation">
+      <div class="nav-group">
+        <h2>Module</h2>
+        <ul>
+          <li>
+            <a href="news.html" class="active">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M8 9h8M8 13h8M8 17h4"></path></svg>
+              Home / News
+            </a>
+          </li>
+          <li>
+            <a href="../description.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 2"></path></svg>
+              Description
+            </a>
+          </li>
+          <li>
+            <a href="../screenshots.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="11" r="2"></circle><path d="M21 16l-4.5-4.5L12 16"></path></svg>
+              Screenshots
+            </a>
+          </li>
+          <li>
+            <a href="../interests.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-1.5z"></path></svg>
+              Interests
+            </a>
+          </li>
+          <li>
+            <a href="../domains.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V9l7-5 7 5v12"></path><path d="M9 21v-6h6v6"></path></svg>
+              Domains
+            </a>
+          </li>
+          <li>
+            <a href="../crafting.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 1 0-5.4 5.4l-6 6 1.5 1.5 6-6a4 4 0 0 0 5.4-5.4z"></path><path d="M17 7l3-3"></path></svg>
+              Crafting
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Characters</h2>
+        <ul>
+          <li>
+            <a href="../races.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.3 3.1-6 7-6s7 2.7 7 6"></path></svg>
+              Races
+            </a>
+          </li>
+          <li>
+            <a href="../classes.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4-8 4-8-4 8-4z"></path><path d="M4 11l8 4 8-4"></path><path d="M4 15l8 4 8-4"></path></svg>
+              Classes
+            </a>
+          </li>
+          <li>
+            <a href="../feats.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l2.5 2.5"></path></svg>
+              Feats
+            </a>
+          </li>
+          <li>
+            <a href="../grades.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6 6 1-4.5 4.5L17.5 20 12 17l-5.5 3 1-6.5L3 9l6-1z"></path></svg>
+              Grades
+            </a>
+          </li>
+          <li>
+            <a href="../talents.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M5 7l7-5 7 5M5 17l7 5 7-5"></path></svg>
+              Talents
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Community</h2>
+        <ul>
+          <li>
+            <a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Forum
+              <span class="nav-ext">&#8599;</span>
+            </a>
+          </li>
+          <li>
+            <a href="../downloads.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4"></path><path d="M4 19h16"></path></svg>
+              Downloads
+            </a>
+          </li>
+          <li>
+            <a href="../links.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l2-2a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-2 2a4 4 0 0 0 5.7 5.7l1-1"></path></svg>
+              Links
+            </a>
+          </li>
+          <li>
+            <a href="../contact.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+              Contact
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="main" id="main">
+      <div class="page-head">
+        <span class="eyebrow">Transmission log</span>
+        <h1>News &amp; Updates</h1>
+        <p>Dispatches from TheRack and the UOA team &mdash; from the website launch
+          through the NWN:EE relaunch. Most recent first.</p>
+      </div>
+
+      <section class="card span-12" aria-label="Recent news">
+        <div class="news-list">
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">02.03</span>
+              <span class="date-year">2020</span>
+            </div>
+            <div class="news-body">
+              <h3>UOA server REOPENING under new Management. Now with backwards
+                AMERICAN dates... Sorry. <span class="tag">New</span></h3>
+              <p>I'm trying to get UoA back up and running under NWN:EE. All the
+                necessary hak files are available in the Downloads section. I hope to
+                have NWN:EE NWSync working shortly, in which case you won't need to
+                download haks, but for now the (rather old) haks are available.</p>
+              <p>Be sure to check out the Crafting page so you know what you are looking
+                for and what you can craft! The game world is a random grid of areas,
+                using templates, with some randomly placed cities and other points of
+                interest. You can craft items, build homes and Guild Halls, factories,
+                even Airships and Spaceships!</p>
+              <p>I'm happy to share all of this &mdash; if you want to HELP, get in
+                touch. Otherwise, feel free to ask questions about the module!</p>
+              <p class="news-byline">by <strong>Qlippoth</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">12.08</span>
+              <span class="date-year">2011</span>
+            </div>
+            <div class="news-body">
+              <h3>UOA server closed</h3>
+              <p>We have to announce that the official UOA server is now closed, due to
+                lack of players! All the necessary files to play or host the UOA world
+                are now available in the Downloads section. Be sure to read the
+                instructions to set up a server. We would be pleased to know if another
+                server is set up with the UOA system.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">25.12</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>Merry Christmas</h3>
+              <p>The whole UOA team wishes all their players a merry christmas and a
+                happy new year. The server enters now its full functionality run. Come
+                and join a very rich and huge world!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">22.10</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>Beta-testing running</h3>
+              <p>The beta-test of the server is going well, a lot of bugs have already
+                been fixed, and more and more things become interesting! A few players
+                have already discovered part of the first system and built some
+                structures. We are still waiting for more players to join the new UOA
+                community. The Screenshots section has been updated with new images
+                from the server.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">18.09</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>The server is up !!!</h3>
+              <p>Finally, after weeks of research, I have found a server for the first
+                UOA module, still in beta testing. This server is open to all players
+                who want to test and enjoy the new unlimited NWN server. Visit the
+                pages of this website and the forum, then come in!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">08.08</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>The server will be up soon</h3>
+              <p>I have finally found a hoster for the first UOA server but I still need
+                to prepare and install it properly. If the hoster can run everything UOA
+                needs without problem, the server may be open in 2 or 3 weeks.
+                Advertising will be done when the server is up.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <details class="archive">
+        <summary>Archive &mdash; earlier transmissions (2009&ndash;2010)</summary>
+        <div class="news-list">
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">30.05</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>The alpha testing has begun</h3>
+              <p>Now is time for some news. I have started to test the world and the
+                system over the past few weeks, slowly because of lack of time. Solo
+                play already brings a lot of fun. A lot of bugs have already been
+                corrected. The multiplayer and DM modes should increase the fun even
+                more. PS: the Arland map has been updated with the actual map I'm
+                playing on my local server.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">09.02</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>THE MODULE IS FINISHED !!!</h3>
+              <p>After a HUGE amount of work &mdash; more than 12 hours, 7 days a week,
+                for 3 months &mdash; of scripting, modeling and testing, everything is
+                ready for the first alpha testing. Check the Screenshots section for new
+                shots, especially from the planets and from space. Check the Domains
+                section too &mdash; the "factory" page shows what can be done with the
+                domain factory. PS: don't forget to enter the word "dm" in the DM area
+                field to see the planet maps!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">10.01</span>
+              <span class="date-year">2010</span>
+            </div>
+            <div class="news-body">
+              <h3>A new year begins, and a new world appears</h3>
+              <p>Happy new year to the Neverwinter Nights community! Most of the main
+                features have been built and alpha testing is only a few days or weeks
+                away. Still to do: player feats; missing interests (castles, ruins,
+                animal reserves, resource mountains, amusement places, domains); player
+                domains &amp; structures; other minor improvements. Beta testing will be
+                possible in a few weeks!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">20.11</span>
+              <span class="date-year">2009</span>
+            </div>
+            <div class="news-body">
+              <h3>Huge improvements and... first screenshots</h3>
+              <p>I have worked really hard to stabilise the ground system and make
+                future implementation easier. This new website is now interactive.
+                Check the right menu (dynamic maps) &mdash; you can visit the planets,
+                e.g. Arland, but you'll only see discovered areas... unless you connect
+                as a DM (enter "dm" in the DM area) to see everything. All planet info
+                comes from an example database. Register on the forum and give us your
+                first impressions!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">25.10</span>
+              <span class="date-year">2009</span>
+            </div>
+            <div class="news-body">
+              <h3>Interests, domains, races</h3>
+              <p>In the last weeks we've worked on interest points (dungeons, towers,
+                towns, etc.) generated randomly on planets (fully customizable), on
+                player domains &mdash; real activity centers for economic, social and
+                military activities &mdash; and on new playable races: goblins, ogres,
+                orcs, minotaurs and even trolls! Next time we'll post screenshots of the
+                first tiles.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">17.07</span>
+              <span class="date-year">2009</span>
+            </div>
+            <div class="news-body">
+              <h3>First star system built</h3>
+              <p>The design of the module is progressing slowly due to lack of time, but
+                the project is still alive. The first star system has been discovered
+                totally by the Arlandia spies &mdash; we now know there are 11 planets
+                and 8 moons in the Meth system.</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+
+          <article class="news-item">
+            <div class="news-date">
+              <span class="date-main">29.05</span>
+              <span class="date-year">2009</span>
+            </div>
+            <div class="news-body">
+              <h3>Website launch</h3>
+              <p>The website of the new world "Universe of Arlandia" has been launched.
+                Updates will be shown here as well as progress on the module design. The
+                "Universe of Arlandia" will be a rich and unlimited module/persistent
+                server/world for Neverwinter Nights. No size restriction &mdash; the
+                universe is infinite!</p>
+              <p class="news-byline">by <strong>TheRack</strong></p>
+            </div>
+          </article>
+        </div>
+      </details>
+    </main>
+
+    <footer class="site-footer">
+      &copy; TheRack, all rights reserved, 2009-2011. &mdash; <a href="index.html">Mission Control</a> &middot; <a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener noreferrer">Forum</a>
+    </footer>
+  </div>
+</body>
+</html>

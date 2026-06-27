@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Universe of Arlandia — Mission Control</title>
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2"></circle>
+          <ellipse cx="12" cy="12" rx="10" ry="4"></ellipse>
+          <ellipse cx="12" cy="12" rx="4" ry="10" transform="rotate(45 12 12)"></ellipse>
+        </svg>
+      </span>
+      <span class="brand-text">
+        Universe of Arlandia
+        <small>Mission Control</small>
+      </span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="sidenav" onclick="document.getElementById('sidenav').classList.toggle('open'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') !== 'true');">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <div class="topbar-status">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="label-text">Server status: Online &middot; 7 players</span>
+    </div>
+  </header>
+
+  <div class="shell">
+    <nav class="sidenav" id="sidenav" aria-label="Primary navigation">
+      <div class="nav-group">
+        <h2>Module</h2>
+        <ul>
+          <li>
+            <a href="news.html" class="active">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M8 9h8M8 13h8M8 17h4"></path></svg>
+              Home / News
+            </a>
+          </li>
+          <li>
+            <a href="../description.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4l3 2"></path></svg>
+              Description
+            </a>
+          </li>
+          <li>
+            <a href="../screenshots.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="11" r="2"></circle><path d="M21 16l-4.5-4.5L12 16"></path></svg>
+              Screenshots
+            </a>
+          </li>
+          <li>
+            <a href="../interests.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-1.5z"></path></svg>
+              Interests
+            </a>
+          </li>
+          <li>
+            <a href="../domains.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V9l7-5 7 5v12"></path><path d="M9 21v-6h6v6"></path></svg>
+              Domains
+            </a>
+          </li>
+          <li>
+            <a href="../crafting.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 1 0-5.4 5.4l-6 6 1.5 1.5 6-6a4 4 0 0 0 5.4-5.4z"></path><path d="M17 7l3-3"></path></svg>
+              Crafting
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Characters</h2>
+        <ul>
+          <li>
+            <a href="../races.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c0-3.3 3.1-6 7-6s7 2.7 7 6"></path></svg>
+              Races
+            </a>
+          </li>
+          <li>
+            <a href="../classes.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4-8 4-8-4 8-4z"></path><path d="M4 11l8 4 8-4"></path><path d="M4 15l8 4 8-4"></path></svg>
+              Classes
+            </a>
+          </li>
+          <li>
+            <a href="../feats.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4l2.5 2.5"></path></svg>
+              Feats
+            </a>
+          </li>
+          <li>
+            <a href="../grades.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3 6 6 1-4.5 4.5L17.5 20 12 17l-5.5 3 1-6.5L3 9l6-1z"></path></svg>
+              Grades
+            </a>
+          </li>
+          <li>
+            <a href="../talents.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M5 7l7-5 7 5M5 17l7 5 7-5"></path></svg>
+              Talents
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Community</h2>
+        <ul>
+          <li>
+            <a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Forum
+              <span class="nav-ext">&#8599;</span>
+            </a>
+          </li>
+          <li>
+            <a href="../downloads.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4"></path><path d="M4 19h16"></path></svg>
+              Downloads
+            </a>
+          </li>
+          <li>
+            <a href="../links.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l2-2a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-2 2a4 4 0 0 0 5.7 5.7l1-1"></path></svg>
+              Links
+            </a>
+          </li>
+          <li>
+            <a href="../contact.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 7l9 6 9-6"></path></svg>
+              Contact
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="main" id="main">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero-content">
+          <span class="eyebrow">For Neverwinter Nights</span>
+          <h1>The Universe of <span>Arlandia</span></h1>
+          <p>The universe is infinite. Explore star systems, craft starships and Guild
+            Halls, build domains across discovered planets, and chart your own course
+            through a persistent NWN sandbox &mdash; now running under NWN:EE.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="news.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M8 9h8M8 13h8M8 17h4"></path></svg>
+              Latest news
+            </a>
+            <a class="btn btn-ghost" href="../downloads.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4"></path><path d="M4 19h16"></path></svg>
+              Get the haks
+            </a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <svg viewBox="0 0 200 140" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="color: var(--cyan); width: 100%; height: 100%;">
+            <!-- starfield -->
+            <circle cx="20" cy="20" r="1" fill="currentColor" stroke="none" opacity="0.5"></circle>
+            <circle cx="170" cy="15" r="1.2" fill="currentColor" stroke="none" opacity="0.6"></circle>
+            <circle cx="140" cy="115" r="1" fill="currentColor" stroke="none" opacity="0.4"></circle>
+            <circle cx="35" cy="115" r="1.4" fill="currentColor" stroke="none" opacity="0.5"></circle>
+            <circle cx="185" cy="80" r="1" fill="currentColor" stroke="none" opacity="0.4"></circle>
+            <circle cx="60" cy="25" r="1" fill="currentColor" stroke="none" opacity="0.35"></circle>
+            <!-- planet -->
+            <circle cx="80" cy="70" r="34" stroke="var(--violet)" style="stroke: #a78bfa;"></circle>
+            <ellipse cx="80" cy="70" rx="50" ry="11" style="stroke: #a78bfa;" transform="rotate(-12 80 70)"></ellipse>
+            <!-- rocket -->
+            <g transform="translate(128 28) rotate(45)">
+              <path d="M0 18c0-10 4.5-18 9-18s9 8 9 18z"></path>
+              <path d="M0 18h18v6H0z"></path>
+              <path d="M2 24l-4 6M16 24l4 6"></path>
+              <circle cx="9" cy="10" r="2.2"></circle>
+            </g>
+            <!-- satellite -->
+            <g transform="translate(150 100)">
+              <rect x="-6" y="-4" width="12" height="8" rx="1.5"></rect>
+              <path d="M-6 0h-9M6 0h9"></path>
+              <path d="M-15 -4v8M15 -4v8"></path>
+              <path d="M0 -4v-6"></path>
+              <circle cx="0" cy="-12" r="1.6"></circle>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <!-- Status + Connect + Star systems + DM console -->
+      <div class="grid">
+        <!-- Server status -->
+        <section class="card span-7" aria-labelledby="status-title">
+          <div class="card-header">
+            <h2 class="card-title" id="status-title">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg>
+              </span>
+              Server status
+            </h2>
+            <span class="status-pill">
+              <span class="dot" aria-hidden="true"></span>
+              Online
+            </span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat">
+              <span class="stat-label">Players online</span>
+              <span class="stat-value accent">7</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">In-game date / time</span>
+              <span class="stat-value">Yr 1372, M3, D18 &mdash; 14:32</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Next reboot</span>
+              <span class="stat-value violet">3h 47m</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Signal strength</span>
+              <span class="stat-value">
+                <span class="signal-bars" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Connection info -->
+        <section class="card span-5" aria-labelledby="connect-title">
+          <div class="card-header">
+            <h2 class="card-title" id="connect-title">
+              <span class="card-icon violet" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13a10 10 0 0 1 14 0"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><circle cx="12" cy="20" r="1"></circle></svg>
+              </span>
+              Connection info
+            </h2>
+          </div>
+          <div class="connect-row">
+            <span class="connect-label">Direct connect</span>
+            <span class="connect-value">uoanwn.homeip.net</span>
+          </div>
+          <div class="connect-row">
+            <span class="connect-label">Client</span>
+            <span class="connect-value">NWN:EE</span>
+          </div>
+          <div class="connect-row">
+            <span class="connect-label">Required content</span>
+            <span class="connect-value">See Downloads</span>
+          </div>
+        </section>
+
+        <!-- Star systems -->
+        <section class="card span-7" aria-labelledby="systems-title">
+          <div class="card-header">
+            <h2 class="card-title" id="systems-title">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><ellipse cx="12" cy="12" rx="10" ry="4.2"></ellipse><ellipse cx="12" cy="12" rx="4.2" ry="10" transform="rotate(60 12 12)"></ellipse></svg>
+              </span>
+              Star systems
+            </h2>
+          </div>
+
+          <div class="system-block">
+            <p class="system-name">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+              Meth System
+              <span class="system-meta">&mdash; 11 planets, 8 moons &mdash; homeworld system</span>
+            </p>
+            <div class="planet-chips">
+              <a class="chip main" href="#"><span class="chip-dot" aria-hidden="true"></span>Arland</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Tyrra</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Vornak</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Kethis</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <p class="system-name">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+              Solhaven System
+            </p>
+            <div class="planet-chips">
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Kaldris</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Pthera</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <p class="system-name">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+              Drakon Reach
+            </p>
+            <div class="planet-chips">
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Skarn</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Orobus</a>
+              <a class="chip" href="#"><span class="chip-dot" aria-hidden="true"></span>Veyth</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- DM console -->
+        <section class="card span-5" aria-labelledby="dm-title">
+          <div class="card-header">
+            <h2 class="card-title" id="dm-title">
+              <span class="card-icon violet" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1.5"></circle></svg>
+              </span>
+              DM Console Access
+            </h2>
+          </div>
+          <form class="dm-form" action="#" onsubmit="return false;">
+            <div class="field">
+              <label for="dm-password">Access password</label>
+              <input type="password" id="dm-password" name="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              Connect
+            </button>
+            <p class="dm-note">DM-only telemetry &amp; planet maps. Standard players: no access required.</p>
+          </form>
+        </section>
+
+        <!-- Latest news preview -->
+        <section class="card span-12" aria-labelledby="news-preview-title">
+          <div class="card-header">
+            <h2 class="card-title" id="news-preview-title">
+              <span class="card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h13a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"></path><path d="M9 9h7M9 13h7M9 17h4"></path></svg>
+              </span>
+              Latest transmissions
+            </h2>
+            <a class="btn btn-ghost" href="news.html">
+              View all news
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            </a>
+          </div>
+          <div class="news-list">
+            <article class="news-item">
+              <div class="news-date">
+                <span class="date-main">02.03</span>
+                <span class="date-year">2020</span>
+              </div>
+              <div class="news-body">
+                <h3>UOA server REOPENING under new Management <span class="tag">New</span></h3>
+                <p>Getting UoA back up under NWN:EE &mdash; haks available now in Downloads,
+                  with NWSync support hoped for soon. Check Crafting to see what you can
+                  build: items, homes, Guild Halls, factories, even Airships and
+                  Spaceships.</p>
+                <p class="news-byline">by <strong>Qlippoth</strong></p>
+              </div>
+            </article>
+            <article class="news-item">
+              <div class="news-date">
+                <span class="date-main">12.08</span>
+                <span class="date-year">2011</span>
+              </div>
+              <div class="news-body">
+                <h3>UOA server closed</h3>
+                <p>The official server is closed due to low player counts. All files
+                  needed to play or host the UOA world remain available in Downloads,
+                  with setup instructions.</p>
+                <p class="news-byline">by <strong>TheRack</strong></p>
+              </div>
+            </article>
+            <article class="news-item">
+              <div class="news-date">
+                <span class="date-main">25.12</span>
+                <span class="date-year">2010</span>
+              </div>
+              <div class="news-body">
+                <h3>Merry Christmas</h3>
+                <p>The UOA team wishes all players a merry christmas and happy new
+                  year &mdash; the server enters full functionality. Come join a rich
+                  and huge world!</p>
+                <p class="news-byline">by <strong>TheRack</strong></p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      &copy; TheRack, all rights reserved, 2009-2011. &mdash; <a href="news.html">Home / News</a> &middot; <a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener noreferrer">Forum</a>
+    </footer>
+  </div>
+</body>
+</html>

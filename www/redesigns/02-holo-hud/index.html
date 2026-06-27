@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <title>The Universe of Arlandia — HUD Interface</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="hud-shell">
+
+    <!-- Header -->
+    <header class="hud-panel hud-header">
+      <div class="scan-sweep" style="--scan-delay: 0s;"></div>
+      <span class="bracket-tr"></span><span class="bracket-bl"></span>
+      <div class="hud-brand">
+        <span class="designation">UOA // PERSISTENT WORLD INTERFACE</span>
+        <h1>The Universe of Arlandia</h1>
+        <p class="tagline">For Neverwinter Nights — The universe is infinite</p>
+      </div>
+      <div class="hud-clock">
+        SYSTEM CLOCK
+        <strong>Y1372 · M03 · D18 — 14:32</strong>
+      </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="hud-panel hud-nav" aria-label="Main navigation">
+      <div class="scan-sweep" style="--scan-delay: 1.5s;"></div>
+      <span class="bracket-tr"></span><span class="bracket-bl"></span>
+      <div class="hud-nav-groups panel-inner">
+        <div class="hud-nav-group">
+          <h2>Module</h2>
+          <ul>
+            <li><a href="news.html" class="active">Home / News</a></li>
+            <li><a href="../description.html">Description</a></li>
+            <li><a href="../screenshots.html">Screenshots</a></li>
+            <li><a href="../interests.html">Interests</a></li>
+            <li><a href="../domains.html">Domains</a></li>
+            <li><a href="../crafting.html">Crafting</a></li>
+          </ul>
+        </div>
+        <div class="hud-nav-group">
+          <h2>Characters</h2>
+          <ul>
+            <li><a href="../races.html">Races</a></li>
+            <li><a href="../classes.html">Classes</a></li>
+            <li><a href="../feats.html">Feats</a></li>
+            <li><a href="../grades.html">Grades</a></li>
+            <li><a href="../talents.html">Talents</a></li>
+          </ul>
+        </div>
+        <div class="hud-nav-group">
+          <h2>Community</h2>
+          <ul>
+            <li><a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum &#8599;</a></li>
+            <li><a href="../downloads.html">Downloads</a></li>
+            <li><a href="../links.html">Links</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hud-panel hero-panel">
+      <div class="scan-sweep" style="--scan-delay: 3s;"></div>
+      <span class="bracket-tr"></span><span class="bracket-bl"></span>
+      <div class="panel-inner">
+        <span class="designation" style="display:block; margin-bottom:0.5rem;">ARLANDIA NETWORK // UPLINK ESTABLISHED</span>
+        <h2>An Infinite Universe Awaits</h2>
+        <p>
+          Welcome to the Universe of Arlandia, a persistent world for Neverwinter
+          Nights. Craft, build, explore — chart star systems, raise guild halls,
+          and venture from the surface of Arland into the dark between the stars.
+        </p>
+        <span class="hero-tag">Status: Online // All Systems Nominal</span>
+      </div>
+    </section>
+
+    <!-- Dashboard grid: status + connection + DM console -->
+    <div class="hud-grid cols-3">
+
+      <section class="hud-panel">
+        <div class="scan-sweep" style="--scan-delay: 0.8s;"></div>
+        <span class="bracket-tr"></span><span class="bracket-bl"></span>
+        <div class="panel-inner">
+          <h2 class="panel-title">Server Status</h2>
+          <ul class="status-list">
+            <li>
+              <span class="status-label">Status</span>
+              <span class="status-value online"><span class="led"></span>Online</span>
+            </li>
+            <li>
+              <span class="status-label">Players Online</span>
+              <span class="status-value">7</span>
+            </li>
+            <li>
+              <span class="status-label">In-Game Date</span>
+              <span class="status-value">Year 1372, Month 3, Day 18</span>
+            </li>
+            <li>
+              <span class="status-label">In-Game Time</span>
+              <span class="status-value">14:32</span>
+            </li>
+            <li>
+              <span class="status-label">Next Reboot</span>
+              <span class="status-value">3h 47m</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="hud-panel">
+        <div class="scan-sweep" style="--scan-delay: 2.2s;"></div>
+        <span class="bracket-tr"></span><span class="bracket-bl"></span>
+        <div class="panel-inner">
+          <h2 class="panel-title">Connection</h2>
+          <ul class="status-list">
+            <li>
+              <span class="status-label">Direct Connect</span>
+              <span class="status-value ip">uoanwn.homeip.net</span>
+            </li>
+            <li>
+              <span class="status-label">Client</span>
+              <span class="status-value">NWN:EE</span>
+            </li>
+            <li>
+              <span class="status-label">Required Haks</span>
+              <span class="status-value">See Downloads</span>
+            </li>
+            <li>
+              <span class="status-label">NWSync</span>
+              <span class="status-value">Pending Setup</span>
+            </li>
+          </ul>
+          <a href="../downloads.html" class="hud-button" style="margin-top:1rem;">Get Haks</a>
+        </div>
+      </section>
+
+      <section class="hud-panel dm-console">
+        <div class="scan-sweep" style="--scan-delay: 4.5s;"></div>
+        <span class="bracket-tr"></span><span class="bracket-bl"></span>
+        <div class="panel-inner">
+          <h2 class="panel-title">DM Console Access</h2>
+          <form action="#" onsubmit="return false;">
+            <label for="dm-password">Authorization Code</label>
+            <input type="password" id="dm-password" name="dm-password" placeholder="••••••••" autocomplete="off">
+            <button type="submit" class="hud-button">Connect</button>
+          </form>
+          <p class="console-note">
+            Restricted channel for Dungeon Masters. Authenticated users gain
+            access to the planetary map overlays and discovered-area tracking.
+          </p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Star systems + news preview -->
+    <div class="hud-grid">
+
+      <section class="hud-panel">
+        <div class="scan-sweep" style="--scan-delay: 1.2s;"></div>
+        <span class="bracket-tr"></span><span class="bracket-bl"></span>
+        <div class="panel-inner">
+          <h2 class="panel-title">Star Systems</h2>
+
+          <div class="system-block">
+            <h3>Meth System</h3>
+            <p class="system-meta">11 planets · 8 moons total</p>
+            <div class="chip-row">
+              <a href="#" class="chip main-world">Arland</a>
+              <a href="#" class="chip">Tyrra</a>
+              <a href="#" class="chip">Vornak</a>
+              <a href="#" class="chip">Kethis</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <h3>Solhaven System</h3>
+            <p class="system-meta">2 planets catalogued</p>
+            <div class="chip-row">
+              <a href="#" class="chip">Kaldris</a>
+              <a href="#" class="chip">Pthera</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <h3>Drakon Reach</h3>
+            <p class="system-meta">3 planets catalogued</p>
+            <div class="chip-row">
+              <a href="#" class="chip">Skarn</a>
+              <a href="#" class="chip">Orobus</a>
+              <a href="#" class="chip">Veyth</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="hud-panel">
+        <div class="scan-sweep" style="--scan-delay: 3.6s;"></div>
+        <span class="bracket-tr"></span><span class="bracket-bl"></span>
+        <div class="panel-inner">
+          <h2 class="panel-title">Latest Transmissions</h2>
+
+          <div class="news-preview-list">
+            <div class="news-preview-item">
+              <span class="news-date">02.03.2020</span>
+              <h3>UOA Server Reopening Under New Management</h3>
+              <p>
+                The world is coming back online under NWN:EE. Hak files are
+                available now in Downloads, with NWSync support planned so
+                future updates won't require manual downloads.
+              </p>
+              <span class="news-author">Qlippoth</span>
+            </div>
+
+            <div class="news-preview-item">
+              <span class="news-date">12.08.2011</span>
+              <h3>UOA Server Closed</h3>
+              <p>
+                The official server has been taken offline due to low player
+                counts. All files needed to play or host the world remain
+                available in Downloads.
+              </p>
+              <span class="news-author">TheRack</span>
+            </div>
+
+            <div class="news-preview-item">
+              <span class="news-date">25.12.2010</span>
+              <h3>Merry Christmas</h3>
+              <p>
+                The UOA team wishes all players a merry christmas and a happy
+                new year as the server enters full operation.
+              </p>
+              <span class="news-author">TheRack</span>
+            </div>
+          </div>
+
+          <a href="news.html" class="view-all-link">View Full Feed &rarr;</a>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="hud-panel hud-footer">
+      <div class="scan-sweep" style="--scan-delay: 5s;"></div>
+      <span class="bracket-tr"></span><span class="bracket-bl"></span>
+      <div class="panel-inner">
+        <p>&copy; TheRack, all rights reserved, 2009-2011.</p>
+        <p>Universe of Arlandia // End of Transmission</p>
+      </div>
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universe of Arlandia — Redesign Concept Gallery</title>
+<style>
+    :root {
+        --bg: #060812;
+        --panel: #0d1224;
+        --border: #1f2a4a;
+        --text: #d6dcff;
+        --muted: #8a93b8;
+        --accent: #4cc9f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 0;
+        background: radial-gradient(ellipse at top, #0a0f24 0%, var(--bg) 60%);
+        color: var(--text);
+        font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        line-height: 1.5;
+    }
+    header {
+        text-align: center;
+        padding: 3.5rem 1.5rem 2.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+        margin: 0 0 0.4em;
+        font-size: 2.4rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: #fff;
+        text-shadow: 0 0 18px rgba(76, 201, 240, 0.45);
+    }
+    header p {
+        margin: 0.2em 0;
+        color: var(--muted);
+        font-size: 1rem;
+    }
+    header .tag {
+        display: inline-block;
+        margin-top: 1em;
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.35em 1.2em;
+    }
+    main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 28px rgba(76, 201, 240, 0.18);
+    }
+    .swatch {
+        height: 64px;
+        display: flex;
+    }
+    .swatch span { flex: 1; }
+    .card-body {
+        padding: 1.25rem 1.4rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+    .card-num {
+        font-size: 0.75rem;
+        letter-spacing: 0.2em;
+        color: var(--muted);
+        margin-bottom: 0.3em;
+    }
+    .card h2 {
+        margin: 0 0 0.5em;
+        font-size: 1.25rem;
+        color: #fff;
+    }
+    .card p {
+        margin: 0 0 1.2em;
+        font-size: 0.9rem;
+        color: var(--muted);
+        flex: 1;
+    }
+    .links {
+        display: flex;
+        gap: 0.6em;
+        font-size: 0.85rem;
+    }
+    .links a {
+        flex: 1;
+        text-align: center;
+        padding: 0.55em 0.8em;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid var(--border);
+        color: var(--text);
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .links a.primary {
+        background: var(--accent);
+        color: #051018;
+        border-color: var(--accent);
+    }
+    .links a:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+    .links a.primary:hover {
+        color: #051018;
+        background: #7fdcff;
+    }
+    footer {
+        text-align: center;
+        padding: 2rem 1rem 3rem;
+        color: var(--muted);
+        font-size: 0.8rem;
+        border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+    <h1>Universe of Arlandia &mdash; Redesign Concepts</h1>
+    <p>12 modern sci-fi visual concepts for the <strong>Home</strong> and <strong>News</strong> pages.</p>
+    <p>Each concept is a self-contained static mockup &mdash; pick a card to explore.</p>
+    <span class="tag">Concept Gallery</span>
+</header>
+<main>
+    <div class="grid">
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#000"></span>
+                <span style="background:#ff2bd6"></span>
+                <span style="background:#00fff7"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 01</div>
+                <h2>Neon Cyberpunk</h2>
+                <p>Near-black backdrop with a faint cyan/magenta grid, a glitching neon title, and angular clip-path panels with glowing borders and monospace data readouts &mdash; a high-contrast holographic terminal vibe.</p>
+                <div class="links">
+                    <a class="primary" href="01-neon-cyberpunk/index.html">Home</a>
+                    <a href="01-neon-cyberpunk/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#040712"></span>
+                <span style="background:#1e90ff"></span>
+                <span style="background:#00ffff"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 02</div>
+                <h2>Holographic HUD</h2>
+                <p>Translucent cyan glass panels with glowing corner brackets, an animated scan-sweep, and a faint scanline overlay float over a CSS-generated starfield. Uppercase technical typography throughout.</p>
+                <div class="links">
+                    <a class="primary" href="02-holo-hud/index.html">Home</a>
+                    <a href="02-holo-hud/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#05060a"></span>
+                <span style="background:#0c1320"></span>
+                <span style="background:#4cc9f0"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 03</div>
+                <h2>Deep Space Minimal</h2>
+                <p>A near-black canvas with a subtle starfield, ultra-light typography and a single electric-blue accent. Hairline dividers replace boxed panels for a calm, premium space-agency landing-page feel.</p>
+                <div class="links">
+                    <a class="primary" href="03-deep-space-minimal/index.html">Home</a>
+                    <a href="03-deep-space-minimal/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#000"></span>
+                <span style="background:#33ff33"></span>
+                <span style="background:#ffb000"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 04</div>
+                <h2>Retro Terminal</h2>
+                <p>Phosphor-green monospace text on black, with CRT scanlines, a gentle screen flicker, box-drawing-character panel frames, blinking cursors, and a "transmission log" news feed &mdash; pure BBS nostalgia.</p>
+                <div class="links">
+                    <a class="primary" href="04-retro-terminal/index.html">Home</a>
+                    <a href="04-retro-terminal/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#ff9966"></span>
+                <span style="background:#cc99cc"></span>
+                <span style="background:#9999ff"></span>
+                <span style="background:#cc6666"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 05</div>
+                <h2>LCARS Console</h2>
+                <p>Bold color-blocked panels in orange, lilac, pale blue and deep red, with pill-shaped end-caps and an asymmetric sidebar of stacked nav blocks &mdash; a classic retro-futuristic starship computer.</p>
+                <div class="links">
+                    <a class="primary" href="05-lcars-console/index.html">Home</a>
+                    <a href="05-lcars-console/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#0a0a0c"></span>
+                <span style="background:#3a3d42"></span>
+                <span style="background:#cc1f2d"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 06</div>
+                <h2>Imperial Briefing Room</h2>
+                <p>Charcoal and steel panels with chamfered clip-path corners, cold red accent lighting, a rotating CSS "holoprojector" for the star map, and severe condensed all-caps headers &mdash; a militaristic command center.</p>
+                <div class="links">
+                    <a class="primary" href="06-empire-briefing/index.html">Home</a>
+                    <a href="06-empire-briefing/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#06121c"></span>
+                <span style="background:#7cfcc4"></span>
+                <span style="background:#ff6ec7"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 07</div>
+                <h2>Bio-Luminescent Alien</h2>
+                <p>Deep teal/indigo background with pulsing cyan-green and magenta glows, organic blob-shaped panels, and drifting "spore" particles. Rounded, soft typography for an alien cave/jungle feel.</p>
+                <div class="links">
+                    <a class="primary" href="07-bio-luminescent/index.html">Home</a>
+                    <a href="07-bio-luminescent/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#1c1c1c"></span>
+                <span style="background:#ffb000"></span>
+                <span style="background:#39ff14"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 08</div>
+                <h2>Ship Cockpit</h2>
+                <p>Brushed-metal panels with riveted "bolt" corners and conic-gradient gauges glowing amber and green like cockpit warning lights. Chunky, stenciled industrial typography throughout.</p>
+                <div class="links">
+                    <a class="primary" href="08-ship-cockpit/index.html">Home</a>
+                    <a href="08-ship-cockpit/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#8338ec"></span>
+                <span style="background:#3a86ff"></span>
+                <span style="background:#06ffa5"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 09</div>
+                <h2>Glass Aurora</h2>
+                <p>A slowly drifting purple-blue-teal aurora gradient sits behind frosted-glass cards (backdrop blur, translucent borders, soft glows) &mdash; light, airy, and reminiscent of a futuristic OS UI.</p>
+                <div class="links">
+                    <a class="primary" href="09-glass-aurora/index.html">Home</a>
+                    <a href="09-glass-aurora/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#2b0a3d"></span>
+                <span style="background:#ff2e93"></span>
+                <span style="background:#ff9e00"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 10</div>
+                <h2>Synthwave</h2>
+                <p>A purple-to-magenta-to-orange sunset gradient behind a glowing perspective grid horizon and sun. Chrome neon-outline headings, scanlines, and pink/cyan accents &mdash; full 1980s outrun.</p>
+                <div class="links">
+                    <a class="primary" href="10-synthwave/index.html">Home</a>
+                    <a href="10-synthwave/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#1a1a14"></span>
+                <span style="background:#b5651d"></span>
+                <span style="background:#5a6b57"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 11</div>
+                <h2>Derelict Industrial</h2>
+                <p>A gritty olive/rust palette with yellow-and-black hazard stripes, exposed-bolt corners, and pulsing red emergency-light glows on alerts. Stenciled headers and terminal-log readouts feel lived-in and worn.</p>
+                <div class="links">
+                    <a class="primary" href="11-derelict-industrial/index.html">Home</a>
+                    <a href="11-derelict-industrial/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="card">
+            <div class="swatch">
+                <span style="background:#0b1021"></span>
+                <span style="background:#22d3ee"></span>
+                <span style="background:#a78bfa"></span>
+            </div>
+            <div class="card-body">
+                <div class="card-num">CONCEPT 12</div>
+                <h2>Flat Dashboard</h2>
+                <p>A clean, professional SaaS-style admin reskin: deep navy background, cyan/violet accents, a card grid with subtle shadows (no glow), sidebar navigation, and minimal line-icon sci-fi motifs.</p>
+                <div class="links">
+                    <a class="primary" href="12-flat-dashboard/index.html">Home</a>
+                    <a href="12-flat-dashboard/news.html">News</a>
+                </div>
+            </div>
+        </article>
+
+    </div>
+</main>
+<footer>
+    Concept mockups for <strong>Universe of Arlandia</strong> &mdash; static HTML/CSS, no PHP or database required.
+    Back to <a href="../index.php">live site</a>.
+</footer>
+</body>
+</html>
