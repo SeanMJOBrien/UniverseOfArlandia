@@ -27,7 +27,25 @@ if ($planet === '' || $planet === 'infos') {
 }
 
 $pwdata_cache = [];
-$res = mysqli_query($link, 'SELECT name, val FROM pwdata');
+if ($planet === 'Space') {
+    $stmt = mysqli_prepare($link,
+        "SELECT name, val FROM pwdata
+         WHERE name IN ('ShowAreas','ShowInterests')
+            OR name LIKE 'Space%'");
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+} else {
+    $stmt = mysqli_prepare($link,
+        "SELECT name, val FROM pwdata
+         WHERE name IN ('ShowAreas','ShowInterests',?)
+            OR name LIKE ?
+            OR name LIKE ?");
+    $areasX    = $planet . 'AreasX%';
+    $interests = $planet . '&%&Interests';
+    mysqli_stmt_bind_param($stmt, 'sss', $planet, $areasX, $interests);
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
+}
 while ($row = mysqli_fetch_assoc($res)) {
     $pwdata_cache[$row['name']] = $row['val'];
 }
@@ -87,9 +105,14 @@ for ($Y = $half; $Y >= -$half; $Y--) {
 
         if ($visible == 0 && !$is_dm) $interest2 = '';
 
-        $space_data  = get_pw('Space' . $area_key);
-        $planet_show = between($space_data, '&004&', '&005&');
-        $show2       = get_pw('Space' . $area_key . 'Show');
+        $space_data  = '';
+        $planet_show = '';
+        $show2       = '';
+        if ($planet === 'Space') {
+            $space_data  = get_pw('Space' . $area_key);
+            $planet_show = between($space_data, '&004&', '&005&');
+            $show2       = get_pw('Space' . $area_key . 'Show');
+        }
 
         $tile_visible  = !empty($tiletype) && ($is_dm || $discovered || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
         $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
@@ -104,14 +127,15 @@ for ($Y = $half; $Y >= -$half; $Y--) {
             }
         }
 
+        $tile_shown = $tile_visible || $space_visible;
         $tiles[] = [
             'x'          => $XX,
             'y'          => $YY,
-            'terrain'    => $tiletype,
+            'terrain'    => $tile_shown ? $tiletype : '',
             'discovered' => $discovered,
-            'interest'   => isset($interest_map[$interest2]) ? $interest_map[$interest2] : '',
-            'iname'      => $iname,
-            'visible'    => $tile_visible || $space_visible,
+            'interest'   => $tile_shown ? (isset($interest_map[$interest2]) ? $interest_map[$interest2] : '') : '',
+            'iname'      => $tile_shown ? $iname : '',
+            'visible'    => $tile_shown,
             'href'       => $href,
         ];
     }
