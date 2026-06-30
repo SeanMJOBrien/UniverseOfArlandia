@@ -1,6 +1,7 @@
 #include "aps_include"
 #include "_module"
 #include "zep_inc_phenos"
+#include "_string_utils"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +30,17 @@ if((GetIsObjectValid(oPC))&&((GetIsPC(oPC))||(GetIsDMPossessed(oPC))||(GetIsDM(o
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetIsDM(oPC)){sDM = "1";}else{sDM = "0";}SetPersistentString(oModule,"Player"+IntToString(GetLocalInt(oModule,sName)),sPCName+"&1&"+sName+"&2&"+sPlanet+"&3&"+sArea+"&4&"+sDM+"&5&");
+////////////////////////////////////////////////////////////////////////////////
+// Persist last known location for this character (DM lookup tool, never deleted)
+vector vPCPos = GetPosition(oPC);
+SetPersistentString(oModule,"PCLoc_"+sName,
+    sPCName+FIELD_1+sName+FIELD_2+sPlanet+FIELD_3+sArea+FIELD_4
+    +GetTag(OBJECT_SELF)+FIELD_5
+    +FloatToString(vPCPos.x,0,2)+FIELD_6
+    +FloatToString(vPCPos.y,0,2)+FIELD_7
+    +FloatToString(vPCPos.z,0,2)+FIELD_8
+    +FloatToString(GetFacing(oPC),0,2)+FIELD_9
+    +sDM+FIELD_10);
 ////////////////////////////////////////////////////////////////////////////////
 // PC entering module
 if((GetLocalInt(oPC,"Entering")==1)&&(sTag!="initialisation")){AssignCommand(oPC,ActionJumpToLocation(GetStartingLocation()));}else{

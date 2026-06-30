@@ -1,0 +1,541 @@
+/* =====================================================================
+   Universe of Arlandia — "Retro CRT Terminal" redesign concept
+   Shared stylesheet for index.html and news.html
+   ===================================================================== */
+
+:root {
+  --term-bg: #020503;
+  --term-green: #33ff33;
+  --term-green-dim: #1f9b1f;
+  --term-green-faint: #0e4d0e;
+  --term-amber: #ffb000;
+  --term-glow: rgba(51, 255, 51, 0.55);
+  --term-font: "Courier New", "Lucida Console", "Consolas", monospace;
+}
+
+/* ---------------------------------------------------------------------
+   Base / reset
+   --------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--term-bg);
+  color: var(--term-green);
+  font-family: var(--term-font);
+  font-size: 16px;
+  line-height: 1.5;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  text-shadow: 0 0 2px var(--term-glow), 0 0 6px rgba(51, 255, 51, 0.25);
+}
+
+/* CRT scanline overlay */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.18) 3px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* CRT vignette */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 55%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Subtle screen flicker — kept gentle */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  42% { opacity: 1; }
+  43% { opacity: 0.96; }
+  44% { opacity: 1; }
+  78% { opacity: 1; }
+  79% { opacity: 0.97; }
+  80% { opacity: 1; }
+}
+
+.crt-screen {
+  animation: flicker 7s infinite;
+}
+
+/* Blinking cursor */
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.cursor {
+  display: inline-block;
+  animation: blink 1s step-end infinite;
+  color: var(--term-green);
+}
+
+/* ---------------------------------------------------------------------
+   Layout shell
+   --------------------------------------------------------------------- */
+
+.terminal {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 3rem;
+}
+
+a {
+  color: var(--term-green);
+}
+
+a:hover,
+a:focus {
+  color: #ffffff;
+  text-shadow: 0 0 4px var(--term-green), 0 0 10px var(--term-green);
+}
+
+/* ---------------------------------------------------------------------
+   Box-drawing frames
+   --------------------------------------------------------------------- */
+
+.frame {
+  border: 1px solid var(--term-green-dim);
+  box-shadow: 0 0 8px rgba(51, 255, 51, 0.15) inset, 0 0 6px rgba(51, 255, 51, 0.08);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: rgba(10, 20, 10, 0.35);
+}
+
+.frame-title {
+  display: inline-block;
+  margin: -1.6rem 0 1rem -0.35rem;
+  padding: 0 0.5rem;
+  background: var(--term-bg);
+  color: var(--term-amber);
+  letter-spacing: 0.08em;
+  font-weight: bold;
+}
+
+.divider {
+  border: none;
+  border-top: 1px dashed var(--term-green-faint);
+  margin: 1.25rem 0;
+}
+
+.box-rule {
+  color: var(--term-green-dim);
+  letter-spacing: 0.05em;
+  overflow-x: auto;
+  white-space: pre;
+  font-size: 0.85rem;
+  margin: 0.25rem 0 1rem;
+  user-select: none;
+}
+
+/* ---------------------------------------------------------------------
+   Header / banner
+   --------------------------------------------------------------------- */
+
+.boot-log {
+  color: var(--term-green-dim);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+  white-space: pre-wrap;
+}
+
+.boot-log .ok {
+  color: var(--term-green);
+}
+
+header.site-header {
+  margin-bottom: 1rem;
+}
+
+.ascii-banner {
+  font-size: clamp(0.45rem, 1.6vw, 0.95rem);
+  line-height: 1.15;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--term-green);
+  text-shadow: 0 0 5px var(--term-glow), 0 0 14px rgba(51, 255, 51, 0.3);
+  margin: 0.5rem 0;
+}
+
+.site-title {
+  font-size: 1.9rem;
+  margin: 0.25rem 0 0;
+  letter-spacing: 0.12em;
+}
+
+.site-tagline {
+  color: var(--term-green-dim);
+  margin: 0.25rem 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+.prompt-line {
+  color: var(--term-green);
+}
+
+.prompt-line .path {
+  color: var(--term-amber);
+}
+
+/* ---------------------------------------------------------------------
+   Navigation
+   --------------------------------------------------------------------- */
+
+nav.main-nav {
+  margin-top: 1rem;
+}
+
+.nav-group {
+  margin-bottom: 0.75rem;
+}
+
+.nav-group-label {
+  color: var(--term-amber);
+  display: block;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.08em;
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+}
+
+.nav-list li {
+  white-space: nowrap;
+}
+
+.nav-list a {
+  text-decoration: none;
+  border: 1px solid transparent;
+  padding: 0.05rem 0.3rem;
+}
+
+.nav-list a::before {
+  content: "> ";
+  color: var(--term-green-dim);
+}
+
+.nav-list a:hover,
+.nav-list a:focus,
+.nav-list a.active {
+  border: 1px solid var(--term-green-dim);
+  background: rgba(51, 255, 51, 0.08);
+}
+
+.nav-list a.active::before {
+  content: "> ";
+  color: var(--term-amber);
+}
+
+.nav-list a.active {
+  color: var(--term-amber);
+  text-shadow: 0 0 4px var(--term-amber);
+}
+
+/* ---------------------------------------------------------------------
+   Grid layout for hub page
+   --------------------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 760px) {
+  .grid.two-col {
+    grid-template-columns: 1fr 1fr;
+  }
+  .grid.status-grid {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Status panel
+   --------------------------------------------------------------------- */
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.status-table td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px dotted var(--term-green-faint);
+  vertical-align: top;
+}
+
+.status-table td:first-child {
+  color: var(--term-green-dim);
+  width: 45%;
+}
+
+.status-online {
+  color: var(--term-green);
+  font-weight: bold;
+}
+
+.status-online::before {
+  content: "\25CF ";
+  animation: blink 1.6s step-end infinite;
+}
+
+.connect-block {
+  font-size: 0.95rem;
+}
+
+.connect-block code {
+  background: rgba(51, 255, 51, 0.08);
+  border: 1px solid var(--term-green-faint);
+  padding: 0.1rem 0.4rem;
+  color: var(--term-amber);
+}
+
+/* ---------------------------------------------------------------------
+   Star systems
+   --------------------------------------------------------------------- */
+
+.system-block {
+  margin-bottom: 1rem;
+}
+
+.system-name {
+  color: var(--term-amber);
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.system-meta {
+  color: var(--term-green-dim);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.chip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip-list a {
+  display: inline-block;
+  border: 1px solid var(--term-green-dim);
+  padding: 0.2rem 0.6rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.chip-list a:hover,
+.chip-list a:focus {
+  background: rgba(51, 255, 51, 0.1);
+}
+
+/* ---------------------------------------------------------------------
+   DM console widget
+   --------------------------------------------------------------------- */
+
+.dm-console label {
+  display: block;
+  color: var(--term-green-dim);
+  margin-bottom: 0.35rem;
+}
+
+.dm-console input[type="password"] {
+  width: 100%;
+  background: #010301;
+  border: 1px solid var(--term-green-dim);
+  color: var(--term-green);
+  font-family: var(--term-font);
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.75rem;
+  caret-color: var(--term-green);
+}
+
+.dm-console input[type="password"]:focus {
+  outline: none;
+  border-color: var(--term-green);
+  box-shadow: 0 0 6px var(--term-glow);
+}
+
+.btn-terminal {
+  background: #010301;
+  border: 1px solid var(--term-green);
+  color: var(--term-green);
+  font-family: var(--term-font);
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.btn-terminal:hover,
+.btn-terminal:focus {
+  background: var(--term-green);
+  color: #010301;
+  text-shadow: none;
+  box-shadow: 0 0 10px var(--term-glow);
+}
+
+.dm-note {
+  color: var(--term-green-dim);
+  font-size: 0.8rem;
+  margin-top: 0.75rem;
+}
+
+/* ---------------------------------------------------------------------
+   News — preview + full feed
+   --------------------------------------------------------------------- */
+
+.news-entry {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed var(--term-green-faint);
+}
+
+.news-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.news-meta {
+  color: var(--term-green-dim);
+  font-size: 0.85rem;
+  margin: 0 0 0.25rem;
+}
+
+.news-meta .news-author {
+  color: var(--term-amber);
+}
+
+.news-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.news-title::before {
+  content: "[LOG] ";
+  color: var(--term-green-dim);
+}
+
+.news-body {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.read-more {
+  display: inline-block;
+  margin-top: 0.75rem;
+  text-decoration: none;
+}
+
+/* Archive (collapsible) */
+details.archive {
+  margin-top: 1rem;
+}
+
+details.archive > summary {
+  cursor: pointer;
+  color: var(--term-amber);
+  letter-spacing: 0.05em;
+  padding: 0.4rem 0;
+}
+
+details.archive > summary::-webkit-details-marker {
+  color: var(--term-amber);
+}
+
+details.archive[open] > summary {
+  margin-bottom: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------
+   Footer
+   --------------------------------------------------------------------- */
+
+footer.site-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--term-green-faint);
+  color: var(--term-green-dim);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+footer.site-footer .end-line {
+  margin-top: 0.5rem;
+}
+
+/* ---------------------------------------------------------------------
+   Misc helpers
+   --------------------------------------------------------------------- */
+
+.muted {
+  color: var(--term-green-dim);
+}
+
+.amber {
+  color: var(--term-amber);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* ---------------------------------------------------------------------
+   Reduced motion
+   --------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-screen,
+  .cursor,
+  .status-online::before {
+    animation: none;
+  }
+}

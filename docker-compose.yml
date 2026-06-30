@@ -33,16 +33,23 @@ services:
       DB_USER: uoa
       DB_PASS: ${DB_PASS:-uoa}
       DB_NAME: uoa
-      NWN_PORT: "5121"
+      NWN_PORT: "6041"
       DM_PASSWORD: ${DM_PASSWORD:-dmpassword}
       CHROME_BINARY: /usr/bin/chromium
     volumes:
       - .:/var/www/html
       - /var/www/html/www/node_modules
       - ${HOME}/.claude:/home/dev/.claude
+      - ${HOME}/.claude-docker.json:/home/dev/.claude.json
     ports:
       - "88:80"
     working_dir: /var/www/html
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
 
 volumes:
   db_data:

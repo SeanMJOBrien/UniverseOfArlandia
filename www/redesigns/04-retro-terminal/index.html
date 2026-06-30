@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <title>The Universe of Arlandia // Home Terminal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="crt-screen">
+  <div class="terminal">
+
+    <header class="site-header">
+      <pre class="boot-log" aria-hidden="true">ARLANDIA SYSCOM BIOS v3.72 ............ <span class="ok">OK</span>
+DETECTING SUBSPACE UPLINK .............. <span class="ok">OK</span>
+ESTABLISHING SECURE CHANNEL TO UOANWN .. <span class="ok">OK</span>
+LOADING WORLD DATABASE ................. <span class="ok">OK</span>
+WELCOME, TRAVELER.</pre>
+
+      <pre class="ascii-banner" aria-hidden="true">
+█  █ █▀▀▄ █▀▀▄    ▄▀▀▄ █▀▀▄ █     ▄▀▀▄ █▀▀▄ █▀▀▄ ▀█▀ ▄▀▀▄
+█  █ █  █ █▄▄▀    █▄▄█ █▄▄▀ █     █▄▄█ █  █ █  █  █  █▄▄█
+▀▄▄▀ ▀▄▄▀ ▀  ▀▄    █  █ ▀ ▀▀ ▀▄▄▄  █  █ ▀▄▄▀ ▀▄▄▀ ▄█▄ █  █</pre>
+
+      <h1 class="site-title">THE UNIVERSE OF ARLANDIA<span class="cursor">_</span></h1>
+      <p class="site-tagline">For Neverwinter Nights — the universe is infinite.</p>
+      <p class="prompt-line">guest@uoanwn:<span class="path">~</span>$ connect --module=arlandia<span class="cursor">_</span></p>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <div class="nav-group">
+          <span class="nav-group-label">// MODULE</span>
+          <ul class="nav-list">
+            <li><a href="news.html" class="active" aria-current="page">Home/News</a></li>
+            <li><a href="../description.html">Description</a></li>
+            <li><a href="../screenshots.html">Screenshots</a></li>
+            <li><a href="../interests.html">Interests</a></li>
+            <li><a href="../domains.html">Domains</a></li>
+            <li><a href="../crafting.html">Crafting</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <span class="nav-group-label">// CHARACTERS</span>
+          <ul class="nav-list">
+            <li><a href="../races.html">Races</a></li>
+            <li><a href="../classes.html">Classes</a></li>
+            <li><a href="../feats.html">Feats</a></li>
+            <li><a href="../grades.html">Grades</a></li>
+            <li><a href="../talents.html">Talents</a></li>
+          </ul>
+        </div>
+        <div class="nav-group">
+          <span class="nav-group-label">// COMMUNITY</span>
+          <ul class="nav-list">
+            <li><a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a></li>
+            <li><a href="../downloads.html">Downloads</a></li>
+            <li><a href="../links.html">Links</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <pre class="box-rule" aria-hidden="true">┌──────────────────────────────────────────────────────────────────────┐</pre>
+
+    <main>
+      <div class="grid status-grid">
+
+        <!-- Server status panel -->
+        <section class="frame" aria-labelledby="status-heading">
+          <h2 class="frame-title" id="status-heading">┤ SERVER STATUS ├</h2>
+          <table class="status-table">
+            <tbody>
+              <tr>
+                <td>Server status</td>
+                <td><span class="status-online">ONLINE</span></td>
+              </tr>
+              <tr>
+                <td>Players online</td>
+                <td>7</td>
+              </tr>
+              <tr>
+                <td>In-game date/time</td>
+                <td>Year 1372, Month 3, Day 18 — 14:32</td>
+              </tr>
+              <tr>
+                <td>Next reboot</td>
+                <td>3h 47m</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr class="divider">
+
+          <div class="connect-block">
+            <p class="muted">// Direct connect</p>
+            <p>Module address: <code>uoanwn.homeip.net</code></p>
+            <p class="muted">Point your NWN:EE client's direct connection at the address
+            above to join the Arlandia universe.</p>
+          </div>
+        </section>
+
+        <!-- DM Console widget -->
+        <section class="frame dm-console" aria-labelledby="dm-heading">
+          <h2 class="frame-title" id="dm-heading">┤ DM CONSOLE ACCESS ├</h2>
+          <p class="muted">// Authorized personnel only. Enter access code to
+          establish a Dungeon Master uplink.</p>
+          <form action="#" method="post">
+            <label for="dm-pass">ACCESS CODE:</label>
+            <input type="password" id="dm-pass" name="dm-pass" placeholder="••••••••" autocomplete="off">
+            <button type="submit" class="btn-terminal">[ CONNECT ]</button>
+          </form>
+          <p class="dm-note">&gt; AUTH SERVER UNREACHABLE IN DEMO MODE — DECORATIVE ONLY_</p>
+        </section>
+      </div>
+
+      <pre class="box-rule" aria-hidden="true">├──────────────────────────────────────────────────────────────────────┤</pre>
+
+      <!-- Star systems panel -->
+      <section class="frame" aria-labelledby="systems-heading">
+        <h2 class="frame-title" id="systems-heading">┤ KNOWN STAR SYSTEMS ├</h2>
+        <p class="muted">// Querying world database for charted systems...<span class="cursor">_</span></p>
+
+        <div class="system-block">
+          <h3 class="system-name">METH SYSTEM</h3>
+          <p class="system-meta">11 planets · 8 moons · Arland is the primary starting world</p>
+          <ul class="chip-list">
+            <li><a href="#">Arland</a></li>
+            <li><a href="#">Tyrra</a></li>
+            <li><a href="#">Vornak</a></li>
+            <li><a href="#">Kethis</a></li>
+          </ul>
+        </div>
+
+        <div class="system-block">
+          <h3 class="system-name">SOLHAVEN SYSTEM</h3>
+          <p class="system-meta">2 planets charted</p>
+          <ul class="chip-list">
+            <li><a href="#">Kaldris</a></li>
+            <li><a href="#">Pthera</a></li>
+          </ul>
+        </div>
+
+        <div class="system-block">
+          <h3 class="system-name">DRAKON REACH</h3>
+          <p class="system-meta">3 planets charted</p>
+          <ul class="chip-list">
+            <li><a href="#">Skarn</a></li>
+            <li><a href="#">Orobus</a></li>
+            <li><a href="#">Veyth</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <pre class="box-rule" aria-hidden="true">├──────────────────────────────────────────────────────────────────────┤</pre>
+
+      <!-- Latest news preview -->
+      <section class="frame" aria-labelledby="news-heading">
+        <h2 class="frame-title" id="news-heading">┤ LATEST TRANSMISSIONS ├</h2>
+
+        <article class="news-entry">
+          <p class="news-meta">02.03.2020 :: posted by <span class="news-author">Qlippoth</span></p>
+          <h3 class="news-title">UOA server REOPENING under new Management. Now with backwards AMERICAN dates... Sorry.</h3>
+          <p class="news-body">Getting UoA back up and running under NWN:EE — haks available in
+          Downloads, NWSync support coming soon. Check the Crafting page to see what you can
+          build, from simple items to Airships and Spaceships. Want to help? Get in touch!</p>
+        </article>
+
+        <article class="news-entry">
+          <p class="news-meta">12.08.2011 :: posted by <span class="news-author">TheRack</span></p>
+          <h3 class="news-title">UOA server closed</h3>
+          <p class="news-body">The official UOA server has closed due to low player counts.
+          All files needed to play or host the world remain in the Downloads section —
+          set up your own server and let us know!</p>
+        </article>
+
+        <article class="news-entry">
+          <p class="news-meta">25.12.2010 :: posted by <span class="news-author">TheRack</span></p>
+          <h3 class="news-title">Merry Christmas</h3>
+          <p class="news-body">The UOA team wishes all players a merry christmas and happy new
+          year — the server is now in full operation. Come join a rich and huge world!</p>
+        </article>
+
+        <a class="read-more" href="news.html">&gt; Read full transmission log...<span class="cursor">_</span></a>
+      </section>
+    </main>
+
+    <pre class="box-rule" aria-hidden="true">└──────────────────────────────────────────────────────────────────────┘</pre>
+
+    <footer class="site-footer">
+      <p>&copy; TheRack, all rights reserved, 2009-2011.</p>
+      <p class="end-line">-- END OF TRANSMISSION --<span class="cursor">_</span></p>
+    </footer>
+
+  </div>
+</body>
+</html>

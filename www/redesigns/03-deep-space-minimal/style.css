@@ -1,0 +1,639 @@
+/* =========================================================
+   Universe of Arlandia — "Deep Space Minimal" concept
+   Near-black background, subtle starfield, single electric-
+   blue accent, generous whitespace, hairline dividers.
+   ========================================================= */
+
+:root {
+  --bg: #05060a;
+  --bg-elevated: #07090f;
+  --fg: #e8ecf4;
+  --fg-dim: #9aa4b8;
+  --fg-faint: #5b6376;
+  --accent: #4cc9f0;
+  --accent-dim: rgba(76, 201, 240, 0.35);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --max-width: 1180px;
+  --gap: clamp(1.5rem, 4vw, 4rem);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------------------------------------------------------
+   Starfield background
+   Layered radial-gradients create a sparse field of tiny
+   stars at different sizes/opacities. Fixed so it stays put
+   while content scrolls.
+   --------------------------------------------------------- */
+.starfield {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 22% 38%, #ffffff 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 35% 6%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 48% 62%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 58% 22%, #ffffff 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 67% 78%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 74% 14%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 81% 48%, #ffffff 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 91% 28%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 13% 84%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 29% 94%, #ffffff 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 44% 88%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 63% 96%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 88% 90%, #ffffff 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 97% 58%, #ffffff 0, transparent 60%),
+    radial-gradient(1px 1px at 5% 55%, #4cc9f0 0, transparent 60%),
+    radial-gradient(1px 1px at 52% 42%, #4cc9f0 0, transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 65%, #4cc9f0 0, transparent 60%);
+  background-repeat: repeat;
+  background-size: 700px 700px;
+  opacity: 0.65;
+}
+
+/* ---------------------------------------------------------
+   Layout shell
+   --------------------------------------------------------- */
+.page-shell {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gap);
+}
+
+/* ---------------------------------------------------------
+   Header / nav
+   --------------------------------------------------------- */
+.site-header {
+  border-bottom: 1px solid var(--hairline);
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.75rem;
+}
+
+.brand-mark {
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.brand-name {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.brand-name a {
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.nav-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.5rem, 5vw, 4rem);
+}
+
+.nav-group {
+  flex: 1 1 180px;
+}
+
+.nav-group h2 {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 0.85rem;
+}
+
+.nav-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.nav-group a {
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  transition: color 0.15s ease, padding-left 0.15s ease;
+  border-left: 1px solid transparent;
+  padding-left: 0;
+  display: inline-block;
+}
+
+.nav-group a:hover,
+.nav-group a:focus {
+  color: var(--fg);
+}
+
+.nav-group a.is-active {
+  color: var(--accent);
+  border-left: 1px solid var(--accent);
+  padding-left: 0.6rem;
+}
+
+/* ---------------------------------------------------------
+   Hero
+   --------------------------------------------------------- */
+.hero {
+  padding: clamp(3rem, 10vw, 7rem) 0 clamp(2.5rem, 8vw, 5rem);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.hero-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1.25rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 9vw, 6rem);
+  font-weight: 100;
+  line-height: 1.05;
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.01em;
+}
+
+.hero h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.hero p {
+  max-width: 38em;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--fg-dim);
+  font-weight: 300;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Section scaffolding
+   --------------------------------------------------------- */
+.section {
+  padding: clamp(2.5rem, 8vw, 5rem) 0;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+}
+
+.section-head h2 {
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 200;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.section-number {
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.section-link {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--accent-dim);
+  padding-bottom: 0.2rem;
+  white-space: nowrap;
+}
+
+.section-link:hover,
+.section-link:focus {
+  border-bottom-color: var(--accent);
+}
+
+/* ---------------------------------------------------------
+   Grids (generic)
+   --------------------------------------------------------- */
+.grid {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* ---------------------------------------------------------
+   Stat / status panel — no boxes, just rows + hairlines
+   --------------------------------------------------------- */
+.status-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.status-row:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.status-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.status-value {
+  font-size: 1.05rem;
+  font-weight: 300;
+  color: var(--fg);
+  text-align: right;
+}
+
+.status-value.is-online {
+  color: var(--accent);
+  letter-spacing: 0.05em;
+}
+
+.status-value.is-online::before {
+  content: "";
+  display: inline-block;
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0.6em var(--accent);
+  margin-right: 0.6em;
+  vertical-align: middle;
+}
+
+/* Connection info */
+.connect-block {
+  margin-top: 2.5rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.connect-label {
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin: 0 0 0.5rem;
+}
+
+.connect-address {
+  font-size: clamp(1.1rem, 3vw, 1.6rem);
+  font-weight: 200;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+  margin: 0;
+}
+
+.connect-address .accent {
+  color: var(--accent);
+}
+
+.btn {
+  display: inline-block;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.95rem 2.2rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  font-weight: 400;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover,
+.btn:focus {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: 0 0 1.5rem var(--accent-dim);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--accent);
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ---------------------------------------------------------
+   Star systems
+   --------------------------------------------------------- */
+.system {
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.system:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.system-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.system-head h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.system-meta {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.planet-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+}
+
+.planet-chip {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  color: var(--fg-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.planet-chip:hover,
+.planet-chip:focus {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------
+   DM console widget
+   --------------------------------------------------------- */
+.dm-console {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.dm-console-copy {
+  flex: 1 1 320px;
+  max-width: 32em;
+  color: var(--fg-dim);
+}
+
+.dm-console-copy p {
+  margin: 0;
+}
+
+.dm-form {
+  flex: 1 1 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 24em;
+}
+
+.dm-form label {
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.dm-form input[type="password"] {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--fg);
+  font-size: 1rem;
+  font-weight: 300;
+  padding: 0.6rem 0;
+  letter-spacing: 0.2em;
+  transition: border-color 0.15s ease;
+}
+
+.dm-form input[type="password"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.dm-form .btn {
+  align-self: flex-start;
+  cursor: pointer;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: inherit;
+}
+
+/* ---------------------------------------------------------
+   News — preview cards (index) & full timeline (news.html)
+   --------------------------------------------------------- */
+.news-preview-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.news-item {
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--hairline);
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.news-item:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.news-date {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.news-body h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.25rem;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+
+.news-body p {
+  margin: 0 0 0.6rem;
+  color: var(--fg-dim);
+}
+
+.news-byline {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+@media (max-width: 640px) {
+  .news-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Archive (collapsed older entries) */
+.archive {
+  margin-top: 1rem;
+}
+
+.archive summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--hairline);
+  list-style: none;
+}
+
+.archive summary::-webkit-details-marker {
+  display: none;
+}
+
+.archive summary::before {
+  content: "+ ";
+}
+
+.archive[open] summary::before {
+  content: "\2212 ";
+}
+
+.archive[open] summary {
+  border-bottom: none;
+}
+
+/* ---------------------------------------------------------
+   Footer
+   --------------------------------------------------------- */
+.site-footer {
+  padding: 3rem 0 4rem;
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: var(--fg-faint);
+}
+
+.site-footer a {
+  color: var(--fg-faint);
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus {
+  color: var(--accent);
+}
+
+/* ---------------------------------------------------------
+   Utility
+   --------------------------------------------------------- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Universe of Arlandia — Neon Cyberpunk Concept</title>
+  <meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="site-wrapper">
+
+    <header class="site-header">
+      <h1 class="site-title">
+        THE UNIVERSE OF ARLANDIA
+        <span class="glitch-layer glitch-layer--cyan" aria-hidden="true" data-text="THE UNIVERSE OF ARLANDIA"></span>
+        <span class="glitch-layer glitch-layer--magenta" aria-hidden="true" data-text="THE UNIVERSE OF ARLANDIA"></span>
+      </h1>
+      <p class="site-tagline">For Neverwinter Nights &mdash; The universe is infinite</p>
+
+      <nav class="site-nav" aria-label="Main navigation">
+        <div class="nav-group">
+          <p class="nav-group-title">Module</p>
+          <ul class="nav-links">
+            <li><a href="news.html" aria-current="page">Home / News</a></li>
+            <li><a href="../description.html">Description</a></li>
+            <li><a href="../screenshots.html">Screenshots</a></li>
+            <li><a href="../interests.html">Interests</a></li>
+            <li><a href="../domains.html">Domains</a></li>
+            <li><a href="../crafting.html">Crafting</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-group">
+          <p class="nav-group-title">Characters</p>
+          <ul class="nav-links">
+            <li><a href="../races.html">Races</a></li>
+            <li><a href="../classes.html">Classes</a></li>
+            <li><a href="../feats.html">Feats</a></li>
+            <li><a href="../grades.html">Grades</a></li>
+            <li><a href="../talents.html">Talents</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-group">
+          <p class="nav-group-title">Community</p>
+          <ul class="nav-links">
+            <li><a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a></li>
+            <li><a href="../downloads.html">Downloads</a></li>
+            <li><a href="../links.html">Links</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="content-grid">
+
+        <!-- Server status panel -->
+        <section class="panel" aria-labelledby="status-title">
+          <h2 class="panel-title" id="status-title">// Server <span class="accent">Status</span></h2>
+          <ul class="status-list">
+            <li>
+              <span class="status-label">Status</span>
+              <span class="status-value is-online">Online</span>
+            </li>
+            <li>
+              <span class="status-label">Players Online</span>
+              <span class="status-value">7</span>
+            </li>
+            <li>
+              <span class="status-label">In-Game Date/Time</span>
+              <span class="status-value">Year 1372, Month 3, Day 18 &mdash; 14:32</span>
+            </li>
+            <li>
+              <span class="status-label">Next Reboot</span>
+              <span class="status-value">3h 47m</span>
+            </li>
+          </ul>
+
+          <div class="connect-info">
+            <span class="status-label">Direct Connect IP</span><br>
+            <code>uoanwn.homeip.net</code>
+          </div>
+        </section>
+
+        <!-- DM Console widget -->
+        <section class="panel" aria-labelledby="dm-title">
+          <h2 class="panel-title" id="dm-title">// <span class="accent">DM</span> Console Access</h2>
+          <p>Authorized personnel only. Enter your access code to connect to the DM terminal.</p>
+          <form class="dm-form" action="#" method="post">
+            <label for="dm-password">Access code</label>
+            <input type="password" id="dm-password" name="dm-password" placeholder="••••••••" autocomplete="off">
+            <button type="submit">Connect</button>
+          </form>
+          <p class="console-readout">&gt; awaiting authentication_</p>
+        </section>
+
+        <!-- Star systems panel -->
+        <section class="panel panel--wide" aria-labelledby="systems-title">
+          <h2 class="panel-title" id="systems-title">// Known <span class="accent">Star Systems</span></h2>
+
+          <div class="system-block">
+            <h3 class="system-name">Meth System</h3>
+            <span class="system-meta">11 planets &middot; 8 moons &mdash; Arland is the main starting planet</span>
+            <ul class="planet-chips">
+              <li><a href="#">Arland</a></li>
+              <li><a href="#">Tyrra</a></li>
+              <li><a href="#">Vornak</a></li>
+              <li><a href="#">Kethis</a></li>
+            </ul>
+          </div>
+
+          <div class="system-block">
+            <h3 class="system-name">Solhaven System</h3>
+            <ul class="planet-chips">
+              <li><a href="#">Kaldris</a></li>
+              <li><a href="#">Pthera</a></li>
+            </ul>
+          </div>
+
+          <div class="system-block">
+            <h3 class="system-name">Drakon Reach</h3>
+            <ul class="planet-chips">
+              <li><a href="#">Skarn</a></li>
+              <li><a href="#">Orobus</a></li>
+              <li><a href="#">Veyth</a></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Latest news preview -->
+        <section class="panel panel--wide" aria-labelledby="news-title">
+          <h2 class="panel-title" id="news-title">// Latest <span class="accent">Transmissions</span></h2>
+
+          <div class="news-preview-list">
+            <article class="news-preview-item">
+              <span class="news-date">02.03.2020</span>
+              <h3><a href="news.html">UOA Server Reopening Under New Management</a></h3>
+              <p>
+                Back online under NWN:EE &mdash; haks available in Downloads, NWSync support coming soon.
+                Check the Crafting page to see what you can build, from homes and Guild Halls to
+                Airships and Spaceships. <span class="news-preview-byline">&mdash; Qlippoth</span>
+              </p>
+            </article>
+
+            <article class="news-preview-item">
+              <span class="news-date">12.08.2011</span>
+              <h3><a href="news.html">UOA Server Closed</a></h3>
+              <p>
+                The official UOA server has closed due to low player counts. All files needed to play
+                or host the world remain available in Downloads.
+                <span class="news-preview-byline">&mdash; TheRack</span>
+              </p>
+            </article>
+
+            <article class="news-preview-item">
+              <span class="news-date">25.12.2010</span>
+              <h3><a href="news.html">Merry Christmas</a></h3>
+              <p>
+                The UOA team wishes all players a merry christmas and happy new year as the server
+                enters full functionality. <span class="news-preview-byline">&mdash; TheRack</span>
+              </p>
+            </article>
+          </div>
+
+          <a class="view-all-link" href="news.html">View Full News Archive &rarr;</a>
+        </section>
+
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; <span class="accent">TheRack</span>, all rights reserved, 2009-2011.</p>
+    </footer>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,925 @@
+/* =========================================================
+   Universe of Arlandia — "Imperial Briefing Room" concept
+   Dark command-center theme: charcoal/black, cold red accent,
+   steel-grey angular panels, holoprojector rings, hazard stripes.
+   ========================================================= */
+
+:root {
+  --void: #0a0a0c;
+  --void-deep: #050506;
+  --panel: #1b1c1f;
+  --panel-light: #25272b;
+  --steel: #3a3d42;
+  --steel-light: #54585f;
+  --steel-line: #4a4e55;
+  --red: #cc1f2d;
+  --red-glow: #ff3b48;
+  --red-dim: #5c1015;
+  --text: #d7dadf;
+  --text-dim: #8b9097;
+  --text-bright: #f4f5f7;
+  --amber: #e0a13a;
+  --green: #3fae5c;
+
+  --font-display: "Arial Narrow", "Helvetica Neue Condensed", "Oswald", Impact, sans-serif;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "Courier New", monospace;
+
+  --chamfer: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--void);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.015) 0px, rgba(255, 255, 255, 0.015) 1px, transparent 1px, transparent 3px),
+    radial-gradient(ellipse at 50% -10%, rgba(204, 31, 45, 0.18), transparent 55%),
+    radial-gradient(ellipse at 90% 110%, rgba(58, 61, 66, 0.35), transparent 60%);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+}
+
+/* -----------------------------------------------------------
+   Layout shell
+   ----------------------------------------------------------- */
+
+.shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+/* -----------------------------------------------------------
+   Top alert strip — hazard stripes
+   ----------------------------------------------------------- */
+
+.hazard-strip {
+  height: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--red) 0px,
+    var(--red) 18px,
+    #1a1a1d 18px,
+    #1a1a1d 36px
+  );
+  box-shadow: 0 0 12px rgba(204, 31, 45, 0.5);
+}
+
+/* -----------------------------------------------------------
+   Header / masthead
+   ----------------------------------------------------------- */
+
+.masthead {
+  background: linear-gradient(180deg, var(--panel) 0%, var(--void-deep) 100%);
+  border-bottom: 1px solid var(--steel-line);
+  padding: 28px 20px 0;
+}
+
+.masthead-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 24px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.brand-emblem {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: linear-gradient(145deg, var(--steel-light), var(--panel) 60%);
+  border: 1px solid var(--steel-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(204, 31, 45, 0.35);
+}
+
+.brand-emblem::before {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--void-deep);
+}
+
+.brand-emblem::after {
+  content: "A";
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--red-glow);
+  text-shadow: 0 0 10px var(--red);
+}
+
+.brand-text h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+}
+
+.brand-text p {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--red-glow);
+}
+
+.masthead-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  text-align: right;
+}
+
+.masthead-meta .clearance {
+  color: var(--red-glow);
+  font-weight: 700;
+  letter-spacing: 0.22em;
+}
+
+/* -----------------------------------------------------------
+   Primary navigation
+   ----------------------------------------------------------- */
+
+.command-nav {
+  background: var(--void-deep);
+  border-bottom: 1px solid var(--steel-line);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.command-nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 0 20px;
+}
+
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 26px 12px 0;
+  border-right: 1px solid var(--steel-line);
+  margin-right: 26px;
+}
+
+.nav-group:last-child {
+  border-right: none;
+  margin-right: 0;
+}
+
+.nav-group-label {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text);
+  padding: 4px 2px;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.nav-links a:hover {
+  color: var(--red-glow);
+  border-bottom-color: var(--red-glow);
+}
+
+.nav-links a.active {
+  color: var(--red-glow);
+  border-bottom-color: var(--red);
+  text-shadow: 0 0 8px rgba(204, 31, 45, 0.6);
+}
+
+/* -----------------------------------------------------------
+   Hero
+   ----------------------------------------------------------- */
+
+.hero {
+  position: relative;
+  margin: 28px 0 32px;
+  padding: 56px 40px;
+  background: linear-gradient(135deg, var(--panel) 0%, var(--void-deep) 70%);
+  border: 1px solid var(--steel-line);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 28px) 100%, 0 100%);
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 80px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 80px);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(204, 31, 45, 0.35), transparent 65%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 720px;
+}
+
+.hero-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--red-glow);
+  border: 1px solid var(--red-dim);
+  background: rgba(204, 31, 45, 0.08);
+  padding: 4px 12px;
+  margin-bottom: 18px;
+}
+
+.hero h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  color: var(--text-bright);
+  line-height: 1.1;
+}
+
+.hero h2 span {
+  color: var(--red-glow);
+  text-shadow: 0 0 16px rgba(204, 31, 45, 0.6);
+}
+
+.hero p {
+  font-size: 1.02rem;
+  color: var(--text-dim);
+  max-width: 56ch;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 26px;
+}
+
+/* -----------------------------------------------------------
+   Buttons
+   ----------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text-bright);
+  background: var(--steel);
+  border: 1px solid var(--steel-line);
+  padding: 12px 24px;
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--red-dim);
+  color: var(--red-glow);
+  box-shadow: 0 0 16px rgba(204, 31, 45, 0.35);
+}
+
+.btn-primary {
+  background: var(--red);
+  border-color: var(--red-glow);
+}
+
+.btn-primary:hover {
+  background: var(--red-glow);
+  color: var(--void-deep);
+  box-shadow: 0 0 20px rgba(255, 59, 72, 0.55);
+}
+
+/* -----------------------------------------------------------
+   Panel system
+   ----------------------------------------------------------- */
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.panel {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--steel-line);
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer));
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--red) 0%, transparent 60%);
+  opacity: 0.7;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 22px;
+  background: linear-gradient(90deg, var(--void-deep), var(--panel-light));
+  border-bottom: 1px solid var(--steel-line);
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+}
+
+.panel-header .tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-body {
+  padding: 22px;
+}
+
+/* -----------------------------------------------------------
+   Status indicator dot
+   ----------------------------------------------------------- */
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.status-dot.offline {
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* -----------------------------------------------------------
+   Server status panel
+   ----------------------------------------------------------- */
+
+.status-line {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  margin: 0 0 18px;
+}
+
+.status-line strong {
+  color: var(--green);
+}
+
+.readout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.readout {
+  border: 1px solid var(--steel-line);
+  background: var(--void-deep);
+  padding: 12px 14px;
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+}
+
+.readout .label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+.readout .value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--text-bright);
+  letter-spacing: 0.05em;
+}
+
+.readout .value.alert {
+  color: var(--amber);
+}
+
+.connect-line {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--steel-line);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.connect-line strong {
+  color: var(--red-glow);
+  letter-spacing: 0.08em;
+}
+
+/* -----------------------------------------------------------
+   Holoprojector — star systems
+   ----------------------------------------------------------- */
+
+.holo-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.holo-display {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(204, 31, 45, 0.12), transparent 70%);
+}
+
+.holo-display .ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(204, 31, 45, 0.35);
+  box-shadow: 0 0 14px rgba(204, 31, 45, 0.15) inset;
+}
+
+.holo-display .ring.r1 { width: 100%; height: 100%; animation: spin 60s linear infinite; }
+.holo-display .ring.r2 { width: 74%; height: 74%; border-style: dashed; animation: spin-rev 46s linear infinite; }
+.holo-display .ring.r3 { width: 48%; height: 48%; animation: spin 32s linear infinite; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spin-rev {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.holo-core {
+  position: relative;
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--red-glow), var(--red) 60%, transparent 100%);
+  box-shadow: 0 0 28px 6px rgba(204, 31, 45, 0.55);
+  z-index: 1;
+}
+
+.holo-display .crosshair {
+  position: absolute;
+  inset: 0;
+}
+
+.holo-display .crosshair::before,
+.holo-display .crosshair::after {
+  content: "";
+  position: absolute;
+  background: rgba(204, 31, 45, 0.25);
+}
+
+.holo-display .crosshair::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.holo-display .crosshair::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+
+.systems-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.system-block {
+  border: 1px solid var(--steel-line);
+  background: var(--void-deep);
+  padding: 14px 16px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.system-block h4 {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--red-glow);
+}
+
+.system-block .system-meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--steel);
+  border: 1px solid var(--steel-line);
+  padding: 6px 14px;
+  text-decoration: none;
+  clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:hover {
+  background: var(--red-dim);
+  color: var(--red-glow);
+  border-color: var(--red);
+}
+
+.chip.chip-home {
+  border-color: var(--red);
+  color: var(--red-glow);
+}
+
+/* -----------------------------------------------------------
+   DM console widget
+   ----------------------------------------------------------- */
+
+.dm-console {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dm-console p.note {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.dm-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dm-form input[type="password"] {
+  flex: 1 1 180px;
+  background: var(--void-deep);
+  border: 1px solid var(--steel-line);
+  color: var(--text-bright);
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  padding: 12px 14px;
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+}
+
+.dm-form input[type="password"]:focus {
+  outline: none;
+  border-color: var(--red);
+  box-shadow: 0 0 10px rgba(204, 31, 45, 0.35);
+}
+
+.dm-form .btn {
+  flex: 0 0 auto;
+}
+
+.dm-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* -----------------------------------------------------------
+   News preview (index) + News feed (news.html)
+   ----------------------------------------------------------- */
+
+.news-preview-list,
+.news-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.news-item {
+  position: relative;
+  border: 1px solid var(--steel-line);
+  background: var(--void-deep);
+  padding: 16px 18px 16px 22px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+.news-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: var(--red);
+  box-shadow: 0 0 8px rgba(204, 31, 45, 0.5);
+}
+
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.news-meta .news-date {
+  color: var(--amber);
+}
+
+.news-meta .news-author::before {
+  content: "TRANSMITTED BY ";
+  color: var(--text-dim);
+}
+
+.news-item h3,
+.news-item h4 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+}
+
+.news-item h3 {
+  font-size: 1.2rem;
+}
+
+.news-item h4 {
+  font-size: 1.05rem;
+}
+
+.news-item p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.news-preview-list .news-item p {
+  color: var(--text-dim);
+}
+
+.more-link {
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* -----------------------------------------------------------
+   News archive (collapsed)
+   ----------------------------------------------------------- */
+
+.archive-toggle {
+  margin-top: 12px;
+}
+
+.archive-toggle summary {
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  padding: 14px 22px;
+  background: linear-gradient(90deg, var(--void-deep), var(--panel-light));
+  border: 1px solid var(--steel-line);
+  clip-path: polygon(var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.archive-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.archive-toggle summary::after {
+  content: "EXPAND \25BC";
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--red-glow);
+}
+
+.archive-toggle[open] summary::after {
+  content: "COLLAPSE \25B2";
+}
+
+.archive-body {
+  border: 1px solid var(--steel-line);
+  border-top: none;
+  background: var(--panel);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* -----------------------------------------------------------
+   Footer
+   ----------------------------------------------------------- */
+
+.command-footer {
+  margin-top: 40px;
+  padding: 24px 0;
+  border-top: 1px solid var(--steel-line);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.command-footer .hazard-strip {
+  margin-bottom: 18px;
+}
+
+/* -----------------------------------------------------------
+   Responsive tweaks
+   ----------------------------------------------------------- */
+
+@media (min-width: 760px) {
+  .holo-wrap {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .holo-display {
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 620px) {
+  .masthead-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .masthead-meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .hero {
+    padding: 40px 24px;
+  }
+
+  .nav-group {
+    border-right: none;
+    margin-right: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--steel-line);
+    width: 100%;
+  }
+
+  .nav-group:last-child {
+    border-bottom: none;
+  }
+}

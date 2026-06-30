@@ -29,7 +29,7 @@ if(iStructure==5)
  {
 iDays = iDomainExtractor*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
-if(iLevel>=5){iDays/2;}
+if(iLevel>=5){iDays = iDays/2;}
 
 sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
 
@@ -50,16 +50,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -104,7 +105,7 @@ SetLocalInt(oPC,sPlanet+"&"+sArea+"&Execute&"+IntToString(iSlot),1);
 
 iDays = iDomainFactory*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
-if(iLevel>=5){iDays/2;}
+if(iLevel>=5){iDays = iDays/2;}
 
 sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
 
@@ -152,43 +153,43 @@ sBP5Lb = GetStringLeft(sVar5,FindSubString(sVar5,"%001%"));sTag51b = GetStringRi
 
 if((sBP1Lb!="")&&(iNum1b>1))
     {
-if((sBP1Lb==sTag11)&&(sBP1Lb==sTag11)){iNumR = (iNum1b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag11){iNumR = iNum1b-1;iNum11 = iNum11+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag12){iNumR = iNum1b-1;iNum12 = iNum12+iNumR;iNum1b = iNum1b-iNumR;}}
-if((sBP1Lb==sTag21)&&(sBP1Lb==sTag21)){iNumR = (iNum1b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag21){iNumR = iNum1b-1;iNum21 = iNum21+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag22){iNumR = iNum1b-1;iNum22 = iNum22+iNumR;iNum1b = iNum1b-iNumR;}}
-if((sBP1Lb==sTag31)&&(sBP1Lb==sTag31)){iNumR = (iNum1b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag31){iNumR = iNum1b-1;iNum31 = iNum31+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag32){iNumR = iNum1b-1;iNum32 = iNum32+iNumR;iNum1b = iNum1b-iNumR;}}
-if((sBP1Lb==sTag41)&&(sBP1Lb==sTag41)){iNumR = (iNum1b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag41){iNumR = iNum1b-1;iNum41 = iNum41+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag42){iNumR = iNum1b-1;iNum42 = iNum42+iNumR;iNum1b = iNum1b-iNumR;}}
-if((sBP1Lb==sTag51)&&(sBP1Lb==sTag51)){iNumR = (iNum1b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag51){iNumR = iNum1b-1;iNum51 = iNum51+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag52){iNumR = iNum1b-1;iNum52 = iNum52+iNumR;iNum1b = iNum1b-iNumR;}}
+if((sBP1Lb==sTag11)&&(sBP1Lb==sTag12)){iNumR = (iNum1b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag11){iNumR = iNum1b-1;iNum11 = iNum11+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag12){iNumR = iNum1b-1;iNum12 = iNum12+iNumR;iNum1b = iNum1b-iNumR;}}
+if((sBP1Lb==sTag21)&&(sBP1Lb==sTag22)){iNumR = (iNum1b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag21){iNumR = iNum1b-1;iNum21 = iNum21+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag22){iNumR = iNum1b-1;iNum22 = iNum22+iNumR;iNum1b = iNum1b-iNumR;}}
+if((sBP1Lb==sTag31)&&(sBP1Lb==sTag32)){iNumR = (iNum1b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag31){iNumR = iNum1b-1;iNum31 = iNum31+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag32){iNumR = iNum1b-1;iNum32 = iNum32+iNumR;iNum1b = iNum1b-iNumR;}}
+if((sBP1Lb==sTag41)&&(sBP1Lb==sTag42)){iNumR = (iNum1b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag41){iNumR = iNum1b-1;iNum41 = iNum41+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag42){iNumR = iNum1b-1;iNum42 = iNum42+iNumR;iNum1b = iNum1b-iNumR;}}
+if((sBP1Lb==sTag51)&&(sBP1Lb==sTag52)){iNumR = (iNum1b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum1b = iNum1b-(iNumR*2);}else{if(sBP1Lb==sTag51){iNumR = iNum1b-1;iNum51 = iNum51+iNumR;iNum1b = iNum1b-iNumR;}if(sBP1Lb==sTag52){iNumR = iNum1b-1;iNum52 = iNum52+iNumR;iNum1b = iNum1b-iNumR;}}
     }
 if((sBP2Lb!="")&&(iNum2b>1))
     {
-if((sBP2Lb==sTag11)&&(sBP2Lb==sTag11)){iNumR = (iNum2b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag11){iNumR = iNum2b-1;iNum11 = iNum11+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag12){iNumR = iNum2b-1;iNum12 = iNum12+iNumR;iNum2b = iNum2b-iNumR;}}
-if((sBP2Lb==sTag21)&&(sBP2Lb==sTag21)){iNumR = (iNum2b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag21){iNumR = iNum2b-1;iNum21 = iNum21+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag22){iNumR = iNum2b-1;iNum22 = iNum22+iNumR;iNum2b = iNum2b-iNumR;}}
-if((sBP2Lb==sTag31)&&(sBP2Lb==sTag31)){iNumR = (iNum2b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag31){iNumR = iNum2b-1;iNum31 = iNum31+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag32){iNumR = iNum2b-1;iNum32 = iNum32+iNumR;iNum2b = iNum2b-iNumR;}}
-if((sBP2Lb==sTag41)&&(sBP2Lb==sTag41)){iNumR = (iNum2b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag41){iNumR = iNum2b-1;iNum41 = iNum41+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag42){iNumR = iNum2b-1;iNum42 = iNum42+iNumR;iNum2b = iNum2b-iNumR;}}
-if((sBP2Lb==sTag51)&&(sBP2Lb==sTag51)){iNumR = (iNum2b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag51){iNumR = iNum2b-1;iNum51 = iNum51+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag52){iNumR = iNum2b-1;iNum52 = iNum52+iNumR;iNum2b = iNum2b-iNumR;}}
+if((sBP2Lb==sTag11)&&(sBP2Lb==sTag12)){iNumR = (iNum2b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag11){iNumR = iNum2b-1;iNum11 = iNum11+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag12){iNumR = iNum2b-1;iNum12 = iNum12+iNumR;iNum2b = iNum2b-iNumR;}}
+if((sBP2Lb==sTag21)&&(sBP2Lb==sTag22)){iNumR = (iNum2b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag21){iNumR = iNum2b-1;iNum21 = iNum21+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag22){iNumR = iNum2b-1;iNum22 = iNum22+iNumR;iNum2b = iNum2b-iNumR;}}
+if((sBP2Lb==sTag31)&&(sBP2Lb==sTag32)){iNumR = (iNum2b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag31){iNumR = iNum2b-1;iNum31 = iNum31+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag32){iNumR = iNum2b-1;iNum32 = iNum32+iNumR;iNum2b = iNum2b-iNumR;}}
+if((sBP2Lb==sTag41)&&(sBP2Lb==sTag42)){iNumR = (iNum2b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag41){iNumR = iNum2b-1;iNum41 = iNum41+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag42){iNumR = iNum2b-1;iNum42 = iNum42+iNumR;iNum2b = iNum2b-iNumR;}}
+if((sBP2Lb==sTag51)&&(sBP2Lb==sTag52)){iNumR = (iNum2b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum2b = iNum2b-(iNumR*2);}else{if(sBP2Lb==sTag51){iNumR = iNum2b-1;iNum51 = iNum51+iNumR;iNum2b = iNum2b-iNumR;}if(sBP2Lb==sTag52){iNumR = iNum2b-1;iNum52 = iNum52+iNumR;iNum2b = iNum2b-iNumR;}}
     }
 if((sBP3Lb!="")&&(iNum3b>1))
     {
-if((sBP3Lb==sTag11)&&(sBP3Lb==sTag11)){iNumR = (iNum3b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag11){iNumR = iNum3b-1;iNum11 = iNum11+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag12){iNumR = iNum3b-1;iNum12 = iNum12+iNumR;iNum3b = iNum3b-iNumR;}}
-if((sBP3Lb==sTag21)&&(sBP3Lb==sTag21)){iNumR = (iNum3b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag21){iNumR = iNum3b-1;iNum21 = iNum21+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag22){iNumR = iNum3b-1;iNum22 = iNum22+iNumR;iNum3b = iNum3b-iNumR;}}
-if((sBP3Lb==sTag31)&&(sBP3Lb==sTag31)){iNumR = (iNum3b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag31){iNumR = iNum3b-1;iNum31 = iNum31+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag32){iNumR = iNum3b-1;iNum32 = iNum32+iNumR;iNum3b = iNum3b-iNumR;}}
-if((sBP3Lb==sTag41)&&(sBP3Lb==sTag41)){iNumR = (iNum3b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag41){iNumR = iNum3b-1;iNum41 = iNum41+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag42){iNumR = iNum3b-1;iNum42 = iNum42+iNumR;iNum3b = iNum3b-iNumR;}}
-if((sBP3Lb==sTag51)&&(sBP3Lb==sTag51)){iNumR = (iNum3b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag51){iNumR = iNum3b-1;iNum51 = iNum51+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag52){iNumR = iNum3b-1;iNum52 = iNum52+iNumR;iNum3b = iNum3b-iNumR;}}
+if((sBP3Lb==sTag11)&&(sBP3Lb==sTag12)){iNumR = (iNum3b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag11){iNumR = iNum3b-1;iNum11 = iNum11+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag12){iNumR = iNum3b-1;iNum12 = iNum12+iNumR;iNum3b = iNum3b-iNumR;}}
+if((sBP3Lb==sTag21)&&(sBP3Lb==sTag22)){iNumR = (iNum3b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag21){iNumR = iNum3b-1;iNum21 = iNum21+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag22){iNumR = iNum3b-1;iNum22 = iNum22+iNumR;iNum3b = iNum3b-iNumR;}}
+if((sBP3Lb==sTag31)&&(sBP3Lb==sTag32)){iNumR = (iNum3b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag31){iNumR = iNum3b-1;iNum31 = iNum31+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag32){iNumR = iNum3b-1;iNum32 = iNum32+iNumR;iNum3b = iNum3b-iNumR;}}
+if((sBP3Lb==sTag41)&&(sBP3Lb==sTag42)){iNumR = (iNum3b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag41){iNumR = iNum3b-1;iNum41 = iNum41+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag42){iNumR = iNum3b-1;iNum42 = iNum42+iNumR;iNum3b = iNum3b-iNumR;}}
+if((sBP3Lb==sTag51)&&(sBP3Lb==sTag52)){iNumR = (iNum3b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum3b = iNum3b-(iNumR*2);}else{if(sBP3Lb==sTag51){iNumR = iNum3b-1;iNum51 = iNum51+iNumR;iNum3b = iNum3b-iNumR;}if(sBP3Lb==sTag52){iNumR = iNum3b-1;iNum52 = iNum52+iNumR;iNum3b = iNum3b-iNumR;}}
     }
 if((sBP4Lb!="")&&(iNum4b>1))
     {
-if((sBP4Lb==sTag11)&&(sBP4Lb==sTag11)){iNumR = (iNum4b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag11){iNumR = iNum4b-1;iNum11 = iNum11+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag12){iNumR = iNum4b-1;iNum12 = iNum12+iNumR;iNum4b = iNum4b-iNumR;}}
-if((sBP4Lb==sTag21)&&(sBP4Lb==sTag21)){iNumR = (iNum4b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag21){iNumR = iNum4b-1;iNum21 = iNum21+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag22){iNumR = iNum4b-1;iNum22 = iNum22+iNumR;iNum4b = iNum4b-iNumR;}}
-if((sBP4Lb==sTag31)&&(sBP4Lb==sTag31)){iNumR = (iNum4b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag31){iNumR = iNum4b-1;iNum31 = iNum31+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag32){iNumR = iNum4b-1;iNum32 = iNum32+iNumR;iNum4b = iNum4b-iNumR;}}
-if((sBP4Lb==sTag41)&&(sBP4Lb==sTag41)){iNumR = (iNum4b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag41){iNumR = iNum4b-1;iNum41 = iNum41+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag42){iNumR = iNum4b-1;iNum42 = iNum42+iNumR;iNum4b = iNum4b-iNumR;}}
-if((sBP4Lb==sTag51)&&(sBP4Lb==sTag51)){iNumR = (iNum4b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag51){iNumR = iNum4b-1;iNum51 = iNum51+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag52){iNumR = iNum4b-1;iNum52 = iNum52+iNumR;iNum4b = iNum4b-iNumR;}}
+if((sBP4Lb==sTag11)&&(sBP4Lb==sTag12)){iNumR = (iNum4b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag11){iNumR = iNum4b-1;iNum11 = iNum11+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag12){iNumR = iNum4b-1;iNum12 = iNum12+iNumR;iNum4b = iNum4b-iNumR;}}
+if((sBP4Lb==sTag21)&&(sBP4Lb==sTag22)){iNumR = (iNum4b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag21){iNumR = iNum4b-1;iNum21 = iNum21+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag22){iNumR = iNum4b-1;iNum22 = iNum22+iNumR;iNum4b = iNum4b-iNumR;}}
+if((sBP4Lb==sTag31)&&(sBP4Lb==sTag32)){iNumR = (iNum4b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag31){iNumR = iNum4b-1;iNum31 = iNum31+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag32){iNumR = iNum4b-1;iNum32 = iNum32+iNumR;iNum4b = iNum4b-iNumR;}}
+if((sBP4Lb==sTag41)&&(sBP4Lb==sTag42)){iNumR = (iNum4b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag41){iNumR = iNum4b-1;iNum41 = iNum41+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag42){iNumR = iNum4b-1;iNum42 = iNum42+iNumR;iNum4b = iNum4b-iNumR;}}
+if((sBP4Lb==sTag51)&&(sBP4Lb==sTag52)){iNumR = (iNum4b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum4b = iNum4b-(iNumR*2);}else{if(sBP4Lb==sTag51){iNumR = iNum4b-1;iNum51 = iNum51+iNumR;iNum4b = iNum4b-iNumR;}if(sBP4Lb==sTag52){iNumR = iNum4b-1;iNum52 = iNum52+iNumR;iNum4b = iNum4b-iNumR;}}
     }
 if((sBP5Lb!="")&&(iNum5b>1))
     {
-if((sBP5Lb==sTag11)&&(sBP5Lb==sTag11)){iNumR = (iNum5b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag11){iNumR = iNum5b-1;iNum11 = iNum11+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag12){iNumR = iNum5b-1;iNum12 = iNum12+iNumR;iNum5b = iNum5b-iNumR;}}
-if((sBP5Lb==sTag21)&&(sBP5Lb==sTag21)){iNumR = (iNum5b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag21){iNumR = iNum5b-1;iNum21 = iNum21+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag22){iNumR = iNum5b-1;iNum22 = iNum22+iNumR;iNum5b = iNum5b-iNumR;}}
-if((sBP5Lb==sTag31)&&(sBP5Lb==sTag31)){iNumR = (iNum5b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag31){iNumR = iNum5b-1;iNum31 = iNum31+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag32){iNumR = iNum5b-1;iNum32 = iNum32+iNumR;iNum5b = iNum5b-iNumR;}}
-if((sBP5Lb==sTag41)&&(sBP5Lb==sTag41)){iNumR = (iNum5b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag41){iNumR = iNum5b-1;iNum41 = iNum41+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag42){iNumR = iNum5b-1;iNum42 = iNum42+iNumR;iNum5b = iNum5b-iNumR;}}
-if((sBP5Lb==sTag51)&&(sBP5Lb==sTag51)){iNumR = (iNum5b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag51){iNumR = iNum5b-1;iNum51 = iNum51+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag52){iNumR = iNum5b-1;iNum52 = iNum52+iNumR;iNum5b = iNum5b-iNumR;}}
+if((sBP5Lb==sTag11)&&(sBP5Lb==sTag12)){iNumR = (iNum5b/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag11){iNumR = iNum5b-1;iNum11 = iNum11+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag12){iNumR = iNum5b-1;iNum12 = iNum12+iNumR;iNum5b = iNum5b-iNumR;}}
+if((sBP5Lb==sTag21)&&(sBP5Lb==sTag22)){iNumR = (iNum5b/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag21){iNumR = iNum5b-1;iNum21 = iNum21+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag22){iNumR = iNum5b-1;iNum22 = iNum22+iNumR;iNum5b = iNum5b-iNumR;}}
+if((sBP5Lb==sTag31)&&(sBP5Lb==sTag32)){iNumR = (iNum5b/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag31){iNumR = iNum5b-1;iNum31 = iNum31+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag32){iNumR = iNum5b-1;iNum32 = iNum32+iNumR;iNum5b = iNum5b-iNumR;}}
+if((sBP5Lb==sTag41)&&(sBP5Lb==sTag42)){iNumR = (iNum5b/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag41){iNumR = iNum5b-1;iNum41 = iNum41+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag42){iNumR = iNum5b-1;iNum42 = iNum42+iNumR;iNum5b = iNum5b-iNumR;}}
+if((sBP5Lb==sTag51)&&(sBP5Lb==sTag52)){iNumR = (iNum5b/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;iNum5b = iNum5b-(iNumR*2);}else{if(sBP5Lb==sTag51){iNumR = iNum5b-1;iNum51 = iNum51+iNumR;iNum5b = iNum5b-iNumR;}if(sBP5Lb==sTag52){iNumR = iNum5b-1;iNum52 = iNum52+iNumR;iNum5b = iNum5b-iNumR;}}
     }
 sVar1 = sBP1Lb+"%001%"+sTag11b+"%002%"+sTag12b+"%003%"+sNum11b+"%004%"+sNum12b+"%005%"+IntToString(iNum1b)+"%006%";
 sVar2 = sBP2Lb+"%001%"+sTag21b+"%002%"+sTag22b+"%003%"+sNum21b+"%004%"+sNum22b+"%005%"+IntToString(iNum2b)+"%006%";
@@ -218,43 +219,43 @@ if(sBP5Lb=="mn_small_ani001"){sBP5Lb = "cr_skinanimal";}else if(sBP5Lb=="henchan
     }
 if((sBP1Lb!="")&&(StringToInt(sNum1Rb)>1))
     {
-if((sBP1Lb==sTag11)&&(sBP1Lb==sTag11)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag11){iNumR = StringToInt(sNum1Rb)-1;iNum11 = iNum11+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag12){iNumR = StringToInt(sNum1Rb)-1;iNum12 = iNum12+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
-if((sBP1Lb==sTag21)&&(sBP1Lb==sTag21)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag21){iNumR = StringToInt(sNum1Rb)-1;iNum21 = iNum21+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag22){iNumR = StringToInt(sNum1Rb)-1;iNum22 = iNum22+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
-if((sBP1Lb==sTag31)&&(sBP1Lb==sTag31)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag31){iNumR = StringToInt(sNum1Rb)-1;iNum31 = iNum31+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag32){iNumR = StringToInt(sNum1Rb)-1;iNum32 = iNum32+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
-if((sBP1Lb==sTag41)&&(sBP1Lb==sTag41)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag41){iNumR = StringToInt(sNum1Rb)-1;iNum41 = iNum41+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag42){iNumR = StringToInt(sNum1Rb)-1;iNum42 = iNum42+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
-if((sBP1Lb==sTag51)&&(sBP1Lb==sTag51)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag51){iNumR = StringToInt(sNum1Rb)-1;iNum51 = iNum51+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag52){iNumR = StringToInt(sNum1Rb)-1;iNum52 = iNum52+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
+if((sBP1Lb==sTag11)&&(sBP1Lb==sTag12)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag11){iNumR = StringToInt(sNum1Rb)-1;iNum11 = iNum11+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag12){iNumR = StringToInt(sNum1Rb)-1;iNum12 = iNum12+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
+if((sBP1Lb==sTag21)&&(sBP1Lb==sTag22)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag21){iNumR = StringToInt(sNum1Rb)-1;iNum21 = iNum21+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag22){iNumR = StringToInt(sNum1Rb)-1;iNum22 = iNum22+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
+if((sBP1Lb==sTag31)&&(sBP1Lb==sTag32)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag31){iNumR = StringToInt(sNum1Rb)-1;iNum31 = iNum31+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag32){iNumR = StringToInt(sNum1Rb)-1;iNum32 = iNum32+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
+if((sBP1Lb==sTag41)&&(sBP1Lb==sTag42)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag41){iNumR = StringToInt(sNum1Rb)-1;iNum41 = iNum41+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag42){iNumR = StringToInt(sNum1Rb)-1;iNum42 = iNum42+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
+if((sBP1Lb==sTag51)&&(sBP1Lb==sTag52)){iNumR = (StringToInt(sNum1Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-(iNumR*2));}else{if(sBP1Lb==sTag51){iNumR = StringToInt(sNum1Rb)-1;iNum51 = iNum51+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}if(sBP1Lb==sTag52){iNumR = StringToInt(sNum1Rb)-1;iNum52 = iNum52+iNumR;sNum1Rb = IntToString(StringToInt(sNum1Rb)-iNumR);}}
     }
 if((sBP2Lb!="")&&(StringToInt(sNum2Rb)>1))
     {
-if((sBP2Lb==sTag11)&&(sBP2Lb==sTag11)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag11){iNumR = StringToInt(sNum2Rb)-1;iNum11 = iNum11+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag12){iNumR = StringToInt(sNum2Rb)-1;iNum12 = iNum12+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
-if((sBP2Lb==sTag21)&&(sBP2Lb==sTag21)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag21){iNumR = StringToInt(sNum2Rb)-1;iNum21 = iNum21+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag22){iNumR = StringToInt(sNum2Rb)-1;iNum22 = iNum22+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
-if((sBP2Lb==sTag31)&&(sBP2Lb==sTag31)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag31){iNumR = StringToInt(sNum2Rb)-1;iNum31 = iNum31+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag32){iNumR = StringToInt(sNum2Rb)-1;iNum32 = iNum32+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
-if((sBP2Lb==sTag41)&&(sBP2Lb==sTag41)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag41){iNumR = StringToInt(sNum2Rb)-1;iNum41 = iNum41+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag42){iNumR = StringToInt(sNum2Rb)-1;iNum42 = iNum42+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
-if((sBP2Lb==sTag51)&&(sBP2Lb==sTag51)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag51){iNumR = StringToInt(sNum2Rb)-1;iNum51 = iNum51+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag52){iNumR = StringToInt(sNum2Rb)-1;iNum52 = iNum52+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
+if((sBP2Lb==sTag11)&&(sBP2Lb==sTag12)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag11){iNumR = StringToInt(sNum2Rb)-1;iNum11 = iNum11+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag12){iNumR = StringToInt(sNum2Rb)-1;iNum12 = iNum12+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
+if((sBP2Lb==sTag21)&&(sBP2Lb==sTag22)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag21){iNumR = StringToInt(sNum2Rb)-1;iNum21 = iNum21+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag22){iNumR = StringToInt(sNum2Rb)-1;iNum22 = iNum22+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
+if((sBP2Lb==sTag31)&&(sBP2Lb==sTag32)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag31){iNumR = StringToInt(sNum2Rb)-1;iNum31 = iNum31+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag32){iNumR = StringToInt(sNum2Rb)-1;iNum32 = iNum32+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
+if((sBP2Lb==sTag41)&&(sBP2Lb==sTag42)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag41){iNumR = StringToInt(sNum2Rb)-1;iNum41 = iNum41+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag42){iNumR = StringToInt(sNum2Rb)-1;iNum42 = iNum42+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
+if((sBP2Lb==sTag51)&&(sBP2Lb==sTag52)){iNumR = (StringToInt(sNum2Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-(iNumR*2));}else{if(sBP2Lb==sTag51){iNumR = StringToInt(sNum2Rb)-1;iNum51 = iNum51+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}if(sBP2Lb==sTag52){iNumR = StringToInt(sNum2Rb)-1;iNum52 = iNum52+iNumR;sNum2Rb = IntToString(StringToInt(sNum2Rb)-iNumR);}}
     }
 if((sBP3Lb!="")&&(StringToInt(sNum3Rb)>1))
     {
-if((sBP3Lb==sTag11)&&(sBP3Lb==sTag11)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag11){iNumR = StringToInt(sNum3Rb)-1;iNum11 = iNum11+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag12){iNumR = StringToInt(sNum3Rb)-1;iNum12 = iNum12+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
-if((sBP3Lb==sTag21)&&(sBP3Lb==sTag21)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag21){iNumR = StringToInt(sNum3Rb)-1;iNum21 = iNum21+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag22){iNumR = StringToInt(sNum3Rb)-1;iNum22 = iNum22+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
-if((sBP3Lb==sTag31)&&(sBP3Lb==sTag31)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag31){iNumR = StringToInt(sNum3Rb)-1;iNum31 = iNum31+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag32){iNumR = StringToInt(sNum3Rb)-1;iNum32 = iNum32+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
-if((sBP3Lb==sTag41)&&(sBP3Lb==sTag41)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag41){iNumR = StringToInt(sNum3Rb)-1;iNum41 = iNum41+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag42){iNumR = StringToInt(sNum3Rb)-1;iNum42 = iNum42+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
-if((sBP3Lb==sTag51)&&(sBP3Lb==sTag51)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag51){iNumR = StringToInt(sNum3Rb)-1;iNum51 = iNum51+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag52){iNumR = StringToInt(sNum3Rb)-1;iNum52 = iNum52+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
+if((sBP3Lb==sTag11)&&(sBP3Lb==sTag12)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag11){iNumR = StringToInt(sNum3Rb)-1;iNum11 = iNum11+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag12){iNumR = StringToInt(sNum3Rb)-1;iNum12 = iNum12+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
+if((sBP3Lb==sTag21)&&(sBP3Lb==sTag22)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag21){iNumR = StringToInt(sNum3Rb)-1;iNum21 = iNum21+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag22){iNumR = StringToInt(sNum3Rb)-1;iNum22 = iNum22+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
+if((sBP3Lb==sTag31)&&(sBP3Lb==sTag32)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag31){iNumR = StringToInt(sNum3Rb)-1;iNum31 = iNum31+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag32){iNumR = StringToInt(sNum3Rb)-1;iNum32 = iNum32+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
+if((sBP3Lb==sTag41)&&(sBP3Lb==sTag42)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag41){iNumR = StringToInt(sNum3Rb)-1;iNum41 = iNum41+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag42){iNumR = StringToInt(sNum3Rb)-1;iNum42 = iNum42+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
+if((sBP3Lb==sTag51)&&(sBP3Lb==sTag52)){iNumR = (StringToInt(sNum3Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-(iNumR*2));}else{if(sBP3Lb==sTag51){iNumR = StringToInt(sNum3Rb)-1;iNum51 = iNum51+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}if(sBP3Lb==sTag52){iNumR = StringToInt(sNum3Rb)-1;iNum52 = iNum52+iNumR;sNum3Rb = IntToString(StringToInt(sNum3Rb)-iNumR);}}
     }
 if((sBP4Lb!="")&&(StringToInt(sNum4Rb)>1))
     {
-if((sBP4Lb==sTag11)&&(sBP4Lb==sTag11)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag11){iNumR = StringToInt(sNum4Rb)-1;iNum11 = iNum11+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag12){iNumR = StringToInt(sNum4Rb)-1;iNum12 = iNum12+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
-if((sBP4Lb==sTag21)&&(sBP4Lb==sTag21)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag21){iNumR = StringToInt(sNum4Rb)-1;iNum21 = iNum21+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag22){iNumR = StringToInt(sNum4Rb)-1;iNum22 = iNum22+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
-if((sBP4Lb==sTag31)&&(sBP4Lb==sTag31)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag31){iNumR = StringToInt(sNum4Rb)-1;iNum31 = iNum31+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag32){iNumR = StringToInt(sNum4Rb)-1;iNum32 = iNum32+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
-if((sBP4Lb==sTag41)&&(sBP4Lb==sTag41)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag41){iNumR = StringToInt(sNum4Rb)-1;iNum41 = iNum41+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag42){iNumR = StringToInt(sNum4Rb)-1;iNum42 = iNum42+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
-if((sBP4Lb==sTag51)&&(sBP4Lb==sTag51)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag51){iNumR = StringToInt(sNum4Rb)-1;iNum51 = iNum51+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag52){iNumR = StringToInt(sNum4Rb)-1;iNum52 = iNum52+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
+if((sBP4Lb==sTag11)&&(sBP4Lb==sTag12)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag11){iNumR = StringToInt(sNum4Rb)-1;iNum11 = iNum11+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag12){iNumR = StringToInt(sNum4Rb)-1;iNum12 = iNum12+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
+if((sBP4Lb==sTag21)&&(sBP4Lb==sTag22)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag21){iNumR = StringToInt(sNum4Rb)-1;iNum21 = iNum21+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag22){iNumR = StringToInt(sNum4Rb)-1;iNum22 = iNum22+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
+if((sBP4Lb==sTag31)&&(sBP4Lb==sTag32)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag31){iNumR = StringToInt(sNum4Rb)-1;iNum31 = iNum31+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag32){iNumR = StringToInt(sNum4Rb)-1;iNum32 = iNum32+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
+if((sBP4Lb==sTag41)&&(sBP4Lb==sTag42)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag41){iNumR = StringToInt(sNum4Rb)-1;iNum41 = iNum41+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag42){iNumR = StringToInt(sNum4Rb)-1;iNum42 = iNum42+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
+if((sBP4Lb==sTag51)&&(sBP4Lb==sTag52)){iNumR = (StringToInt(sNum4Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-(iNumR*2));}else{if(sBP4Lb==sTag51){iNumR = StringToInt(sNum4Rb)-1;iNum51 = iNum51+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}if(sBP4Lb==sTag52){iNumR = StringToInt(sNum4Rb)-1;iNum52 = iNum52+iNumR;sNum4Rb = IntToString(StringToInt(sNum4Rb)-iNumR);}}
     }
 if((sBP5Lb!="")&&(StringToInt(sNum5Rb)>1))
     {
-if((sBP5Lb==sTag11)&&(sBP5Lb==sTag11)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag11){iNumR = StringToInt(sNum5Rb)-1;iNum11 = iNum11+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag12){iNumR = StringToInt(sNum5Rb)-1;iNum12 = iNum12+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
-if((sBP5Lb==sTag21)&&(sBP5Lb==sTag21)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag21){iNumR = StringToInt(sNum5Rb)-1;iNum21 = iNum21+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag22){iNumR = StringToInt(sNum5Rb)-1;iNum22 = iNum22+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
-if((sBP5Lb==sTag31)&&(sBP5Lb==sTag31)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag31){iNumR = StringToInt(sNum5Rb)-1;iNum31 = iNum31+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag32){iNumR = StringToInt(sNum5Rb)-1;iNum32 = iNum32+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
-if((sBP5Lb==sTag41)&&(sBP5Lb==sTag41)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag41){iNumR = StringToInt(sNum5Rb)-1;iNum41 = iNum41+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag42){iNumR = StringToInt(sNum5Rb)-1;iNum42 = iNum42+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
-if((sBP5Lb==sTag51)&&(sBP5Lb==sTag51)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag51){iNumR = StringToInt(sNum5Rb)-1;iNum51 = iNum51+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag52){iNumR = StringToInt(sNum5Rb)-1;iNum52 = iNum52+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
+if((sBP5Lb==sTag11)&&(sBP5Lb==sTag12)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum11 = iNum11+iNumR;iNum12 = iNum12+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag11){iNumR = StringToInt(sNum5Rb)-1;iNum11 = iNum11+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag12){iNumR = StringToInt(sNum5Rb)-1;iNum12 = iNum12+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
+if((sBP5Lb==sTag21)&&(sBP5Lb==sTag22)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum21 = iNum21+iNumR;iNum22 = iNum22+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag21){iNumR = StringToInt(sNum5Rb)-1;iNum21 = iNum21+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag22){iNumR = StringToInt(sNum5Rb)-1;iNum22 = iNum22+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
+if((sBP5Lb==sTag31)&&(sBP5Lb==sTag32)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum31 = iNum31+iNumR;iNum32 = iNum32+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag31){iNumR = StringToInt(sNum5Rb)-1;iNum31 = iNum31+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag32){iNumR = StringToInt(sNum5Rb)-1;iNum32 = iNum32+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
+if((sBP5Lb==sTag41)&&(sBP5Lb==sTag42)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum41 = iNum41+iNumR;iNum42 = iNum42+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag41){iNumR = StringToInt(sNum5Rb)-1;iNum41 = iNum41+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag42){iNumR = StringToInt(sNum5Rb)-1;iNum42 = iNum42+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
+if((sBP5Lb==sTag51)&&(sBP5Lb==sTag52)){iNumR = (StringToInt(sNum5Rb)/2)-1;iNum51 = iNum51+iNumR;iNum52 = iNum52+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-(iNumR*2));}else{if(sBP5Lb==sTag51){iNumR = StringToInt(sNum5Rb)-1;iNum51 = iNum51+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}if(sBP5Lb==sTag52){iNumR = StringToInt(sNum5Rb)-1;iNum52 = iNum52+iNumR;sNum5Rb = IntToString(StringToInt(sNum5Rb)-iNumR);}}
     }
 if(sBP1Lc!=""){sVar1 = sBP1Lc+"%"+sNum1Rb;}else{sVar1 = sBP1Lb+"%"+sNum1Rb;}
 if(sBP2Lc!=""){sVar2 = sBP2Lc+"%"+sNum2Rb;}else{sVar2 = sBP2Lb+"%"+sNum2Rb;}
@@ -274,16 +275,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1!="")){iNumR = iNum;if(iNumR>iNum11){iNumR = iNum11;}if(iNumR>iNum12){iNumR = iNum12;}if(iNumR>iDomainContainer-iNum1){iNumR = iDomainContainer-iNum1;}iNum1 = iNum1+iNumR;iNum11 = iNum11-iNumR;iNum12 = iNum12-iNumR;}
-else if((i==2)&&(sBP2!="")){iNumR = iNum;if(iNumR>iNum21){iNumR = iNum21;}if(iNumR>iNum22){iNumR = iNum22;}if(iNumR>iDomainContainer-iNum2){iNumR = iDomainContainer-iNum2;}iNum2 = iNum2+iNumR;iNum21 = iNum21-iNumR;iNum22 = iNum22-iNumR;}
-else if((i==3)&&(sBP3!="")){iNumR = iNum;if(iNumR>iNum31){iNumR = iNum31;}if(iNumR>iNum32){iNumR = iNum32;}if(iNumR>iDomainContainer-iNum3){iNumR = iDomainContainer-iNum3;}iNum3 = iNum3+iNumR;iNum31 = iNum31-iNumR;iNum32 = iNum32-iNumR;}
-else if((i==4)&&(sBP4!="")){iNumR = iNum;if(iNumR>iNum41){iNumR = iNum41;}if(iNumR>iNum42){iNumR = iNum42;}if(iNumR>iDomainContainer-iNum4){iNumR = iDomainContainer-iNum4;}iNum4 = iNum4+iNumR;iNum41 = iNum41-iNumR;iNum42 = iNum42-iNumR;}
-else if((i==5)&&(sBP5!="")){iNumR = iNum;if(iNumR>iNum51){iNumR = iNum51;}if(iNumR>iNum52){iNumR = iNum52;}if(iNumR>iDomainContainer-iNum5){iNumR = iDomainContainer-iNum5;}iNum5 = iNum5+iNumR;iNum51 = iNum51-iNumR;iNum52 = iNum52-iNumR;}
+     if((i==1)&&(sBP1!="")){iNumR = iNum;if(iNumR>iNum11){iNumR = iNum11;}if(iNumR>iNum12){iNumR = iNum12;}if(iNumR>iDomainContainer-iNum1){iNumR = iDomainContainer-iNum1;}if(iNumR<0){iNumR=0;}iNum1 = iNum1+iNumR;iNum11 = iNum11-iNumR;iNum12 = iNum12-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2!="")){iNumR = iNum;if(iNumR>iNum21){iNumR = iNum21;}if(iNumR>iNum22){iNumR = iNum22;}if(iNumR>iDomainContainer-iNum2){iNumR = iDomainContainer-iNum2;}if(iNumR<0){iNumR=0;}iNum2 = iNum2+iNumR;iNum21 = iNum21-iNumR;iNum22 = iNum22-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3!="")){iNumR = iNum;if(iNumR>iNum31){iNumR = iNum31;}if(iNumR>iNum32){iNumR = iNum32;}if(iNumR>iDomainContainer-iNum3){iNumR = iDomainContainer-iNum3;}if(iNumR<0){iNumR=0;}iNum3 = iNum3+iNumR;iNum31 = iNum31-iNumR;iNum32 = iNum32-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4!="")){iNumR = iNum;if(iNumR>iNum41){iNumR = iNum41;}if(iNumR>iNum42){iNumR = iNum42;}if(iNumR>iDomainContainer-iNum4){iNumR = iDomainContainer-iNum4;}if(iNumR<0){iNumR=0;}iNum4 = iNum4+iNumR;iNum41 = iNum41-iNumR;iNum42 = iNum42-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5!="")){iNumR = iNum;if(iNumR>iNum51){iNumR = iNum51;}if(iNumR>iNum52){iNumR = iNum52;}if(iNumR>iDomainContainer-iNum5){iNumR = iDomainContainer-iNum5;}if(iNumR<0){iNumR=0;}iNum5 = iNum5+iNumR;iNum51 = iNum51-iNumR;iNum52 = iNum52-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -349,7 +351,7 @@ else if(iStructure==7)
  {
 iDays = iDomainFarm*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
-if(iLevel>=5){iDays/2;}
+if(iLevel>=5){iDays = iDays/2;}
 
 sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
 
@@ -370,16 +372,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -439,7 +442,7 @@ else if(iStructure==8)
  {
 iDays = iDomainField*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
-if(iLevel>=5){iDays/2;}
+if(iLevel>=5){iDays = iDays/2;}
 
 sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
 
@@ -460,16 +463,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
@@ -512,7 +516,7 @@ else if(iStructure==21)
  {
 iDays = iDomainSawmill*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
-if(iLevel>=5){iDays/2;}
+if(iLevel>=5){iDays = iDays/2;}
 
 sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
 
@@ -533,16 +537,17 @@ while(i<5)
 i++;
 iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
+if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
 if(iNum>0)
    {
-     if((i==1)&&(sBP1L!="")){iNum1 = iNum1+iNum;if(iNum1>iDomainContainer){iNum1 = iDomainContainer;}}
-else if((i==2)&&(sBP2L!="")){iNum2 = iNum2+iNum;if(iNum2>iDomainContainer){iNum2 = iDomainContainer;}}
-else if((i==3)&&(sBP3L!="")){iNum3 = iNum3+iNum;if(iNum3>iDomainContainer){iNum3 = iDomainContainer;}}
-else if((i==4)&&(sBP4L!="")){iNum4 = iNum4+iNum;if(iNum4>iDomainContainer){iNum4 = iDomainContainer;}}
-else if((i==5)&&(sBP5L!="")){iNum5 = iNum5+iNum;if(iNum5>iDomainContainer){iNum5 = iDomainContainer;}}
+     if((i==1)&&(sBP1L!="")){iNumR=iDomainContainer-iNum1;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum1=iNum1+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==2)&&(sBP2L!="")){iNumR=iDomainContainer-iNum2;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum2=iNum2+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum3=iNum3+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
+else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }

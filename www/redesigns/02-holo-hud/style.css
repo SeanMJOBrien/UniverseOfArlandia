@@ -1,0 +1,830 @@
+/* =========================================================
+   Universe of Arlandia — "Holographic HUD" concept redesign
+   Shared stylesheet for index.html and news.html
+   ========================================================= */
+
+:root {
+  --bg-void: #02040a;
+  --bg-deep: #050b16;
+  --cyan: #4ef5ff;
+  --cyan-soft: #8be9ff;
+  --blue: #1e90ff;
+  --blue-deep: #0a3d6e;
+  --glass: rgba(10, 40, 70, 0.22);
+  --glass-edge: rgba(78, 245, 255, 0.45);
+  --glass-edge-soft: rgba(78, 245, 255, 0.18);
+  --text-main: #d9f8ff;
+  --text-dim: #7fb8c9;
+  --warn: #ff5d5d;
+  --ok: #4dffb0;
+  --font-ui: "Segoe UI", "Consolas", "Trebuchet MS", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  color: var(--text-main);
+  background-color: var(--bg-void);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(78, 245, 255, 0.05), transparent 32%),
+    radial-gradient(circle at 82% 8%, rgba(30, 144, 255, 0.08), transparent 38%),
+    radial-gradient(circle at 70% 75%, rgba(78, 245, 255, 0.06), transparent 45%),
+    radial-gradient(2px 2px at 10% 20%, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 25% 65%, #bfeeff 99%, transparent),
+    radial-gradient(2px 2px at 40% 30%, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 55% 80%, #9fd9ff 99%, transparent),
+    radial-gradient(1px 1px at 68% 15%, #ffffff 99%, transparent),
+    radial-gradient(2px 2px at 80% 50%, #bfeeff 99%, transparent),
+    radial-gradient(1px 1px at 92% 85%, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 5% 90%, #9fd9ff 99%, transparent),
+    radial-gradient(1px 1px at 48% 12%, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 33% 48%, #ffffff 99%, transparent),
+    radial-gradient(1px 1px at 88% 28%, #9fd9ff 99%, transparent),
+    radial-gradient(1px 1px at 15% 55%, #ffffff 99%, transparent),
+    linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 55%, #010308 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  letter-spacing: 0.02em;
+}
+
+/* Scanline texture overlay across the whole viewport */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(78, 245, 255, 0.035) 0px,
+    rgba(78, 245, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+
+a {
+  color: var(--cyan-soft);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: #ffffff;
+  text-shadow: 0 0 6px var(--cyan);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---------------------------------------------------------
+   Layout shell
+   --------------------------------------------------------- */
+
+.hud-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem 3rem;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------
+   Header / title bar
+   --------------------------------------------------------- */
+
+.hud-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.hud-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hud-brand .designation {
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  opacity: 0.8;
+}
+
+.hud-brand h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #eafdff;
+  text-shadow: 0 0 12px rgba(78, 245, 255, 0.65), 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.hud-brand .tagline {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.hud-clock {
+  text-align: right;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: var(--cyan-soft);
+  line-height: 1.6;
+}
+
+.hud-clock strong {
+  display: block;
+  font-size: 1.1rem;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(78, 245, 255, 0.6);
+}
+
+/* ---------------------------------------------------------
+   Navigation
+   --------------------------------------------------------- */
+
+.hud-nav {
+  margin-bottom: 1.5rem;
+}
+
+.hud-nav-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.hud-nav-group h2 {
+  margin: 0 0 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid var(--glass-edge-soft);
+  padding-bottom: 0.4rem;
+}
+
+.hud-nav-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hud-nav-group a {
+  display: block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-main);
+  padding: 0.3rem 0.5rem;
+  border-left: 2px solid transparent;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.hud-nav-group a:hover,
+.hud-nav-group a:focus {
+  border-left-color: var(--cyan);
+  background: rgba(78, 245, 255, 0.06);
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.hud-nav-group a.active {
+  color: var(--cyan);
+  border-left-color: var(--cyan);
+  background: rgba(78, 245, 255, 0.08);
+  text-shadow: 0 0 6px rgba(78, 245, 255, 0.5);
+}
+
+/* ---------------------------------------------------------
+   HUD panel — the core "glass" component with corner brackets
+   and scan-line sweep
+   --------------------------------------------------------- */
+
+.hud-panel {
+  position: relative;
+  background: var(--glass);
+  border: 1px solid var(--glass-edge-soft);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(78, 245, 255, 0.04) inset,
+    0 0 24px rgba(30, 144, 255, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+/* corner brackets */
+.hud-panel::before,
+.hud-panel::after,
+.hud-panel .bracket-tr,
+.hud-panel .bracket-bl {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hud-panel::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--cyan);
+  border-left: 2px solid var(--cyan);
+}
+
+.hud-panel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--cyan);
+  border-right: 2px solid var(--cyan);
+}
+
+.hud-panel .bracket-tr {
+  top: -1px;
+  right: -1px;
+  border-top: 2px solid var(--cyan);
+  border-right: 2px solid var(--cyan);
+}
+
+.hud-panel .bracket-bl {
+  bottom: -1px;
+  left: -1px;
+  border-bottom: 2px solid var(--cyan);
+  border-left: 2px solid var(--cyan);
+}
+
+/* animated scanning sweep */
+.hud-panel .scan-sweep {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    transparent 40%,
+    rgba(78, 245, 255, 0.12) 50%,
+    transparent 60%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  background-position: -120% 0;
+  animation: hud-scan 7s ease-in-out infinite;
+  animation-delay: var(--scan-delay, 0s);
+}
+
+@keyframes hud-scan {
+  0% {
+    background-position: -120% 0;
+  }
+  45% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: 120% 0;
+  }
+}
+
+.hud-panel > .panel-inner {
+  position: relative;
+  z-index: 2;
+  padding: 1.25rem 1.5rem;
+}
+
+.panel-title {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.panel-title::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan), 0 0 2px #fff;
+  animation: hud-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hud-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ---------------------------------------------------------
+   Hero
+   --------------------------------------------------------- */
+
+.hero-panel .panel-inner {
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.hero-panel h2 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: clamp(1.6rem, 4vw, 2.8rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f2feff;
+  text-shadow: 0 0 18px rgba(78, 245, 255, 0.55);
+}
+
+.hero-panel p {
+  max-width: 640px;
+  margin: 0 auto;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.hero-tag {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--cyan-soft);
+  border: 1px solid var(--glass-edge-soft);
+  border-radius: 999px;
+  padding: 0.4rem 1.2rem;
+  background: rgba(78, 245, 255, 0.05);
+}
+
+/* ---------------------------------------------------------
+   Grid layout for the dashboard panels
+   --------------------------------------------------------- */
+
+.hud-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin: 1.25rem 0;
+}
+
+.hud-grid.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+  .hud-grid.cols-3 {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+/* ---------------------------------------------------------
+   Status readouts
+   --------------------------------------------------------- */
+
+.status-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.status-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px dashed var(--glass-edge-soft);
+  padding-bottom: 0.45rem;
+}
+
+.status-list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.status-label {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.status-value {
+  font-weight: 600;
+  color: var(--text-main);
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.status-value.online {
+  color: var(--ok);
+  text-shadow: 0 0 8px rgba(77, 255, 176, 0.6);
+}
+
+.status-value.ip {
+  font-family: "Consolas", "Courier New", monospace;
+  letter-spacing: 0.08em;
+  color: var(--cyan-soft);
+}
+
+.led {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-right: 0.45rem;
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+  vertical-align: middle;
+  animation: hud-pulse 2.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------
+   Star systems
+   --------------------------------------------------------- */
+
+.system-block + .system-block {
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--glass-edge-soft);
+}
+
+.system-block h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--cyan-soft);
+}
+
+.system-meta {
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan-soft);
+  border: 1px solid var(--glass-edge);
+  border-radius: 999px;
+  background: rgba(78, 245, 255, 0.05);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover,
+.chip:focus {
+  background: rgba(78, 245, 255, 0.18);
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.chip.main-world {
+  border-color: var(--cyan);
+  color: #ffffff;
+  background: rgba(78, 245, 255, 0.14);
+  box-shadow: 0 0 10px rgba(78, 245, 255, 0.35);
+}
+
+/* ---------------------------------------------------------
+   DM console widget
+   --------------------------------------------------------- */
+
+.dm-console form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dm-console label {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dm-console input[type="password"] {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(0, 10, 20, 0.55);
+  border: 1px solid var(--glass-edge);
+  border-radius: 4px;
+  color: var(--cyan-soft);
+  font-family: "Consolas", "Courier New", monospace;
+  letter-spacing: 0.2em;
+  font-size: 0.9rem;
+}
+
+.dm-console input[type="password"]:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 10px rgba(78, 245, 255, 0.35);
+}
+
+.dm-console .hud-button {
+  align-self: flex-start;
+}
+
+.dm-console .console-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.hud-button {
+  display: inline-block;
+  padding: 0.55rem 1.6rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: rgba(78, 245, 255, 0.08);
+  border: 1px solid var(--cyan);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  font-family: inherit;
+}
+
+.hud-button:hover,
+.hud-button:focus {
+  background: rgba(78, 245, 255, 0.22);
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(78, 245, 255, 0.5);
+}
+
+/* ---------------------------------------------------------
+   News — preview cards on index
+   --------------------------------------------------------- */
+
+.news-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.news-preview-item {
+  border-bottom: 1px solid var(--glass-edge-soft);
+  padding-bottom: 0.85rem;
+}
+
+.news-preview-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.news-preview-item .news-date {
+  display: block;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 0.25rem;
+}
+
+.news-preview-item h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: #f2feff;
+}
+
+.news-preview-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.news-preview-item .news-author {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.view-all-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  border-bottom: 1px solid var(--cyan);
+  padding-bottom: 0.2rem;
+}
+
+/* ---------------------------------------------------------
+   News page — full timeline
+   --------------------------------------------------------- */
+
+.news-timeline {
+  position: relative;
+  margin: 1.5rem 0;
+  padding-left: 2.5rem;
+}
+
+.news-timeline::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--cyan),
+    rgba(78, 245, 255, 0.15) 90%
+  );
+  box-shadow: 0 0 10px rgba(78, 245, 255, 0.4);
+}
+
+.news-entry {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.news-entry::before {
+  content: "";
+  position: absolute;
+  left: -2.5rem;
+  top: 0.35rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  border: 2px solid var(--cyan);
+  box-shadow: 0 0 10px rgba(78, 245, 255, 0.6);
+}
+
+.news-entry .panel-inner {
+  padding: 1.25rem 1.5rem;
+}
+
+.news-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.news-entry-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: #f2feff;
+}
+
+.news-entry .news-date {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.news-entry .news-author {
+  display: inline-block;
+  margin-bottom: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.news-entry .news-author::before {
+  content: "TRANSMITTED BY ";
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+.news-entry p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--text-main);
+}
+
+/* archive (older entries) */
+.news-archive {
+  margin-top: 2rem;
+}
+
+.news-archive > summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  padding: 1rem 1.5rem;
+  list-style: none;
+  user-select: none;
+}
+
+.news-archive > summary::-webkit-details-marker {
+  display: none;
+}
+
+.news-archive > summary::before {
+  content: "▶ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.news-archive[open] > summary::before {
+  content: "▼ ";
+}
+
+.news-archive .news-timeline {
+  margin-top: 1rem;
+}
+
+/* ---------------------------------------------------------
+   Footer
+   --------------------------------------------------------- */
+
+.hud-footer {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 1.25rem 1.5rem;
+}
+
+.hud-footer p {
+  margin: 0.3rem 0;
+}
+
+/* ---------------------------------------------------------
+   Responsive tweaks
+   --------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .hud-header {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .hud-clock {
+    text-align: center;
+  }
+
+  .news-entry-head {
+    flex-direction: column;
+  }
+
+  .hud-shell {
+    padding: 1rem 0.75rem 2rem;
+  }
+}

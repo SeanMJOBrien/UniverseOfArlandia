@@ -1,0 +1,799 @@
+/* =========================================================
+   UNIVERSE OF ARLANDIA — LCARS CONSOLE CONCEPT
+   Shared stylesheet for index.html and news.html
+   ========================================================= */
+
+:root {
+  --black: #000000;
+  --orange: #ff9966;
+  --orange-dim: #cc7a4d;
+  --lilac: #cc99cc;
+  --paleblue: #9999ff;
+  --red: #cc6666;
+  --gold: #ffcc66;
+  --text: #ffcc99;
+  --text-dim: #cc9966;
+  --panel-gap: 6px;
+
+  --font-display: "Arial Narrow", "Helvetica Neue Condensed", "Segoe UI", sans-serif;
+  --font-body: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--paleblue);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ---------------------------------------------------------
+   PAGE FRAME
+   --------------------------------------------------------- */
+
+.lcars-frame {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  gap: var(--panel-gap);
+  min-height: 100vh;
+  padding: var(--panel-gap);
+}
+
+/* ---------------------------------------------------------
+   TOP HEADER BAR
+   --------------------------------------------------------- */
+
+.lcars-header {
+  grid-area: header;
+  display: flex;
+  align-items: stretch;
+  gap: var(--panel-gap);
+}
+
+.lcars-header__cap {
+  flex: 0 0 90px;
+  background: var(--orange);
+  border-radius: 0 60px 60px 0;
+}
+
+.lcars-header__bar {
+  flex: 1;
+  background: var(--paleblue);
+  border-radius: 0 0 40px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.6rem 1.5rem;
+  color: var(--black);
+}
+
+.lcars-header__title {
+  font-size: 1.9rem;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+}
+
+.lcars-header__sub {
+  font-family: var(--font-body);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+  color: #1a1a33;
+}
+
+.lcars-header__cap--end {
+  flex: 0 0 50px;
+  background: var(--red);
+  border-radius: 60px 0 0 60px;
+}
+
+/* ---------------------------------------------------------
+   SIDEBAR — STACKED ASYMMETRIC COLOR BLOCKS
+   --------------------------------------------------------- */
+
+.lcars-sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+}
+
+.lcars-sidebar__elbow {
+  background: var(--orange);
+  border-radius: 0 0 0 60px;
+  height: 70px;
+  flex-shrink: 0;
+}
+
+.lcars-block {
+  border-radius: 0;
+  padding: 0.55rem 1rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--black);
+  display: block;
+}
+
+.lcars-block--label {
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  padding: 0.4rem 1rem 0.1rem;
+  letter-spacing: 0.15em;
+}
+
+.lcars-block--orange   { background: var(--orange); }
+.lcars-block--lilac    { background: var(--lilac); }
+.lcars-block--paleblue { background: var(--paleblue); }
+.lcars-block--red      { background: var(--red); color: var(--black); }
+.lcars-block--gold     { background: var(--gold); }
+
+.lcars-block.is-active {
+  background: var(--gold);
+  box-shadow: inset 0 0 0 3px var(--black);
+  position: relative;
+}
+
+.lcars-block.is-active::after {
+  content: "\25B8";
+  float: right;
+}
+
+.lcars-block:hover,
+.lcars-block:focus {
+  filter: brightness(1.2);
+  text-decoration: none;
+  color: var(--black);
+}
+
+/* Varying widths/heights for the asymmetric stacked look */
+.lcars-block--w-full   { border-radius: 0 24px 24px 0; }
+.lcars-block--w-wide   { border-radius: 0 24px 24px 0; margin-right: 0; }
+.lcars-block--w-medium { border-radius: 0 24px 24px 0; margin-right: 28px; }
+.lcars-block--w-narrow { border-radius: 0 24px 24px 0; margin-right: 56px; }
+.lcars-block--tall     { padding-top: 1.1rem; padding-bottom: 1.1rem; }
+
+.lcars-sidebar__filler {
+  flex: 1;
+  background: var(--lilac);
+  border-radius: 0 0 60px 0;
+  min-height: 40px;
+}
+
+.lcars-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* DM console widget tucked into the sidebar */
+.lcars-dm {
+  background: #1a1a1a;
+  border: 2px solid var(--red);
+  border-radius: 0 22px 22px 0;
+  padding: 0.7rem 1rem 0.9rem;
+  margin-top: 4px;
+}
+
+.lcars-dm h4 {
+  color: var(--red);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.15em;
+}
+
+.lcars-dm label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.lcars-dm input[type="password"] {
+  width: 100%;
+  background: #000;
+  border: 1px solid var(--paleblue);
+  color: var(--paleblue);
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font-body);
+  border-radius: 4px;
+  margin-bottom: 0.6rem;
+}
+
+.lcars-dm button {
+  width: 100%;
+  background: var(--red);
+  color: var(--black);
+  border: none;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  padding: 0.45rem;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.lcars-dm button:hover {
+  background: var(--gold);
+}
+
+/* ---------------------------------------------------------
+   MAIN CONTENT AREA
+   --------------------------------------------------------- */
+
+.lcars-main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+}
+
+.lcars-panel {
+  background: #111;
+  border: 2px solid #222;
+  border-radius: 18px;
+  padding: 1.25rem 1.5rem;
+}
+
+.lcars-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.lcars-panel__title .lcars-chip {
+  display: inline-block;
+  padding: 0.3rem 1.1rem;
+  border-radius: 999px;
+  font-size: 1.05rem;
+}
+
+.lcars-chip--orange   { background: var(--orange); color: #000; }
+.lcars-chip--lilac    { background: var(--lilac); color: #000; }
+.lcars-chip--paleblue { background: var(--paleblue); color: #000; }
+.lcars-chip--red      { background: var(--red); color: #000; }
+.lcars-chip--gold     { background: var(--gold); color: #000; }
+
+.lcars-panel__title .lcars-rule {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--orange-dim), transparent);
+}
+
+/* ---------------------------------------------------------
+   HERO
+   --------------------------------------------------------- */
+
+.lcars-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: var(--panel-gap);
+  align-items: stretch;
+}
+
+.lcars-hero__main {
+  background: linear-gradient(135deg, #1a0d05 0%, #000 60%);
+  border: 2px solid var(--orange);
+  border-radius: 18px 60px 18px 18px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lcars-hero__main h1 {
+  font-size: 2.6rem;
+  color: var(--orange);
+  margin-bottom: 0.6rem;
+}
+
+.lcars-hero__main p {
+  font-size: 1.1rem;
+  color: var(--text);
+  max-width: 42em;
+}
+
+.lcars-hero__readout {
+  background: #0b0b0b;
+  border: 2px solid var(--paleblue);
+  border-radius: 18px 18px 60px 18px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.lcars-hero__readout .lcars-readout-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid #222;
+  padding-bottom: 0.4rem;
+}
+
+.lcars-hero__readout .lcars-readout-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.lcars-readout-row span:first-child {
+  color: var(--paleblue);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.lcars-readout-row span:last-child {
+  color: var(--gold);
+  font-weight: bold;
+}
+
+/* ---------------------------------------------------------
+   STATUS / CONNECTION GRID
+   --------------------------------------------------------- */
+
+.lcars-status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--panel-gap);
+}
+
+.lcars-status-cell {
+  background: #000;
+  border-radius: 14px;
+  padding: 0.9rem 1.1rem;
+  border-left: 12px solid var(--paleblue);
+}
+
+.lcars-status-cell--online { border-left-color: #66cc99; }
+.lcars-status-cell--orange { border-left-color: var(--orange); }
+.lcars-status-cell--lilac  { border-left-color: var(--lilac); }
+.lcars-status-cell--red    { border-left-color: var(--red); }
+
+.lcars-status-cell .label {
+  display: block;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+.lcars-status-cell .value {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--text);
+}
+
+.lcars-status-cell .value.is-online {
+  color: #66cc99;
+}
+
+/* ---------------------------------------------------------
+   STAR SYSTEMS PANEL
+   --------------------------------------------------------- */
+
+.lcars-systems {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.lcars-system {
+  display: flex;
+  align-items: stretch;
+  gap: var(--panel-gap);
+  flex-wrap: wrap;
+}
+
+.lcars-system__name {
+  flex: 0 0 200px;
+  background: var(--lilac);
+  color: #000;
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.lcars-system__planets {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.lcars-planet-chip {
+  display: inline-block;
+  background: #000;
+  border: 2px solid var(--orange);
+  color: var(--orange);
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.lcars-planet-chip:hover {
+  background: var(--orange);
+  color: #000;
+  text-decoration: none;
+}
+
+.lcars-system-note {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ---------------------------------------------------------
+   NEWS PREVIEW (index page)
+   --------------------------------------------------------- */
+
+.lcars-news-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+}
+
+.lcars-news-item {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: var(--panel-gap);
+}
+
+.lcars-news-item__date {
+  background: var(--orange);
+  color: #000;
+  border-radius: 999px 0 0 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+.lcars-news-item__body {
+  background: #0b0b0b;
+  border-radius: 0 14px 14px 0;
+  padding: 0.8rem 1.2rem;
+}
+
+.lcars-news-item__body h3 {
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin-bottom: 0.3rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.lcars-news-item__body .meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.4rem;
+}
+
+.lcars-news-item__body p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.lcars-more-link {
+  align-self: flex-end;
+  margin-top: 0.25rem;
+}
+
+.lcars-more-link a {
+  display: inline-block;
+  background: var(--red);
+  color: #000;
+  border-radius: 999px;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.lcars-more-link a:hover {
+  background: var(--gold);
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------------
+   NEWS TIMELINE (news.html)
+   --------------------------------------------------------- */
+
+.lcars-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+}
+
+.lcars-entry {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: var(--panel-gap);
+}
+
+.lcars-entry__date {
+  border-radius: 999px 0 0 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: #000;
+}
+
+.lcars-entry__date .year {
+  font-size: 1.3rem;
+  display: block;
+}
+
+.lcars-entry__date .day {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.lcars-entry__body {
+  background: #0b0b0b;
+  border-radius: 0 16px 16px 0;
+  padding: 1rem 1.5rem;
+}
+
+.lcars-entry__body h2,
+.lcars-entry__body h3 {
+  color: var(--gold);
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+}
+
+.lcars-entry__body .meta {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.5rem;
+}
+
+.lcars-entry__body p {
+  margin: 0.4rem 0 0;
+}
+
+/* Rotate accent colors across entries */
+.lcars-entry:nth-child(6n+1) .lcars-entry__date { background: var(--orange); }
+.lcars-entry:nth-child(6n+2) .lcars-entry__date { background: var(--lilac); }
+.lcars-entry:nth-child(6n+3) .lcars-entry__date { background: var(--paleblue); }
+.lcars-entry:nth-child(6n+4) .lcars-entry__date { background: var(--red); }
+.lcars-entry:nth-child(6n+5) .lcars-entry__date { background: var(--gold); }
+.lcars-entry:nth-child(6n+6) .lcars-entry__date { background: var(--orange-dim); }
+
+/* Archive (collapsible) */
+.lcars-archive summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #000;
+  background: var(--paleblue);
+  border-radius: 999px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 700;
+  list-style: none;
+}
+
+.lcars-archive summary::-webkit-details-marker {
+  display: none;
+}
+
+.lcars-archive summary::before {
+  content: "\25B8 ";
+}
+
+.lcars-archive[open] summary::before {
+  content: "\25BE ";
+}
+
+.lcars-archive .lcars-timeline {
+  margin-top: var(--panel-gap);
+}
+
+/* ---------------------------------------------------------
+   FOOTER
+   --------------------------------------------------------- */
+
+.lcars-footer {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  gap: var(--panel-gap);
+}
+
+.lcars-footer__cap {
+  flex: 0 0 90px;
+  background: var(--red);
+  border-radius: 60px 0 0 60px;
+  height: 36px;
+}
+
+.lcars-footer__bar {
+  flex: 1;
+  background: var(--orange);
+  border-radius: 0 0 0 0;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.lcars-footer__cap--end {
+  flex: 0 0 50px;
+  background: var(--lilac);
+  border-radius: 0 60px 60px 0;
+  height: 36px;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVE
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .lcars-frame {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "header"
+      "sidebar"
+      "main"
+      "footer";
+  }
+
+  .lcars-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .lcars-sidebar__elbow,
+  .lcars-sidebar__filler {
+    display: none;
+  }
+
+  .lcars-sidebar__group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .lcars-block--w-full,
+  .lcars-block--w-wide,
+  .lcars-block--w-medium,
+  .lcars-block--w-narrow {
+    margin-right: 0;
+    flex: 1 1 auto;
+    border-radius: 999px;
+    text-align: center;
+  }
+
+  .lcars-block--label {
+    display: none;
+  }
+
+  .lcars-dm {
+    flex: 1 1 100%;
+    border-radius: 18px;
+  }
+
+  .lcars-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .lcars-hero__main,
+  .lcars-hero__readout {
+    border-radius: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .lcars-header__cap,
+  .lcars-header__cap--end {
+    flex: 0 0 40px;
+  }
+
+  .lcars-header__title {
+    font-size: 1.3rem;
+  }
+
+  .lcars-header__bar {
+    border-radius: 0 0 24px 0;
+    padding: 0.5rem 1rem;
+  }
+
+  .lcars-news-item,
+  .lcars-entry {
+    grid-template-columns: 1fr;
+  }
+
+  .lcars-news-item__date,
+  .lcars-entry__date {
+    border-radius: 16px 16px 0 0;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .lcars-news-item__body,
+  .lcars-entry__body {
+    border-radius: 0 0 16px 16px;
+  }
+
+  .lcars-system__name {
+    flex-basis: 100%;
+    justify-content: center;
+    border-radius: 999px;
+  }
+}

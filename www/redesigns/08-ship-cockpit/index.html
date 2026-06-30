@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Universe of Arlandia — Bridge Console</title>
+<meta name="description" content="Universe of Arlandia for Neverwinter Nights - The Universe is infinite.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="console-shell">
+
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="panel topbar">
+    <span class="rivet-tl"></span><span class="rivet-tr"></span>
+    <span class="rivet-bl"></span><span class="rivet-br"></span>
+    <div class="brand">
+      <div class="brand-emblem" aria-hidden="true"></div>
+      <div class="brand-text">
+        <h1>Universe of Arlandia</h1>
+        <p>NWN Persistent World &mdash; Bridge Console</p>
+      </div>
+    </div>
+    <div class="status-strip">
+      <span class="light" aria-hidden="true"></span> Reactor Online
+      <span class="light amber" aria-hidden="true"></span> Comms Linked
+    </div>
+  </header>
+
+  <div class="console-grid">
+
+    <!-- ===================== NAV ===================== -->
+    <nav class="panel nav-panel" aria-label="Main navigation">
+      <span class="rivet-tl"></span><span class="rivet-tr"></span>
+      <span class="rivet-bl"></span><span class="rivet-br"></span>
+
+      <div class="nav-group">
+        <h2>Module</h2>
+        <ul>
+          <li><a href="news.html" class="active" aria-current="page">Home / News</a></li>
+          <li><a href="../description.html">Description</a></li>
+          <li><a href="../screenshots.html">Screenshots</a></li>
+          <li><a href="../interests.html">Interests</a></li>
+          <li><a href="../domains.html">Domains</a></li>
+          <li><a href="../crafting.html">Crafting</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Characters</h2>
+        <ul>
+          <li><a href="../races.html">Races</a></li>
+          <li><a href="../classes.html">Classes</a></li>
+          <li><a href="../feats.html">Feats</a></li>
+          <li><a href="../grades.html">Grades</a></li>
+          <li><a href="../talents.html">Talents</a></li>
+        </ul>
+      </div>
+
+      <div class="nav-group">
+        <h2>Community</h2>
+        <ul>
+          <li><a href="http://www.simtotal.com/uoa/forum/index.php" target="_blank" rel="noopener">Forum</a></li>
+          <li><a href="../downloads.html">Downloads</a></li>
+          <li><a href="../links.html">Links</a></li>
+          <li><a href="../contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ===================== MAIN ===================== -->
+    <main class="main-col">
+
+      <!-- HERO -->
+      <section class="panel hero" aria-labelledby="hero-title">
+        <span class="rivet-tl"></span><span class="rivet-tr"></span>
+        <span class="rivet-bl"></span><span class="rivet-br"></span>
+        <div class="hero-badge">All Systems Nominal</div>
+        <h2 id="hero-title">The Universe of Arlandia</h2>
+        <p class="subtitle">For Neverwinter Nights &mdash; The Universe Is Infinite</p>
+        <p class="lead">
+          Welcome aboard, pilot. This console gives you a real-time readout of the
+          Arlandia persistent world &mdash; server status, jump-point coordinates,
+          known star systems, and the latest dispatches from Mission Control.
+        </p>
+      </section>
+
+      <!-- DASHBOARD GRID -->
+      <div class="dash-grid">
+
+        <!-- SERVER STATUS -->
+        <section class="panel" aria-labelledby="status-title">
+          <span class="rivet-tl"></span><span class="rivet-tr"></span>
+          <span class="rivet-bl"></span><span class="rivet-br"></span>
+          <h2 class="panel-title" id="status-title">Server Status <span class="tag">PANEL 01</span></h2>
+
+          <div class="gauge-row">
+            <div class="gauge-wrap">
+              <div class="gauge" style="--pct: 100; --ring-color: var(--green); --ring-glow: var(--green-glow);">
+                <div class="gauge-value"><span class="num">ON</span><span class="unit">Status</span></div>
+              </div>
+              <div class="gauge-label">Server</div>
+            </div>
+
+            <div class="gauge-wrap">
+              <div class="gauge" style="--pct: 35; --ring-color: var(--amber); --ring-glow: var(--amber-glow);">
+                <div class="gauge-value"><span class="num">7</span><span class="unit">Online</span></div>
+              </div>
+              <div class="gauge-label">Crew Aboard</div>
+            </div>
+
+            <div class="gauge-wrap">
+              <div class="gauge" style="--pct: 82; --ring-color: var(--green); --ring-glow: var(--green-glow);">
+                <div class="gauge-value"><span class="num">3:47</span><span class="unit">To Reboot</span></div>
+              </div>
+              <div class="gauge-label">Cycle Timer</div>
+            </div>
+          </div>
+
+          <div class="readout-list">
+            <div class="readout-row">
+              <span class="k">Status</span>
+              <span class="v ok">ONLINE</span>
+            </div>
+            <div class="readout-row">
+              <span class="k">Stardate</span>
+              <span class="v">Y.1372 / M.03 / D.18 &mdash; 14:32</span>
+            </div>
+            <div class="readout-row">
+              <span class="k">Next Reboot</span>
+              <span class="v warn">T-MINUS 3H 47M</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONNECTION INFO -->
+        <section class="panel" aria-labelledby="conn-title">
+          <span class="rivet-tl"></span><span class="rivet-tr"></span>
+          <span class="rivet-bl"></span><span class="rivet-br"></span>
+          <h2 class="panel-title" id="conn-title">Hailing Frequency <span class="tag">PANEL 02</span></h2>
+
+          <p style="margin-top:0; font-size:0.85rem; color: var(--text-dim);">
+            Open a direct uplink to the Arlandia server using the coordinates below.
+          </p>
+
+          <div class="connect-line">
+            <span class="addr">uoanwn.homeip.net</span>
+            <span class="copy-chip">Direct Connect</span>
+          </div>
+
+          <div class="readout-list">
+            <div class="readout-row">
+              <span class="k">Protocol</span>
+              <span class="v">NWN:EE</span>
+            </div>
+            <div class="readout-row">
+              <span class="k">Module</span>
+              <span class="v">Universe of Arlandia</span>
+            </div>
+            <div class="readout-row">
+              <span class="k">Required Haks</span>
+              <span class="v ok">See Downloads</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- DM CONSOLE -->
+        <section class="panel" aria-labelledby="dm-title">
+          <span class="rivet-tl"></span><span class="rivet-tr"></span>
+          <span class="rivet-bl"></span><span class="rivet-br"></span>
+          <h2 class="panel-title" id="dm-title">DM Console Access <span class="tag">PANEL 03</span></h2>
+
+          <p style="margin-top:0; font-size:0.85rem; color: var(--text-dim);">
+            Restricted override channel. Authorized Dungeon Masters only.
+          </p>
+
+          <form class="dm-form" action="#" onsubmit="return false;">
+            <label for="dm-pass">Access Code</label>
+            <input type="password" id="dm-pass" name="dm-pass" placeholder="**********" autocomplete="off">
+            <button type="submit" class="btn-connect">Connect</button>
+            <span class="dm-note">// Decorative console &mdash; no live backend in this mockup.</span>
+          </form>
+        </section>
+
+        <!-- STAR SYSTEMS (spans 2 columns) -->
+        <section class="panel span-2" aria-labelledby="systems-title">
+          <span class="rivet-tl"></span><span class="rivet-tr"></span>
+          <span class="rivet-bl"></span><span class="rivet-br"></span>
+          <h2 class="panel-title" id="systems-title">Star Charts <span class="tag">PANEL 04</span></h2>
+
+          <div class="system-block">
+            <h3>Meth System <span class="meta">11 planets &middot; 8 moons &middot; Arland = home world</span></h3>
+            <div class="chip-row">
+              <a href="#" class="chip">Arland</a>
+              <a href="#" class="chip">Tyrra</a>
+              <a href="#" class="chip">Vornak</a>
+              <a href="#" class="chip">Kethis</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <h3>Solhaven System <span class="meta">2 charted bodies</span></h3>
+            <div class="chip-row">
+              <a href="#" class="chip">Kaldris</a>
+              <a href="#" class="chip">Pthera</a>
+            </div>
+          </div>
+
+          <div class="system-block">
+            <h3>Drakon Reach <span class="meta">3 charted bodies</span></h3>
+            <div class="chip-row">
+              <a href="#" class="chip">Skarn</a>
+              <a href="#" class="chip">Orobus</a>
+              <a href="#" class="chip">Veyth</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- LATEST NEWS PREVIEW -->
+        <section class="panel span-2" aria-labelledby="news-title">
+          <span class="rivet-tl"></span><span class="rivet-tr"></span>
+          <span class="rivet-bl"></span><span class="rivet-br"></span>
+          <h2 class="panel-title" id="news-title">Incoming Transmissions <span class="tag">PANEL 05</span></h2>
+
+          <div class="news-preview-list">
+            <article class="news-card">
+              <div class="date-stamp">02.03.2020</div>
+              <div class="body">
+                <h3>UOA Server Reopening Under New Management</h3>
+                <p>Now running under NWN:EE. Required haks are live in Downloads, with NWSync support
+                  planned so they may no longer be needed. Check the Crafting page to prep your loadout.</p>
+                <span class="byline">Transmission from Qlippoth</span>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <div class="date-stamp">12.08.2011</div>
+              <div class="body">
+                <h3>UOA Server Closed</h3>
+                <p>The official server has shut down due to low population. All files needed to host
+                  your own UOA world remain available in the Downloads section.</p>
+                <span class="byline">Transmission from TheRack</span>
+              </div>
+            </article>
+
+            <article class="news-card">
+              <div class="date-stamp">25.12.2010</div>
+              <div class="body">
+                <h3>Merry Christmas</h3>
+                <p>The UOA crew wishes every pilot a merry christmas and happy new year as the
+                  server settles into full operation.</p>
+                <span class="byline">Transmission from TheRack</span>
+              </div>
+            </article>
+          </div>
+
+          <a href="news.html" class="view-all-link">Open Full Comm Log &rarr;</a>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="console-footer">
+    <div class="lights" aria-hidden="true">
+      <span class="light"></span>
+      <span class="light amber"></span>
+      <span class="light"></span>
+    </div>
+    &copy; TheRack, all rights reserved, 2009-2011.
+  </footer>
+
+</div>
+</body>
+</html>
