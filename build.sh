@@ -11,7 +11,7 @@ cd "$(dirname "$0")"
 TOOLS="/home/qlippoth/git/nwn-tools/linux"
 BASE_SCRIPTS="/home/qlippoth/git/DwarfStory/nwn-base-scripts"
 ZEP_SCRIPTS="/home/qlippoth/isladora3/GER_Isladora261ee/src/nss"
-SERVER_MODULES="$(dirname "$0")/uoa/server/modules"
+SERVER_MODULES="uoa/server/modules"
 
 mkdir -p .build/modules
 
@@ -32,5 +32,4 @@ cp ".build/modules/UOA_${HASH}.mod" "$SERVER_MODULES/UOA_${HASH}.mod"
 cp .build/modules/UOA.mod "$SERVER_MODULES/UOA.mod"
 echo "Built:    .build/modules/UOA_${HASH}.mod"
 echo "Deployed: $SERVER_MODULES/UOA.mod  (and UOA_${HASH}.mod)"
-(cd "$(dirname "$0")/uoa" && docker-compose restart nwserver)
-echo "Server restarted."
+(cd uoa && docker-compose restart nwserver) && echo "Server restarted." || echo "Server not running (start it with: cd uoa && docker-compose up -d)"
