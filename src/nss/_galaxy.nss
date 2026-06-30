@@ -1237,6 +1237,11 @@ sVarAreas = sVarAreas+sNewArea+AreaTileKey(iY);
 if(iCheck==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests",sInterest+"&1&"+sName+"&2&"+sVar+"&3&1&4&");}else{DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Interests");}
 //
         }
+else
+        {
+// Preserve discovered tile as-is so it survives across server restarts
+sVarAreas = sVarAreas+sOldArea+AreaTileKey(iY);
+        }
 iY++;
        }
 // Store planet areas variable

@@ -33,6 +33,7 @@ int iY = StringToInt(sY);if(GetStringLeft(sY,1)=="m"){iY = -StringToInt(GetStrin
 
 sNewArea = GetAreaTile(oModule,sPlanetDest,iX,iY);
 string sDiscovArea = sNewArea + (IsAreaTileDiscovered(oModule,sPlanetDest,iX,iY) ? "*" : "");
+WriteTimestampedLogEntry("[transitions-raw] "+sPlanetDest+" ("+IntToString(iX)+","+IntToString(iY)+") tile="+sNewArea+" col="+GetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX)));
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,10 +48,6 @@ else
  {
 if(GetStringRight(sAreaDest,5)=="_Ship"){sAreaDest = GetStringLeft(sAreaDest,GetStringLength(sAreaDest)-5);}
 
-if(GetStringRight(sDiscovArea,1)=="*")
-  {
-sNewArea = GetStringLeft(sNewArea,GetStringLength(sNewArea)-1);
-  }
 ////////////////////////////////////////////////////////////////////////////////
 // Choose area
 // Space
@@ -103,9 +100,19 @@ else if(sNewArea=="21"){sNewArea = "tropical";}
 else if(sNewArea=="22"){sNewArea = "gaz";}
 else if(sNewArea=="23"){sNewArea = "test";}
 ////////////////////////////////////////////////////////////////////////////////
-// Clone template area for this coordinate
+// Clone template area for this coordinate, or use static area if no template exists
 if(sNewAreaSpecial!=""){sAreaDest = sAreaDest+"_Ship";}
-oTargetArea = CopyArea(GetObjectByTag(sNewArea+"000"));
+object oTemplate = GetObjectByTag(sNewArea+"000");
+if(GetIsObjectValid(oTemplate))
+    oTargetArea = CopyArea(oTemplate);
+else
+ {
+oTargetArea = GetObjectByTag(sNewArea+"001");
+ }
+WriteTimestampedLogEntry("[transitions] planet="+sPlanetDest+" area="+sAreaDest+" tile="+sNewArea
+    +" tmpl="+GetTag(oTemplate)
+    +" result="+GetTag(oTargetArea)
+    +" col="+GetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX)));
 if(GetIsObjectValid(oTargetArea))
   {
 SetLocalInt(oTargetArea,"Used",1);
@@ -126,7 +133,7 @@ if((sPlanetDest=="Space")&&(sPlanet!="")&&(iPlanetShow==0)&&(GetPersistentInt(oM
 iNewArea = 1;
 SetPersistentInt(oModule,"Space"+sAreaDest+"Show",1);
   }
-else if((sPlanetDest!="Space")&&(GetStringRight(sDiscovArea,1)!="*"))
+else if((sPlanetDest!="Space")&&(sPlanetDest!="")&&(GetStringRight(sDiscovArea,1)!="*"))
   {
 iNewArea = 1;
 string sColKey = sPlanetDest+"AreasX"+IntToString(iX);
