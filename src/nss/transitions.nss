@@ -168,7 +168,7 @@ SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
 lLoc = Location(oTargetArea,Vector(fX,fY,0.0),fFacing);
 SetLocalLocation(oModule,GetName(oPC)+"Loc",lLoc);
 if(iGate==1){DelayCommand(4.0,AssignCommand(oPC,ActionJumpToLocation(lLoc)));ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_FNF_SUMMON_GATE),oPC);SetXP(oPC,GetXP(oPC)-100);FloatingTextStringOnCreature("gate",oPC);}
-else{AssignCommand(oPC,ActionJumpToLocation(lLoc));if(GetIsAreaInterior(GetArea(oPC))){int iH=1;object oH=GetHenchman(oPC,iH);while(GetIsObjectValid(oH)){AssignCommand(oH,ActionJumpToLocation(lLoc));iH++;oH=GetHenchman(oPC,iH);}}DeleteLocalInt(oPC,"Gate");}
+else{AssignCommand(oPC,ActionJumpToLocation(lLoc));if(GetLocalString(GetArea(oPC),"AreaExit")!=""){int iH=1;object oH=GetHenchman(oPC,iH);while(GetIsObjectValid(oH)){AssignCommand(oH,ActionJumpToLocation(lLoc));iH++;oH=GetHenchman(oPC,iH);}}DeleteLocalInt(oPC,"Gate");}
   }
 else if(iCheck==2)
   {
