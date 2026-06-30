@@ -213,7 +213,7 @@ SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
 location lTarget = Location(oTargetArea,Vector(GetLocalFloat(oTargetArea,"fX"),GetLocalFloat(oTargetArea,"fY"),0.0),GetLocalFloat(oTargetArea,"fF"));
 AssignCommand(oPC,ActionJumpToLocation(lTarget));
 int iHench = 1;object oHench = GetHenchman(oPC,iHench);
-while(GetIsObjectValid(oHench)){AssignCommand(oHench,ActionJumpToLocation(lTarget));iHench++;oHench = GetHenchman(oPC,iHench);}
+while(GetIsObjectValid(oHench)){AssignCommand(oHench,ClearAllActions(TRUE));AssignCommand(oHench,ActionJumpToLocation(lTarget));iHench++;oHench = GetHenchman(oPC,iHench);}
   }
 else
   {
