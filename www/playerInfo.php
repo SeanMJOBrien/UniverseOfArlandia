@@ -2,6 +2,7 @@
 session_start();
 
 // PHP 8 compatible script to find player locations and add a feature to reset coordinates.
+session_start();
 
 // --- SETUP AND HELPER FUNCTIONS ---
 
@@ -9,6 +10,8 @@ session_start();
 // Assumes a file named uoa.php exists with $host, $user, $pass, $data.
 include("uoa.php");
 include("helpers.php");
+
+$is_dm = $_SESSION['is_dm'] ?? false;
 
 $is_dm = $_SESSION['is_dm'] ?? false;
 
@@ -40,7 +43,7 @@ function setPwData($link, $name, $value): bool {
 // --- ACTION HANDLING: RESET PLAYER COORDINATES ---
 
 $feedbackMessage = '';
-$playerToReset = $_POST['reset_player'] ?? null;
+$playerToReset = $is_dm ? ($_POST['reset_player'] ?? null) : null;
 
 if ($playerToReset && !$is_dm) {
     $feedbackMessage = "Error: DM session required to reset player coordinates.";
@@ -157,6 +160,9 @@ if ($playerToReset) {
 </head>
 <body>
     <h1>Player Management</h1>
+    <?php if (!$is_dm): ?>
+    <p>DM access required.</p>
+    <?php else: ?>
     <?php if ($feedbackMessage):
         $feedbackClass = (strpos(strtolower($feedbackMessage), 'error') === 0) ? 'error' : '';
     ?>
@@ -217,5 +223,6 @@ if ($playerToReset) {
         endif;
       ?>
     </table>
+    <?php endif; ?>
 </body>
 </html>
