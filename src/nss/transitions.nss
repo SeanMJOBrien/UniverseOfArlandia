@@ -37,8 +37,25 @@ WriteTimestampedLogEntry("[transitions-raw] "+sPlanetDest+" ("+IntToString(iX)+"
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
+// Cluster areas: static multi-area city groups, never CopyArea'd/destroyed.
+// Missing directions fall back to the mandatory Default slot - no runtime
+// area instance is ever created for an unbuilt direction.
+string sClusterRec = GetPersistentString(oModule,sPlanetDest+"&"+sAreaDest+"&Cluster");
+if(sClusterRec!="")
+ {
+string sDir = GetLocalString(oPC,"Direction");
+string sClusterTag;
+     if(sDir=="North"){sClusterTag = EncodedField(sClusterRec,2);}
+else if(sDir=="South"){sClusterTag = EncodedField(sClusterRec,3);}
+else if(sDir=="East") {sClusterTag = EncodedField(sClusterRec,4);}
+else if(sDir=="West") {sClusterTag = EncodedField(sClusterRec,5);}
+if(sClusterTag==""){sClusterTag = EncodedField(sClusterRec,1);}
+oTargetArea = GetObjectByTag(sClusterTag);
+if(GetIsObjectValid(oTargetArea)){iCheck = 1;}
+ }
+////////////////////////////////////////////////////////////////////////////////
 // Area already used
-if(GetIsObjectValid(oAreaChosen))
+else if(GetIsObjectValid(oAreaChosen))
  {
 iCheck = 1;oTargetArea = oAreaChosen;
  }
