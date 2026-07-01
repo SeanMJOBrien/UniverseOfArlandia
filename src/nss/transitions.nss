@@ -176,7 +176,9 @@ else{AssignCommand(oPC,ActionJumpToLocation(lLoc));int iH=1;object oH=GetHenchma
 else if(iCheck==2)
   {
 DeleteLocalObject(oModule,sPlanetDest+"_"+sAreaDest);
-DestroyArea(oTargetArea);
+// Only genuine CopyArea() clones can be safely destroyed and recreated later
+// from their "000" template - see area_save.nss for the same invariant.
+if(GetLocalInt(oTargetArea,"IsCopy")==1){DestroyArea(oTargetArea);}
   }
  }
 else
