@@ -13,6 +13,16 @@ int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int i;int j;int j2;int k;int l;int m;string sj;string sMod;string sItem;object oItem;string sPer;int iDungeons;int iFaction;
 string sItemBP;string sItemTag;string sItemName;string sItemStack;string sItemMaster;string sItemWear;string sItemWear2;string sItemFix;string sItemVar;string sItemBonus;string sItemCharges;string sAll;string sVar;string sCount;string sCount1;string sCount2;
 ////////////////////////////////////////////////////////////////////////////////
+// area_exit.nss checks occupancy before scheduling this via a 0.3s DelayCommand;
+// a PC can enter this same area in that window, so re-check now and bail out
+// entirely if it's occupied again - otherwise we'd wipe Planet/Area and other
+// locals (and destroy live objects) out from under a returning player.
+object oPCs = GetFirstPC();
+string sTag = GetTag(OBJECT_SELF);
+int i1;
+while(GetIsObjectValid(oPCs)){if((GetTag(GetArea(oPCs))==sTag)||(GetLocalString(oPCs,"PlayerAreaTo")==sTag)){i1++;break;}oPCs = GetNextPC();}
+if(i1>=1){return;}
+////////////////////////////////////////////////////////////////////////////////
 // Save objects
 while(GetIsObjectValid(oObjects))
  {
