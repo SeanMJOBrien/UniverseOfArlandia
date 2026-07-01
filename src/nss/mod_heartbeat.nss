@@ -14,7 +14,7 @@ int iCounter4 = (iReset/10)-iCounter3;
 int iResetOff = GetLocalInt(oModule,"ResetOff");
 int iTime = GetLocalInt(oModule,"Hour");
 //
-object oGoldbag;string sName;object oArea;string sAreaName;string sAreaTag;string sPlanet;string sArea;int iGold;float fX;float fY;location lLoc;object oTrans;object oObject;int i;int j;int iWear;int iWearTot;int iValue;object oNew;string sBP;int iRand;int iAreaX;int iAreaY;int iGP;int iGPdelay;int iIV;int iIVdelay;string sItemName;int iAbility;string sInterests;object oPoint;object oWP;object oItem;
+object oGoldbag;string sName;object oArea;string sAreaName;string sAreaTag;string sPlanet;string sArea;int iGold;float fX;float fY;location lLoc;object oTrans;object oObject;int i;int j;int iWear;int iWearTot;int iValue;object oNew;string sBP;int iRand;int iAreaX;int iAreaY;int iGP;int iGPdelay;int iIV;int iIVdelay;string sItemName;int iAbility;string sInterests;object oPoint;object oWP;object oItem;string sWebResetKey;string sWebReset;
 object oFamiliar1;object oFamiliar2;object oFamiliar3;object oFamiliar4;object oFamiliar5;
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -160,6 +160,25 @@ ExecuteScript("wear",oPC);
 
 
 ////////////////////////////////////////////////////////////////////////////////
-}oPC = GetNextPC();}
+}
+// Web-triggered reset: DM pressed "Set to 0,0" on the website
+sWebResetKey = "WebReset_" + sName;
+sWebReset = GetPersistentString(oModule,sWebResetKey);
+if(sWebReset != "")
+ {
+int iSep = FindSubString(sWebReset,"|");
+if(iSep >= 0)
+  {
+SetLocalString(oPC,"PlanetDest",GetStringLeft(sWebReset,iSep));
+SetLocalString(oPC,"AreaDest",GetStringRight(sWebReset,GetStringLength(sWebReset)-iSep-1));
+SetLocalFloat(oPC,"fX",40.0);
+SetLocalFloat(oPC,"fY",40.0);
+SetLocalFloat(oPC,"fFacing",0.0);
+DeletePersistentVariable(oModule,sWebResetKey);
+ExecuteScript("transitions",oPC);
+  }
+ }
+////////////////////////////////////////////////////////////////////////////////
+oPC = GetNextPC();}
 ////////////////////////////////////////////////////////////////////////////////
 }

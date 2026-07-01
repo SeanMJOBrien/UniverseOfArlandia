@@ -160,6 +160,7 @@ SetLocalString(oTargetArea,"Var",sPlanet+"_"+sArea+"&"+sX+sY);
 SetLocalString(oTargetArea,"Planet",sPlanet);
 SetLocalString(oTargetArea,"Area",sArea+"&"+sX+sY);
 SetLocalString(oTargetArea,"AreaExit",sArea);
+SetLocalObject(oTargetArea,"AreaExitObj",oArea);
 SetLocalFloat(oTargetArea,"fXExit",GetPosition(oPC).x);
 SetLocalFloat(oTargetArea,"fYExit",(GetPosition(oPC).y)-1.0);
 iCheck = 1;
@@ -237,13 +238,34 @@ if(GetStringRight(GetStringLeft(sAreaTag,9),7)=="castle1"){if(GetLocalInt(OBJECT
 else if(GetStringLeft(sAreaTag,8)=="townhall"){fF = DIRECTION_EAST;}
 else if(GetStringLeft(sAreaTag,7)=="h_well_"){fF = DIRECTION_WEST;}
 //
+// Try a direct jump to the stored outer-area object first (works for static
+// city areas that are never destroyed). Fall back to transitions.nss if the
+// outer area was a dynamic copy that was saved+destroyed while we were inside.
+object oExitDirect = GetLocalObject(oArea,"AreaExitObj");
+if(GetIsObjectValid(oExitDirect))
+ {
+location lDirect = Location(oExitDirect,Vector(fX,fY,0.0),fF);
+SetLocalString(oPC,"PlayerAreaTo",GetTag(oExitDirect));
+AssignCommand(oPC,ActionJumpToLocation(lDirect));
+int iH=1;object oH=GetHenchman(oPC,iH);
+while(GetIsObjectValid(oH)){AssignCommand(oH,ClearAllActions(TRUE));AssignCommand(oH,ActionJumpToLocation(lDirect));iH++;oH=GetHenchman(oPC,iH);}
+ }
+else if(sPlanet!="" && sAreaExit!="")
+ {
+// Dynamic outer area was destroyed; ask transitions.nss to recreate it.
+// Preserve the _Ship suffix so transitions.nss names it correctly.
+if(GetStringRight(sAreaExit,5)=="_Ship"){SetLocalString(oPC,"NewAreaSpecial","clouds");}
 SetLocalString(oPC,"PlanetDest",sPlanet);
 SetLocalString(oPC,"AreaDest",sAreaExit);
 SetLocalFloat(oPC,"fX",fX);
 SetLocalFloat(oPC,"fY",fY);
 SetLocalFloat(oPC,"fFacing",fF);
-//
 ExecuteScript("transitions",oPC);
+ }
+else
+ {
+FloatingTextStringOnCreature("*no area available*",oPC);
+ }
  }
 ////////////////////////////////////////////////////////////////////////////////
 
