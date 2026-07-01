@@ -169,6 +169,7 @@ DeleteLocalString(OBJECT_SELF,"AreaDest");
 DeleteLocalString(OBJECT_SELF,"Planet");
 DeleteLocalString(OBJECT_SELF,"Area");
 DeleteLocalString(OBJECT_SELF,"AreaExit");
+DeleteLocalObject(OBJECT_SELF,"AreaExitObj");
 DeleteLocalString(OBJECT_SELF,"Master");
 DeleteLocalFloat(OBJECT_SELF,"fXExit");
 DeleteLocalFloat(OBJECT_SELF,"fYExit");
