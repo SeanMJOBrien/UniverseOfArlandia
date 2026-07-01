@@ -104,7 +104,10 @@ else if(sNewArea=="23"){sNewArea = "test";}
 if(sNewAreaSpecial!=""){sAreaDest = sAreaDest+"_Ship";}
 object oTemplate = GetObjectByTag(sNewArea+"000");
 if(GetIsObjectValid(oTemplate))
-    oTargetArea = CopyArea(oTemplate);
+ {
+oTargetArea = CopyArea(oTemplate);
+SetLocalInt(oTargetArea,"IsCopy",1);
+ }
 else
  {
 oTargetArea = GetObjectByTag(sNewArea+"001");

@@ -196,5 +196,9 @@ DeleteLocalInt(OBJECT_SELF,"DDLevel");
 DeleteLocalObject(OBJECT_SELF,"CampEntry");
 DeleteLocalInt(OBJECT_SELF,"Used");
 ////////////////////////////////////////////////////////////////////////////////
-DestroyArea(OBJECT_SELF);
+// Only true CopyArea() clones can be safely destroyed and recreated later from
+// their "000" template. Static single-instance areas (no template, or pooled
+// interiors like taverns/shops/dungeons handled by transitions2.nss) must
+// survive so GetObjectByTag() can find and reuse them next time.
+if(GetLocalInt(OBJECT_SELF,"IsCopy")==1){DestroyArea(OBJECT_SELF);}
 }
