@@ -27,17 +27,20 @@ if ($is_dm) {
     $pc_keys = array_filter(array_keys($pwdata_cache), fn($k) => str_starts_with($k, 'PCLoc_'));
     foreach ($pc_keys as $k) {
         $p = $pwdata_cache[$k];
+        $charname = str_replace('~', "'", encoded_field($p, 2));
+        $last_login_ts = (int)($pwdata_cache['LastLogin_' . encoded_field($p, 2)] ?? 0);
         $pc_records[] = [
-            'account'  => str_replace('~', "'", encoded_field($p, 1)),
-            'charname' => str_replace('~', "'", encoded_field($p, 2)),
-            'planet'   => str_replace('~', "'", encoded_field($p, 3)),
-            'tilearea' => encoded_field($p, 4),
-            'areatag'  => encoded_field($p, 5),
-            'x'        => encoded_field($p, 6),
-            'y'        => encoded_field($p, 7),
-            'z'        => encoded_field($p, 8),
-            'facing'   => encoded_field($p, 9),
-            'is_dm'    => encoded_field($p, 10),
+            'account'    => str_replace('~', "'", encoded_field($p, 1)),
+            'charname'   => $charname,
+            'planet'     => str_replace('~', "'", encoded_field($p, 3)),
+            'tilearea'   => encoded_field($p, 4),
+            'areatag'    => encoded_field($p, 5),
+            'x'          => encoded_field($p, 6),
+            'y'          => encoded_field($p, 7),
+            'z'          => encoded_field($p, 8),
+            'facing'     => encoded_field($p, 9),
+            'is_dm'      => encoded_field($p, 10),
+            'last_login' => $last_login_ts > 0 ? date('Y-m-d H:i:s', $last_login_ts) : 'never recorded',
         ];
     }
     usort($pc_records, fn($a, $b) => strcasecmp($a['charname'], $b['charname']));
@@ -117,11 +120,12 @@ if ($is_dm) {
             <td class="col-header"><u>Y</u> :</td>
             <td class="col-header"><u>Z</u> :</td>
             <td class="col-header"><u>Facing</u> :</td>
+            <td class="col-header"><u>Last Login</u> :</td>
         </tr>
         </thead>
         <tbody>
         <?php if (empty($pc_records)): ?>
-            <tr><td colspan="9">No character location data found.</td></tr>
+            <tr><td colspan="10">No character location data found.</td></tr>
         <?php else: foreach ($pc_records as $pc): ?>
             <tr>
                 <td><?= htmlspecialchars($pc['account']) ?></td>
@@ -133,6 +137,7 @@ if ($is_dm) {
                 <td><?= htmlspecialchars($pc['y']) ?></td>
                 <td><?= htmlspecialchars($pc['z']) ?></td>
                 <td><?= htmlspecialchars($pc['facing']) ?></td>
+                <td><?= htmlspecialchars($pc['last_login']) ?></td>
             </tr>
         <?php endforeach; endif; ?>
         </tbody>
