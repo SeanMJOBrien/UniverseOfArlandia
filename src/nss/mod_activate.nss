@@ -73,7 +73,7 @@ else if(sItemTag=="cr_heart"){ApplyEffectToObject(DURATION_TYPE_TEMPORARY,Effect
 else if(GetStringLeft(sItemTag,3)=="key"){if(GetIsObjectValid(oTarget)){if((GetStringLeft(sItemTag,6)=="key001")&&(GetStringLeft(GetTag(oTarget),5)=="chest")&&(GetStringLeft(GetTag(oTarget),11)!="chestplayer")&&(GetLocked(oTarget))){SetLocked(oTarget,FALSE);DestroyObject(oItem);i=1;}}if(i==0){FloatingTextStringOnCreature("no action possible",oPC);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Mount item
-else if(sItemTag=="mountitem"){if(GetLevelByClass(CLASS_TYPE_PALADIN,oPC)>=5){if(GetLocalInt(oGoldbag,"HorsePaladin")!=1){SetLocalInt(oPC,"HenchAction",8);}else{SetLocalInt(oPC,"HenchAction",9);}}else{SetLocalInt(oPC,"HenchAction",9);}ExecuteScript("henchs",oPC);}
+else if(sItemTag=="mountitem"){if(GetLevelByClass(CLASS_TYPE_PALADIN,oPC)>=5){if(GetLocalInt(oGoldbag,"HorsePaladin")!=1){SetLocalInt(oPC,"HenchAction",8);}else{SetLocalInt(oPC,"HenchAction",9);}ExecuteScript("henchs",oPC);}else{if(GetLocalInt(oPC,"Mounted")==1){SetLocalInt(oPC,"HenchAction",9);ExecuteScript("henchs",oPC);}else{FloatingTextStringOnCreature("Talk to your horse to mount it.",oPC);}}}
 ////////////////////////////////////////////////////////////////////////////////
 // Race power
 else if((sItemTag=="racialpower")||(sItemTag=="racialproperties")){if(((iRace==8)||(iRace==9))&&((GetStringLeft(sAreaTag,6)=="clouds")||(GetStringLeft(sAreaTag,3)=="gaz")||(GetStringLeft(sAreaTag,5)=="ocean")||(GetStringLeft(sAreaTag,5)=="space")||(GetStringLeft(sAreaTag,10)=="underwater"))){FloatingTextStringOnCreature("you can't use your racial power in this environment",oPC);}else{ExecuteScript("races",oPC);}}
