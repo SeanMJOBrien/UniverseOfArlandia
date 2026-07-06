@@ -46,6 +46,14 @@ else if(((sItemTag=="cr_eggs")||(sItemTag=="cr_fish")||(sItemTag=="cr_meat"))&&(
 // DM Tool
 else if(sItemTag=="dmtool"){if(GetIsObjectValid(oTarget)){SetLocalObject(oPC,"oTarget",oTarget);DeleteLocalLocation(oPC,"lTarget");}else{DeleteLocalObject(oPC,"oTarget");SetLocalLocation(oPC,"lTarget",lTarget);}DeleteLocalInt(oPC,"AreaMode");AssignCommand(oPC,ActionStartConversation(oPC,"dm",TRUE,FALSE));}
 ////////////////////////////////////////////////////////////////////////////////
+// Spawn group DM tools
+// "spawngrab": capture the current staging area's creatures+placeables as a named
+// reusable spawn group. "spawnstamp": re-stamp a saved group into the current area
+// for testing (a specific "GrpName" if set, else a random eligible one). The item's
+// own "GrpName"/"GrpLevel" locals carry the group name and its min planet level.
+else if(sItemTag=="spawngrab"){SetLocalString(oArea,"SpawnGrpName",GetLocalString(oItem,"GrpName"));SetLocalInt(oArea,"SpawnGrpLevel",GetLocalInt(oItem,"GrpLevel"));SetLocalObject(oArea,"SpawnGrpDM",oPC);ExecuteScript("spawngrp_save",oArea);}
+else if(sItemTag=="spawnstamp"){DeleteLocalString(oArea,"SpawnGrpLoad");if(GetLocalString(oItem,"GrpName")!=""){SetLocalString(oArea,"SpawnGrpLoad",GetLocalString(oItem,"GrpName"));}SetLocalInt(oArea,"SpawnGrpLevelGate",9);ExecuteScript("spawngrp_load",oArea);}
+////////////////////////////////////////////////////////////////////////////////
 // Domain
 else if(sItemTag=="domain"){if(GetIsObjectValid(oTarget)){FloatingTextStringOnCreature("activate the item on the ground",oPC);}else{SetLocalInt(oPC,"PlaceDomain",1);SetLocalObject(oPC,"DomainItem",oItem);AssignCommand(oPC,ActionJumpToLocation(Location(oArea,Vector(fAreaX,fAreaY-5.0,0.0),DIRECTION_NORTH)));AssignCommand(oPC,ActionStartConversation(oPC,"domain",TRUE,FALSE));}}
 ////////////////////////////////////////////////////////////////////////////////

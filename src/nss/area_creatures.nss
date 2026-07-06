@@ -23,6 +23,8 @@ float fZ = 0.0;if(GetStringLeft(GetTag(OBJECT_SELF),8)=="tropical"){fZ = 1.0;}el
 int iRandom1;int iRandom2;string sBP;int iFaction;object oNew;int iPlanetCreNbr;location lLoc;int DEFAULT = 5;
 // Leader
 int iLeader = 4; //*// Creatures have 1 chance on iLeader to be a leader
+// Percent chance that an auto camp is replaced by a random DM-authored spawn group
+int SPAWNGROUP_CAMP_CHANCE = 25; //*//
 //
 if(iCreatures>0){iPlanetCreNbr = Random(10)+1;if(iPlanetCreNbr<6){iPlanetCreNbr = -iPlanetCreNbr;}else{iPlanetCreNbr = iPlanetCreNbr-5;}iPlanetCreNbr = iCreatures+iPlanetCreNbr;}if(iPlanetCreNbr<0){iPlanetCreNbr = 0;}
 ////////////////////////////////////////////////////////////////////////////////
@@ -820,6 +822,12 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 // Monster camps
 ////////////////////////////////////////////////////////////////////////////////
 if((iNoCamp==0)&&(!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),6)!="clouds")&&(GetStringLeft(GetTag(OBJECT_SELF),3)!="gaz")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")){if(iCampSize==1){iRandom1 = 1;}else if(iCampSize==2){iRandom1 = 6;}else if(iCampSize==3){iRandom1 = 9;}else{iRandom1 = Random(45)+1;}
+////////////////////////////////////////////////////////////////////////////////
+// Data-driven camps: on an auto camp (iCampSize==0), if any DM-authored spawn
+// groups exist and the roll hits, try to stamp a random level-eligible group
+// instead of a hardcoded camp. If one actually spawns, push iRandom1 out of
+// range of the hardcoded branches below so we don't also build a camp on top.
+if((iCampSize==0)&&(GetPersistentInt(oModule,"SpawnGroupsTot")>0)&&(Random(100)<SPAWNGROUP_CAMP_CHANCE)){DeleteLocalString(OBJECT_SELF,"SpawnGrpLoad");SetLocalInt(OBJECT_SELF,"SpawnGrpLevelGate",iLevel);ExecuteScript("spawngrp_load",OBJECT_SELF);if(GetLocalInt(OBJECT_SELF,"SpawnGrpLoaded")==1){iRandom1 = 100;}DeleteLocalInt(OBJECT_SELF,"SpawnGrpLoaded");}
 ////////////////////////////////////////////////////////////////////////////////
 if(iRandom1<6) // Little camp
  {
