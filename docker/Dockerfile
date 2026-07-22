@@ -17,7 +17,7 @@ RUN docker-php-ext-install mysqli mbstring xml
 
 # Apache: serve from www/ subdirectory
 COPY docker/apache-uoa.conf /etc/apache2/sites-available/uoa.conf
-RUN a2enmod rewrite && a2dissite 000-default && a2ensite uoa
+RUN a2enmod rewrite proxy proxy_http && a2dissite 000-default && a2ensite uoa
 
 # Claude Code
 RUN npm install -g @anthropic-ai/claude-code

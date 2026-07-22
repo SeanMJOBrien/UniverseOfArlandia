@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "dmb_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -14,6 +15,19 @@ int iPlanetSize = StringToInt(GetStringRight(GetStringLeft(sPlanetVar,FindSubStr
 string sT = GetTag(OBJECT_SELF);
 int iAreaWidth = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;int iAreaHeight = GetAreaSize(AREA_HEIGHT,OBJECT_SELF)*10;
 float fPos = 5.0;int iCorner = 10;
+////////////////////////////////////////////////////////////////////////////////
+// Cluster members: only the member mapped to this side of the coordinate
+// exits that way - every other edge is blocked. The member's Planet/Area
+// locals carry the cluster's coordinate (DmbStampMember), so when the gate
+// passes, the vanilla neighbor math below works unchanged.
+if(GetLocalInt(oArea,"IsClusterMember")==1)
+ {
+if(DmbClusterDirTag(DmbClusterRecord(oModule,sPlanet,sArea),sT)!=sTag)
+  {
+FloatingTextStringOnCreature("There is no exit this way.",oPC,FALSE);
+return;
+  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 string sZ = "_";int iM = FindSubString(sArea,sZ)+1;
 string sX = GetStringLeft(sArea,iM-1);
@@ -140,6 +154,8 @@ SetLocalFloat(oPC,"fX",fX);
 SetLocalFloat(oPC,"fY",fY);
 SetLocalFloat(oPC,"fFacing",fFacing);
 ////////////////////////////////////////////////////////////////////////////////
-if(i==0){ExecuteScript("transitions",oPC);}
+// Stash which edge was crossed so transitions.nss can pick the entry member
+// on cluster tiles (consumed and deleted there on every path).
+if(i==0){SetLocalString(oPC,"TransDir",sT);ExecuteScript("transitions",oPC);}
 ////////////////////////////////////////////////////////////////////////////////
 }

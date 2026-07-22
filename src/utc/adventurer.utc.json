@@ -86,11 +86,11 @@
   },
   "Cha": {
     "type": "byte",
-    "value": 14
+    "value": 10
   },
   "ChallengeRating": {
     "type": "float",
-    "value": 1.0
+    "value": 0.25
   },
   "ClassList": {
     "type": "list",
@@ -126,15 +126,15 @@
   },
   "Comment": {
     "type": "cexostring",
-    "value": ""
+    "value": "Blank base blueprint for the ported TFN random-adventurer generator (inc_adventurer.nss). Do not add feats/spells/skills here - AdvanceCreatureAlongAdventurerPath() builds them at runtime via NWNX_Creature. Keep ClassList at a single Commoner level 1 so NWNX_Creature_SetClassByPosition has an existing class slot to overwrite."
   },
   "Con": {
     "type": "byte",
-    "value": 14
+    "value": 12
   },
   "Conversation": {
     "type": "resref",
-    "value": ""
+    "value": "hench"
   },
   "CRAdjust": {
     "type": "int",
@@ -142,7 +142,7 @@
   },
   "CurrentHitPoints": {
     "type": "short",
-    "value": 8
+    "value": 2
   },
   "DecayTime": {
     "type": "dword",
@@ -158,7 +158,7 @@
   },
   "Dex": {
     "type": "byte",
-    "value": 14
+    "value": 10
   },
   "Disarmable": {
     "type": "byte",
@@ -170,24 +170,16 @@
   },
   "FactionID": {
     "type": "word",
-    "value": 3
+    "value": 2
   },
   "FeatList": {
     "type": "list",
-    "value": [
-      {
-        "__struct_id": 1,
-        "Feat": {
-          "type": "word",
-          "value": 258
-        }
-      }
-    ]
+    "value": []
   },
   "FirstName": {
     "type": "cexolocstring",
     "value": {
-      "0": "Troop (hench)"
+      "0": "Adventurer"
     }
   },
   "fortbonus": {
@@ -204,11 +196,11 @@
   },
   "HitPoints": {
     "type": "short",
-    "value": 8
+    "value": 2
   },
   "Int": {
     "type": "byte",
-    "value": 14
+    "value": 10
   },
   "Interruptable": {
     "type": "byte",
@@ -238,7 +230,7 @@
   },
   "MaxHitPoints": {
     "type": "short",
-    "value": 10
+    "value": 3
   },
   "NaturalAC": {
     "type": "byte",
@@ -266,7 +258,7 @@
   },
   "PortraitId": {
     "type": "word",
-    "value": 104
+    "value": 129
   },
   "Race": {
     "type": "byte",
@@ -405,7 +397,7 @@
         "__struct_id": 0,
         "Rank": {
           "type": "byte",
-          "value": 4
+          "value": 0
         }
       },
       {
@@ -531,7 +523,7 @@
   },
   "SoundSetFile": {
     "type": "word",
-    "value": 65535
+    "value": 352
   },
   "SpecAbilityList": {
     "type": "list",
@@ -543,7 +535,7 @@
   },
   "Str": {
     "type": "byte",
-    "value": 14
+    "value": 10
   },
   "Subrace": {
     "type": "cexostring",
@@ -551,7 +543,7 @@
   },
   "Tag": {
     "type": "cexostring",
-    "value": "hench000"
+    "value": "adventurer"
   },
   "Tail_New": {
     "type": "dword",
@@ -563,27 +555,7 @@
   },
   "TemplateResRef": {
     "type": "resref",
-    "value": "hench000"
-  },
-  "VarTable": {
-    "type": "list",
-    "value": [
-      {
-        "__struct_id": 0,
-        "Name": {
-          "type": "cexostring",
-          "value": "Hench"
-        },
-        "Type": {
-          "type": "dword",
-          "value": 1
-        },
-        "Value": {
-          "type": "int",
-          "value": 1
-        }
-      }
-    ]
+    "value": "adventurer"
   },
   "WalkRate": {
     "type": "int",
@@ -599,6 +571,6 @@
   },
   "Wis": {
     "type": "byte",
-    "value": 14
+    "value": 10
   }
 }

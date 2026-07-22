@@ -64,7 +64,14 @@ void main()
         if (GetIsObjectValid(oShouter) && oMaster == oShouter)
         {
             SetCommandable(TRUE);
-            bkRespondToHenchmenShout(oShouter, nMatch, oIntruder, TRUE);
+            // nBanInventory=TRUE is the vanilla-campaign behavior for
+            // story-critical companions (Daelan, Sharwyn, ...) whose gear
+            // can't be touched - wrong for this module's own hench system,
+            // where the whole point is letting players equip their hires.
+            // With it TRUE, x0_inc_henai's ASSOCIATE_COMMAND_INVENTORY
+            // handler always speaks the "can't access inventory" string
+            // instead of ever calling OpenInventory.
+            bkRespondToHenchmenShout(oShouter, nMatch, oIntruder, FALSE);
         }
     }
 

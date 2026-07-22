@@ -1544,7 +1544,7 @@
   "Mod_Description": {
     "type": "cexolocstring",
     "value": {
-      "0": "Universe of Arlandia\n--------------------------\nDownload the haks at www.simtotal.com/uoa\n"
+      "0": "Universe of Arlandia\nNo haks required, NWSync ready\nCome claim and build your settlement\nBuild your own airship or spaceship\nBuy a Star Pass to go to other worlds"
     }
   },
   "Mod_DuskHour": {
@@ -1896,7 +1896,7 @@
   },
   "Mod_OnPlrChat": {
     "type": "resref",
-    "value": ""
+    "value": "mod_chat"
   },
   "Mod_OnPlrDeath": {
     "type": "resref",

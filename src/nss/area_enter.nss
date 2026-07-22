@@ -2,11 +2,21 @@
 #include "_module"
 #include "zep_inc_phenos"
 #include "_string_utils"
+#include "dmb_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
 object oModule = GetModule();
 object oPC = GetEnteringObject();
+////////////////////////////////////////////////////////////////////////////////
+// Cluster members can lose their Planet/Area locals (e.g. an area_save
+// wipe); re-stamp from the module-local reverse lookup before anything
+// below reads them.
+if(GetLocalString(OBJECT_SELF,"Planet")=="")
+ {
+string sCluMember = GetLocalString(oModule,"CluMember_"+GetTag(OBJECT_SELF));
+if(sCluMember!=""){DmbStampMember(OBJECT_SELF,Between(sCluMember,"","&"),Between(sCluMember,"&",""));}
+ }
 object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 int iPlayer = GetLocalInt(oPC,"Player");
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
@@ -52,6 +62,20 @@ if(sTag=="initialisation"){SetLocalInt(oPC,"Entering",2);if((!GetIsDMPossessed(o
 ////////////////////////////////////////////////////////////////////////////////
 // Area recall
 if((sPlanet!="")&&(sArea!="")&&(GetLocalInt(OBJECT_SELF,"Used")!=2)){ExecuteScript("area_recall",OBJECT_SELF);}
+////////////////////////////////////////////////////////////////////////////////
+// Placeable view distance (default 45m -> 200m), set once per area instantiation
+// since static/pooled areas are destroyed and recreated fresh (see area_save.nss).
+// Runs after area_recall above so recreated/saved placeables are included.
+if(GetLocalInt(OBJECT_SELF,"VisDistSet")==0)
+ {
+SetLocalInt(OBJECT_SELF,"VisDistSet",1);
+object oPlaceable = GetFirstObjectInArea(OBJECT_SELF);
+while(GetIsObjectValid(oPlaceable))
+  {
+if(GetObjectType(oPlaceable)==OBJECT_TYPE_PLACEABLE){SetObjectVisibleDistance(oPlaceable,200.0);}
+oPlaceable = GetNextObjectInArea(OBJECT_SELF);
+  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Challenge cheat
 if(GetLocalInt(oGoldbag,"Challenge")!=0){DeleteLocalInt(oGoldbag,"Challenge");SetXP(oPC,GetXP(oPC)-iMonsterChallenge);FloatingTextStringOnCreature("-"+IntToString(iMonsterChallenge)+" xps",oPC);}

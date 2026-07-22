@@ -2,6 +2,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
+// Cluster member areas (DM area-builder, dmb_inc.nss) are static hand-built
+// content and all members of a cluster share one coordinate: letting the
+// generic save/destroy/local-wipe below run would cross-write the members'
+// "<Planet>&<X_Y>&Objects" records into each other and strip their placed
+// content. Leave them live and untouched instead.
+if(GetLocalInt(OBJECT_SELF,"IsClusterMember")==1){return;}
+////////////////////////////////////////////////////////////////////////////////
 object oModule = GetModule();
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
@@ -40,7 +47,18 @@ if(GetLocalInt(oObjects,"Fleeing")==1){iFaction = GetLocalInt(oObjects,"Faction"
 // Module save
 if(GetLocalInt(oObjects,"Persistent")!=1){i++;
 //          BluePrint                 Tag                    Name                    Object Type                                X position                                   Y position                                   Z position                                   Facing                                              Stop or wander                                  Master                                  Hit points                                       Stack                                         Faction                     Magical bonus                          Useable                                     Locked                                 Trapped                                   Camp                                            Leader                                            Wear                                            Wear%                                            Fix                                            Plot                                     Charges                                      ID                             Variables
-     sMod = GetResRef(oObjects)+"_A_"+GetTag(oObjects)+"_B_"+GetName(oObjects)+"_C_"+IntToString(GetObjectType(oObjects))+"_D_"+FloatToString(GetPosition(oObjects).x)+"_E_"+FloatToString(GetPosition(oObjects).y)+"_F_"+FloatToString(GetPosition(oObjects).z)+"_G_"+FloatToString(GetFacing(oObjects))+"_H_"+IntToString(GetLocalInt(oObjects,"Stop"))+"_I_"+GetLocalString(oObjects,"Master")+"_J_"+IntToString(GetCurrentHitPoints(oObjects))+"_K_"+IntToString(GetItemStackSize(oObjects))+"_L_"+IntToString(iFaction)+"_M_"+GetLocalString(oObjects,"Bonus")+"_N_"+IntToString(GetUseableFlag(oObjects))+"_O_"+IntToString(GetLocked(oObjects))+"_P_"+IntToString(GetIsTrapped(oObjects))+"_Q_"+IntToString(GetLocalInt(oObjects,"Camp"))+"_R_"+IntToString(GetLocalInt(oObjects,"Leader"))+"_S_"+IntToString(GetLocalInt(oObjects,"Wear"))+"_T_"+IntToString(GetLocalInt(oObjects,"Wear%"))+"_U_"+IntToString(GetLocalInt(oObjects,"Fix"))+"_V_"+IntToString(GetPlotFlag(oObjects))+"_W_"+IntToString(GetItemCharges(oObjects))+"_X_"+IntToString(GetIdentified(oObjects))+"_Y_"+GetLocalString(oObjects,"Var")+"_Z_";SetLocalString(oModule,sPlanet+"_"+sArea+"_Objects"+IntToString(i),sMod);}
+     sMod = GetResRef(oObjects)+"_A_"+GetTag(oObjects)+"_B_"+GetName(oObjects)+"_C_"+IntToString(GetObjectType(oObjects))+"_D_"+FloatToString(GetPosition(oObjects).x)+"_E_"+FloatToString(GetPosition(oObjects).y)+"_F_"+FloatToString(GetPosition(oObjects).z)+"_G_"+FloatToString(GetFacing(oObjects))+"_H_"+IntToString(GetLocalInt(oObjects,"Stop"))+"_I_"+GetLocalString(oObjects,"Master")+"_J_"+IntToString(GetCurrentHitPoints(oObjects))+"_K_"+IntToString(GetItemStackSize(oObjects))+"_L_"+IntToString(iFaction)+"_M_"+GetLocalString(oObjects,"Bonus")+"_N_"+IntToString(GetUseableFlag(oObjects))+"_O_"+IntToString(GetLocked(oObjects))+"_P_"+IntToString(GetIsTrapped(oObjects))+"_Q_"+IntToString(GetLocalInt(oObjects,"Camp"))+"_R_"+IntToString(GetLocalInt(oObjects,"Leader"))+"_S_"+IntToString(GetLocalInt(oObjects,"Wear"))+"_T_"+IntToString(GetLocalInt(oObjects,"Wear%"))+"_U_"+IntToString(GetLocalInt(oObjects,"Fix"))+"_V_"+IntToString(GetPlotFlag(oObjects))+"_W_"+IntToString(GetItemCharges(oObjects))+"_X_"+IntToString(GetIdentified(oObjects))+"_Y_"+GetLocalString(oObjects,"Var")+"_Z_";SetLocalString(oModule,sPlanet+"_"+sArea+"_Objects"+IntToString(i),sMod);
+// Random adventurer henches (tavern hire slots, or ones a PC dismissed and
+// left standing here - see area_recall.nss/henchs.nss) aren't a fixed
+// blueprint; the string above only captures generic fields (name/position/
+// HP/faction/...), so recreating one from just GetResRef()=="adventurer"
+// would give a blank level-1 Commoner. Snapshot the full NWNX-built identity
+// and gear via StoreCampaignObject, keyed the same way as the generic string
+// above so area_recall.nss can look it up by the same index. This campaign
+// namespace is explicitly wiped at every server boot (see mod_load.nss) -
+// it's meant to survive an area emptying out and refilling within a
+// session, not a restart.
+if((GetObjectType(oObjects)==OBJECT_TYPE_CREATURE)&&(GetResRef(oObjects)=="adventurer")){StoreCampaignObject("AdvAreaSnap",sPlanet+"_"+sArea+"_Objects"+IntToString(i),oObjects,OBJECT_INVALID,TRUE);}}
 // Database save
                                      else{j++;sj = IntToString(j);if(j<10){sj = "00"+IntToString(j);}else if(j<100){sj = "0"+IntToString(j);}sj = "&"+sj+"&";
 //          BluePrint                 Tag                    Name                    Object Type                                X position                                             Y position                                            Z position                                             Facing                                              Stop or wander                                  Master                                  Hit points                                       Stack                                         Faction                     Magical bonus                          Useable                                     Locked                                 Trapped                                   Camp                                            Leader                                            Wear                                            Wear%                                            Fix                                            Plot                                     Charges                                                 ID                             Variables
@@ -176,10 +194,6 @@ DeleteLocalString(OBJECT_SELF,"PlanetProv");
 DeleteLocalString(OBJECT_SELF,"PlanetDest");
 DeleteLocalString(OBJECT_SELF,"AreaProv");
 DeleteLocalString(OBJECT_SELF,"AreaDest");
-DeleteLocalString(OBJECT_SELF,"Planet");
-DeleteLocalString(OBJECT_SELF,"Area");
-DeleteLocalString(OBJECT_SELF,"AreaExit");
-DeleteLocalObject(OBJECT_SELF,"AreaExitObj");
 DeleteLocalString(OBJECT_SELF,"Master");
 DeleteLocalFloat(OBJECT_SELF,"fXExit");
 DeleteLocalFloat(OBJECT_SELF,"fYExit");
@@ -209,6 +223,25 @@ DeleteLocalInt(OBJECT_SELF,"Used");
 // Only true CopyArea() clones can be safely destroyed and recreated later from
 // their "000" template. Static single-instance areas (no template, or pooled
 // interiors like taverns/shops/dungeons handled by transitions2.nss) must
-// survive so GetObjectByTag() can find and reuse them next time.
-if(GetLocalInt(OBJECT_SELF,"IsCopy")==1){DestroyArea(OBJECT_SELF);}
+// survive so GetObjectByTag() can find and reuse them next time - AND they must
+// keep their "Planet"/"Area"/"AreaExit"/"AreaExitObj" identity while surviving,
+// not just the object itself: transitions2.nss's bank/shop exit logic has a
+// "direct jump" fast path (GetLocalObject(oArea,"AreaExitObj")) that jumps
+// straight back into a static exterior area like this WITHOUT going through
+// transitions.nss - which is the only thing that normally re-stamps these
+// locals. If they're wiped here on every vacate (as they used to be,
+// unconditionally), entering an interior and leaving it again would jump the
+// player back into an exterior area with no Planet/Area identity, breaking
+// the next tile-to-tile move with "*no area available*" even though nothing
+// was ever destroyed. The "Used" flag above is what actually tracks pool
+// availability for reuse, not these - so only clear them when the object is
+// about to be destroyed anyway (moot at that point).
+if(GetLocalInt(OBJECT_SELF,"IsCopy")==1)
+ {
+DeleteLocalString(OBJECT_SELF,"Planet");
+DeleteLocalString(OBJECT_SELF,"Area");
+DeleteLocalString(OBJECT_SELF,"AreaExit");
+DeleteLocalObject(OBJECT_SELF,"AreaExitObj");
+DestroyArea(OBJECT_SELF);
+ }
 }

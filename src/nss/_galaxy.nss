@@ -1101,6 +1101,14 @@ i++;sTot = sPlanet+"&001&"+sPlanetPlace+"&002&"+IntToString(iPlanetSize)+"&003&"
 
 // Galaxy/Planets definition end
 
+////////////////////////////////////////////////////////////////////////////////
+// DM-created planets (website planetCreator.php -> pwdata DMPlanet<n>) are
+// appended to the module locals here so the Systems loop below treats them
+// exactly like the hardcoded planets above (area generation, Galaxy index,
+// destroyed-planet cleanup).
+ExecuteScript("dmb_galaxy_db",oModule);
+////////////////////////////////////////////////////////////////////////////////
+
 
 
 

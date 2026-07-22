@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "nwnx_object"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +64,20 @@ iCharges = StringToInt(GetStringRight(GetStringLeft(sObject,FindSubString(sObjec
 iD = StringToInt(GetStringRight(GetStringLeft(sObject,FindSubString(sObject,"_Y_")),GetStringLength(GetStringLeft(sObject,FindSubString(sObject,"_Y_")))-FindSubString(sObject,"_X_")-3));
 sVar = GetStringRight(GetStringLeft(sObject,FindSubString(sObject,"_Z_")),GetStringLength(GetStringLeft(sObject,FindSubString(sObject,"_Z_")))-FindSubString(sObject,"_Y_")-3);
 
-oNew = CreateObject(iType,sBP,Location(OBJECT_SELF,Vector(fX,fY,fZ),fF),FALSE,sTag);
+// Random adventurer henches restore their full NWNX-built identity+gear via
+// the StoreCampaignObject snapshot area_save.nss took (see there) instead of
+// a bare blueprint CreateObject, which would give back a blank level-1
+// Commoner. Fall back to the bare create only if nothing was ever snapshotted
+// (shouldn't normally happen).
+if(sBP=="adventurer")
+ {
+oNew = RetrieveCampaignObject("AdvAreaSnap",sPlanet+"_"+sArea+"_Objects"+IntToString(i),Location(OBJECT_SELF,Vector(fX,fY,fZ),fF),OBJECT_INVALID,OBJECT_INVALID,TRUE);
+if(!GetIsObjectValid(oNew)){oNew = CreateObject(iType,sBP,Location(OBJECT_SELF,Vector(fX,fY,fZ),fF),FALSE,sTag);}
+// Self-heal stale pre-fix Conversation field on old saved instances - see
+// henchs.nss action 0 for why this is needed on top of the blueprint fix.
+NWNX_Object_SetDialogResref(oNew,"hench");
+ }
+else{oNew = CreateObject(iType,sBP,Location(OBJECT_SELF,Vector(fX,fY,fZ),fF),FALSE,sTag);}
 SetName(oNew,sName);if(FindSubString(sName,"(Quality")!=-1){AddItemProperty(DURATION_TYPE_PERMANENT,ItemPropertyQuality(IP_CONST_QUALITY_EXCELLENT),oNew);}
 SetLocalInt(oNew,"Stop",iStop);
 SetLocalString(oNew,"Master",sMaster);
@@ -262,12 +276,19 @@ object oPlacard3 = GetLocalObject(OBJECT_SELF,"placard3");SetName(oPlacard3,sAre
 object oPlacard4 = GetLocalObject(OBJECT_SELF,"placard4");SetName(oPlacard4,sAreaName);
  }
 ////////////////////////////////////////////////////////////////////////////////
-// Tavern and town hall henchs
+// Tavern and town hall henchs - 3 random adventurers, rerolled whenever this
+// town's tavern/townhall is (re)populated after a server restart. Moved to
+// its own script (area_tavernspawn.nss) run via DelayCommand instead of
+// inline: generating 3 full NWNX_Creature-built characters plus weapon/armor
+// picks is a lot of NWNX round-trips, easily enough to eat into the
+// per-script instruction budget. ExecuteScript() would run as a nested call
+// in this SAME budget (not a fresh one), so only DelayCommand actually
+// decouples it - keeping this heavy work from being able to cut the rest of
+// area_recall.nss's own setup (Interests, area_creatures, area_resources,
+// the "&Ready" flag below) off partway through.
 if((iReady!=1)&&((GetStringLeft(GetTag(OBJECT_SELF),6)=="tavern")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="townhall")))
  {
-oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench001",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
-oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench010",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
-oNew = CreateObject(OBJECT_TYPE_CREATURE,"hench020",GetLocation(GetWaypointByTag("WPH_"+GetTag(OBJECT_SELF))));
+DelayCommand(0.5,ExecuteScript("area_tavernspawn",OBJECT_SELF));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Place objects

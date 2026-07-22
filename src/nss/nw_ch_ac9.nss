@@ -48,7 +48,10 @@ void main()
     }
 */
     // * Feb 2003: Set official campaign henchmen to have no inventory
-    SetLocalInt(OBJECT_SELF, "X0_L_NOTALLOWEDTOHAVEINVENTORY", 10) ;
+    // UOA: NOT wanted here - this module's whole hench system is built
+    // around players equipping their own hires (see henchs.nss / nw_ch_ac4.nss),
+    // unlike vanilla's story-critical companions this flag was written for.
+    //SetLocalInt(OBJECT_SELF, "X0_L_NOTALLOWEDTOHAVEINVENTORY", 10) ;
 
     //SetAssociateState(NW_ASC_MODE_DEFEND_MASTER);
     SetAssociateStartLocation();
@@ -83,6 +86,12 @@ void main()
 
 // UOA
 ExecuteScript("creatures_spawn",OBJECT_SELF);
+// Preserve the x2-era default spawn baseline (nw_c2_default9, pre/post spawn
+// user-defined events, horse-owner-tag auto-associate, golem BAB fix) that
+// every hench blueprint got via ScriptSpawn=x2_def_spawn before this file
+// was wired up in its place - this file only adds the associate listen-
+// pattern setup above, it isn't meant to replace the rest.
+ExecuteScript("x2_def_spawn",OBJECT_SELF);
 // UOA
 
 }

@@ -15,6 +15,17 @@
 #include "X2_INC_SUMMSCALE"
 
 #include "X2_INC_SPELLHOOK"
+
+// Hench dialog's "Other Options -> toggle follow distance" (conv_hench024)
+// sets a per-creature "FollowDistance" local float; use it in place of the
+// stock GetFollowDistance() if set, so the chosen distance actually sticks.
+float GetHenchFollowDistance(object oAssociate)
+{
+    float fCustom = GetLocalFloat(oAssociate,"FollowDistance");
+    if(fCustom>0.0){return fCustom;}
+    return GetFollowDistance();
+}
+
 void main()
 {   //SpawnScriptDebugger();
 if((GetLocalInt(OBJECT_SELF,"Wait")==0)&&(GetLocalInt(OBJECT_SELF,"Tracking")==0))
@@ -87,7 +98,7 @@ if((GetLocalInt(OBJECT_SELF,"Wait")==0)&&(GetLocalInt(OBJECT_SELF,"Tracking")==0
                             {
                                 if(!GetAssociateState(NW_ASC_MODE_STAND_GROUND))
                                 {
-                                    if(GetDistanceToObject(GetMaster()) > GetFollowDistance())
+                                    if(GetDistanceToObject(GetMaster()) > GetHenchFollowDistance(OBJECT_SELF))
                                     {
                                         ClearActions(CLEAR_NW_CH_AC1_49);
                                         if(GetAssociateState(NW_ASC_AGGRESSIVE_STEALTH) || GetAssociateState(NW_ASC_AGGRESSIVE_SEARCH))
@@ -102,12 +113,12 @@ if((GetLocalInt(OBJECT_SELF,"Wait")==0)&&(GetLocalInt(OBJECT_SELF,"Tracking")==0
                                                 ActionUseSkill(SKILL_SEARCH, OBJECT_SELF);
                                              }
                                              //MyPrintString("GENERIC SCRIPT DEBUG STRING ********** " + "Assigning Force Follow Command with Search and/or Stealth");
-                                             ActionForceFollowObject(oMaster, GetFollowDistance());
+                                             ActionForceFollowObject(oMaster, GetHenchFollowDistance(OBJECT_SELF));
                                         }
                                         else
                                         {
                                              //MyPrintString("GENERIC SCRIPT DEBUG STRING ********** " + "Assigning Force Follow Normal");
-                                             ActionForceFollowObject(oMaster, GetFollowDistance());
+                                             ActionForceFollowObject(oMaster, GetHenchFollowDistance(OBJECT_SELF));
                                              //ActionForceMoveToObject(GetMaster(), TRUE, GetFollowDistance(), 5.0);
                                         }
                                     }
@@ -135,12 +146,12 @@ if((GetLocalInt(OBJECT_SELF,"Wait")==0)&&(GetLocalInt(OBJECT_SELF,"Tracking")==0
                                     ActionUseSkill(SKILL_SEARCH, OBJECT_SELF);
                                  }
                                  //MyPrintString("GENERIC SCRIPT DEBUG STRING ********** " + "Assigning Force Follow Command with Search and/or Stealth");
-                                 ActionForceFollowObject(oMaster, GetFollowDistance());
+                                 ActionForceFollowObject(oMaster, GetHenchFollowDistance(OBJECT_SELF));
                             }
                             else
                             {
                                  //MyPrintString("GENERIC SCRIPT DEBUG STRING ********** " + "Assigning Force Follow Normal");
-                                 ActionForceFollowObject(oMaster, GetFollowDistance());
+                                 ActionForceFollowObject(oMaster, GetHenchFollowDistance(OBJECT_SELF));
                             }
                         }
                     }
@@ -179,6 +190,6 @@ else if(GetTag(OBJECT_SELF)=="henchani010"){if(GetLocalInt(oGoldbag,"Cow"+IntToS
 else if(GetTag(OBJECT_SELF)=="henchani012"){if((GetLocalInt(oPC,"Listen")==0)&&(GetLocalInt(oPC,"Search")==0)&&(GetLocalInt(oPC,"Spot")==0)){ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectSkillIncrease(SKILL_LISTEN,5),oPC);ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectSkillIncrease(SKILL_SEARCH,5),oPC);ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectSkillIncrease(SKILL_SPOT,5),oPC);SetLocalInt(oPC,"Listen",1);SetLocalInt(oPC,"Search",1);SetLocalInt(oPC,"Spot",1);SetLocalInt(oPC,"Dog",1);}}
 else if(GetTag(OBJECT_SELF)=="henchani011"){if(GetLocalInt(oPC,"Concentration")==0){ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectSkillIncrease(SKILL_CONCENTRATION,5),oPC);SetLocalInt(oPC,"Concentration",1);}}
 else if(GetStringLeft(GetTag(OBJECT_SELF),8)=="henchani"){iRand = Random(15);if(iRand>13){PlaySound("c_horsexxx_dead");}else if(iRand>11){PlaySound("c_horsexxx_slct");}}
-// Henchs casern
-else if((GetTag(OBJECT_SELF)=="hench000")&&(GetIsObjectValid(oPC))&&(GetTag(GetArea(oPC))!="")&&(GetCurrentHitPoints(OBJECT_SELF)>0)&&(GetLocalInt(OBJECT_SELF,"HenchRecall")!=1)){SetLocalObject(oPC,"Hench",OBJECT_SELF);SetLocalInt(oPC,"HenchAction",13);ExecuteScript("henchs",oPC);ExecuteScript("wear",OBJECT_SELF);}
+// Henchs casern - full equipment save, generalized to every hench (was hench000-only)
+else if((GetLocalInt(OBJECT_SELF,"Hench")==1)&&(GetIsObjectValid(oPC))&&(GetTag(GetArea(oPC))!="")&&(GetCurrentHitPoints(OBJECT_SELF)>0)&&(GetLocalInt(OBJECT_SELF,"HenchRecall")!=1)){SetLocalObject(oPC,"Hench",OBJECT_SELF);SetLocalInt(oPC,"HenchAction",13);ExecuteScript("henchs",oPC);ExecuteScript("wear",OBJECT_SELF);}
 }

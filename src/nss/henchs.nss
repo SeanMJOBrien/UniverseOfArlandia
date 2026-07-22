@@ -1,6 +1,8 @@
 #include "aps_include"
 #include "zep_inc_phenos"
 #include "_module"
+#include "inc_adventurer"
+#include "nwnx_object"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,6 +10,10 @@ object oModule = GetModule();
 object oPC = OBJECT_SELF;
 object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 string sPCName = GetName(oPC);
+// Per-PC campaign DB namespace for random-adventurer hench snapshots (identity
+// + gear), same convention already used by shapes.nss for its own per-PC
+// StoreCampaignObject/RetrieveCampaignObject data.
+string sCampaignName = sPCName+GetPCPublicCDKey(oPC);
 object oArea = GetArea(oPC);
 string sAreaTag = GetTag(oArea);
 string sPlanet = GetLocalString(oArea,"Planet");
@@ -56,7 +62,26 @@ iHead = StringToInt(GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"&F
 
 if((sHench!="")&&(sStayHench=="")&&(GetLocalInt(oGoldbag,"HorseNum")!=iHenchs)&&(GetLocalInt(oPC,"FalconAway"+IntToString(iHenchs))!=1))
    {
-oHench = CreateObject(OBJECT_TYPE_CREATURE,sBP,GetLocation(oPC));
+// Random adventurer henches (see area_recall.nss) aren't a fixed blueprint -
+// their build is rolled at spawn time via NWNX_Creature (race, class levels,
+// feats, skills, spells), so recreating them from the bare "adventurer"
+// blueprint - or re-rolling via SpawnAdventurer() - would give back a
+// different individual every time, not the one that was hired. Restore the
+// exact saved creature (identity AND gear together) via RetrieveCampaignObject
+// instead; action 13 (below) is what saves that snapshot on dismiss/logout/
+// equipment change. Fall back to a fresh roll only if nothing was ever saved
+// (shouldn't normally happen - hiring always saves once immediately).
+if(sBP=="adventurer")
+   {
+oHench = RetrieveCampaignObject(sCampaignName,"AdvHench"+IntToString(iHenchs),GetLocation(oPC),OBJECT_INVALID,OBJECT_INVALID,TRUE);
+if(!GetIsObjectValid(oHench)){oHench = SpawnAdventurer(GetLocation(oPC),iClass,iLevel,TRUE,FALSE);}
+// Self-heal: instances saved before the "adventurer" blueprint's Conversation
+// field was fixed to "hench" carry the old value forever (an instance's own
+// fields don't retroactively follow later blueprint edits) - force it back
+// to the correct dialog on every recall instead of requiring a re-hire.
+NWNX_Object_SetDialogResref(oHench,"hench");
+   }
+else{oHench = CreateObject(OBJECT_TYPE_CREATURE,sBP,GetLocation(oPC));}
 if(GetName(oHench)!=sName){SetName(oHench,sName);}
 DeleteLocalObject(oPC,"HenchObject"+IntToString(iHenchs));
 SetLocalInt(oHench,"Hench",1);
@@ -70,7 +95,13 @@ ChangeToStandardFaction(oHench,STANDARD_FACTION_COMMONER);
 AddHenchman(oPC,oHench);
 
 if(sBP=="henchani009"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",7);ExecuteScript("henchs",oPC);}
-if(sBP=="hench000"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",14);ExecuteScript("henchs",oPC);}
+// Full equipment recall - generalized to every hench (was hench000-only);
+// action 14's own hench000-specific casern level-up cascade is still gated
+// to hench000 internally (see action 14 below), so this is safe to fire for
+// any hench - except "adventurer", whose gear already came back attached to
+// the RetrieveCampaignObject snapshot above; running action 14 for them too
+// would just duplicate items on top of what was already restored.
+else if(sBP!="adventurer"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",14);ExecuteScript("henchs",oPC);}
    }
   }
 // Mission henchs
@@ -120,6 +151,11 @@ SetLocalString(oHench,"Master",sPCName);
 ChangeToStandardFaction(oHench,STANDARD_FACTION_COMMONER);
 AddHenchman(oPC,oHench);
 SendMessageToPC(oPC,"Note : To dismiss a hench, don't use the 'Remove from party' option of the radial menu. Use the 'Dismiss' option from the hench dialog.");
+// Snapshot immediately on hire, not just reactively on the next item change
+// (action 13) - otherwise hiring then logging out before ever touching this
+// hench's gear would leave nothing saved, and the relog recall (action 0)
+// would have to fall back to re-rolling a different individual.
+if(GetResRef(oHench)=="adventurer"){StoreCampaignObject(sCampaignName,"AdvHench"+IntToString(i),oHench,OBJECT_INVALID,TRUE);}
 if((GetResRef(oHench)=="hench000")&&(sMaster!=""))
   {
 while(iSoldierNum<iNum)
@@ -240,7 +276,22 @@ iHead = StringToInt(GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"&F
 fX = StringToFloat(GetStringRight(GetStringLeft(sStayHench,FindSubString(sStayHench,"&C&")),GetStringLength(GetStringLeft(sStayHench,FindSubString(sStayHench,"&C&")))-FindSubString(sStayHench,"&B&")-3));
 fY = StringToFloat(GetStringRight(GetStringLeft(sStayHench,FindSubString(sStayHench,"&D&")),GetStringLength(GetStringLeft(sStayHench,FindSubString(sStayHench,"&D&")))-FindSubString(sStayHench,"&C&")-3));
 
-oHench = CreateObject(OBJECT_TYPE_CREATURE,sBP,Location(oArea,Vector(fX,fY,0.0),DIRECTION_NORTH));
+// Same identity problem as action 0's carried-hench recall: a random
+// adventurer isn't a fixed blueprint, so a bare CreateObject("adventurer",...)
+// would give back a blank level-1 Commoner instead of the exact individual
+// that was left here. This is still the player's own henchman (just told to
+// wait), so restore it the same way as an actively-carried one - via the
+// per-PC StoreCampaignObject snapshot (identity + gear together), not the
+// session-only "AdvAreaSnap" area-cycling snapshot used for genuinely
+// dismissed henches.
+if(sBP=="adventurer")
+   {
+oHench = RetrieveCampaignObject(sCampaignName,"AdvHench"+IntToString(iHenchs),Location(oArea,Vector(fX,fY,0.0),DIRECTION_NORTH),OBJECT_INVALID,OBJECT_INVALID,TRUE);
+if(!GetIsObjectValid(oHench)){oHench = SpawnAdventurer(Location(oArea,Vector(fX,fY,0.0),DIRECTION_NORTH),iClass,iLevel,TRUE,FALSE);}
+// Self-heal stale pre-fix Conversation field - see action 0 for why.
+NWNX_Object_SetDialogResref(oHench,"hench");
+   }
+else{oHench = CreateObject(OBJECT_TYPE_CREATURE,sBP,Location(oArea,Vector(fX,fY,0.0),DIRECTION_NORTH));}
 if(GetName(oHench)!=sName){SetName(oHench,sName);}
 ChangeToStandardFaction(oHench,STANDARD_FACTION_MERCHANT);
 SetLocalObject(oPC,"HenchObject"+IntToString(iHenchs),oHench);
@@ -254,7 +305,10 @@ SetLocalInt(oHench,"Class",iClass);
 SetLocalInt(oHench,"Head",iHead);
 
 if(sBP=="henchani009"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",7);ExecuteScript("henchs",oPC);}
-if(sBP=="hench000"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",14);ExecuteScript("henchs",oPC);}
+// Full equipment recall, generalized to every hench except "adventurer" -
+// same reasoning as action 0 (their gear already came back attached to the
+// RetrieveCampaignObject snapshot above).
+else if(sBP!="adventurer"){SetLocalObject(oPC,"Hench",oHench);SetLocalInt(oPC,"HenchAction",14);ExecuteScript("henchs",oPC);}
    }
   }
 //
@@ -494,6 +548,16 @@ AssignCommand(oHench, ActionEquipMostDamagingRanged());
 // Henchs casern save
 else if(iHenchAction==13)
  {
+// Random adventurer henches persist as a single StoreCampaignObject snapshot
+// (identity + gear together - see action 0/14) instead of the goldbag 18-slot
+// dump below, which only ever captured equipment, not the NWNX-rolled
+// race/class/feats/skills that make each one a specific individual.
+if(GetResRef(oHench)=="adventurer")
+ {
+StoreCampaignObject(sCampaignName,"AdvHench"+IntToString(iHench),oHench,OBJECT_INVALID,TRUE);
+ }
+else
+ {
 while(i<18)
   {
 i++;
@@ -573,11 +637,17 @@ oItem = GetNextItemInInventory(oHench);
   }
 SetLocalString(oGoldbag,"HenchCasernInv"+IntToString(iHench),sVar);
  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Henchs casern recall
 else if(iHenchAction==14)
  {
-SetLocalInt(oHench,"HenchAction",15);ExecuteScript("henchs",oHench);
+// The auto level-up cascade (action 15) interprets "Class"/"Level" as a
+// CLASS_TYPE_* constant and a 1-5 garrison-training tier - that's specific to
+// hench000 soldiers. Other hench types store different things in those same
+// locals (e.g. random adventurers store an ADVENTURER_PATH_* enum and raw hit
+// dice, see area_recall.nss), so only chain into it for hench000.
+if(GetResRef(oHench)=="hench000"){SetLocalInt(oHench,"HenchAction",15);ExecuteScript("henchs",oHench);}
 SetLocalInt(oHench,"HenchRecall",1);
 
 //

@@ -1,4 +1,6 @@
+#include "aps_include"
 #include "_module"
+#include "_string_utils"
 void main()
 {
 object oPC = GetLastAttacker();if(oPC==OBJECT_INVALID){oPC = GetLastDamager();}if(oPC==OBJECT_INVALID){oPC = GetLastSpellCaster();}
@@ -17,13 +19,15 @@ if((GetIsObjectValid(oPC))&&(oPC!=GetLastSpellCaster())&&(oPC!=OBJECT_SELF)&&(((
 if(GetTag(oGauntlets)=="tool_gauntlet")
   {
 iWear = GetLocalInt(oGauntlets,"Wear")+1;SetLocalInt(oGauntlets,"Wear",iWear);
-SetLocalInt(oGauntlets,"Wear%",100-(iWear*100/iGauntletsWear));
+int iGauntletsWearPct = 100-(iWear*100/iGauntletsWear);SetLocalInt(oGauntlets,"Wear%",iGauntletsWearPct);
 if((iWear>=iGauntletsWear)&&(Random(10)==0)){DestroyObject(oGauntlets);FloatingTextStringOnCreature("Your tool gauntlets have broken",oPC,TRUE);AssignCommand(oPC,ClearAllActions());AssignCommand(oPC,ActionUnequipItem(oTool));}
+else{SetWearName(oGauntlets,iGauntletsWearPct);}
   }
 // Tool brakes
 iWear = GetLocalInt(oTool,"Wear")+1;SetLocalInt(oTool,"Wear",iWear);
-SetLocalInt(oTool,"Wear%",100-(iWear*100/iToolWear));
+int iToolWearPct = 100-(iWear*100/iToolWear);SetLocalInt(oTool,"Wear%",iToolWearPct);
 if((iWear>=iToolWear)&&(Random(5)==0)){DestroyObject(oTool);FloatingTextStringOnCreature("Your tool has broken",oPC,TRUE);AssignCommand(oPC,ClearAllActions());}
+else{SetWearName(oTool,iToolWearPct);}
 
 if((iMountain==1)&&(iPCRes>0)&&(GetLocalInt(OBJECT_SELF,GetName(oPC))!=1))
   {

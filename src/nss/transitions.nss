@@ -1,6 +1,7 @@
 #include "aps_include"
 #include "_module"
 #include "_string_utils"
+#include "dmb_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +35,17 @@ int iY = StringToInt(sY);if(GetStringLeft(sY,1)=="m"){iY = -StringToInt(GetStrin
 sNewArea = GetAreaTile(oModule,sPlanetDest,iX,iY);
 string sDiscovArea = sNewArea + (IsAreaTileDiscovered(oModule,sPlanetDest,iX,iY) ? "*" : "");
 WriteTimestampedLogEntry("[transitions-raw] "+sPlanetDest+" ("+IntToString(iX)+","+IntToString(iY)+") tile="+sNewArea+" col="+GetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX)));
+////////////////////////////////////////////////////////////////////////////////
+// DM-built cluster tile: hand off to the per-direction member resolution
+// (dmb_inc). Ship layers (clouds/underwater) and space travel pass over the
+// tile and keep the normal path. Cluster coordinates never register the
+// module-local "<Planet>_<X_Y>" (arrival member varies by direction), so the
+// oAreaChosen fast-path below can't hit for them.
+if((sNewArea==DMB_TILE_CLUSTER)&&(sNewAreaSpecial=="")&&(sPlanetDest!="Space"))
+ {
+DmbClusterArrive(oPC,oModule,sPlanetDest,sAreaDest);
+return;
+ }
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,5 +204,6 @@ DeleteLocalObject(oPC,"DestroyIt");
 DeleteLocalObject(oPC,"DestroyIt2");
 DeleteLocalString(oPC,"NewAreaSpecial");
 DeleteLocalInt(oPC,"Henchs");
+DeleteLocalString(oPC,"TransDir");
 ////////////////////////////////////////////////////////////////////////////////
 }

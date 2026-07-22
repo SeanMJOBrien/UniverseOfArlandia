@@ -43,8 +43,8 @@ else
  {
 // Ox
 if((GetIsObjectValid(oItem))&&(GetTag(oPC)=="henchani009")&&(GetCurrentHitPoints(oPC)>0)){if(GetIsObjectValid(GetMaster(oPC))){SetLocalInt(oItem,"DontSave",1);oPCs = GetMaster(oPC);}else{while(GetIsObjectValid(oPCs)){if(GetName(oPCs)==sMaster){break;}oPCs = GetNextPC();}}SetLocalObject(oPCs,"Hench",oPC);SetLocalInt(oPCs,"HenchAction",6);ExecuteScript("henchs",oPCs);}
-// Henchs casern
-else if((GetIsObjectValid(oItem))&&(GetTag(oPC)=="hench000")&&(GetCurrentHitPoints(oPC)>0)&&(GetLocalInt(oPC,"HenchRecall")!=1)){if(GetIsObjectValid(oMaster)){oPCs = oMaster;}else{while(GetIsObjectValid(oPCs)){if(GetName(oPCs)==sMaster){break;}oPCs = GetNextPC();}}SetLocalObject(oPCs,"Hench",oPC);SetLocalInt(oPCs,"HenchAction",13);ExecuteScript("henchs",oPCs);}
+// Henchs casern - full equipment save, generalized to every hench (was hench000-only)
+else if((GetIsObjectValid(oItem))&&(GetLocalInt(oPC,"Hench")==1)&&(GetTag(oPC)!="henchani012")&&(GetCurrentHitPoints(oPC)>0)&&(GetLocalInt(oPC,"HenchRecall")!=1)){if(GetIsObjectValid(oMaster)){oPCs = oMaster;}else{while(GetIsObjectValid(oPCs)){if(GetName(oPCs)==sMaster){break;}oPCs = GetNextPC();}}SetLocalObject(oPCs,"Hench",oPC);SetLocalInt(oPCs,"HenchAction",13);ExecuteScript("henchs",oPCs);}
 // Falcon
 else if((GetTag(oPC)=="henchani012")&&(GetLocalString(oPC,"Dest")!="")){SetLocalObject(oPC,"Item",oItem);ExecuteScript("falcon",oPC);}
  }

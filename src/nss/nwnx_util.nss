@@ -114,6 +114,14 @@ string NWNX_Util_GetNextResRef();
 /// @return The ticks per second.
 int NWNX_Util_GetServerTicksPerSecond();
 
+/// @brief Get the NWScript instruction limit.
+/// @return The current instruction limit.
+int NWNX_Util_GetInstructionLimit();
+
+/// @brief Set the number of NWScript instructions currently executed.
+/// @param nInstructions The number of instructions, must be >= 0.
+void NWNX_Util_SetInstructionsExecuted(int nInstructions);
+
 /// @brief Get the last created object.
 /// @param nObjectType Does not take the NWScript OBJECT_TYPE_* constants.
 /// Use NWNX_Consts_TranslateNWScriptObjectType() to get their NWNX equivalent.
@@ -311,6 +319,23 @@ int NWNX_Util_GetServerTicksPerSecond()
     NWNX_CallFunction(NWNX_Util, sFunc);
 
     return NWNX_GetReturnValueInt(NWNX_Util, sFunc);
+}
+
+int NWNX_Util_GetInstructionLimit()
+{
+    string sFunc = "GetInstructionLimit";
+
+    NWNX_CallFunction(NWNX_Util, sFunc);
+
+    return NWNX_GetReturnValueInt(NWNX_Util, sFunc);
+}
+
+void NWNX_Util_SetInstructionsExecuted(int nInstructions)
+{
+    string sFunc = "SetInstructionsExecuted";
+    NWNX_PushArgumentInt(NWNX_Util, sFunc, nInstructions);
+
+    NWNX_CallFunction(NWNX_Util, sFunc);
 }
 
 object NWNX_Util_GetLastCreatedObject(int nObjectType, int nNthLast = 1)

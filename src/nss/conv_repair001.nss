@@ -1,10 +1,15 @@
+#include "aps_include"
+#include "_string_utils"
+
 void main()
 {
 object oPC = GetPCSpeaker();
 object oItem = GetLocalObject(oPC,"oItem");
 object oTarget = GetLocalObject(oPC,"oTarget");
 string sBP = GetLocalString(oTarget,"Master");
-string sName = GetStringRight(GetName(oTarget),GetStringLength(GetName(oTarget))-7);
+// Drop the "Broken " prefix, then any stale " NN%" wear suffix so the repaired
+// item shows its restored (full) condition instead of the % it broke at.
+string sName = StripWearSuffix(GetStringRight(GetName(oTarget),GetStringLength(GetName(oTarget))-7));
 string sVar = GetLocalString(oTarget,"Var");
 string sBonus = GetLocalString(oTarget,"Bonus");
 int iPrice = GetLocalInt(oTarget,"Fix");
@@ -22,6 +27,9 @@ DestroyObject(oTarget);
 else
  {
 DeleteLocalInt(oTarget,"Wear");
+DeleteLocalInt(oTarget,"Wear%");
+// Item is back to full condition - remove the stale wear-% suffix from its name.
+SetName(oTarget,StripWearSuffix(GetName(oTarget)));
  }
 
 TakeGoldFromCreature(iPrice,oPC,TRUE);

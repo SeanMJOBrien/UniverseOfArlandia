@@ -1,4 +1,6 @@
+#include "aps_include"
 #include "_module"
+#include "_string_utils"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,13 +29,14 @@ else if(j==12){oObject = GetItemInSlot(INVENTORY_SLOT_RIGHTRING,oPC);sBP = "brok
 // Torch
 if(GetTag(oObject)=="NW_IT_TORCH001")
   {
-SetLocalInt(oObject,"Wear",GetLocalInt(oObject,"Wear")+1);SetLocalInt(oObject,"Wear%",100-(GetLocalInt(oObject,"Wear")*100/(iTorch*12)));
+SetLocalInt(oObject,"Wear",GetLocalInt(oObject,"Wear")+1);int iTorchWear = 100-(GetLocalInt(oObject,"Wear")*100/(iTorch*12));SetLocalInt(oObject,"Wear%",iTorchWear);
 
 if(GetLocalInt(oObject,"Wear")>=iTorch*12)
    {
 DestroyObject(oObject);
 FloatingTextStringOnCreature("Your torch has burned out",oPC);
    }
+else{SetWearName(oObject,iTorchWear);}
   }
 // Others
 else if((GetStringLeft(GetTag(oObject),4)!="tool")&&(GetTag(oObject)!="racialproperties"))
@@ -49,6 +52,7 @@ oNew = CreateItemOnObject(sBP,oPC);SetName(oNew,"Broken "+GetName(oObject));SetL
 // First
 int a = 22;int b;if(GetLocalInt(oGoldbag,"Uoabook"+IntToString(a))!=1){SetLocalInt(oGoldbag,"Uoabook"+IntToString(a),1);while(b<iUOAreferences){b++;SetLocalInt(oPC,"ChoiceDone"+IntToString(b),1);}DeleteLocalInt(oPC,"ChoiceDone"+IntToString(a));DelayCommand(2.0,AssignCommand(oPC,ActionStartConversation(oPC,"uoa",TRUE,FALSE)));}
    }
+else if(GetIsObjectValid(oObject)){SetWearName(oObject,iWear);}
   }
  }
 ////////////////////////////////////////////////////////////////////////////////

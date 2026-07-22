@@ -705,7 +705,7 @@
   },
   "ScriptDialogue": {
     "type": "resref",
-    "value": "x2_def_onconv"
+    "value": "nw_ch_ac4"
   },
   "ScriptDisturbed": {
     "type": "resref",
@@ -733,7 +733,7 @@
   },
   "ScriptSpawn": {
     "type": "resref",
-    "value": "x2_def_spawn"
+    "value": "nw_ch_ac9"
   },
   "ScriptSpellAt": {
     "type": "resref",

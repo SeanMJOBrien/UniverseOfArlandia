@@ -110,6 +110,12 @@ void NWNX_Creature_AddFeatByLevel(object creature, int feat, int level);
 /// @param feat The feat id.
 void NWNX_Creature_RemoveFeat(object creature, int feat);
 
+/// @brief Removes a feat that was assigned at a level.
+/// @param creature The creature object.
+/// @param feat The feat id.
+/// @param level The level the feat was gained at.
+void NWNX_Creature_RemoveFeatByLevel(object creature, int feat, int level);
+
 /// @brief Determines if the creature knows a feat.
 /// @note This differs from native @nwn{GetHasFeat} which returns FALSE if the feat has no more uses per day.
 /// @param creature The creature object.
@@ -409,12 +415,20 @@ void NWNX_Creature_SetSoundset(object creature, int soundset);
 /// @param rank The value to set as the skill rank.
 void NWNX_Creature_SetSkillRank(object creature, int skill, int rank);
 
+/// @brief Set the base ranks in a skill for creature, assigned at a level.
+/// @param creature The creature object.
+/// @param skill The skill id.
+/// @param rank The value to set as the skill rank.
+/// @param level The level the ranks were gained at.
+void NWNX_Creature_SetSkillRankByLevel(object creature, int skill, int rank, int level);
+
 /// @brief Set the class ID in a particular position for a creature.
 /// @param creature The creature object.
 /// @param position Should be 0, 1, or 2 depending on how many classes the creature
 /// has and which is to be modified.
 /// @param classID A valid ID number in classes.2da and between 0 and 255.
-void NWNX_Creature_SetClassByPosition(object creature, int position, int classID);
+/// @param bUpdateLevels Whether to also update the creature's level history for the new class.
+void NWNX_Creature_SetClassByPosition(object creature, int position, int classID, int bUpdateLevels = TRUE);
 
 /// @brief Set the level at the given position for a creature.
 /// @note A creature should already have a class in that position.
@@ -736,6 +750,16 @@ void NWNX_Creature_AddFeatByLevel(object creature, int feat, int level)
 void NWNX_Creature_RemoveFeat(object creature, int feat)
 {
     string sFunc = "RemoveFeat";
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, feat);
+    NWNX_PushArgumentObject(NWNX_Creature, sFunc, creature);
+
+    NWNX_CallFunction(NWNX_Creature, sFunc);
+}
+
+void NWNX_Creature_RemoveFeatByLevel(object creature, int feat, int level)
+{
+    string sFunc = "RemoveFeatByLevel";
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, level);
     NWNX_PushArgumentInt(NWNX_Creature, sFunc, feat);
     NWNX_PushArgumentObject(NWNX_Creature, sFunc, creature);
 
@@ -1243,9 +1267,21 @@ void NWNX_Creature_SetSkillRank(object creature, int skill, int rank)
     NWNX_CallFunction(NWNX_Creature, sFunc);
 }
 
-void NWNX_Creature_SetClassByPosition(object creature, int position, int classID)
+void NWNX_Creature_SetSkillRankByLevel(object creature, int skill, int rank, int level)
+{
+    string sFunc = "SetSkillRankByLevel";
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, level);
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, rank);
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, skill);
+    NWNX_PushArgumentObject(NWNX_Creature, sFunc, creature);
+
+    NWNX_CallFunction(NWNX_Creature, sFunc);
+}
+
+void NWNX_Creature_SetClassByPosition(object creature, int position, int classID, int bUpdateLevels = TRUE)
 {
     string sFunc = "SetClassByPosition";
+    NWNX_PushArgumentInt(NWNX_Creature, sFunc, bUpdateLevels);
     NWNX_PushArgumentInt(NWNX_Creature, sFunc, classID);
     NWNX_PushArgumentInt(NWNX_Creature, sFunc, position);
     NWNX_PushArgumentObject(NWNX_Creature, sFunc, creature);

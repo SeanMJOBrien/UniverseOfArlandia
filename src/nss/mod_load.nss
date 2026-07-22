@@ -19,15 +19,15 @@ if(GetPersistentInt(oModule,"Tables")!=1)
 }
 ////////////////////////////////////////////////////////////////////////////////
 // NEW try from Arvirago using new nwnx_sql
-/*if(GetPersistentInt(oModule,“Tables”)!=1)
+/*if(GetPersistentInt(oModule,ï¿½Tablesï¿½)!=1)
 {
-    if (NWNX_SQL_PrepareQuery(“CREATE TABLE pwdata (player varchar(64) NOT NULL default ‘~’, tag varchar(64) NOT NULL default ‘~’, name varchar(64) NOT NULL default ‘~’, val text, expire int(11) default NULL, last timestamp NOT NULL default CURRENT_TIMESTAMP, PRIMARY KEY (player,tag,name))”)){
+    if (NWNX_SQL_PrepareQuery(ï¿½CREATE TABLE pwdata (player varchar(64) NOT NULL default ï¿½~ï¿½, tag varchar(64) NOT NULL default ï¿½~ï¿½, name varchar(64) NOT NULL default ï¿½~ï¿½, val text, expire int(11) default NULL, last timestamp NOT NULL default CURRENT_TIMESTAMP, PRIMARY KEY (player,tag,name))ï¿½)){
 NWNX_SQL_ExecutePreparedQuery();
 }
-    if (NWNX_SQL_PrepareQuery(“CREATE TABLE pwobjdata (player varchar(64) NOT NULL default ‘~’, tag varchar(64) NOT NULL default ‘~’, name varchar(64) NOT NULL default ‘~’, val blob, expire int(11) default NULL, last timestamp NOT NULL default CURRENT_TIMESTAMP, PRIMARY KEY (player,tag,name))”)) {
+    if (NWNX_SQL_PrepareQuery(ï¿½CREATE TABLE pwobjdata (player varchar(64) NOT NULL default ï¿½~ï¿½, tag varchar(64) NOT NULL default ï¿½~ï¿½, name varchar(64) NOT NULL default ï¿½~ï¿½, val blob, expire int(11) default NULL, last timestamp NOT NULL default CURRENT_TIMESTAMP, PRIMARY KEY (player,tag,name))ï¿½)) {
 NWNX_SQL_ExecutePreparedQuery();
 }
-    SetPersistentInt(oModule,“Tables”,1);
+    SetPersistentInt(oModule,ï¿½Tablesï¿½,1);
 }  */
 
 
@@ -48,6 +48,15 @@ SetLocalInt(oModule,"CraftIni",1);ExecuteScript("crafting",oModule);
 // Max henchmen
 SetMaxHenchmen(iMaxHenchs);
 ////////////////////////////////////////////////////////////////////////////////
+// Random adventurer henches standing in the world (tavern hire slots, or ones
+// a PC dismissed) get their full identity+gear snapshotted into the
+// "AdvAreaSnap" campaign DB namespace whenever their area empties out and
+// gets saved (see area_save.nss/area_recall.nss) - that's meant to survive
+// an area cycling within a session, not a full server restart, so wipe it
+// here. Actively-hired henches use a separate, per-PC campaign namespace
+// (see henchs.nss) and are untouched by this.
+DestroyCampaignDatabase("AdvAreaSnap");
+////////////////////////////////////////////////////////////////////////////////
 // Sounds
 ExecuteScript("sound_ini",oModule);
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,5 +65,8 @@ while(iPlayers>0){DeletePersistentVariable(oModule,"Player"+IntToString(iPlayers
 ////////////////////////////////////////////////////////////////////////////////
 // Universe
 ExecuteScript("_galaxy",oModule);
+////////////////////////////////////////////////////////////////////////////////
+// DM-built cluster tiles (restore runtime caches + member area locals)
+ExecuteScript("dmb_cluster_boot",oModule);
 ////////////////////////////////////////////////////////////////////////////////
 }
