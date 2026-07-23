@@ -1,6 +1,9 @@
-// Tavern and town hall henchs - 3 random adventurers, rerolled whenever this
-// town's tavern/townhall is (re)populated after a server restart (iReady is
-// a volatile module local wiped at every boot).
+// Tavern and town hall henchs - rerolls the town's tavern/townhall roster to 3
+// random adventurers whenever it is (re)populated after a server restart (iReady
+// is a volatile module local wiped at every boot). It removes the unhired
+// adventurers already standing there before spawning the new 3, so restores and
+// repeat entries replace the roster instead of stacking on top of it - see the
+// population block in main() for details.
 //
 // Split out of area_recall.nss and run via DelayCommand instead of inline:
 // generating 3 full NWNX_Creature-built characters (levels/feats/skills/
@@ -26,7 +29,7 @@ void main(){
 object oModule = GetModule();
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
-int iAdvSlot;int iAdvHD;int iAdvPath;int iAdvAC;string sAdvItem;object oAdvItem;object oNew;
+int iAdvSlot;int iAdvHD;int iAdvPath;int iAdvAC;string sAdvItem;object oAdvItem;object oNew;object oAdvScan;
 ////////////////////////////////////////////////////////////////////////////////
 // area_recall.nss already checked iReady!=1 before scheduling this via
 // DelayCommand - don't re-check it here. By the time this deferred script
@@ -37,6 +40,22 @@ int iAdvSlot;int iAdvHD;int iAdvPath;int iAdvAC;string sAdvItem;object oAdvItem;
 // fixes.
 if((GetStringLeft(GetTag(OBJECT_SELF),6)=="tavern")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="townhall"))
  {
+// Reroll the roster. area_recall.nss restores previously-saved adventurers
+// (RetrieveCampaignObject "AdvAreaSnap") moments before this deferred spawn
+// runs, and the old code then unconditionally added 3 more on top every pass -
+// stacking on those restores (and on night re-entries, where area_recall never
+// sets its &Ready/Used guards) into the pile of 5+ at one waypoint that was
+// reported. Instead: first remove the unhired adventurers still standing here
+// (restored or left from a previous run), then spawn 3 fresh ones - so each
+// repopulation replaces the roster instead of piling onto it. Hired henchmen
+// have a master and follow their PC, so they're excluded - never remove a
+// player's own companion.
+oAdvScan = GetFirstObjectInArea(OBJECT_SELF);
+while(GetIsObjectValid(oAdvScan))
+  {
+if((GetObjectType(oAdvScan)==OBJECT_TYPE_CREATURE)&&(GetResRef(oAdvScan)=="adventurer")&&(!GetIsObjectValid(GetMaster(oAdvScan)))){DestroyObject(oAdvScan);}
+oAdvScan = GetNextObjectInArea(OBJECT_SELF);
+  }
 while(iAdvSlot<3)
   {
 iAdvSlot++;

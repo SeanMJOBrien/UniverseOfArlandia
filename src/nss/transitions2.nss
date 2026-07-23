@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "area_pop_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,11 +211,24 @@ if(iCheck==1)
   {
 // Lock target area
 SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
-// Jump player and henchs
+// Jump player and henchs - unless this pooled interior slot hasn't had
+// area_recall/placeable setup run yet this boot, in which case defer via the
+// same trans_arrive.nss gate transitions.nss/DmbClusterArrive use (see
+// area_pop_inc.nss). These are pre-placed static areas, not runtime clones,
+// but their locals still reset on a server restart same as everywhere else.
 location lTarget = Location(oTargetArea,Vector(GetLocalFloat(oTargetArea,"fX"),GetLocalFloat(oTargetArea,"fY"),0.0),GetLocalFloat(oTargetArea,"fF"));
+if(!AreaPopIsReady(oTargetArea))
+   {
+SetLocalObject(oPC,"PendingArriveArea",oTargetArea);
+SetLocalLocation(oModule,GetName(oPC)+"Loc",lTarget);
+DelayCommand(0.0,ExecuteScript("trans_arrive",oPC));
+   }
+else
+   {
 AssignCommand(oPC,ActionJumpToLocation(lTarget));
 int iHench = 1;object oHench = GetHenchman(oPC,iHench);
 while(GetIsObjectValid(oHench)){AssignCommand(oHench,ClearAllActions(TRUE));AssignCommand(oHench,ActionJumpToLocation(lTarget));iHench++;oHench = GetHenchman(oPC,iHench);}
+   }
   }
 else
   {
@@ -325,8 +339,16 @@ if(iCheck==1)
   {
 // Lock target area
 SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
-// Jump player
-AssignCommand(oPC,ActionJumpToObject(GetObjectByTag(sTargetArea+"_"+sRight)));
+// Jump player - deferred via trans_arrive.nss if this pooled sewer segment
+// hasn't been populated yet this boot (see the "Enter" block above for why).
+object oSewerEntry = GetObjectByTag(sTargetArea+"_"+sRight);
+if(!AreaPopIsReady(oTargetArea))
+   {
+SetLocalObject(oPC,"PendingArriveArea",oTargetArea);
+SetLocalLocation(oModule,GetName(oPC)+"Loc",GetLocation(oSewerEntry));
+DelayCommand(0.0,ExecuteScript("trans_arrive",oPC));
+   }
+else{AssignCommand(oPC,ActionJumpToObject(oSewerEntry));}
   }
 else
   {
@@ -366,8 +388,16 @@ if(iCheck==1)
   {
 // Lock target area
 SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
-// Jump player
-AssignCommand(oPC,ActionJumpToObject(GetObjectByTag(sTargetArea+"_"+sRight)));
+// Jump player - deferred via trans_arrive.nss if not populated yet this boot
+// (see the "Enter" block above for why).
+object oSewerExit = GetObjectByTag(sTargetArea+"_"+sRight);
+if(!AreaPopIsReady(oTargetArea))
+   {
+SetLocalObject(oPC,"PendingArriveArea",oTargetArea);
+SetLocalLocation(oModule,GetName(oPC)+"Loc",GetLocation(oSewerExit));
+DelayCommand(0.0,ExecuteScript("trans_arrive",oPC));
+   }
+else{AssignCommand(oPC,ActionJumpToObject(oSewerExit));}
   }
 else
   {

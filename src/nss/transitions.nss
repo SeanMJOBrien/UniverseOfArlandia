@@ -2,6 +2,7 @@
 #include "_module"
 #include "_string_utils"
 #include "dmb_inc"
+#include "area_pop_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,6 +184,15 @@ SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
 lLoc = Location(oTargetArea,Vector(fX,fY,0.0),fFacing);
 SetLocalLocation(oModule,GetName(oPC)+"Loc",lLoc);
 if(iGate==1){DelayCommand(4.0,AssignCommand(oPC,ActionJumpToLocation(lLoc)));ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_FNF_SUMMON_GATE),oPC);SetXP(oPC,GetXP(oPC)-100);FloatingTextStringOnCreature("gate",oPC);}
+// Destination not populated yet (fresh clone, or first visit this boot) -
+// defer instead of jumping the player into a half-set-up area. trans_arrive
+// runs area_recall + placeable setup, then jumps once ready (or after a
+// short bounded timeout) using the lLoc already stored above - no
+// holding area, the player just stays where they physically are a moment
+// longer. Covers both the fresh-clone path (iCheck==2) and the fast/reuse
+// path (iCheck==1): a coordinate can be "already registered" in oModule
+// without population having finished yet if a second PC reaches it first.
+else if(!AreaPopIsReady(oTargetArea)){SetLocalObject(oPC,"PendingArriveArea",oTargetArea);DelayCommand(0.0,ExecuteScript("trans_arrive",oPC));}
 else{AssignCommand(oPC,ActionJumpToLocation(lLoc));int iH=1;object oH=GetHenchman(oPC,iH);while(GetIsObjectValid(oH)){AssignCommand(oH,ClearAllActions(TRUE));AssignCommand(oH,ActionJumpToLocation(lLoc));iH++;oH=GetHenchman(oPC,iH);}DeleteLocalInt(oPC,"Gate");}
   }
 else if(iCheck==2)

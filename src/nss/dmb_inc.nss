@@ -24,6 +24,7 @@
 #include "aps_include"
 #include "_module"
 #include "_string_utils"
+#include "area_pop_inc"
 
 // Tile code marking a coordinate as a DM-built cluster (never matches a
 // "<code>000"/"<code>001" tag lookup because transitions.nss intercepts it
@@ -386,15 +387,32 @@ void DmbClusterArrive(object oPC, object oModule, string sPlanet, string sCoord)
         SetLocalString(oPC, "PlayerAreaTo", GetTag(oMember));
         location lLoc = Location(oMember, Vector(fX, fY, 0.0), fFacing);
         SetLocalLocation(oModule, GetName(oPC) + "Loc", lLoc);
-        AssignCommand(oPC, ActionJumpToLocation(lLoc));
-        int iH = 1;
-        object oH = GetHenchman(oPC, iH);
-        while (GetIsObjectValid(oH))
+
+        // Same population-before-arrival gate as transitions.nss's main path
+        // (see area_pop_inc.nss/trans_arrive.nss) - cluster-member areas are
+        // pre-placed and never destroyed (area_save.nss special-cases
+        // IsClusterMember), but their locals still reset on a server restart,
+        // so they still need area_recall/placeable setup at least once per
+        // boot before a player should see them. trans_arrive.nss already
+        // reads exactly the PendingArriveArea + GetName(oPC)+"Loc" data set
+        // above, so it's reused as-is - no separate worker needed here.
+        if (!AreaPopIsReady(oMember))
         {
-            AssignCommand(oH, ClearAllActions(TRUE));
-            AssignCommand(oH, ActionJumpToLocation(lLoc));
-            iH++;
-            oH = GetHenchman(oPC, iH);
+            SetLocalObject(oPC, "PendingArriveArea", oMember);
+            DelayCommand(0.0, ExecuteScript("trans_arrive", oPC));
+        }
+        else
+        {
+            AssignCommand(oPC, ActionJumpToLocation(lLoc));
+            int iH = 1;
+            object oH = GetHenchman(oPC, iH);
+            while (GetIsObjectValid(oH))
+            {
+                AssignCommand(oH, ClearAllActions(TRUE));
+                AssignCommand(oH, ActionJumpToLocation(lLoc));
+                iH++;
+                oH = GetHenchman(oPC, iH);
+            }
         }
     }
 

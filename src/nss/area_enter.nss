@@ -3,6 +3,7 @@
 #include "zep_inc_phenos"
 #include "_string_utils"
 #include "dmb_inc"
+#include "area_pop_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,19 +64,15 @@ if(sTag=="initialisation"){SetLocalInt(oPC,"Entering",2);if((!GetIsDMPossessed(o
 // Area recall
 if((sPlanet!="")&&(sArea!="")&&(GetLocalInt(OBJECT_SELF,"Used")!=2)){ExecuteScript("area_recall",OBJECT_SELF);}
 ////////////////////////////////////////////////////////////////////////////////
-// Placeable view distance (default 45m -> 200m), set once per area instantiation
-// since static/pooled areas are destroyed and recreated fresh (see area_save.nss).
-// Runs after area_recall above so recreated/saved placeables are included.
-if(GetLocalInt(OBJECT_SELF,"VisDistSet")==0)
- {
-SetLocalInt(OBJECT_SELF,"VisDistSet",1);
-object oPlaceable = GetFirstObjectInArea(OBJECT_SELF);
-while(GetIsObjectValid(oPlaceable))
-  {
-if(GetObjectType(oPlaceable)==OBJECT_TYPE_PLACEABLE){SetObjectVisibleDistance(oPlaceable,200.0);}
-oPlaceable = GetNextObjectInArea(OBJECT_SELF);
-  }
- }
+// Placeable view distance + static-marking (see area_pop_inc.nss for what
+// and why). This is the fallback safety net for any jump into an area that
+// doesn't route through transitions.nss (DM teleports, quest/dialogue jumps,
+// DmbClusterArrive, transitions2.nss interiors) - the normal grid-coordinate
+// path now does this BEFORE the player arrives (trans_arrive.nss), so for
+// that path this call sees VisDistSet already 1 and no-ops. Same for
+// area_recall just above when it's a daytime pass (its own "Used!=2" guard,
+// unchanged) - trans_arrive already ran it for the normal path.
+AreaPopSetupPlaceables(OBJECT_SELF);
 ////////////////////////////////////////////////////////////////////////////////
 // Challenge cheat
 if(GetLocalInt(oGoldbag,"Challenge")!=0){DeleteLocalInt(oGoldbag,"Challenge");SetXP(oPC,GetXP(oPC)-iMonsterChallenge);FloatingTextStringOnCreature("-"+IntToString(iMonsterChallenge)+" xps",oPC);}
