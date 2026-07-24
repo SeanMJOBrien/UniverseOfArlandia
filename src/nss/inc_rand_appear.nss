@@ -43,25 +43,38 @@ void RandomiseGenderAndAppearance(object oCreature=OBJECT_SELF);
 const string RAND_APPEAR_TEMP_ARRAY = "rand_appear_temp";
 
 
-// Untested - switching out racial feats and updating appearances manually might be needed too
-// which means wrapping around NWNX_Creature_SetRacialType for this function
+// Sets both the mechanical Race field and the visual body model together -
+// racialtypes.2da's Appearance column gives the matching "(Dynamic) <Race>"
+// row for each RACIAL_TYPE_* (same lookup inc_adventurer.nss's
+// AddAdventurerRacialTypeFeats() uses). Only applied when the creature's
+// current Appearance_Type is already one of the 7 dynamic rows, so a
+// creature using a unique premade monster model keeps that model - only its
+// mechanical Race changes.
+void SetRacialTypeAndAppearance(object oCreature, int nRacialType)
+{
+    NWNX_Creature_SetRacialType(oCreature, nRacialType);
+    if (GetAppearanceType(oCreature) <= RACIAL_TYPE_HUMAN)
+    {
+        SetCreatureAppearanceType(oCreature, StringToInt(Get2DAString("racialtypes", "Appearance", nRacialType)));
+    }
+}
 
 void RandomiseCreatureRacialType(object oCreature=OBJECT_SELF, int nDwarfWeight=1, int nElfWeight=1, int nGnomeWeight=1,  int nHalfElfWeight=1, int nHalfOrcWeight=1, int nHalflingWeight=1, int nHumanWeight=1)
 {
     int nWeightSum = nDwarfWeight + nElfWeight + nGnomeWeight + nHalfElfWeight + nHalfOrcWeight + nHalflingWeight + nHumanWeight;
     int nRoll = Random(nWeightSum) + 1;
-    if (nRoll <= nDwarfWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_DWARF); return; }
+    if (nRoll <= nDwarfWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_DWARF); return; }
     nRoll -= nDwarfWeight;
-    if (nRoll <= nElfWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_ELF); return; }
+    if (nRoll <= nElfWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_ELF); return; }
     nRoll -= nElfWeight;
-    if (nRoll <= nHalfElfWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_HALFELF); return; }
+    if (nRoll <= nHalfElfWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_HALFELF); return; }
     nRoll -= nHalfElfWeight;
-    if (nRoll <= nGnomeWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_GNOME); return; }
+    if (nRoll <= nGnomeWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_GNOME); return; }
     nRoll -= nGnomeWeight;
-    if (nRoll <= nHalfOrcWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_HALFORC); return; }
+    if (nRoll <= nHalfOrcWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_HALFORC); return; }
     nRoll -= nHalfOrcWeight;
-    if (nRoll <= nHalflingWeight) { NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_HALFLING); return; }
-    NWNX_Creature_SetRacialType(oCreature, RACIAL_TYPE_HUMAN);
+    if (nRoll <= nHalflingWeight) { SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_HALFLING); return; }
+    SetRacialTypeAndAppearance(oCreature, RACIAL_TYPE_HUMAN);
 }
 
 void RandomiseCreatureRacialTypeBasedOnClass(object oCreature=OBJECT_SELF)
