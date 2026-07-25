@@ -40,6 +40,11 @@ if(iLevelDelta>0){string sAltFamily = GetCreatureFamilyForLevel(oModule,iEffecti
 string sAreaBP = GetResRef(OBJECT_SELF);
 int iNoCamp = GetLocalInt(OBJECT_SELF,"NoCamp");
 int iCampSize = GetLocalInt(OBJECT_SELF,"CampSize");
+// A live DM override (above) still wins; otherwise honor a permanent
+// camp assignment from missions.nss's guaranteed-nearby-camp feature
+// (TASK-14/15) instead of leaving this to the plain Random(45) roll below.
+if(iCampSize==0){iCampSize = StringToInt(GetPersistentString(oModule,sPlanet+"&"+sArea+"&ForcedCamp"));}
+int iCampCreated;
 //
 int iAreaX = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;
 int iAreaY = GetAreaSize(AREA_HEIGHT,OBJECT_SELF)*10;
@@ -852,7 +857,7 @@ if(iRandom1<6) // Little camp
  {
 oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"pla_campfire002",Location(OBJECT_SELF,Vector(fX,fY,fZ),0.0));SetLocalInt(oNew,"Camp",1);CreateItemOnObject("cr_meat",oNew);CreateItemOnObject("cr_plantcommon",oNew);
 
-SetLocalInt(OBJECT_SELF,"DungeonRespawn",2);ExecuteScript("dungeons",OBJECT_SELF);
+SetLocalInt(OBJECT_SELF,"DungeonRespawn",2);ExecuteScript("dungeons",OBJECT_SELF);iCampCreated=1;
  }
 ////////////////////////////////////////////////////////////////////////////////
 else if(iRandom1<9) // Big camp
@@ -895,7 +900,7 @@ oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"zep_tent010",Location(OBJECT_SELF,Vec
 oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"plc_emptywagon",Location(OBJECT_SELF,Vector(fX+5.79,fY+3.61,fZ),0.0+90.0));SetLocalInt(oNew,"Camp",1);
 oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"plc_emptywagon",Location(OBJECT_SELF,Vector(fX+8.37,fY+3.27,fZ),0.0+90.0));SetLocalInt(oNew,"Camp",1);
 
-SetLocalInt(OBJECT_SELF,"DungeonRespawn",3);ExecuteScript("dungeons",OBJECT_SELF);
+SetLocalInt(OBJECT_SELF,"DungeonRespawn",3);ExecuteScript("dungeons",OBJECT_SELF);iCampCreated=1;
  }
 ////////////////////////////////////////////////////////////////////////////////
 else if((iRandom1<10)&&(iLevel>=3))// Fort
@@ -1022,13 +1027,16 @@ oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"pla_cannon",Location(OBJECT_SELF,Vect
 oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"pla_cannon",Location(OBJECT_SELF,Vector(fX-23.7,fY+23.7,fZ+5.5),315.0+90.0));SetLocalInt(oNew,"Camp",1);
 oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"pla_cannon",Location(OBJECT_SELF,Vector(fX-23.7,fY-23.7,fZ+5.5),225.0+90.0));SetLocalInt(oNew,"Camp",1);
 
-SetLocalInt(OBJECT_SELF,"DungeonRespawn",4);ExecuteScript("dungeons",OBJECT_SELF);
+SetLocalInt(OBJECT_SELF,"DungeonRespawn",4);ExecuteScript("dungeons",OBJECT_SELF);iCampCreated=1;
  }
 ////////////////////////////////////////////////////////////////////////////////
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-}DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
+// Lets the plot-giver camp-clear mission (TASK-14/15) tell "never visited
+// yet" apart from "visited and cleared" without needing this area's live
+// object to still be loaded.
+}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");}DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
 ////////////////////////////////////////////////////////////////////////////////
 }

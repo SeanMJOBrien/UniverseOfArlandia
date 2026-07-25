@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_string_utils"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +40,53 @@ int MissionType5 = 50;SetLocalInt(oModule,"MissionType5",MissionType5);
 object oFaction;object oItems;string sMission;string sMaster;int iRandom1;int iRandom2;int iMissX;int iMissY;string sMissX;string sMissY;string sMissArea;string sProvArea;float fX;float fY;float fDist;int iDist;int f;int i;int j;int iTot;int jTot;string sSystem;string sMissPlanet;int iType;string sBP;string sTag;int iNumber;int iXP;int iGP;string sTitle;string sDes;string sMissPlanetPlace;int iMissPlanetSize;object oCre;object oNew;string sInterests;string sName;string sCount1;string sCount2;string sNewArea;
 ////////////////////////////////////////////////////////////////////////////////
 ExecuteScript("conv_dm_varempty",OBJECT_SELF);
+////////////////////////////////////////////////////////////////////////////////
+// Guaranteed nearby camp + its clear-out mission (TASK-14/15). Runs on every
+// plot-giver conversation start (this whole script's Script hook), but only
+// does work once per town/city - idempotent via CampMissionSite. Picks a
+// random valid, empty, non-ocean/space neighbor tile within Chebyshev
+// distance 2 and permanently assigns it a camp; area_creatures.nss reads
+// the ForcedCamp record back when that specific area next populates.
+string sCampMissionSite = GetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite");
+if(sCampMissionSite=="")
+ {
+int iCandidates;int iPickedDx;int iPickedDy;int iCampDx;int iCampDy;string sCandTile;string sCandArea;
+for(iCampDx=-2;iCampDx<=2;iCampDx++)
+  {
+for(iCampDy=-2;iCampDy<=2;iCampDy++)
+   {
+if((iCampDx!=0)||(iCampDy!=0))
+    {
+sCandTile = GetAreaTile(oModule,sPlanet,iX+iCampDx,iY+iCampDy);
+// Exclude clouds(01)/gaz(22)/ocean(12)/seafloor(18) - same terrain this
+// planet's own galaxy map (www/galaxy.php) and area_creatures.nss:849's
+// tag-based camp exclusions already treat as invalid for ground camps.
+if((sCandTile!="")&&(sCandTile!="01")&&(sCandTile!="22")&&(sCandTile!="12")&&(sCandTile!="18"))
+     {
+sCandArea = FormatAreaCoord(iX+iCampDx,iY+iCampDy);
+if(GetPersistentString(oModule,sPlanet+"&"+sCandArea+"&Interests")=="")
+      {
+iCandidates++;
+if(Random(iCandidates)==0){iPickedDx = iCampDx;iPickedDy = iCampDy;}
+      }
+     }
+    }
+   }
+  }
+if(iCandidates>0)
+ {
+int iCampTier = Random(3)+1;
+string sCampArea = FormatAreaCoord(iX+iPickedDx,iY+iPickedDy);
+SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite",sCampArea+"&"+IntToString(iCampTier));
+SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&ForcedCamp",IntToString(iCampTier));
+ }
+else
+ {
+// No valid neighbor tile within 2 areas - accepted limitation, this
+// town/city simply never offers a camp-clear mission.
+SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite","none");
+ }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Area_enter : place mission
 if(iMissionToPlace==1)

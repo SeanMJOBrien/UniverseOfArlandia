@@ -176,6 +176,39 @@ string SetColTile(string sCol, int iY, string sCode)
 }
 
 // ---------------------------------------------------------------------------
+// Area coordinate <-> "X_Y" string conversion (negative values use "m" in
+// place of "-", e.g. "m3_5" = (-3,5) - the same convention area tags/sArea
+// locals and Interests keys use throughout the codebase, e.g. the inline
+// parse at missions.nss:14-18).
+// ---------------------------------------------------------------------------
+struct AreaCoord
+{
+    int X;
+    int Y;
+};
+
+// Parse an "X_Y" area-coordinate string into a struct AreaCoord.
+struct AreaCoord ParseAreaCoord(string sArea)
+{
+    struct AreaCoord coord;
+    int iZ = FindSubString(sArea, "_");
+    string sX = GetStringLeft(sArea, iZ);
+    string sY = GetStringRight(sArea, GetStringLength(sArea) - iZ - 1);
+    coord.X = (GetStringLeft(sX, 1) == "m") ? -StringToInt(GetStringRight(sX, GetStringLength(sX) - 1)) : StringToInt(sX);
+    coord.Y = (GetStringLeft(sY, 1) == "m") ? -StringToInt(GetStringRight(sY, GetStringLength(sY) - 1)) : StringToInt(sY);
+    return coord;
+}
+
+// Format (iX, iY) back into the "X_Y" area-coordinate string convention.
+// Inverse of ParseAreaCoord().
+string FormatAreaCoord(int iX, int iY)
+{
+    string sX = (iX < 0) ? "m" + IntToString(-iX) : IntToString(iX);
+    string sY = (iY < 0) ? "m" + IntToString(-iY) : IntToString(iY);
+    return sX + "_" + sY;
+}
+
+// ---------------------------------------------------------------------------
 // GetPlanetLevel(oModule, sPlanetName)
 //
 // Returns the iPlanetLevel (1-9) of the named planet, by scanning the
