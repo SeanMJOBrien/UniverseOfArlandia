@@ -5,6 +5,7 @@ completed_tasks:
   - Fixed bitwise & → && logic bug in lamp.nss:101
   - Created _constants.nss (delimiter constants FIELD_1..30, FIELD_A..L, OBJ_A..Z, IDX_01..11)
   - Created _string_utils.nss (Between, EncodedField, LetterField helpers)
+  - TASK-14: guaranteed nearby camp + plot-giver clear-it-out mission per city/town
 validate_with: compile via nwnsc; test in-game or on test server (no unit test framework)
 ---
 
@@ -281,11 +282,40 @@ Each task below is self-contained. Fields:
 ---
 
 ### TASK-14: Plot-giver missions for nearby monster camps
-- **status**: todo
+- **status**: done — implemented as a guaranteed (not random-only) camp per
+  city/town + standalone plot-giver dialog branch. `missions.nss` now
+  permanently assigns one valid neighbor tile within Chebyshev distance 2
+  per town (`CampMissionSite`/`ForcedCamp` persistent keys), `area_creatures.nss`
+  honors that assignment over the `Random(45)` roll, and `cond_campmission.nss`
+  / `conv_campmission_offer.nss` / `conv_campmission_check.nss` wire a new
+  "Tell me about the camp..." branch into `mission.dlg.json`'s existing hub
+  (`EntryList[0]`, `Script=missions`). Reward is 100gp × camp tier
+  (Little=100/Big=200/Fort=300), paid per-player via the goldbag once the
+  camp's `Camp`-tagged creatures are all dead.
 - **action**: Generate a "clear the camp" mission (plot giver, `pin_plotgiver.utw`) for any placed monster camp within 2 areas of a city or town, pointing the PC at that specific camp instead of an abstract "kill a random monster" quest. "Within 2 areas" means planet area (tile) coordinates — Chebyshev distance ≤2 on the same planet's `X_Y` grid, not a walkable-area-transition hop count.
 - **files**:
   - `src/nss/missions.nss` — the mission generator/storage; already has a "Kill monster" type (`MissionType4+1..MissionType5`, ~line 350) that rolls a flavor-only kill target with no real location tie-in — the new mission type should follow the same encoded-string storage pattern (`oModule, sPlanet+sArea+"Mission"+IntToString(iNum)`, `&NNN&`-delimited fields) but reference an actual camp instead.
-  - `src/nss/dungeons.nss` (~line 847 onward) — where monster camp placeables are created and tagged `SetLocalInt(oNew,"Camp",1)` ("Little camp" / "Big camp" variants). Runs via `area_recall.nss:311`, gated by the per-area `"&Ready"` module local, which is volatile and wiped every server restart — so camps deterministically (re)roll exactly once per server boot per dungeon/camp-tagged area, not at unpredictable times. Since the "populate before the player arrives" pipeline (commit `9d76b82`) now runs this proactively as soon as a player's travel approaches the area (not lazily after landing), camps near any active town appear shortly after boot.
+  - `src/nss/area_creatures.nss:849` — where camp presence is actually decided: `iRandom1 = Random(45)+1` is a **fresh, unrecorded coin-flip every time the area populates** (1-5 → Little camp, 6-8 → Big camp, 9 with `iLevel>=3` → Fort, else no camp), unless overridden by the `NoCamp`/`CampSize` area locals (`NoCamp` forced by `area_interests.nss:715` when a real Interest already occupies the area, or self-latched by `encounters.nss:100` for well-areas; `CampSize` only ever set by the DM tool `conv_dm020.nss:169`). The chosen tier's placeables get created here (tagged `SetLocalInt(oNew,"Camp",1)`) and only then does it call `dungeons.nss` (via `SetLocalInt(OBJECT_SELF,"DungeonRespawn",2/3/4)`) to populate the guarding creatures. Runs via `area_recall.nss:311`'s `iReady` gate (a volatile module local wiped every server restart), so this roll happens once per area per server boot — proactively, as soon as a player's travel approaches the area, per the "populate before the player arrives" pipeline (commit `9d76b82`).
   - `src/nss/conv_mission001.nss` / `conv_mission002.nss` — plot giver dialog scripts that read/display mission records; a new mission type needs display text handling here too (see how `MissionType4`/kill-monster is threaded through).
-- **constraint**: There's no existing area-adjacency/distance helper (`grep` confirms no `AreaDistance`/`GetNearbyAreas`-style function) — will need new grid-coordinate distance logic against the planet's `AreasX<XX>` tile columns (see `www/CLAUDE.md` for the `pwdata` tile-key format towns/camps live in). Also need a way to enumerate already-placed camps per planet/area (camps are live objects created by `dungeons.nss`, not written to a persistent/queryable record) — likely requires camps to record their own coordinate/planet/area into a `pwdata`-style list at spawn time (in `dungeons.nss`, right where `SetLocalInt(oNew,"Camp",1)` already runs), so the mission generator has something to query instead of re-scanning live objects.
+- **constraint**: There's no existing area-adjacency/distance helper (`grep` confirms no `AreaDistance`/`GetNearbyAreas`-style function) — will need new grid-coordinate distance logic against the planet's `AreasX<XX>` tile columns (see `www/CLAUDE.md` for the `pwdata` tile-key format towns/camps live in). Also, critically, **nothing persists "this area got a camp" anywhere** — it's a live-only `Random(45)` outcome with no `pwdata` row or module-local list recording it, only visible after the fact by scanning the area's live placeables for `GetLocalInt(oPla,"Camp")==1`. The mission generator needs that recorded at roll time — add a `pwdata`-style write (e.g. `sPlanet+sArea+"Camp"`, or append to a per-planet list) right where `area_creatures.nss:849`'s roll lands on a camp, so it survives area resets/pooling and doesn't require re-scanning live objects (which may not even be loaded if the area hasn't been visited yet this boot).
 - **verify**: Not yet planned — fill in once a design is worked out (e.g., a plot giver in a town with a camp within 2 area-coordinates should offer a mission referencing that camp; talking to the plot giver of a town with no nearby camps should not offer this mission type).
+
+---
+
+### TASK-15: Smooth sky-descent arrival library for airship/spaceship placeables
+- **status**: todo
+- **action**: Build a reusable library function that eases an airship/spaceship placeable in from 20 meters above its normal resting Z, smoothly translating down to settle at the position it appears at today — instead of just popping into existence there. Also raise these placeables' view distance to 400 meters (currently unset, so they use the engine default).
+- **files**:
+  - `src/nss/transports.nss` — the only place airship/spaceship placeables are actually created: `zep_ship001`/`"transport1"`/"Airship" (line 158) and `zep_ship002`/`"transport2"`/"Starship" (line 174), both via `CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,...)` at their final `Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF)` with no arrival animation. There's also a third, temporary variant at line 203 (`zep_ship00"+IntToString(iArrival)`, `DestroyObject(oPla,10.0)` — appears briefly then despawns) that's already doing some kind of arrival flourish for a different context and may be worth a look for prior art/reuse.
+  - New library file (name TBD, e.g. `inc_ship_arrival.nss`) — should take the placeable, its final location, and expose one function other callers can use.
+- **pattern**: The native primitive for this is `SetObjectVisualTransform(oObject, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fValue, nLerpType, fLerpDuration, ...)` (`nwscript.nss:12012`) — a client-side visual lerp, no server-side movement/pathfinding needed (placeables can't use creature movement actions anyway). Rough shape:
+  ```
+  // Spawn 20m above the final resting spot, then lerp Z back down to 0 offset
+  object oShip = CreateObject(OBJECT_TYPE_PLACEABLE, sBP, Location(oArea, Vector(fPX+fX, fPY+fY, fPZ+fZ+20.0), fF), ...);
+  SetObjectVisualTransform(oShip, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, -20.0, OBJECT_VISUAL_TRANSFORM_LERP_?, fDurationSeconds);
+  SetObjectVisibleDistance(oShip, 400.0);
+  ```
+  Confirm the correct `nLerpType` constant (ease-in/ease-out/linear) against `nwscript.nss`'s `OBJECT_VISUAL_TRANSFORM_LERP_*` list, and pick a duration that reads as "descending," not teleporting.
+  For visibility distance, `area_pop_inc.nss:46` already does exactly this pattern elsewhere: `SetObjectVisibleDistance(oPlaceable,200.0)` (part of last session's "200m placeable view distance" change) — same call, just `400.0` and scoped to these ship placeables specifically rather than all static scenery.
+- **constraint**: Confirm `SetObjectVisualTransform`'s Z-translate is relative to the placeable's spawn transform (not absolute world Z) before wiring the lerp direction — get this backwards and the ship animates *up* out of the ground instead of down from the sky. Also confirm this transform is purely visual/client-side and doesn't affect the placeable's actual walkmesh/use-range collision during the animation (a player interacting with the ramp/rope sub-placeables mid-descent could be a problem if collision doesn't match the visual lerp).
+- **verify**: Not yet planned — fill in once a design is worked out (e.g., trigger a ship arrival and confirm it visibly descends from above rather than appearing instantly; confirm it's visible from 400m away and not before).
