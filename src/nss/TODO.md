@@ -287,7 +287,7 @@ Each task below is self-contained. Fields:
   permanently assigns one valid neighbor tile within Chebyshev distance 2
   per town (`CampMissionSite`/`ForcedCamp` persistent keys), `area_creatures.nss`
   honors that assignment over the `Random(45)` roll, and `cond_campmission.nss`
-  / `conv_campmission_offer.nss` / `conv_campmission_check.nss` wire a new
+  / `conv_campoffer.nss` / `conv_campcheck.nss` wire a new
   "Tell me about the camp..." branch into `mission.dlg.json`'s existing hub
   (`EntryList[0]`, `Script=missions`). Reward is 100gp × camp tier
   (Little=100/Big=200/Fort=300), paid per-player via the goldbag once the
