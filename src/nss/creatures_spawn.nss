@@ -7,7 +7,7 @@ string sTag = GetTag(OBJECT_SELF);
 string sName = GetName(OBJECT_SELF);
 int iGender = GetGender(OBJECT_SELF);
 object oItems = GetFirstItemInInventory();
-string sNew;object oItem;int iRandom;string s1;string s2;int iRace1;int iRace2;int iAppearance;string sBP1;string sBP2;string sBP3;object oNew;
+string sNew;object oItem;int iRandom;string s1;string s2;int iRace1;int iRace2;int iAppearance;string sBP1;string sBP2;string sBP3;object oNew;int iSkin;
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -64,8 +64,12 @@ SetName(OBJECT_SELF,s1+" "+s2);
 
 if(iRace1!=7)
   {
-// Head
-SetCreatureBodyPart(CREATURE_PART_HEAD,Random(10)+1,OBJECT_SELF);
+// Head, skin & hair (gve3-style: pale skin gets the lighter hair range)
+SetCreatureBodyPart(CREATURE_PART_HEAD,Random(11)+1,OBJECT_SELF);
+iSkin = Random(8);
+SetColor(OBJECT_SELF,COLOR_CHANNEL_SKIN,iSkin);
+if(iSkin>3){SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,Random(8)+15);}
+else{SetColor(OBJECT_SELF,COLOR_CHANNEL_HAIR,Random(24)-1);}
 // Tunic
 iRandom = Random(2)+1;if(iRandom==1){s1 = "ocayleclothno";}else{s1 = "ocayleclothsp";}
 while(oItem==OBJECT_INVALID)
