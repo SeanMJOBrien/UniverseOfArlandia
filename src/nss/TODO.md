@@ -273,3 +273,19 @@ Each task below is self-contained. Fields:
   ```
 - **constraint**: NWN's compiler does not support circular includes. Any refactor that adds new includes must not create a cycle.
 - **verify**: Dependency graph has no cycles. Document result in a `INCLUDES.md` next to this file.
+
+---
+
+## FEATURES
+
+---
+
+### TASK-14: Plot-giver missions for nearby monster camps
+- **status**: todo
+- **action**: Generate a "clear the camp" mission (plot giver, `pin_plotgiver.utw`) for any placed monster camp within 2 areas of a city or town, pointing the PC at that specific camp instead of an abstract "kill a random monster" quest. "Within 2 areas" means planet area (tile) coordinates — Chebyshev distance ≤2 on the same planet's `X_Y` grid, not a walkable-area-transition hop count.
+- **files**:
+  - `src/nss/missions.nss` — the mission generator/storage; already has a "Kill monster" type (`MissionType4+1..MissionType5`, ~line 350) that rolls a flavor-only kill target with no real location tie-in — the new mission type should follow the same encoded-string storage pattern (`oModule, sPlanet+sArea+"Mission"+IntToString(iNum)`, `&NNN&`-delimited fields) but reference an actual camp instead.
+  - `src/nss/dungeons.nss` (~line 847 onward) — where monster camp placeables are created and tagged `SetLocalInt(oNew,"Camp",1)` ("Little camp" / "Big camp" variants). Runs via `area_recall.nss:311`, gated by the per-area `"&Ready"` module local, which is volatile and wiped every server restart — so camps deterministically (re)roll exactly once per server boot per dungeon/camp-tagged area, not at unpredictable times. Since the "populate before the player arrives" pipeline (commit `9d76b82`) now runs this proactively as soon as a player's travel approaches the area (not lazily after landing), camps near any active town appear shortly after boot.
+  - `src/nss/conv_mission001.nss` / `conv_mission002.nss` — plot giver dialog scripts that read/display mission records; a new mission type needs display text handling here too (see how `MissionType4`/kill-monster is threaded through).
+- **constraint**: There's no existing area-adjacency/distance helper (`grep` confirms no `AreaDistance`/`GetNearbyAreas`-style function) — will need new grid-coordinate distance logic against the planet's `AreasX<XX>` tile columns (see `www/CLAUDE.md` for the `pwdata` tile-key format towns/camps live in). Also need a way to enumerate already-placed camps per planet/area (camps are live objects created by `dungeons.nss`, not written to a persistent/queryable record) — likely requires camps to record their own coordinate/planet/area into a `pwdata`-style list at spawn time (in `dungeons.nss`, right where `SetLocalInt(oNew,"Camp",1)` already runs), so the mission generator has something to query instead of re-scanning live objects.
+- **verify**: Not yet planned — fill in once a design is worked out (e.g., a plot giver in a town with a camp within 2 area-coordinates should offer a mission referencing that camp; talking to the plot giver of a town with no nearby camps should not offer this mission type).
