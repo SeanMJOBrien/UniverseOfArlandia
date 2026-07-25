@@ -143,7 +143,7 @@
         },
         "Script": {
           "type": "resref",
-          "value": ""
+          "value": "conv_hench027"
         },
         "Sound": {
           "type": "resref",
@@ -156,7 +156,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "What can I do for you ?"
+            "0": "<CUSTOM10472>"
           }
         }
       },
@@ -997,12 +997,31 @@
                 "type": "byte",
                 "value": 0
               }
+            },
+            {
+              "__struct_id": 21,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench021"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 45
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
             }
           ]
         },
         "Script": {
           "type": "resref",
-          "value": ""
+          "value": "conv_hench025"
         },
         "Sound": {
           "type": "resref",
@@ -4651,6 +4670,51 @@
           "type": "cexolocstring",
           "value": {
             "0": "Track nearest living creature and take me to them."
+          }
+        }
+      },
+      {
+        "__struct_id": 45,
+        "ActionParams": {
+          "type": "list",
+          "value": []
+        },
+        "Animation": {
+          "type": "dword",
+          "value": 0
+        },
+        "AnimLoop": {
+          "type": "byte",
+          "value": 1
+        },
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "Delay": {
+          "type": "dword",
+          "value": 4294967295
+        },
+        "EntriesList": {
+          "type": "list",
+          "value": []
+        },
+        "Quest": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "Script": {
+          "type": "resref",
+          "value": "conv_hench026"
+        },
+        "Sound": {
+          "type": "resref",
+          "value": ""
+        },
+        "Text": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Level up (Cost: <CUSTOM10471> GP)."
           }
         }
       }

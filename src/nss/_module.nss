@@ -73,6 +73,8 @@ int iGradeUpgradeGP =   300;                    //*// GPs cost to upgrade the mi
 int iGradeUpgradeXP =   1000;                   //*// XPs cost to upgrade the military grade (iGradeUpgradeXP * target grade).
 int iMaxHenchs =        99;                     //*// Max number of henchs players can have (max = 99).
 int iHenchsPrice =      50;                     //*// Price of non-domain henchs.
+int iHenchLevelUpCostPerLevel = 100;            //*// Gold cost per level for the hench level-up dialog option.
+int iHenchLevelUpMaxLevel =     20;             //*// Max character level a hired adventurer hench can be leveled up to.
 ////////////////////////////////////////////////////////////////////////////////
 // Inn
 int iInn =              10;                     //*// Price of one night sleep at the inn.
