@@ -1,4 +1,21 @@
 #include "aps_include"
+#include "_string_utils"
+////////////////////////////////////////////////////////////////////////////////
+// GetVarianceChancePlus1/2(sPlanet)
+//
+// Odds (in %, out of 100) that a spawn wave is pulled from a planet one or
+// two levels higher than sPlanet's own level, instead of its own creature
+// table. Add per-planet overrides here, e.g.:
+//   if (sPlanet == "Arland") return 15;
+////////////////////////////////////////////////////////////////////////////////
+int GetVarianceChancePlus1(string sPlanet)
+{
+    return 20; // default: 20% chance of +1 level
+}
+int GetVarianceChancePlus2(string sPlanet)
+{
+    return 10; // default: 10% chance of +2 levels
+}
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -8,7 +25,17 @@ string sArea = GetLocalString(OBJECT_SELF,"Area");if(GetStringRight(sArea,5)=="_
 string sTot = GetPersistentString(oModule,sPlanet);
 string sCreatures = GetStringRight(GetStringLeft(sTot,FindSubString(sTot,"&004&")),GetStringLength(GetStringLeft(sTot,FindSubString(sTot,"&004&")))-FindSubString(sTot,"&003&")-5);if(sCreatures=="self"){sCreatures = sPlanet;}
 int iCreatures = StringToInt(GetStringRight(GetStringLeft(sTot,FindSubString(sTot,"&007&")),GetStringLength(GetStringLeft(sTot,FindSubString(sTot,"&007&")))-FindSubString(sTot,"&006&")-5));
-int iLevel = StringToInt(GetStringRight(GetStringLeft(sTot,FindSubString(sTot,"&009&")),GetStringLength(GetStringLeft(sTot,FindSubString(sTot,"&009&")))-FindSubString(sTot,"&008&")-5));
+int iLevel = GetPlanetLevel(oModule,sPlanet);
+//
+// Level variance: on occasion, pull the whole spawn wave from a higher-level
+// planet's creature table instead of this planet's own.
+int iRoll = Random(100);
+int iLevelDelta = 0;
+if(iRoll<GetVarianceChancePlus2(sPlanet)){iLevelDelta = 2;}
+else if(iRoll<GetVarianceChancePlus2(sPlanet)+GetVarianceChancePlus1(sPlanet)){iLevelDelta = 1;}
+int iEffectiveLevel = iLevel+iLevelDelta;if(iEffectiveLevel>9){iEffectiveLevel = 9;}
+string sEffectiveCreatures = sCreatures;
+if(iLevelDelta>0){string sAltFamily = GetCreatureFamilyForLevel(oModule,iEffectiveLevel);if(sAltFamily!=""){sEffectiveCreatures = sAltFamily;}}
 //
 string sAreaBP = GetResRef(OBJECT_SELF);
 int iNoCamp = GetLocalInt(OBJECT_SELF,"NoCamp");
@@ -41,7 +68,7 @@ oNew = CreateObject(OBJECT_TYPE_CREATURE,sBP,Location(OBJECT_SELF,Vector(IntToFl
 // Clouds
 else if(GetStringLeft(GetTag(OBJECT_SELF),6)=="clouds"){iPlanetCreNbr = 10;while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 
-if(iLevel<4)
+if(iEffectiveLevel<4)
   {
 iRandom1 = Random(7)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_bird001";iFaction = DEFAULT;}
@@ -52,7 +79,7 @@ else if((iRandom1>=5)&&(iRandom1<=5))  {sBP = "mn_falcon001";iFaction = DEFAULT;
 else if((iRandom1>=6)&&(iRandom1<=6))  {sBP = "mn_owl002";iFaction = DEFAULT;}
 else if((iRandom1>=7)&&(iRandom1<=7))  {sBP = "mn_raven001";iFaction = DEFAULT;}
   }
-else if(iLevel<7)
+else if(iEffectiveLevel<7)
   {
 iRandom1 = Random(3)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_elemair001";iFaction = DEFAULT;}
@@ -71,7 +98,7 @@ oNew = CreateObject(OBJECT_TYPE_CREATURE,sBP,Location(OBJECT_SELF,Vector(IntToFl
 // Underwater
 else if(GetStringLeft(GetTag(OBJECT_SELF),10)=="underwater"){iPlanetCreNbr = 12;while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 
-if(iLevel<4)
+if(iEffectiveLevel<4)
   {
 iRandom1 = Random(21)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_fish001";iFaction = DEFAULT;}
@@ -96,7 +123,7 @@ else if((iRandom1>=19)&&(iRandom1<=19))  {sBP = "mn_octopus001";iFaction = DEFAU
 else if((iRandom1>=20)&&(iRandom1<=20))  {sBP = "mn_dolphin001";iFaction = DEFAULT;}
 else if((iRandom1>=21)&&(iRandom1<=21))  {sBP = "mn_eal001";iFaction = DEFAULT;}
   }
-else if(iLevel<7)
+else if(iEffectiveLevel<7)
   {
 iRandom1 = Random(21)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_amphibia002";iFaction = DEFAULT;}
@@ -146,7 +173,7 @@ oNew = CreateObject(OBJECT_TYPE_CREATURE,sBP,Location(OBJECT_SELF,Vector(IntToFl
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Arland")||(sCreatures=="Alderan")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Arland")||(sEffectiveCreatures=="Alderan")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(29)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_small_ani002";iFaction = DEFAULT;}
@@ -183,7 +210,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Astdin")||(sCreatures=="Beleth")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Astdin")||(sEffectiveCreatures=="Beleth")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(30)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_humaamaz002";iFaction = DEFAULT;}
@@ -221,7 +248,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Brillar")||(sCreatures=="Kleth")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Brillar")||(sEffectiveCreatures=="Kleth")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(3)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_golem004";iFaction = DEFAULT;}
@@ -232,7 +259,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Delendil")||(sCreatures=="Narn")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Delendil")||(sEffectiveCreatures=="Narn")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(45)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_vines01";iFaction = DEFAULT;}
@@ -285,7 +312,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Galaxia"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Galaxia"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(31)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_basilik002";iFaction = DEFAULT;}
@@ -324,7 +351,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Hinz"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Hinz"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(30)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_bear005";iFaction = DEFAULT;}
@@ -362,7 +389,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Kartac"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Kartac"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(31)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_badgerdire";iFaction = DEFAULT;}
@@ -401,7 +428,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Khanyo"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Khanyo"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(6)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_crab003";iFaction = DEFAULT;}
@@ -415,7 +442,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Mo1"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Mo1"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(42)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_energy001";iFaction = DEFAULT;}
@@ -465,7 +492,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Mo2"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Mo2"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(42)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_energy001";iFaction = DEFAULT;}
@@ -515,7 +542,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Mo3"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Mo3"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(41)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_basilik002";iFaction = DEFAULT;}
@@ -564,7 +591,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Otun")||(sCreatures=="Sterign")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Otun")||(sEffectiveCreatures=="Sterign")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(19)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_beetle005";iFaction = DEFAULT;}
@@ -591,7 +618,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if((sCreatures=="Ozgurbur")||(sCreatures=="Kah")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if((sEffectiveCreatures=="Ozgurbur")||(sEffectiveCreatures=="Kah")){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(15)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_fog";iFaction = DEFAULT;}
@@ -614,7 +641,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Ronde"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Ronde"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(34)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_basilik002";iFaction = DEFAULT;}
@@ -656,7 +683,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Sand"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Sand"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(22)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_drone005";iFaction = DEFAULT;}
@@ -686,7 +713,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Tend"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Tend"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(10)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_dino009";iFaction = DEFAULT;}
@@ -704,7 +731,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Terlation"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Terlation"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(36)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_ant006";iFaction = DEFAULT;}
@@ -748,7 +775,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Washisch"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Washisch"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(15)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_bear005";iFaction = DEFAULT;}
@@ -771,7 +798,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-else if(sCreatures=="Wyderl"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
+else if(sEffectiveCreatures=="Wyderl"){while(iPlanetCreNbr>0){iPlanetCreNbr--;sBP = "";
 ////////////////////////////////////////////////////////////////////////////////
 iRandom1 = Random(26)+1;
      if((iRandom1>=1)&&(iRandom1<=1))  {sBP = "mn_balrog001";iFaction = DEFAULT;}

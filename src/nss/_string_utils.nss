@@ -250,3 +250,40 @@ int GetPlanetLevel(object oModule, string sPlanetName)
     }
     return 1;
 }
+
+// ---------------------------------------------------------------------------
+// GetCreatureFamilyForLevel(oModule, iTargetLevel)
+//
+// Scans the same System<j>Planet<i> records as GetPlanetLevel() and returns
+// the resolved creature family (field 15, "self" -> the planet's own name)
+// of a random planet at iTargetLevel. Uses reservoir sampling so every
+// matching planet has equal odds. Returns "" if no planet is at that level.
+// ---------------------------------------------------------------------------
+string GetCreatureFamilyForLevel(object oModule, int iTargetLevel)
+{
+    int iSystems = StringToInt(GetLocalString(oModule, "Systems"));
+    string sFamily = "";
+    int iMatches = 0;
+    int j;
+    for (j = 1; j <= iSystems; j++)
+    {
+        string sSystem = GetLocalString(oModule, "System" + IntToString(j));
+        int iPlanets = StringToInt(GetLocalString(oModule, sSystem + "Planets"));
+        int i;
+        for (i = 1; i <= iPlanets; i++)
+        {
+            string sRecord = GetLocalString(oModule, sSystem + "Planet" + IntToString(i));
+            if (StringToInt(EncodedField(sRecord, 29)) == iTargetLevel)
+            {
+                iMatches++;
+                if (Random(iMatches) == 0)
+                {
+                    string sName = EncodedField(sRecord, 1);
+                    string sCre  = EncodedField(sRecord, 15);
+                    sFamily = (sCre == "self") ? sName : sCre;
+                }
+            }
+        }
+    }
+    return sFamily;
+}
