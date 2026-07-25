@@ -6,6 +6,7 @@ completed_tasks:
   - Created _constants.nss (delimiter constants FIELD_1..30, FIELD_A..L, OBJ_A..Z, IDX_01..11)
   - Created _string_utils.nss (Between, EncodedField, LetterField helpers)
   - TASK-14: guaranteed nearby camp + plot-giver clear-it-out mission per city/town
+  - TASK-15: smooth sky-descent arrival for airship/spaceship placeables
 validate_with: compile via nwnsc; test in-game or on test server (no unit test framework)
 ---
 
@@ -303,8 +304,14 @@ Each task below is self-contained. Fields:
 ---
 
 ### TASK-15: Smooth sky-descent arrival library for airship/spaceship placeables
-- **status**: todo
-- **action**: Build a reusable library function that eases an airship/spaceship placeable in from 20 meters above its normal resting Z, smoothly translating down to settle at the position it appears at today — instead of just popping into existence there. Also raise these placeables' view distance to 400 meters (currently unset, so they use the engine default).
+- **status**: done — `src/nss/inc_shiparrive.nss` (`EaseShipHullIn`/
+  `SpawnShipRopes`/`SpawnShipLadder`), wired into all three ship-spawn
+  branches in `transports.nss`. Per follow-up clarification, view
+  distance is 200m (not 400m as originally written below) matching
+  `area_pop_inc.nss`'s existing static-scenery value, and only the hull
+  animates the descent — ropes appear once it settles, ladder/ramp 2s
+  after that, rather than all pieces descending together.
+- **action** (original spec, kept for history): Build a reusable library function that eases an airship/spaceship placeable in from 20 meters above its normal resting Z, smoothly translating down to settle at the position it appears at today — instead of just popping into existence there. Also raise these placeables' view distance to 400 meters (currently unset, so they use the engine default).
 - **files**:
   - `src/nss/transports.nss` — the only place airship/spaceship placeables are actually created: `zep_ship001`/`"transport1"`/"Airship" (line 158) and `zep_ship002`/`"transport2"`/"Starship" (line 174), both via `CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,...)` at their final `Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF)` with no arrival animation. There's also a third, temporary variant at line 203 (`zep_ship00"+IntToString(iArrival)`, `DestroyObject(oPla,10.0)` — appears briefly then despawns) that's already doing some kind of arrival flourish for a different context and may be worth a look for prior art/reuse.
   - New library file (name TBD, e.g. `inc_ship_arrival.nss`) — should take the placeable, its final location, and expose one function other callers can use.
