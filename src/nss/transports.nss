@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "inc_shiparrive"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,13 +156,9 @@ SetLocalInt(oArea,"Transports",1);
 fPX = GetPosition(OBJECT_SELF).x;
 fPY = GetPosition(OBJECT_SELF).y;
 
-sBP = "zep_ship001";fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetPlotFlag(oPla,TRUE);SetLocalObject(oArea,"Transport",oPla);
-sBP = "pla_rope";fX = 6.0;fY = -1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = 6.0;fY = 1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = -3.0;fY = -2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = -3.0;fY = 2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_ramp";fX = 0.0;fY = -2.0;fZ = 0.0;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,TRUE);SetName(oPla,"Airship");
-sBP = "pla_ramp";fX = 0.0;fY = -0.25;fZ = 4.5;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
+sBP = "zep_ship001";fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetLocalInt(oPla,"DontSave",1);SetPlotFlag(oPla,TRUE);SetLocalObject(oArea,"Transport",oPla);EaseShipHullIn(oPla);
+DelayCommand(3.0,SpawnShipRopes(oArea,fPX,fPY,fPZ,"transport1"));
+DelayCommand(5.0,SpawnShipLadder(oArea,fPX,fPY,fPZ,"transport1","Airship"));
    }
 ////////////////////////////////////////////////////////////////////////////////
 // Starships
@@ -171,13 +168,9 @@ SetLocalInt(oArea,"Transports",2);
 fPX = GetPosition(OBJECT_SELF).x;
 fPY = GetPosition(OBJECT_SELF).y;
 
-sBP = "zep_ship002";fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetPlotFlag(oPla,TRUE);SetLocalObject(oArea,"Transport",oPla);
-sBP = "pla_rope";fX = 6.0;fY = -1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = 6.0;fY = 1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = -3.0;fY = -2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_rope";fX = -3.0;fY = 2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
-sBP = "pla_ramp";fX = 0.0;fY = -2.0;fZ = 0.0;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,TRUE);SetName(oPla,"Starship");
-sBP = "pla_ramp";fX = 0.0;fY = -0.25;fZ = 4.5;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);
+sBP = "zep_ship002";fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport2");SetLocalInt(oPla,"DontSave",1);SetPlotFlag(oPla,TRUE);SetLocalObject(oArea,"Transport",oPla);EaseShipHullIn(oPla);
+DelayCommand(3.0,SpawnShipRopes(oArea,fPX,fPY,fPZ,"transport2"));
+DelayCommand(5.0,SpawnShipLadder(oArea,fPX,fPY,fPZ,"transport2","Starship"));
    }
 ////////////////////////////////////////////////////////////////////////////////
 // Destroy transports
@@ -200,13 +193,9 @@ else if(iArrival!=0)
 fPX = GetPositionFromLocation(lArrival).x;
 fPY = GetPositionFromLocation(lArrival).y;
 
-sBP = "zep_ship00"+IntToString(iArrival);fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_rope";fX = 6.0;fY = -1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_rope";fX = 6.0;fY = 1.8;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_rope";fX = -3.0;fY = -2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_rope";fX = -3.0;fY = 2.2;fZ = -5.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_ramp";fX = 0.0;fY = -2.0;fZ = 0.0;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
-sBP = "pla_ramp";fX = 0.0;fY = -0.25;fZ = 4.5;fF = 270.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);
+sBP = "zep_ship00"+IntToString(iArrival);fX = 0.0;fY = 0.0;fZ = 9.0;fF = 180.0;lLoc = Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,"transport1");SetUseableFlag(oPla,FALSE);SetLocalInt(oPla,"DontSave",1);DestroyObject(oPla,10.0);EaseShipHullIn(oPla);
+DelayCommand(3.0,SpawnShipRopes(oArea,fPX,fPY,fPZ,"transport1",10.0));
+DelayCommand(5.0,SpawnShipLadder(oArea,fPX,fPY,fPZ,"transport1","",10.0));
 
 DelayCommand(10.0,DeleteLocalInt(OBJECT_SELF,"TransArrival"));
 DelayCommand(10.0,DeleteLocalLocation(OBJECT_SELF,"TransArrivalLoc"));
