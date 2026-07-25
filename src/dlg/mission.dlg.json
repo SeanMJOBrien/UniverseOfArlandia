@@ -5413,7 +5413,7 @@
         },
         "Script": {
           "type": "resref",
-          "value": "conv_campmission_offer"
+          "value": "conv_campoffer"
         },
         "Sound": {
           "type": "resref",
@@ -5470,7 +5470,7 @@
         },
         "Script": {
           "type": "resref",
-          "value": "conv_campmission_check"
+          "value": "conv_campcheck"
         },
         "Sound": {
           "type": "resref",
