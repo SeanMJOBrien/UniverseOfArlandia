@@ -320,3 +320,32 @@ string GetCreatureFamilyForLevel(object oModule, int iTargetLevel)
     }
     return sFamily;
 }
+
+// ---------------------------------------------------------------------------
+// Rotates a 2D offset by iRotation90*90 degrees (0-3) around the origin.
+// Exact axis-swap + sign-flip - always a multiple of 90 degrees, so no trig
+// needed. Used by domains.nss to rotate a structure's per-piece local offset
+// (fX/fY, relative to its slot's pivot) when the player rotates a built
+// structure. Returned as a vector purely as a 2-float carrier - .z is unused.
+// ---------------------------------------------------------------------------
+vector RotateOffset90(float fX, float fY, int iRotation90)
+{
+    iRotation90 = ((iRotation90 % 4) + 4) % 4;
+    if (iRotation90 == 1) { return Vector(-fY, fX, 0.0); }
+    if (iRotation90 == 2) { return Vector(-fX, -fY, 0.0); }
+    if (iRotation90 == 3) { return Vector(fY, -fX, 0.0); }
+    return Vector(fX, fY, 0.0);
+}
+
+// ---------------------------------------------------------------------------
+// Rotates a facing angle (degrees) by iRotation90*90 degrees, wrapped to
+// [0,360). Companion to RotateOffset90 - same iRotation90 value rotates both
+// a piece's position and the direction it faces together.
+// ---------------------------------------------------------------------------
+float RotateFacing90(float fF, int iRotation90)
+{
+    float fResult = fF + IntToFloat(((iRotation90 % 4) + 4) % 4) * 90.0;
+    while (fResult >= 360.0) { fResult -= 360.0; }
+    while (fResult < 0.0) { fResult += 360.0; }
+    return fResult;
+}
