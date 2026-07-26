@@ -337,3 +337,49 @@ Each task below is self-contained. Fields:
   - Caveat: both `henchs.nss` action-14 call sites are explicitly gated `sBP!="adventurer"` — i.e. today that path is for the *static named* companions (hench000/001/010/020), not the random tavern-hired "adventurer" resref. First confirm in-game whether "mercenary ranger" is one of those static companions (then action 14 is the right lead) or a random tavern-hired ranger-path adventurer (then look instead at `area_tavernspawn.nss:104-121`, which unconditionally `CreateItemOnObject`s armor/weapon based on class proficiency every time it runs, and at `henchs.nss` action 13's `StoreCampaignObject` snapshot/restore path for random adventurers).
 - **constraint**: Don't guess which path applies before checking the hench's actual resref/tag in-game (`GetTag`/`GetResRef` via a DM tool, or just note whether it was hired from a tavern roster vs. a fixed-name companion list) — the fix location differs depending on the answer.
 - **verify**: Not yet planned — fill in once the responsible script is confirmed (e.g. hire the mercenary ranger, trigger whatever re-runs the equip/restore path a second time, confirm no duplicate item appears in its inventory or spills onto the PC).
+
+---
+
+### TASK-17: Rotate a domain structure in 90° increments (including sign facing) before it's built
+- **status**: todo
+- **action**: Let the player choose a 0/90/180/270 rotation for a domain structure while picking what to build into a slot, so a structure's footprint/door-side/sign-facing can be turned to fit the surrounding terrain instead of always spawning in its one hardcoded orientation. The sign must rotate with the rest of the structure (it's just another piece in the same block, so this falls out of the general fix rather than needing special-casing).
+- **files**:
+  - `src/nss/domains.nss` — every structure block (`if(iChoice3==N){...}`, ~20 of them, lines 113-1900+) builds each piece's placement the same way: local offsets `fX/fY/fZ` + facing `fF` relative to the slot's pivot (`fPX,fPY,fPZ`), then `lLoc = Location(OBJECT_SELF,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);`. Confirmed via grep that **358 of the file's ~1900 lines use that exact literal pattern**, with zero exceptions found (`grep -n 'lLoc = Location(OBJECT_SELF,Vector(' src/nss/domains.nss | grep -v 'fPX+fX,fPY+fY,fPZ+fZ),fF)'` returns nothing) — so this is a single mechanical find/replace across the whole file, not ~20 separate hand-edits, and the per-piece `fX/fY/fZ/fF` literals (e.g. the School block's sign at `fX=-1.8;fY=-6.1;fF=180.0`, `src/nss/domains.nss:1327`) stay untouched, authored in the structure's own local unrotated frame.
+  - `src/nss/_string_utils.nss` — add the rotation math as two small helpers, same file the project already centralizes string/geometry-adjacent helpers in (`Between`/`EncodedField`/etc, plus the `AreaCoord` struct added for TASK-14):
+    ```nss
+    // Rotates a 2D offset by iRotation90*90 degrees (0-3), around the origin.
+    // Exact axis-swap + sign-flip, no trig needed since it's always a multiple of 90.
+    vector RotateOffset90(float fX, float fY, int iRotation90)
+    {
+        iRotation90 = ((iRotation90 % 4) + 4) % 4;
+        if (iRotation90 == 1) { return Vector(-fY, fX, 0.0); }
+        if (iRotation90 == 2) { return Vector(-fX, -fY, 0.0); }
+        if (iRotation90 == 3) { return Vector(fY, -fX, 0.0); }
+        return Vector(fX, fY, 0.0);
+    }
+
+    // Rotates a facing angle (degrees) by iRotation90*90 degrees, wrapped to [0,360).
+    float RotateFacing90(float fF, int iRotation90)
+    {
+        float fResult = fF + IntToFloat(((iRotation90 % 4) + 4) % 4) * 90.0;
+        while (fResult >= 360.0) { fResult -= 360.0; }
+        while (fResult < 0.0) { fResult += 360.0; }
+        return fResult;
+    }
+    ```
+  - `src/nss/domains.nss` — add one wrapper that every structure block routes through instead of calling `Location()` directly:
+    ```nss
+    location DomainLoc(object oArea, float fPX, float fPY, float fPZ, float fX, float fY, float fZ, float fF, int iRot)
+    {
+        vector vOff = RotateOffset90(fX, fY, iRot);
+        return Location(oArea, Vector(fPX+vOff.x, fPY+vOff.y, fPZ+fZ), RotateFacing90(fF, iRot));
+    }
+    ```
+    then mechanically replace every `lLoc = Location(OBJECT_SELF,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);` with `lLoc = DomainLoc(OBJECT_SELF,fPX,fPY,fPZ,fX,fY,fZ,fF,iRot);` (`iRot` computed once per slot near the top of the `while(iSlot<iTot)` loop, alongside the existing `fPX/fPY` slot-pivot assignment at lines 92-101).
+  - `src/nss/conv_domain003.nss` — the "Build domain" branch (`iChoice1==1`, line 43-48) currently commits immediately: sets `Domain_Build` from `iChoice2` (slot) + `iChoice3` (structure type) and runs `domains.nss` with no preview/confirm step at all. This is where a rotation choice needs to land before commit — needs a small UI decision (see constraint below) plus reading back whatever rotation the player picked into a new persisted key before `ExecuteScript("domains",oArea)` runs.
+- **pattern**: **Persistence** — don't touch the existing `Domain_Build`/`Interests` encoded-string format (`sVarN` = `"type%level"`, parsed via 10x copy-pasted `GetStringLeft/Right/FindSubString` chains in `domains.nss:22-43` — fragile, and TASK-01 already flags it for a separate migration to `Between()`/`EncodedField()`). Add rotation as a parallel, independent persistent int instead: `SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Rot&"+IntToString(iSlot),iRotation90)`, read back in `domains.nss` as `int iRot = GetPersistentInt(oModule,sPlanet+"&"+sArea+"&Rot&"+IntToString(iSlot));` right where `fPX/fPY` get set per slot. Absent key defaults to `0` (`GetPersistentInt`'s natural default) so every already-built domain keeps its current (unrotated) orientation with no migration needed.
+- **constraint**: Needs one UX decision before implementing — how does the player actually pick the rotation? Two options, both compatible with the persistence/math design above (same `Rot` key either way):
+  1. **Pick during build** (matches "the building being built" most literally): before `conv_domain003.nss`'s `iChoice1==1` branch commits, add a rotate-preview step — a dialog node that shows the pending structure choice with a "Rotate ->" option cycling `0→90→180→270→0` (write to the `Rot` key each press) and a ghost/flag preview placeable at the current rotation, then a separate "Confirm" option that actually calls `domains.nss`. Bigger scope: new dialog node(s) in whichever `.dlg` drives this menu.
+  2. **Rotate after the fact** via the existing "Manage domain" branch (`iChoice1==2`, line 51+) — add a sub-option next to "Change domain description"/"Destroy Domain" that bumps a built slot's `Rot` key and re-triggers that slot's structure block. This needs `domains.nss` to support "destroy this slot's placeables and rebuild them at the current level" (it doesn't today — once built, re-running only ever adds level-up visual effects, never recreates geometry) but every piece already carries `SetLocalInt(oPla,"Slot",iSlot)` and `SetLocalInt(oPla,"Structure",iChoice3)` locals (set on every `CreateObject` call), so a destroy-then-rebuild-this-slot loop is a straightforward iterate-and-match over `GetFirstObjectInArea`/`GetNextObjectInArea` — same shape as `conv_domain003.nss`'s existing "Destroy Domain" iterate-and-destroy block (line 66-70), just filtered by `Slot`+`Structure` instead of `Master`.
+  Option 2 is more useful long-term (lets a player fix a mis-rotated building without demolishing and rebuilding the whole structure) but option 1 is smaller in scope and closer to a literal reading of the request. Confirm which (or both) before implementing.
+- **verify**: Not yet planned — fill in once the UX decision above is made (e.g. build/rotate a School into a slot at each of the 4 rotations and confirm the house, both doors, and the sign all rotate together and stay geometrically consistent — doors still open into the house, sign still reads facing outward — rather than just the flag/house rotating while the sign stays fixed).
