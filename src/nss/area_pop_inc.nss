@@ -34,9 +34,18 @@
 // fixed there (each population step now gets its own DelayCommand-granted
 // budget). Re-enabled on that basis; if placeables ever go missing again,
 // suspect that budget/timing path again before this static-marking call.
+// Safe to call repeatedly - always re-scans (setting an already-static/
+// already-200m placeable again is a harmless no-op) rather than early-
+// returning after the first call. A single-shot call is fine for a light
+// area (one dungeon placeable) but a heavy one (a domain's ~10 slots,
+// each several CreateObject calls) can still be mid-creation when a
+// single fixed-delay call fires, silently missing everything created
+// after it - trans_arrive.nss now calls this on every poll tick instead
+// of once, so it keeps catching newly-created placeables for as long as
+// it's polling. VisDistSet is still set on every call so
+// AreaPopIsReady() has a "ran at least once" signal.
 void AreaPopSetupPlaceables(object oArea)
 {
-    if(GetLocalInt(oArea,"VisDistSet")!=0){return;}
     SetLocalInt(oArea,"VisDistSet",1);
     object oPlaceable = GetFirstObjectInArea(oArea);
     while(GetIsObjectValid(oPlaceable))

@@ -45,14 +45,25 @@ return;
 // heavy for a large placeable-built structure (a reported symptom: an entire
 // castle silently missing - most likely this loop running out of a SHARED
 // budget partway through, with no error, just incomplete restoration). The
-// 0.1s stagger sequences the placeable pass after area_recall reliably
-// without needing an explicit "recall finished" signal (area_recall.nss has
-// none that isn't day/night-gated - see AreaPopIsReady's comment); the poll
-// loop below already waits for both regardless of exact timing.
+// first AreaPopSetupPlaceables call (0.1s) sequences the placeable pass
+// after area_recall reliably and sets VisDistSet, same timing as before -
+// the poll loop below still waits on that for when to jump the player in.
+// The three later re-scans (deliberately NOT tied to the poll/readiness
+// loop - AreaPopIsReady() would already be TRUE right after the first
+// call, so re-scanning inside that loop would never actually recur for a
+// single arriving player) are a widening safety net: a light area (one
+// dungeon placeable) finishes near-instantly, but a heavy one (a domain's
+// ~10 slots, each several CreateObject calls via domains.nss) can still be
+// mid-creation well past 0.1s or even 0.5s, silently missing static-
+// marking for anything created after whichever call ran first.
+// AreaPopSetupPlaceables is idempotent/repeat-safe, so these are cheap.
 if(AreaPopClaim(oTargetArea))
  {
 DelayCommand(0.0,ExecuteScript("area_recall",oTargetArea));
 DelayCommand(0.1,AreaPopSetupPlaceables(oTargetArea));
+DelayCommand(0.5,AreaPopSetupPlaceables(oTargetArea));
+DelayCommand(1.5,AreaPopSetupPlaceables(oTargetArea));
+DelayCommand(3.0,AreaPopSetupPlaceables(oTargetArea));
  }
 
 if((!AreaPopIsReady(oTargetArea))&&(iPoll<ARRIVE_MAX_POLLS))
