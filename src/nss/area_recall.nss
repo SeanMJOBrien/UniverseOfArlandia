@@ -295,7 +295,19 @@ DelayCommand(0.5,ExecuteScript("area_tavernspawn",OBJECT_SELF));
 }if((sPlanet!="")&&(sArea!="")&&((!GetIsAreaInterior(OBJECT_SELF))||(GetStringLeft(GetTag(OBJECT_SELF),10)=="underwater"))&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship"))
  {
 // Interests
-if(GetStringLeft(GetTag(OBJECT_SELF),4)!="city"){ExecuteScript("area_interests",OBJECT_SELF);}
+// iReady!=1 gate added - every other content-population trigger in this
+// block (commoners below, area_creatures/area_resources, dungeons further
+// down) is gated by something (day/iReady/iNight); this one wasn't,
+// so every re-entry to the same area (OnAreaEnter via area_enter.nss,
+// not just the one-time trans_arrive.nss population pass) re-ran
+// area_interests.nss - and thus domains.nss for Domain interests -
+// stacking a fresh, never-destroyed set of decoration placeables
+// (domaincontrol, structureflags, benches, etc, all DontSave=1 but never
+// explicitly cleaned up first) on top of the last set every time.
+// Confirmed via [domains] log lines firing twice for the identical
+// physical object several minutes apart with no player-visible area
+// transition in between.
+if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){ExecuteScript("area_interests",OBJECT_SELF);}
 // Cities & town commoners
 if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")&&(GetIsDay())&&((GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="a")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="b")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="c")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="d"))){i = 0;while(i<100){i++;if(Random(2)==1){s = "commoner_female";}else{s = "commoner_male";}oNew = CreateObject(OBJECT_TYPE_CREATURE,s,Location(OBJECT_SELF,Vector(IntToFloat(Random(iAreaX)),IntToFloat(Random(iAreaY)),0.0),0.0));SetLocalInt(oNew,"DontSave",1);}}
 
