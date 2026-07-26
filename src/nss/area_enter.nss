@@ -67,12 +67,25 @@ if((sPlanet!="")&&(sArea!="")&&(GetLocalInt(OBJECT_SELF,"Used")!=2)){ExecuteScri
 // Placeable view distance + static-marking (see area_pop_inc.nss for what
 // and why). This is the fallback safety net for any jump into an area that
 // doesn't route through transitions.nss (DM teleports, quest/dialogue jumps,
-// DmbClusterArrive, transitions2.nss interiors) - the normal grid-coordinate
-// path now does this BEFORE the player arrives (trans_arrive.nss), so for
-// that path this call sees VisDistSet already 1 and no-ops. Same for
-// area_recall just above when it's a daytime pass (its own "Used!=2" guard,
-// unchanged) - trans_arrive already ran it for the normal path.
-AreaPopSetupPlaceables(OBJECT_SELF);
+// DmbClusterArrive, transitions2.nss interiors, and a PC logging in directly
+// into a saved location) - the normal grid-coordinate path now does this
+// BEFORE the player arrives (trans_arrive.nss), so for that path these calls
+// see VisDistSet already 1 and no-op. Same for area_recall just above when
+// it's a daytime pass (its own "Used!=2" guard, unchanged) - trans_arrive
+// already ran it for the normal path.
+// Staggered like trans_arrive.nss's own catch-up passes, not a single
+// synchronous call, for the same reason: area_recall.nss's own
+// area_interests/dungeons triggers now run via DelayCommand(0.0,...) (fixed
+// instruction-budget truncation - domains.nss's CreateObject calls could
+// silently never run when nested in a shared budget), so a domain's
+// structures may not exist yet the instant the nested ExecuteScript above
+// returns. A single immediate scan here missed them permanently (reported:
+// a domain's structure staying non-static/flickering after logging in
+// directly into its area, with no transitions.nss pass to catch it later).
+DelayCommand(0.1,AreaPopSetupPlaceables(OBJECT_SELF));
+DelayCommand(0.5,AreaPopSetupPlaceables(OBJECT_SELF));
+DelayCommand(1.5,AreaPopSetupPlaceables(OBJECT_SELF));
+DelayCommand(3.0,AreaPopSetupPlaceables(OBJECT_SELF));
 ////////////////////////////////////////////////////////////////////////////////
 // Challenge cheat
 if(GetLocalInt(oGoldbag,"Challenge")!=0){DeleteLocalInt(oGoldbag,"Challenge");SetXP(oPC,GetXP(oPC)-iMonsterChallenge);FloatingTextStringOnCreature("-"+IntToString(iMonsterChallenge)+" xps",oPC);}
