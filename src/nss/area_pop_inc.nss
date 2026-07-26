@@ -53,6 +53,7 @@ void AreaPopSetupPlaceables(object oArea)
     if(GetObjectType(oPlaceable)==OBJECT_TYPE_PLACEABLE)
       {
     SetObjectVisibleDistance(oPlaceable,200.0);
+    if(GetResRef(oPlaceable)=="nwn2house003"){WriteTimestampedLogEntry("[area_pop_setup] obj="+ObjectToString(oPlaceable)+" tag="+GetTag(oPlaceable)+" useable="+IntToString(GetUseableFlag(oPlaceable))+" willMarkStatic="+IntToString((!GetUseableFlag(oPlaceable))&&(GetStringLeft(GetTag(oPlaceable),8)!="lamppost")));}
     if((!GetUseableFlag(oPlaceable))&&(GetStringLeft(GetTag(oPlaceable),8)!="lamppost")){NWNX_Object_SetPlaceableIsStatic(oPlaceable,TRUE);}
       }
     oPlaceable = GetNextObjectInArea(oArea);
