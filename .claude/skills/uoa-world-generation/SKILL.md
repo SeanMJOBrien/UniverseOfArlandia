@@ -174,6 +174,26 @@ python3 -c "import json; a=json.load(open('src/dlg/X.dlg.json')); b=json.load(op
 back out instead of packing to binary GFF (both files start with `{` -
 easy to miss). Use `-k gff` for JSON→GFF, `-k json -p` for GFF→JSON.
 
+### Domain structure placeables have no runtime collision
+
+`NWNX_Object_SetPlaceableIsStatic` (the call `AreaPopSetupPlaceables` uses,
+section 1 above) is a **network-optimization flag only** - fewer per-client
+position updates - confirmed via diagnostic logging to fire correctly every
+scan pass on a structure that was still walk-through-able the whole time.
+It does not grant or affect collision/walkmesh. A structure's main "house"
+placeable (e.g. `nwn2house003` for the School) ships with no `.pwk`
+(placeable-walkmesh) file - collision was meant to be baked in at toolset
+**area-compile time**, which a runtime `CreateObject()` never goes through.
+Swapping to a blueprint that *does* ship a `.pwk` (`ccp_house6`) made no
+difference either, ruling out `.pwk` presence as the deciding factor - this
+looks like a general limitation of `CreateObject()`-spawned placeables in
+this engine/HAK setup, not a per-blueprint defect. See TODO.md TASK-18 for
+the full investigation and candidate fixes (an invisible collision-blocker
+placeable of a confirmed-solid type, or switching to the tile-stamping
+approach the DM area-builder feature already uses via `settileLibrary`) -
+not yet attempted. Before spending time on another blueprint swap for a
+walk-through domain structure, read that entry first.
+
 ## 3. Monster camp / fort layout system
 
 `area_creatures.nss` (~line 850-1040), gated on the area being an exterior,
