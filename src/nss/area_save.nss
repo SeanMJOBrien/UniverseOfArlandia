@@ -238,6 +238,26 @@ DeleteLocalInt(OBJECT_SELF,"Used");
 // about to be destroyed anyway (moot at that point).
 if(GetLocalInt(OBJECT_SELF,"IsCopy")==1)
  {
+// Clear the coordinate->area cache transitions.nss reads at its "already
+// used" fast path (GetLocalObject(oModule,sPlanet+"_"+sArea)) BEFORE
+// destroying - otherwise that cache keeps pointing at this now-invalid
+// object forever. transitions.nss only clears this cache itself in one
+// narrow edge case (a freshly-created area immediately torn back down
+// because an ocean transition got blocked, iCheck==2 above) - every
+// other destroy path, including this one, left it stale. Confirmed via
+// live server logs: revisiting the same coordinate a second time was
+// silently hitting the fresh-CopyArea branch again (a log line that
+// should only ever appear on a coordinate's first visit), meaning the
+// stale cache was pointing at a destroyed object and GetIsObjectValid()
+// on it read FALSE - each revisit clones a brand new exterior instead of
+// reusing the same one. Harmless for the exterior tile's own identity
+// (pwdata-keyed Interests redecorate it identically either way), but the
+// repeated destroy/reclone leaves two independent CopyArea()s and
+// area_save.nss/trans_arrive.nss cleanup passes able to be in flight at
+// once for what the player experiences as "the same place" - a
+// contributing factor, if not the whole story, in a report of a second,
+// unrelated coordinate showing another area's already-dead creatures.
+DeleteLocalObject(oModule,sPlanet+"_"+sArea);
 DeleteLocalString(OBJECT_SELF,"Planet");
 DeleteLocalString(OBJECT_SELF,"Area");
 DeleteLocalString(OBJECT_SELF,"AreaExit");
