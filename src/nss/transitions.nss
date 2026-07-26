@@ -128,6 +128,7 @@ oTargetArea = GetObjectByTag(sNewArea+"001");
 WriteTimestampedLogEntry("[transitions] planet="+sPlanetDest+" area="+sAreaDest+" tile="+sNewArea
     +" tmpl="+GetTag(oTemplate)
     +" result="+GetTag(oTargetArea)
+    +" obj="+ObjectToString(oTargetArea)
     +" col="+GetPersistentString(oModule,sPlanetDest+"AreasX"+IntToString(iX)));
 if(GetIsObjectValid(oTargetArea))
   {

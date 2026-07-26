@@ -7,6 +7,7 @@ string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
 string sInterests = GetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests");
 string sInterest = GetStringLeft(sInterests,FindSubString(sInterests,"&1&"));
+WriteTimestampedLogEntry("[area_interests] obj="+ObjectToString(OBJECT_SELF)+" tag="+GetTag(OBJECT_SELF)+" planet="+sPlanet+" area="+sArea+" interestType="+GetStringLeft(sInterest,1));
 string sName = GetStringRight(GetStringLeft(sInterests,FindSubString(sInterests,"&2&")),GetStringLength(GetStringLeft(sInterests,FindSubString(sInterests,"&2&")))-FindSubString(sInterests,"&1&")-3);
 string sVar = GetStringRight(GetStringLeft(sInterests,FindSubString(sInterests,"&3&")),GetStringLength(GetStringLeft(sInterests,FindSubString(sInterests,"&3&")))-FindSubString(sInterests,"&2&")-3);
 string sVar11 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_11_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_11_")))-FindSubString(sVar,"_10_")-4);

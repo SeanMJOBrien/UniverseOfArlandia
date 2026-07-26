@@ -103,6 +103,7 @@ fPX = IntToFloat(iAreaX2);fPY = IntToFloat(iAreaY2);
 ////////////////////////////////////////////////////////////////////////////////
 if(iChoice3!=0)
   {
+WriteTimestampedLogEntry("[domains] obj="+ObjectToString(OBJECT_SELF)+" tag="+GetTag(OBJECT_SELF)+" planet="+sPlanet+" area="+sArea+" slot="+IntToString(iSlot)+" structure="+IntToString(iChoice3)+" level="+IntToString(iLevel)+" ini="+IntToString(iDomainIni)+" upgrade="+IntToString(iDomainUpgrade));
 ////////////////////////////////////////////////////////////////////////////////
 // Central Slot
 if(iSlot==5)
