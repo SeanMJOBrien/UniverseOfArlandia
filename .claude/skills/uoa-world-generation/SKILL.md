@@ -237,6 +237,25 @@ that before re-diagnosing one of these from scratch:
    the chain never ran - don't trust "the log looks right" as proof the
    `CreateObject` calls actually happened.
 
+   **Corollary - fixing this changes the caller's timing contract.**
+   Deferring a call with `DelayCommand(0.0,...)` means anything that used
+   to run *synchronously after* it (assuming its output already existed)
+   now races it instead. Hit this exact way: fixing `area_recall.nss`'s
+   `area_interests`/`dungeons` triggers (wrapping them in
+   `DelayCommand(0.0,...)`) broke `area_enter.nss`'s fallback population
+   path (used for DM teleports, quest jumps, and **a PC logging in
+   directly into a saved location** - anything that skips
+   `transitions.nss`), which called `area_recall.nss` synchronously then
+   immediately did one single `AreaPopSetupPlaceables()` static-marking
+   scan right after - previously safe, now a race that could permanently
+   miss a domain's freshly (but now asynchronously) created structures,
+   since login never gets `trans_arrive.nss`'s 4 staggered catch-up scans.
+   Fixed by giving `area_enter.nss` the same staggered scans. **After
+   deferring any population step, grep for every other place that reads
+   its output immediately afterward and check whether it needs the same
+   treatment** - don't assume the one call site you were debugging is the
+   only caller.
+
 ## Debugging technique
 
 - `ObjectToString(object)` in diagnostic `WriteTimestampedLogEntry` calls to
