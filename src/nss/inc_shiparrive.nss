@@ -4,24 +4,24 @@
 // boarding ladder/ramp appear afterward (staggered via DelayCommand in
 // the caller), not simultaneously with the hull's descent.
 
-// Instantly offsets oPla so it visually sits at (fStartX,fStartY,
-// fStartAltitude) - oPla's real position is already its final landing
-// spot, this is purely a client-side visual offset from that true
-// position - then eases all three axes back to 0 over fDurationSeconds,
-// i.e. the hull appears to fly in from that fixed point and settle into
-// place. Also raises view distance to 1000m.
-void EaseShipHullIn(object oPla, float fStartX=240.0, float fStartY=120.0, float fStartAltitude=200.0, float fDurationSeconds=10.0)
+// Instantly offsets oPla so it visually sits at (fStartX, its own true
+// landing Y, fStartAltitude) - oPla's real position is already its final
+// landing spot, this is purely a client-side visual offset from that true
+// position - then eases X and Z back to 0 over fDurationSeconds, i.e. the
+// hull appears to fly straight in along a fixed latitude (Y never
+// changes) and descend, rather than cutting in diagonally from a fixed
+// corner - a straight single-axis approach is far less likely to visually
+// clip through scenery between the entry point and the actual dock. Also
+// raises view distance to 1000m.
+void EaseShipHullIn(object oPla, float fStartX=240.0, float fStartAltitude=200.0, float fDurationSeconds=10.0)
 {
     if (!GetIsObjectValid(oPla)) { return; }
     vector vPos = GetPosition(oPla);
     float fOffsetX = fStartX - vPos.x;
-    float fOffsetY = fStartY - vPos.y;
     float fOffsetZ = fStartAltitude - vPos.z;
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, fOffsetX, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
-    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, fOffsetY, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fOffsetZ, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
-    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisibleDistance(oPla, 1000.0);
 }
