@@ -78,3 +78,20 @@ int AreaPopClaim(object oArea)
     SetLocalInt(oArea,"PopStarted",1);
     return TRUE;
 }
+
+// Call whenever a static/pooled area instance (transitions2.nss's shared
+// interior pool - taverns/shops/dungeons/castles/domains/camps/sewers)
+// transitions from released (Used==0) to freshly claimed by a occupant.
+// PopStarted/VisDistSet are plain locals on the area OBJECT, not scoped to
+// which logical coordinate currently owns it - without resetting them
+// here, AreaPopClaim() only ever returns TRUE once per physical object's
+// entire server-boot lifetime, so every occupant after the first-ever one
+// to claim a given shared slot would silently skip both area_recall's
+// dungeons.nss creature population and AreaPopSetupPlaceables' static-
+// marking, forever - exactly the "no creatures, not static" symptom
+// reported for a revisited d_oldcastle1_00N slot.
+void AreaPopReset(object oArea)
+{
+    DeleteLocalInt(oArea,"PopStarted");
+    DeleteLocalInt(oArea,"VisDistSet");
+}

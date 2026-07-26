@@ -154,6 +154,7 @@ sTargetArea = sNewArea+sAreaNumber;oTargetArea = GetObjectByTag(sTargetArea);
 if((GetIsObjectValid(oTargetArea))&&(GetLocalInt(oTargetArea,"Used")<1))
     {
 SetLocalInt(oTargetArea,"Used",1);
+AreaPopReset(oTargetArea);
 SetLocalString(oModule,sPlanet+"_"+sArea+"&"+sX+sY,sTargetArea);
 SetLocalFloat(oModule,sPlanet+"_"+sArea+"_IntX",fX);
 SetLocalFloat(oModule,sPlanet+"_"+sArea+"_IntY",fY);
@@ -325,6 +326,7 @@ sTargetArea = sNewArea+sAreaNumber;oTargetArea = GetObjectByTag(sTargetArea);
 if((GetIsObjectValid(oTargetArea))&&(GetLocalInt(oTargetArea,"Used")<1))
     {
 SetLocalInt(oTargetArea,"Used",1);
+AreaPopReset(oTargetArea);
 SetLocalString(oModule,sPlanet+"_"+sArea+"_Sewer",sTargetArea);
 SetLocalString(oTargetArea,"Planet",sPlanet);
 SetLocalString(oTargetArea,"Area",sArea+"_Sewer");
@@ -375,6 +377,7 @@ sTargetArea = sNewArea+sAreaNumber;oTargetArea = GetObjectByTag(sTargetArea);
 if((GetIsObjectValid(oTargetArea))&&(GetLocalInt(oTargetArea,"Used")<1))
     {
 SetLocalInt(oTargetArea,"Used",1);
+AreaPopReset(oTargetArea);
 SetLocalString(oModule,sPlanet+"_"+sArea,sTargetArea);
 SetLocalString(oTargetArea,"Planet",sPlanet);
 SetLocalString(oTargetArea,"Area",sArea);
