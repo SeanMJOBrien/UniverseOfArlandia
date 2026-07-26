@@ -10,11 +10,19 @@
 // raises view distance to 200m (matches area_pop_inc.nss's static-scenery
 // value; ship placeables aren't covered by that pass since they're
 // spawned dynamically here, not part of an area's pre-placed content).
+//
+// TEMPORARILY DISABLED (2026-07-25): reports of the ship not appearing at
+// all after this went live. Root cause not yet confirmed - suspects are
+// either a sign/axis assumption error (TRANSLATE_Z positive might not
+// mean "up" the way this assumed) or the two SetObjectVisualTransform
+// calls firing in the same script tick not behaving as documented. Keep
+// only the visibility-distance bump (safe, unrelated) until this is
+// verified in-game in isolation before re-enabling the transform.
 void EaseShipHullIn(object oPla, float fDescentMeters=20.0, float fDurationSeconds=3.0)
 {
     if (!GetIsObjectValid(oPla)) { return; }
-    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fDescentMeters, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
-    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
+    //SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fDescentMeters, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
+    //SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisibleDistance(oPla, 200.0);
 }
 
