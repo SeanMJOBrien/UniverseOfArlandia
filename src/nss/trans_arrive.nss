@@ -39,6 +39,12 @@ DeleteLocalInt(oPC,"ArrivePoll");
 return;
  }
 
+WriteTimestampedLogEntry("[trans_arrive] obj="+ObjectToString(oTargetArea)+" tag="+GetTag(oTargetArea)
+    +" poll="+IntToString(iPoll)
+    +" popStarted="+IntToString(GetLocalInt(oTargetArea,"PopStarted"))
+    +" visDistSet="+IntToString(GetLocalInt(oTargetArea,"VisDistSet"))
+    +" ready="+IntToString(AreaPopIsReady(oTargetArea)));
+
 // Each population step gets its OWN DelayCommand-granted instruction budget,
 // not a nested ExecuteScript sharing this script's - area_recall.nss's
 // object-restore loop recreates every saved object one by one and can be

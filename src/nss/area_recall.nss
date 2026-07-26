@@ -319,7 +319,7 @@ DelayCommand(0.5,ExecuteScript("area_tavernspawn",OBJECT_SELF));
 // log showing domains.nss reached the right slot/level. DelayCommand(0.0,
 // ...) is enough to get a fresh budget, per the same pattern trans_arrive.nss
 // already uses for area_recall.nss itself.
-if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){DelayCommand(0.0,ExecuteScript("area_interests",OBJECT_SELF));}
+if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){WriteTimestampedLogEntry("[area_recall] scheduling area_interests obj="+ObjectToString(OBJECT_SELF)+" tag="+GetTag(OBJECT_SELF)+" iReady="+IntToString(iReady));DelayCommand(0.0,ExecuteScript("area_interests",OBJECT_SELF));}
 // Cities & town commoners
 if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")&&(GetIsDay())&&((GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="a")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="b")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="c")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="d"))){i = 0;while(i<100){i++;if(Random(2)==1){s = "commoner_female";}else{s = "commoner_male";}oNew = CreateObject(OBJECT_TYPE_CREATURE,s,Location(OBJECT_SELF,Vector(IntToFloat(Random(iAreaX)),IntToFloat(Random(iAreaY)),0.0),0.0));SetLocalInt(oNew,"DontSave",1);}}
 
