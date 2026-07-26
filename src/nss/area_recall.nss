@@ -307,7 +307,19 @@ DelayCommand(0.5,ExecuteScript("area_tavernspawn",OBJECT_SELF));
 // Confirmed via [domains] log lines firing twice for the identical
 // physical object several minutes apart with no player-visible area
 // transition in between.
-if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){ExecuteScript("area_interests",OBJECT_SELF);}
+// DelayCommand(0.0,...) instead of a bare nested ExecuteScript, same fix
+// as area_tavernspawn above and for the same reason: area_interests.nss
+// -> domains.nss can walk up to 10 domain slots, each several CreateObject
+// calls (structureflag, house, 2 doors, sign) - a nested call shares THIS
+// script's own instruction budget (already spent on everything above),
+// so a domain with several built-up slots could silently run out of budget
+// partway through and leave some/all structures never created, with no
+// error and a [domains] log line that already printed before the cutoff -
+// exactly matching a report of a domain's buildings missing despite the
+// log showing domains.nss reached the right slot/level. DelayCommand(0.0,
+// ...) is enough to get a fresh budget, per the same pattern trans_arrive.nss
+// already uses for area_recall.nss itself.
+if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){DelayCommand(0.0,ExecuteScript("area_interests",OBJECT_SELF));}
 // Cities & town commoners
 if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")&&(GetIsDay())&&((GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="a")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="b")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="c")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="d"))){i = 0;while(i<100){i++;if(Random(2)==1){s = "commoner_female";}else{s = "commoner_male";}oNew = CreateObject(OBJECT_TYPE_CREATURE,s,Location(OBJECT_SELF,Vector(IntToFloat(Random(iAreaX)),IntToFloat(Random(iAreaY)),0.0),0.0));SetLocalInt(oNew,"DontSave",1);}}
 
@@ -320,7 +332,10 @@ ExecuteScript("area_resources",OBJECT_SELF);
   }
  }
 // Dungeons ext & int
-if(((GetStringLeft(GetTag(OBJECT_SELF),2)=="d_")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="h_castle")||(GetStringLeft(GetTag(OBJECT_SELF),7)=="h_tower")||(GetStringLeft(sInterests,1)=="2"))&&(iReady!=1)&&(iNight==0)){ExecuteScript("dungeons",OBJECT_SELF);}
+// DelayCommand(0.0,...) for the same reason as the area_interests call
+// above: dungeons.nss populates a castle/dungeon's full creature+placeable
+// set and a nested ExecuteScript would share this script's own budget.
+if(((GetStringLeft(GetTag(OBJECT_SELF),2)=="d_")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="h_castle")||(GetStringLeft(GetTag(OBJECT_SELF),7)=="h_tower")||(GetStringLeft(sInterests,1)=="2"))&&(iReady!=1)&&(iNight==0)){DelayCommand(0.0,ExecuteScript("dungeons",OBJECT_SELF));}
 // Ruins int
 if((GetStringLeft(GetTag(OBJECT_SELF),8)=="h_ruins_")&&(iReady!=1)&&(iNight==0)){i = Random(5);while(i>0){i--;oNew = CreateObject(OBJECT_TYPE_CREATURE,"nw_spectre",Location(OBJECT_SELF,Vector(IntToFloat(Random(iAreaX)),IntToFloat(Random(iAreaY)),0.0),0.0));}}
 // Resource mountain int
