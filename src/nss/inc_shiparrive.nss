@@ -4,24 +4,26 @@
 // boarding ladder/ramp appear afterward (staggered via DelayCommand in
 // the caller), not simultaneously with the hull's descent.
 
-// Instantly offsets oPla 20m up (visual only - oPla's real position is
-// already its final landing spot) then eases that offset back to 0 over
-// fDurationSeconds, i.e. the hull appears to descend into place. Also
-// raises view distance to 200m (matches area_pop_inc.nss's static-scenery
-// value; ship placeables aren't covered by that pass since they're
-// spawned dynamically here, not part of an area's pre-placed content).
-//
-// Re-enabled 2026-07-25: was briefly disabled on a false suspicion after
-// "ship not appearing at all" reports - root cause turned out to be an
-// unrelated deploy-pipeline gap (build_deploy.sh vs. a stale local-only
-// build), confirmed once that was fixed and the ship reappeared with this
-// code still commented out. Untested until now, so watch for it in-game.
-void EaseShipHullIn(object oPla, float fDescentMeters=20.0, float fDurationSeconds=3.0)
+// Instantly offsets oPla so it visually sits at (fStartX,fStartY,
+// fStartAltitude) - oPla's real position is already its final landing
+// spot, this is purely a client-side visual offset from that true
+// position - then eases all three axes back to 0 over fDurationSeconds,
+// i.e. the hull appears to fly in from that fixed point and settle into
+// place. Also raises view distance to 1000m.
+void EaseShipHullIn(object oPla, float fStartX=240.0, float fStartY=120.0, float fStartAltitude=200.0, float fDurationSeconds=10.0)
 {
     if (!GetIsObjectValid(oPla)) { return; }
-    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fDescentMeters, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
+    vector vPos = GetPosition(oPla);
+    float fOffsetX = fStartX - vPos.x;
+    float fOffsetY = fStartY - vPos.y;
+    float fOffsetZ = fStartAltitude - vPos.z;
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, fOffsetX, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, fOffsetY, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fOffsetZ, OBJECT_VISUAL_TRANSFORM_LERP_NONE);
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
-    SetObjectVisibleDistance(oPla, 200.0);
+    SetObjectVisibleDistance(oPla, 1000.0);
 }
 
 // Spawns the 4 mooring-rope pieces at the given ship anchor (fPX,fPY,fPZ -
@@ -34,10 +36,10 @@ void SpawnShipRopes(object oArea, float fPX, float fPY, float fPZ, string sTagSu
     string sBP = "pla_rope";
     float fX;float fY;float fZ;float fF;location lLoc;object oPla;
 
-    fX=6.0;fY=-1.8;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,200.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
-    fX=6.0;fY=1.8;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,200.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
-    fX=-3.0;fY=-2.2;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,200.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
-    fX=-3.0;fY=2.2;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,200.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
+    fX=6.0;fY=-1.8;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,1000.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
+    fX=6.0;fY=1.8;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,1000.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
+    fX=-3.0;fY=-2.2;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,1000.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
+    fX=-3.0;fY=2.2;fZ=-5.0;fF=180.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,1000.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
 }
 
 // Spawns the 2 ramp/ladder pieces. sShipName!="" marks the first piece
@@ -50,9 +52,9 @@ void SpawnShipLadder(object oArea, float fPX, float fPY, float fPZ, string sTagS
     string sBP = "pla_ramp";
     float fX;float fY;float fZ;float fF;location lLoc;object oPla;
 
-    fX=0.0;fY=-2.0;fZ=0.0;fF=270.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetObjectVisibleDistance(oPla,200.0);
+    fX=0.0;fY=-2.0;fZ=0.0;fF=270.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetObjectVisibleDistance(oPla,1000.0);
     if(sShipName!=""){SetUseableFlag(oPla,TRUE);SetName(oPla,sShipName);}else{SetUseableFlag(oPla,FALSE);}
     if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
 
-    fX=0.0;fY=-0.25;fZ=4.5;fF=270.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,200.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
+    fX=0.0;fY=-0.25;fZ=4.5;fF=270.0;lLoc=Location(oArea,Vector(fPX+fX,fPY+fY,fPZ+fZ),fF);oPla=CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc,FALSE,sTagSuffix);SetLocalInt(oPla,"DontSave",1);SetUseableFlag(oPla,FALSE);SetObjectVisibleDistance(oPla,1000.0);if(fDestroyDelay>0.0){DestroyObject(oPla,fDestroyDelay);}
 }
