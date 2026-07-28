@@ -380,6 +380,23 @@ void ForceAreaRefresh(object oPC)
 // structure they want to rotate). Requires the caller to #include
 // "aps_include" BEFORE #include "_string_utils" (for SetPersistentInt/
 // GetPersistentString), matching domains.nss's own include order.
+//
+// Does the minimum possible work itself (persist the Rot value, stash what
+// domain_rot_apply.nss needs as locals on oArea) then hands off via
+// DelayCommand(0.0,...) - this script's OBJECT_SELF is oFlag itself (it's
+// the flag's own dialog action), and the actual destroy+rebuild step needs
+// to destroy that same flag as part of clearing the slot's old pieces.
+// Tried destroying it directly here first (confirmed via [domain_rot]
+// logging: silently terminated the rest of THIS script's execution,
+// including every DelayCommand scheduled after it - domains.nss's rebuild
+// and the client refresh both never fired). Deferring the destroy via its
+// own DelayCommand(0.0,...) from here didn't help either - NWN appears to
+// tie every DelayCommand from one script instance to that instance's
+// originating object, and destroying that object (oFlag) cancels its
+// siblings regardless of what those siblings' own target objects are.
+// domain_rot_apply.nss runs as a fresh ExecuteScript with OBJECT_SELF=oArea
+// instead - oArea is never destroyed by the destroy loop (only objects
+// *inside* it are), so its own DelayCommands aren't at risk the same way.
 // ---------------------------------------------------------------------------
 void DomainSetRotation(object oFlag, object oPC, int iRot)
 {
@@ -396,46 +413,9 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
 
     SetPersistentInt(oModule, sPlanet + "&" + sArea + "&Rot&" + IntToString(iSlot), iRot);
 
-    // Destroy this slot's existing pieces (matched on Slot+Master) before
-    // rebuilding - otherwise domains.nss would stack a second, differently-
-    // rotated copy on top instead of replacing it. oFlag itself is
-    // DELIBERATELY skipped here and destroyed separately, deferred to the
-    // end of this function via DelayCommand(0.0,...): destroying OBJECT_SELF
-    // (oFlag is what this script is running on - it's the structureflag's
-    // own dialog action) partway through this function was silently
-    // terminating the rest of the script's execution, including every
-    // DelayCommand scheduled after it - domains.nss's rebuild and the
-    // client-refresh jump both never fired, confirmed via [domain_rot]
-    // logging showing this function starting but nothing after the destroy
-    // loop ever ran. domains.nss's own rebuild recreates a fresh
-    // structureflag anyway, so the old one still needs to go - just not
-    // synchronously, mid-script, on itself.
-    object oNext;
-    object oPiece = GetFirstObjectInArea(oArea);
-    while (GetIsObjectValid(oPiece))
-    {
-        oNext = GetNextObjectInArea(oArea);
-        if ((oPiece != oFlag) && (GetLocalInt(oPiece, "Slot") == iSlot) && (GetLocalString(oPiece, "Master") == sMaster)) { DestroyObject(oPiece); }
-        oPiece = oNext;
-    }
-
-    // Rebuild via the same single-slot loop entry point Build already uses
-    // (domains.nss's iChoice2!=0 case) with Domain_Ini=1 so it takes the
-    // "just re-render existing state" path instead of the interactive
-    // purchase/payment path.
-    SetLocalString(oArea, "Domain_Build", IntToString(iSlot) + "_+_" + IntToString(iStructure));
-    SetLocalInt(oArea, "Domain_Ini", 1);
-    SetLocalObject(oArea, "PC", oPC);
-    DelayCommand(0.1, ExecuteScript("domains", oArea));
-    FloatingTextStringOnCreature("Structure rotated", oPC);
-    DelayCommand(0.0, DestroyObject(oFlag));
-
-    // The rebuilt pieces can stay showing their old orientation to oPC
-    // specifically (they were already standing nearby, not freshly arriving)
-    // until they leave and re-enter the area - the client doesn't reliably
-    // redraw objects marked static (area_pop_inc.nss's
-    // NWNX_Object_SetPlaceableIsStatic, see TASK-18) after an ad-hoc runtime
-    // destroy+recreate cycle like this one. 0.5s gives the 0.1s-delayed
-    // rebuild above time to finish before the refresh jump fires.
-    DelayCommand(0.5, ForceAreaRefresh(oPC));
+    SetLocalInt(oArea, "RotApplySlot", iSlot);
+    SetLocalInt(oArea, "RotApplyStructure", iStructure);
+    SetLocalString(oArea, "RotApplyMaster", sMaster);
+    SetLocalObject(oArea, "RotApplyPC", oPC);
+    DelayCommand(0.0, ExecuteScript("domain_rot_apply", oArea));
 }
