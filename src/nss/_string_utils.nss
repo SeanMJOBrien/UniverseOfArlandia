@@ -349,3 +349,51 @@ float RotateFacing90(float fF, int iRotation90)
     while (fResult < 0.0) { fResult += 360.0; }
     return fResult;
 }
+
+// ---------------------------------------------------------------------------
+// Rotates an already-built domain structure to an ABSOLUTE facing (iRot 0-3,
+// see RotateOffset90/RotateFacing90 above) rather than incrementing from
+// whatever it's currently at - used by the domain_rot_n/s/e/w.nss compass
+// replies. oFlag is the structure's own flag/signpost placeable (carries
+// Slot/Structure/Master locals set by domains.nss at CreateObject time, so
+// no slot-picker is needed - the player is already standing at the specific
+// structure they want to rotate). Requires the caller to #include
+// "aps_include" BEFORE #include "_string_utils" (for SetPersistentInt/
+// GetPersistentString), matching domains.nss's own include order.
+// ---------------------------------------------------------------------------
+void DomainSetRotation(object oFlag, object oPC, int iRot)
+{
+    object oModule = GetModule();
+    object oArea = GetArea(oFlag);
+    string sPlanet = GetLocalString(oArea, "Planet");
+    string sArea = GetLocalString(oArea, "Area");
+    int iSlot = GetLocalInt(oFlag, "Slot");
+    int iStructure = GetLocalInt(oFlag, "Structure");
+    string sMaster = GetLocalString(oFlag, "Master");
+
+    if ((iSlot == 0) || (iStructure == 0)) { return; }
+
+    SetPersistentInt(oModule, sPlanet + "&" + sArea + "&Rot&" + IntToString(iSlot), iRot);
+
+    // Destroy this slot's existing pieces (matched on Slot+Master) before
+    // rebuilding - otherwise domains.nss would stack a second, differently-
+    // rotated copy on top instead of replacing it.
+    object oNext;
+    object oPiece = GetFirstObjectInArea(oArea);
+    while (GetIsObjectValid(oPiece))
+    {
+        oNext = GetNextObjectInArea(oArea);
+        if ((GetLocalInt(oPiece, "Slot") == iSlot) && (GetLocalString(oPiece, "Master") == sMaster)) { DestroyObject(oPiece); }
+        oPiece = oNext;
+    }
+
+    // Rebuild via the same single-slot loop entry point Build already uses
+    // (domains.nss's iChoice2!=0 case) with Domain_Ini=1 so it takes the
+    // "just re-render existing state" path instead of the interactive
+    // purchase/payment path.
+    SetLocalString(oArea, "Domain_Build", IntToString(iSlot) + "_+_" + IntToString(iStructure));
+    SetLocalInt(oArea, "Domain_Ini", 1);
+    SetLocalObject(oArea, "PC", oPC);
+    DelayCommand(0.1, ExecuteScript("domains", oArea));
+    FloatingTextStringOnCreature("Structure rotated", oPC);
+}
