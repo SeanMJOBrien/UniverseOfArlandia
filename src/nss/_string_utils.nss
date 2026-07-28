@@ -366,21 +366,31 @@ void DomainReturnTrip(object oPC, string sPlanet, string sArea, float fX, float 
     ExecuteScript("transitions", oPC);
 }
 
+// Away-trip destination for DomainTravelRefresh below - a fixed, known-safe
+// coordinate rather than a computed neighbor tile. An adjacent tile was
+// tried first and confirmed unsafe in practice: it can be a monster camp
+// (area_creatures.nss populates exterior tiles with hostile camps somewhat
+// often - see the uoa-world-generation skill - and there's no way to know
+// a neighbor's roll without already having visited it). Planet "Sand",
+// area "0_0" was confirmed by the user to be safe.
+const string DOMAIN_REFRESH_AWAY_PLANET = "Sand";
+const string DOMAIN_REFRESH_AWAY_AREA = "0_0";
+
 // Forces a genuinely fresh rebuild of oPC's current domain coordinate by
-// sending them one tile away and straight back through the real travel
-// system (transitions.nss), instead of an ad-hoc in-place destroy+rebuild
-// or client-side area-jump trick (both tried first - see TASK-17 in
-// TODO.md for the full history of why neither worked). A domain's area is
-// a per-coordinate CopyArea() clone (TASK-22): leaving it empties it,
-// area_exit.nss's normal cleanup destroys the clone ~0.3s later, and the
-// next visit to that coordinate creates a genuinely fresh clone, fully
-// repopulated by area_recall.nss/domains.nss from whatever's currently
-// persisted (Interests + each slot's Rot value) - clearing up any stale/
-// duplicated pieces along with the old clone, not just the one slot that
-// changed. transitions.nss resolves its destination from the PLANET+AREA
-// COORDINATE STRINGS every time, not a captured object/location reference,
-// so it doesn't matter that the original clone is gone by the time the
-// return trip runs.
+// sending them to the fixed safe coordinate above and straight back through
+// the real travel system (transitions.nss), instead of an ad-hoc in-place
+// destroy+rebuild or client-side area-jump trick (both tried first - see
+// TASK-17 in TODO.md for the full history of why neither worked). A
+// domain's area is a per-coordinate CopyArea() clone (TASK-22): leaving it
+// empties it, area_exit.nss's normal cleanup destroys the clone ~0.3s
+// later, and the next visit to that coordinate creates a genuinely fresh
+// clone, fully repopulated by area_recall.nss/domains.nss from whatever's
+// currently persisted (Interests + each slot's Rot value) - clearing up
+// any stale/duplicated pieces along with the old clone, not just the one
+// slot that changed. transitions.nss resolves its destination from the
+// PLANET+AREA COORDINATE STRINGS every time, not a captured object/
+// location reference, so it doesn't matter that the original clone is gone
+// by the time the return trip runs.
 //
 // The return trip MUST be scheduled via AssignCommand(oPC,DelayCommand(...))
 // rather than a bare DelayCommand(...) - the same class of bug hit twice
@@ -393,14 +403,12 @@ void DomainReturnTrip(object oPC, string sPlanet, string sArea, float fX, float 
 // trip) or its flag, a bare DelayCommand here would be at the same risk.
 void DomainTravelRefresh(object oPC, string sPlanet, string sArea)
 {
-    struct AreaCoord coord = ParseAreaCoord(sArea);
-    string sAwayArea = FormatAreaCoord(coord.X + 1, coord.Y);
     float fX = GetPosition(oPC).x;
     float fY = GetPosition(oPC).y;
     float fFacing = GetFacing(oPC);
 
-    SetLocalString(oPC, "PlanetDest", sPlanet);
-    SetLocalString(oPC, "AreaDest", sAwayArea);
+    SetLocalString(oPC, "PlanetDest", DOMAIN_REFRESH_AWAY_PLANET);
+    SetLocalString(oPC, "AreaDest", DOMAIN_REFRESH_AWAY_AREA);
     SetLocalFloat(oPC, "fX", 100.0);
     SetLocalFloat(oPC, "fY", 100.0);
     SetLocalFloat(oPC, "fFacing", 0.0);
