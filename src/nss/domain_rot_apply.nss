@@ -44,12 +44,22 @@ void main()
     DelayCommand(0.1, ExecuteScript("domains", oArea));
     FloatingTextStringOnCreature("Structure rotated", oPC);
 
-    // The rebuilt pieces can stay showing their old orientation to oPC
-    // specifically (they were already standing nearby, not freshly arriving)
-    // until they leave and re-enter the area - the client doesn't reliably
-    // redraw objects marked static (area_pop_inc.nss's
-    // NWNX_Object_SetPlaceableIsStatic, see TASK-18) after an ad-hoc runtime
-    // destroy+recreate cycle like this one. 0.5s gives the 0.1s-delayed
-    // rebuild above time to finish before the refresh jump fires.
-    DelayCommand(0.5, ForceAreaRefresh(oPC));
+    // NOT calling ForceAreaRefresh(oPC) here (see _string_utils.nss) - the
+    // jump-out-and-back trick fundamentally can't work for a domain area,
+    // since a domain's area is a per-coordinate CopyArea() clone (TASK-22)
+    // and the player rotating a solo structure is typically alone in it:
+    // the jump-out empties the area, area_exit.nss schedules area_save.nss
+    // 0.3s later, which destroys such clones - so the captured "jump back
+    // here" location's own area is gone by the time the jump-back tries to
+    // use it, no matter how carefully the jump-back itself is scheduled
+    // (confirmed by testing - fixing the scheduling just moved the failure
+    // from "cancelled" to "target location invalid", never actually
+    // returning the player). Now that domain_rot_apply.nss's rebuild
+    // itself works correctly (this was blocked entirely before by the
+    // self-destruction bug fixed above - every earlier test of this
+    // feature likely never got this far), the original "stays showing the
+    // old orientation" symptom may simply have been a side effect of the
+    // rebuild silently never running at all, not a real client-side
+    // static-object rendering quirk - worth confirming before reintroducing
+    // any area-transition trick for this.
 }

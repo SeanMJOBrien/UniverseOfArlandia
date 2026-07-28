@@ -350,6 +350,15 @@ float RotateFacing90(float fF, int iRotation90)
     return fResult;
 }
 
+// CURRENTLY UNUSED (domain_rot_apply.nss no longer calls this - see the
+// comment there) - kept in case a real client-side static-object rendering
+// issue turns out to still exist once domain_rot_apply.nss's rebuild itself
+// is confirmed working; don't reuse this as-is for a domain area without
+// first protecting the area from area_exit.nss's empty-area destroy (e.g. a
+// "don't destroy me, refresh in progress" flag it checks), since jumping a
+// solo player out of their own per-coordinate clone destroys it before the
+// jump-back's destination location is even used.
+//
 // Forces oPC's client to fully reload/redraw its current area by jumping out
 // to "_construction" (a permanent, always-empty utility area - confirmed via
 // grep to have no special-case handling anywhere, unlike e.g.
