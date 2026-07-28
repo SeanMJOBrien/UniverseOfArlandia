@@ -115,7 +115,15 @@ else if(sNewArea=="23"){sNewArea = "test";}
 ////////////////////////////////////////////////////////////////////////////////
 // Clone template area for this coordinate, or use static area if no template exists
 if(sNewAreaSpecial!=""){sAreaDest = sAreaDest+"_Ship";}
-object oTemplate = GetObjectByTag(sNewArea+"000");
+// Cached at boot (area_tmpl_boot.nss), not a live GetObjectByTag() - every
+// CopyArea() clone below keeps its source's exact tag forever, so once a
+// clone of this same tile type is alive, GetObjectByTag(sNewArea+"000")
+// can resolve to that live populated clone instead of the true master,
+// duplicating its content onto a brand new, unrelated coordinate. Falls
+// back to the live lookup only if a template wasn't cached at boot (e.g.
+// one added without a server restart since).
+object oTemplate = GetLocalObject(oModule,"AreaTemplate_"+sNewArea+"000");
+if(!GetIsObjectValid(oTemplate)){oTemplate = GetObjectByTag(sNewArea+"000");}
 if(GetIsObjectValid(oTemplate))
  {
 oTargetArea = CopyArea(oTemplate);

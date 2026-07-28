@@ -63,6 +63,10 @@ ExecuteScript("sound_ini",oModule);
 // Website
 while(iPlayers>0){DeletePersistentVariable(oModule,"Player"+IntToString(iPlayers));iPlayers--;}DeletePersistentVariable(oModule,"Players");
 ////////////////////////////////////////////////////////////////////////////////
+// Area clone-source templates (must run before any player can log in and
+// trigger transitions.nss's first CopyArea() - see area_tmpl_boot.nss)
+ExecuteScript("area_tmpl_boot",oModule);
+////////////////////////////////////////////////////////////////////////////////
 // Universe
 ExecuteScript("_galaxy",oModule);
 ////////////////////////////////////////////////////////////////////////////////

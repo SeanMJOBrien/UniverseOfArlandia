@@ -412,3 +412,27 @@ Each task below is self-contained. Fields:
 - **fix**: added `||(GetLevelByClass(CLASS_TYPE_DRUID,...)>0)` to the two `cond_hench01[9,0]` gates and to the `mod_levelup.nss`/`mod_enter.nss` grant conditions; `conv_hench023.nss` and `mod_levelup.nss`'s tiering now use `max(rangerLevel, druidLevel)` instead of ranger level alone, so multiclassing between the two doesn't stack tiers. All 5 changed scripts (`cond_hench019.nss`, `cond_hench020.nss`, `conv_hench023.nss`, `mod_levelup.nss`, `mod_enter.nss`) compile clean.
 - **deliberately left alone**: `mod_enter.nss:121`'s "Leader" talent (also Ranger-only) — not part of what was reported, out of scope.
 - **verify**: hire/level a Druid henchman to ranger-equivalent tiers and confirm both dialog replies appear and work the same as for a Ranger hench; log in as a fresh Druid PC and confirm the goldbag `Cartographer` flag is granted and the coordinates item-use works at the same area-type tiers a Ranger of the same level gets.
+
+---
+
+### TASK-20: List what interests are built inside a domain
+- **status**: todo — not yet investigated
+- **action**: Add a way to list/display which interests (structures) are currently built in a domain, and at what slot/level. Not yet decided whether this is a dialog option (e.g. on `domaincontrol`), a DM tool report, or both.
+- **files**: likely `src/nss/domains.nss` (the persisted `Interests` string parsing at the top of the file is the source of truth for slot/type/level - see the `sVar1..sVar10`/`sVar1L..sVar10R` decode block) and `src/dlg/domain.dlg.json` for a new dialog entry if that's the chosen surface.
+- **verify**: not yet planned.
+
+### TASK-21: Show terrain type on mouse-hover over an area tile
+- **status**: todo — not yet investigated
+- **action**: Display the terrain type of an area tile when the mouse hovers over it. Not yet confirmed whether this means the NWN:EE toolset/client (out of this codebase's control), an in-game UI (minimap/world map), or the DM area-builder / web-editor tooling in this repo.
+- **files**: unconfirmed - check the DM area-builder feature (`dmb_inc.nss`, cluster tile data model - see the `uoa-world-generation` skill) and `scripts/nwn_web_editor.py` (`nwn-web-editor` skill) as the two most likely places a custom hover UI could live, if this isn't actually a base NWN:EE client feature request.
+- **verify**: not yet planned.
+
+---
+
+### TASK-22: A world tile's clone-source template can resolve to the wrong live object, duplicating a domain's content onto an unrelated coordinate
+- **status**: fix applied, not yet deployed
+- **symptom**: Findell's domain (School etc.) appeared duplicated at `m1_0`, an adjacent tile with zero persisted domain data of its own (`SELECT ... FROM pwdata WHERE name LIKE '%m1_0%'` returns nothing) - confirmed not a data problem. Clicking the duplicated School's door gave "no area available" (the interior pool claim doesn't recognize a domain instance under the wrong coordinate).
+- **root cause**: `transitions.nss` resolves a fresh tile's clone source via `GetObjectByTag(sNewArea+"000")` (e.g. `"rural000"`) on every single visit. `CopyArea()` clones keep their source's exact Tag forever - confirmed via the `[transitions]` log line, every rural-tile clone anywhere in the game reports `tag=rural000`, identical to the master template's own tag, with nothing ever renaming it. The moment a clone of that same tile type is alive (e.g. a domain's coordinate, actively occupied) at the instant a *different* coordinate's `CopyArea()` request comes in, `GetObjectByTag("rural000")` can resolve to that live, already-populated clone instead of the true empty master - so the new clone silently inherits a full copy of whatever the wrong "template" already contained. Timeline evidence: this was very likely triggered by TASK-18's verification testing, which kept repeatedly recreating a fully-built `rural000`-tagged `m2_0` clone right as the player walked to the adjacent `m1_0` tile ~2 minutes later.
+- **fix**: new `area_tmpl_boot.nss`, run once from `mod_load.nss` before any player can log in (so no clone can possibly exist yet) - walks `GetFirstArea()`/`GetNextArea()` and caches every `"<type>000"`-tagged area's object reference as `GetLocalObject(oModule,"AreaTemplate_"+tag)`. `transitions.nss` now reads that cache first and only falls back to a live `GetObjectByTag()` if a template wasn't cached at boot. All 3 files (`area_tmpl_boot.nss`, `mod_load.nss`, `transitions.nss`) compile clean.
+- **not yet done**: this only prevents *future* mis-clones - it doesn't retroactively clean up `m1_0`'s already-duplicated live clone. That clone should self-heal once vacated (`area_save.nss`'s `IsCopy==1` destroy path), same as any other per-coordinate clone; no manual DB cleanup needed since `m1_0` never had any persisted data to begin with.
+- **verify**: after deploying, have a player linger in a populated domain coordinate (occupying its clone) while a second player/DM visits a fresh, never-before-visited adjacent tile of the same terrain type at the same moment - confirm the new tile comes up empty rather than duplicating the domain's structures. Also confirm `m1_0` comes up clean once its current stray clone is naturally destroyed and recreated.
