@@ -7,15 +7,18 @@ object oArea = GetArea(oPC);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
 int iRanger = GetLevelByClass(CLASS_TYPE_RANGER,OBJECT_SELF);
+int iDruid = GetLevelByClass(CLASS_TYPE_DRUID,OBJECT_SELF);
+int iCartoLevel = iRanger;if(iDruid>iCartoLevel){iCartoLevel = iDruid;}
 int iCartographer;
 ////////////////////////////////////////////////////////////////////////////////
-// Same tiering as the ranger "Cartographer" talent (mod_levelup.nss), but read
-// off the henchman's own ranger level instead of the PC's goldbag flag.
-     if(iRanger>=9){iCartographer = 5;}
-else if(iRanger>=7){iCartographer = 4;}
-else if(iRanger>=5){iCartographer = 3;}
-else if(iRanger>=3){iCartographer = 2;}
-else if(iRanger>=1){iCartographer = 1;}
+// Same tiering as the ranger/druid "Cartographer" talent (mod_levelup.nss), but
+// read off the henchman's own ranger/druid level (whichever is higher, so
+// multiclassing between the two doesn't stack) instead of the PC's goldbag flag.
+     if(iCartoLevel>=9){iCartographer = 5;}
+else if(iCartoLevel>=7){iCartographer = 4;}
+else if(iCartoLevel>=5){iCartographer = 3;}
+else if(iCartoLevel>=3){iCartographer = 2;}
+else if(iCartoLevel>=1){iCartographer = 1;}
 ////////////////////////////////////////////////////////////////////////////////
 if(GetStringLeft(GetTag(oArea),6)=="clouds")
  {

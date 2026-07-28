@@ -400,3 +400,15 @@ Each task below is self-contained. Fields:
 - **files**: `src/nss/domains.nss` (School's house piece, `sBP = "nwn2house003"`, in the `iChoice3==15` block), `src/nss/area_pop_inc.nss` (`AreaPopSetupPlaceables` - has diagnostic `[area_pop_setup]` logging left in for `nwn2house003` specifically, harmless to leave or remove).
 - **constraint**: Whatever fix is chosen, verify it doesn't just apply to School - if it's a general CreateObject()-placeable limitation, every other domain structure type's "house"-equivalent piece almost certainly has the same problem and should get the same fix, not just this one reported case.
 - **verify**: Build/rotate a School (or any domain structure) into a slot, walk directly at the house model from multiple angles, confirm it blocks movement rather than letting the PC walk through.
+
+---
+
+### TASK-19: Druids should have all of the dialog options Rangers have
+- **status**: fix applied (not yet compiled into a full build/deployed) — scoped to the reported "cartography" skill (coordinates + tracking); no other Ranger-only dialog options were found
+- **found**: the "cartography" skill is two Ranger-gated hench dialog options in `src/dlg/hench.dlg.json` (wording has no literal "ranger" text, gating is purely in the condition scripts) plus a parallel PC-side "Cartographer" talent, both keyed off `GetLevelByClass(CLASS_TYPE_RANGER,...)` only:
+  - `cond_hench019` (reply "Tell me where we are." -> `conv_hench023`) and `cond_hench020` (reply "Track nearest living creature and take me to them." -> `conv_hench013`) — both required `GetLevelByClass(CLASS_TYPE_RANGER,OBJECT_SELF)>0`.
+  - `conv_hench023.nss` itself re-derives a 5-tier `iCartographer` level (gating which area *types* the coordinates command works in, e.g. interior/city tier 1 up through gaz-tier 5) from the henchman's own ranger level.
+  - `mod_levelup.nss` (grants the PC's own "Cartographer" goldbag flag on level-up, same 5-tier thresholds) and `mod_enter.nss:120` (grants tier 1 on login if not already set) both also gated on Ranger level only — this is what backs the player's own `analyser.nss` "tell me our coordinates" item use, a separate but parallel mechanism from the hench dialog.
+- **fix**: added `||(GetLevelByClass(CLASS_TYPE_DRUID,...)>0)` to the two `cond_hench01[9,0]` gates and to the `mod_levelup.nss`/`mod_enter.nss` grant conditions; `conv_hench023.nss` and `mod_levelup.nss`'s tiering now use `max(rangerLevel, druidLevel)` instead of ranger level alone, so multiclassing between the two doesn't stack tiers. All 5 changed scripts (`cond_hench019.nss`, `cond_hench020.nss`, `conv_hench023.nss`, `mod_levelup.nss`, `mod_enter.nss`) compile clean.
+- **deliberately left alone**: `mod_enter.nss:121`'s "Leader" talent (also Ranger-only) — not part of what was reported, out of scope.
+- **verify**: hire/level a Druid henchman to ranger-equivalent tiers and confirm both dialog replies appear and work the same as for a Ranger hench; log in as a fresh Druid PC and confirm the goldbag `Cartographer` flag is granted and the coordinates item-use works at the same area-type tiers a Ranger of the same level gets.

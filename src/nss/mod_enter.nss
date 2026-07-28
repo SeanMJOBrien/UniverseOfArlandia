@@ -117,7 +117,7 @@ n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_CONTINUAL_FLAME);n--;}
 //n=20;while(n>0){DecrementRemainingSpellUses(oPC,SPELL_FLAME_WEAPON);n--;}
 n=2; while(n>0){DecrementRemainingFeatUses(oPC,FEAT_PALADIN_SUMMON_MOUNT);n--;} //Mounbt might not work right, need to test
 // Automatic talents for classes
-if((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)&&(GetLocalInt(oGoldbag,"Cartographer")==0)){SetLocalInt(oGoldbag,"Cartographer",1);}
+if(((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)||(GetLevelByClass(CLASS_TYPE_DRUID,oPC)>0))&&(GetLocalInt(oGoldbag,"Cartographer")==0)){SetLocalInt(oGoldbag,"Cartographer",1);}
 if((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)&&(GetLocalInt(oGoldbag,"Leader")==0)){SetLocalInt(oGoldbag,"Leader",1);}
 // Paladin horse power
 if((GetLevelByClass(CLASS_TYPE_PALADIN,oPC)>=5)&&(GetItemPossessedBy(oPC,"mountitem")==OBJECT_INVALID)){CreateItemOnObject("mountitem",oPC);}

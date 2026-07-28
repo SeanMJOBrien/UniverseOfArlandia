@@ -8,14 +8,16 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_IMP_HOLY_AID),oPC);
 ////////////////////////////////////////////////////////////////////////////////
 // Automatic talents
-// Cartographer for rangers
-if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)
+// Cartographer for rangers & druids (whichever level is higher - multiclassing
+// between the two doesn't stack)
+if((GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)||(GetLevelByClass(CLASS_TYPE_DRUID,oPC)>0))
  {
-     if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>=9){SetLocalInt(oGoldbag,"Cartographer",5);}
-else if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>=7){SetLocalInt(oGoldbag,"Cartographer",4);}
-else if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>=5){SetLocalInt(oGoldbag,"Cartographer",3);}
-else if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>=3){SetLocalInt(oGoldbag,"Cartographer",2);}
-else if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>=1){SetLocalInt(oGoldbag,"Cartographer",1);}
+int iCartoLevel = GetLevelByClass(CLASS_TYPE_RANGER,oPC);if(GetLevelByClass(CLASS_TYPE_DRUID,oPC)>iCartoLevel){iCartoLevel = GetLevelByClass(CLASS_TYPE_DRUID,oPC);}
+     if(iCartoLevel>=9){SetLocalInt(oGoldbag,"Cartographer",5);}
+else if(iCartoLevel>=7){SetLocalInt(oGoldbag,"Cartographer",4);}
+else if(iCartoLevel>=5){SetLocalInt(oGoldbag,"Cartographer",3);}
+else if(iCartoLevel>=3){SetLocalInt(oGoldbag,"Cartographer",2);}
+else if(iCartoLevel>=1){SetLocalInt(oGoldbag,"Cartographer",1);}
  }
 // Leader for rangers
 if(GetLevelByClass(CLASS_TYPE_RANGER,oPC)>0)
