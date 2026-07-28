@@ -350,45 +350,63 @@ float RotateFacing90(float fF, int iRotation90)
     return fResult;
 }
 
-// CURRENTLY UNUSED (domain_rot_apply.nss no longer calls this - see the
-// comment there) - kept in case a real client-side static-object rendering
-// issue turns out to still exist once domain_rot_apply.nss's rebuild itself
-// is confirmed working; don't reuse this as-is for a domain area without
-// first protecting the area from area_exit.nss's empty-area destroy (e.g. a
-// "don't destroy me, refresh in progress" flag it checks), since jumping a
-// solo player out of their own per-coordinate clone destroys it before the
-// jump-back's destination location is even used.
-//
-// Forces oPC's client to fully reload/redraw its current area by jumping out
-// to "_construction" (a permanent, always-empty utility area - confirmed via
-// grep to have no special-case handling anywhere, unlike e.g.
-// "initialisation", which is wired into the login-redirect logic in
-// area_enter.nss and would misfire if reused for this) and straight back. A
-// genuine area-exit/re-enter is the only reliable way to flush client-side
-// static-object render state without waiting for the player to travel away
-// on their own.
-//
-// The jump-back MUST be scheduled via AssignCommand(oPC, DelayCommand(...))
-// rather than a bare DelayCommand(...) here - confirmed via testing: oPC's
-// original area (oArea in domain_rot_apply.nss, this function's usual
-// caller) is a per-coordinate clone, and area_exit.nss schedules
-// area_save.nss (which destroys such clones) 0.3s after the last player
-// leaves it. The moment the jump-out above empties it, oArea is at risk of
-// being destroyed - and a bare DelayCommand here would still be tied to
-// THIS script instance's originating object (oArea, per the same class of
-// bug fixed in DomainSetRotation/domain_rot_apply.nss above), getting
-// cancelled right along with it. Wrapping in AssignCommand(oPC,...) first
-// re-anchors the nested DelayCommand to oPC's own lifetime instead, which
-// isn't at risk the same way.
-void ForceAreaRefresh(object oPC)
+// Completes DomainTravelRefresh's round trip (below) - split into its own
+// function so the "come back" half can be scheduled via
+// AssignCommand(oPC,DelayCommand(...)), re-anchoring it to oPC's own
+// lifetime rather than whatever object was running the script that started
+// the round trip (which may already be destroyed by the time this fires,
+// see DomainTravelRefresh's comment).
+void DomainReturnTrip(object oPC, string sPlanet, string sArea, float fX, float fY, float fFacing)
 {
-    location lHere = GetLocation(oPC);
-    object oVoidArea = GetObjectByTag("_construction");
-    WriteTimestampedLogEntry("[force_refresh] pc="+GetName(oPC)+" pcValid="+IntToString(GetIsObjectValid(oPC))+" voidValid="+IntToString(GetIsObjectValid(oVoidArea))+" voidTag="+GetTag(oVoidArea));
-    if (!GetIsObjectValid(oVoidArea)) { return; }
-    AssignCommand(oPC, JumpToLocation(Location(oVoidArea, Vector(5.0, 5.0, 0.0), 0.0)));
-    AssignCommand(oPC, DelayCommand(0.5, JumpToLocation(lHere)));
-    AssignCommand(oPC, DelayCommand(0.7, WriteTimestampedLogEntry("[force_refresh] 0.7s after jump-back, pc area="+GetTag(GetArea(oPC)))));
+    SetLocalString(oPC, "PlanetDest", sPlanet);
+    SetLocalString(oPC, "AreaDest", sArea);
+    SetLocalFloat(oPC, "fX", fX);
+    SetLocalFloat(oPC, "fY", fY);
+    SetLocalFloat(oPC, "fFacing", fFacing);
+    ExecuteScript("transitions", oPC);
+}
+
+// Forces a genuinely fresh rebuild of oPC's current domain coordinate by
+// sending them one tile away and straight back through the real travel
+// system (transitions.nss), instead of an ad-hoc in-place destroy+rebuild
+// or client-side area-jump trick (both tried first - see TASK-17 in
+// TODO.md for the full history of why neither worked). A domain's area is
+// a per-coordinate CopyArea() clone (TASK-22): leaving it empties it,
+// area_exit.nss's normal cleanup destroys the clone ~0.3s later, and the
+// next visit to that coordinate creates a genuinely fresh clone, fully
+// repopulated by area_recall.nss/domains.nss from whatever's currently
+// persisted (Interests + each slot's Rot value) - clearing up any stale/
+// duplicated pieces along with the old clone, not just the one slot that
+// changed. transitions.nss resolves its destination from the PLANET+AREA
+// COORDINATE STRINGS every time, not a captured object/location reference,
+// so it doesn't matter that the original clone is gone by the time the
+// return trip runs.
+//
+// The return trip MUST be scheduled via AssignCommand(oPC,DelayCommand(...))
+// rather than a bare DelayCommand(...) - the same class of bug hit twice
+// already this session (DomainSetRotation's own destroy loop, then
+// ForceAreaRefresh's jump-back): NWN ties a DelayCommand to whatever object
+// was running the script that scheduled it, and cancels it if that object
+// is destroyed by the time it fires, regardless of what the delayed call's
+// own target object is. If this function is itself invoked from a script
+// running on the domain's area (at risk of being destroyed by the away
+// trip) or its flag, a bare DelayCommand here would be at the same risk.
+void DomainTravelRefresh(object oPC, string sPlanet, string sArea)
+{
+    struct AreaCoord coord = ParseAreaCoord(sArea);
+    string sAwayArea = FormatAreaCoord(coord.X + 1, coord.Y);
+    float fX = GetPosition(oPC).x;
+    float fY = GetPosition(oPC).y;
+    float fFacing = GetFacing(oPC);
+
+    SetLocalString(oPC, "PlanetDest", sPlanet);
+    SetLocalString(oPC, "AreaDest", sAwayArea);
+    SetLocalFloat(oPC, "fX", 100.0);
+    SetLocalFloat(oPC, "fY", 100.0);
+    SetLocalFloat(oPC, "fFacing", 0.0);
+    AssignCommand(oPC, ExecuteScript("transitions", oPC));
+
+    AssignCommand(oPC, DelayCommand(1.0, DomainReturnTrip(oPC, sPlanet, sArea, fX, fY, fFacing)));
 }
 
 // ---------------------------------------------------------------------------
@@ -402,22 +420,18 @@ void ForceAreaRefresh(object oPC)
 // "aps_include" BEFORE #include "_string_utils" (for SetPersistentInt/
 // GetPersistentString), matching domains.nss's own include order.
 //
-// Does the minimum possible work itself (persist the Rot value, stash what
-// domain_rot_apply.nss needs as locals on oArea) then hands off via
-// DelayCommand(0.0,...) - this script's OBJECT_SELF is oFlag itself (it's
-// the flag's own dialog action), and the actual destroy+rebuild step needs
-// to destroy that same flag as part of clearing the slot's old pieces.
-// Tried destroying it directly here first (confirmed via [domain_rot]
-// logging: silently terminated the rest of THIS script's execution,
-// including every DelayCommand scheduled after it - domains.nss's rebuild
-// and the client refresh both never fired). Deferring the destroy via its
-// own DelayCommand(0.0,...) from here didn't help either - NWN appears to
-// tie every DelayCommand from one script instance to that instance's
-// originating object, and destroying that object (oFlag) cancels its
-// siblings regardless of what those siblings' own target objects are.
-// domain_rot_apply.nss runs as a fresh ExecuteScript with OBJECT_SELF=oArea
-// instead - oArea is never destroyed by the destroy loop (only objects
-// *inside* it are), so its own DelayCommands aren't at risk the same way.
+// Deliberately does NOT destroy/rebuild the slot's pieces in place - two
+// earlier approaches both tried that (an in-place destroy+rebuild, then an
+// area-jump client-refresh trick on top of it) and both hit real bugs
+// along the way (see TASK-17 in TODO.md for the full history), and even
+// once working, an in-place rebuild only ever fixes the ONE slot that
+// changed - any other stale/duplicated pieces from earlier attempts stay
+// put. Persisting the Rot value here and letting DomainTravelRefresh send
+// the player through a real trip via transitions.nss instead means the
+// whole coordinate gets a genuinely fresh clone, fully repopulated from
+// scratch by area_recall.nss/domains.nss - cleaning up everything at once,
+// using already-proven-working infrastructure instead of ad-hoc destroy
+// loops.
 // ---------------------------------------------------------------------------
 void DomainSetRotation(object oFlag, object oPC, int iRot)
 {
@@ -427,16 +441,10 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
     string sArea = GetLocalString(oArea, "Area");
     int iSlot = GetLocalInt(oFlag, "Slot");
     int iStructure = GetLocalInt(oFlag, "Structure");
-    string sMaster = GetLocalString(oFlag, "Master");
 
-    WriteTimestampedLogEntry("[domain_rot] flag="+ObjectToString(oFlag)+" pc="+GetName(oPC)+" iSlot="+IntToString(iSlot)+" iStructure="+IntToString(iStructure)+" iRot="+IntToString(iRot));
-    if ((iSlot == 0) || (iStructure == 0)) { WriteTimestampedLogEntry("[domain_rot] bailing - iSlot or iStructure is 0"); return; }
+    if ((iSlot == 0) || (iStructure == 0)) { return; }
 
     SetPersistentInt(oModule, sPlanet + "&" + sArea + "&Rot&" + IntToString(iSlot), iRot);
-
-    SetLocalInt(oArea, "RotApplySlot", iSlot);
-    SetLocalInt(oArea, "RotApplyStructure", iStructure);
-    SetLocalString(oArea, "RotApplyMaster", sMaster);
-    SetLocalObject(oArea, "RotApplyPC", oPC);
-    DelayCommand(0.0, ExecuteScript("domain_rot_apply", oArea));
+    FloatingTextStringOnCreature("Structure rotated - refreshing the area...", oPC);
+    DomainTravelRefresh(oPC, sPlanet, sArea);
 }
