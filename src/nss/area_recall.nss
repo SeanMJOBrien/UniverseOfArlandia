@@ -10,7 +10,22 @@ string sTarget = GetPersistentString(oModule,sPlanet+"_"+sArea);
 int iSpecialArea = GetLocalInt(OBJECT_SELF,"SpecialArea");
 //
 int iAreaIni = GetLocalInt(OBJECT_SELF,"AreaIni");
-int iReady = GetLocalInt(oModule,sPlanet+"_"+sArea+"&Ready");
+// Object-scoped, NOT the module's coordinate-keyed "&Ready" (still set
+// below for dungeons.nss's separate, intentionally-permanent respawn-
+// tracking use - see there). That flag survives destruction of a
+// per-coordinate CopyArea() clone (area_save.nss), because it's keyed by
+// logical coordinate, not object identity - so a coordinate that was ever
+// populated once stays "&Ready"==1 forever even after its physical area
+// object is destroyed and a brand new one cloned in on the next visit
+// (transitions.nss). Using it here as the re-entry-duplicate guard meant
+// every population trigger below silently no-op'd on that brand new
+// clone, since it read as already-populated despite never having had
+// area_interests/domains/dungeons run on it - domain buildings (etc.)
+// present on first visit, then gone after a log-out/log-in cycle that
+// happened to land on a fresh clone. This flag is plain object-local, so
+// it correctly starts unset on any new object regardless of how long its
+// coordinate has existed.
+int iReady = GetLocalInt(OBJECT_SELF,"ContentReady");
 object oObjects = GetFirstObjectInArea(OBJECT_SELF);
 //
 int i = GetLocalInt(oModule,sPlanet+"&"+sArea+"&ObjectsTot");
@@ -345,6 +360,7 @@ if(iNight==0)
  {
 if((sPlanet!="")&&(sArea!="")){SetLocalInt(oModule,sPlanet+"_"+sArea+"&Ready",1);}
 SetLocalInt(OBJECT_SELF,"Used",2);
+SetLocalInt(OBJECT_SELF,"ContentReady",1);
  }
 ////////////////////////////////////////////////////////////////////////////////
 SetLocalInt(OBJECT_SELF,"AreaIni",1);
