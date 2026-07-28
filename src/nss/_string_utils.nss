@@ -350,6 +350,23 @@ float RotateFacing90(float fF, int iRotation90)
     return fResult;
 }
 
+// Forces oPC's client to fully reload/redraw its current area by jumping out
+// to "_construction" (a permanent, always-empty utility area - confirmed via
+// grep to have no special-case handling anywhere, unlike e.g.
+// "initialisation", which is wired into the login-redirect logic in
+// area_enter.nss and would misfire if reused for this) and straight back. A
+// genuine area-exit/re-enter is the only reliable way to flush client-side
+// static-object render state without waiting for the player to travel away
+// on their own.
+void ForceAreaRefresh(object oPC)
+{
+    location lHere = GetLocation(oPC);
+    object oVoidArea = GetObjectByTag("_construction");
+    if (!GetIsObjectValid(oVoidArea)) { return; }
+    AssignCommand(oPC, JumpToLocation(Location(oVoidArea, Vector(5.0, 5.0, 0.0), 0.0)));
+    DelayCommand(0.5, AssignCommand(oPC, JumpToLocation(lHere)));
+}
+
 // ---------------------------------------------------------------------------
 // Rotates an already-built domain structure to an ABSOLUTE facing (iRot 0-3,
 // see RotateOffset90/RotateFacing90 above) rather than incrementing from
@@ -396,4 +413,13 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
     SetLocalObject(oArea, "PC", oPC);
     DelayCommand(0.1, ExecuteScript("domains", oArea));
     FloatingTextStringOnCreature("Structure rotated", oPC);
+
+    // The rebuilt pieces can stay showing their old orientation to oPC
+    // specifically (they were already standing nearby, not freshly arriving)
+    // until they leave and re-enter the area - the client doesn't reliably
+    // redraw objects marked static (area_pop_inc.nss's
+    // NWNX_Object_SetPlaceableIsStatic, see TASK-18) after an ad-hoc runtime
+    // destroy+recreate cycle like this one. 0.5s gives the 0.1s-delayed
+    // rebuild above time to finish before the refresh jump fires.
+    DelayCommand(0.5, ForceAreaRefresh(oPC));
 }
