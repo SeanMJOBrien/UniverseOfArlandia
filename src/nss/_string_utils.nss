@@ -398,13 +398,24 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
 
     // Destroy this slot's existing pieces (matched on Slot+Master) before
     // rebuilding - otherwise domains.nss would stack a second, differently-
-    // rotated copy on top instead of replacing it.
+    // rotated copy on top instead of replacing it. oFlag itself is
+    // DELIBERATELY skipped here and destroyed separately, deferred to the
+    // end of this function via DelayCommand(0.0,...): destroying OBJECT_SELF
+    // (oFlag is what this script is running on - it's the structureflag's
+    // own dialog action) partway through this function was silently
+    // terminating the rest of the script's execution, including every
+    // DelayCommand scheduled after it - domains.nss's rebuild and the
+    // client-refresh jump both never fired, confirmed via [domain_rot]
+    // logging showing this function starting but nothing after the destroy
+    // loop ever ran. domains.nss's own rebuild recreates a fresh
+    // structureflag anyway, so the old one still needs to go - just not
+    // synchronously, mid-script, on itself.
     object oNext;
     object oPiece = GetFirstObjectInArea(oArea);
     while (GetIsObjectValid(oPiece))
     {
         oNext = GetNextObjectInArea(oArea);
-        if ((GetLocalInt(oPiece, "Slot") == iSlot) && (GetLocalString(oPiece, "Master") == sMaster)) { DestroyObject(oPiece); }
+        if ((oPiece != oFlag) && (GetLocalInt(oPiece, "Slot") == iSlot) && (GetLocalString(oPiece, "Master") == sMaster)) { DestroyObject(oPiece); }
         oPiece = oNext;
     }
 
@@ -417,6 +428,7 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
     SetLocalObject(oArea, "PC", oPC);
     DelayCommand(0.1, ExecuteScript("domains", oArea));
     FloatingTextStringOnCreature("Structure rotated", oPC);
+    DelayCommand(0.0, DestroyObject(oFlag));
 
     // The rebuilt pieces can stay showing their old orientation to oPC
     // specifically (they were already standing nearby, not freshly arriving)
