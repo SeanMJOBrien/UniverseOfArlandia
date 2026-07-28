@@ -362,9 +362,12 @@ void ForceAreaRefresh(object oPC)
 {
     location lHere = GetLocation(oPC);
     object oVoidArea = GetObjectByTag("_construction");
+    WriteTimestampedLogEntry("[force_refresh] pc="+GetName(oPC)+" pcValid="+IntToString(GetIsObjectValid(oPC))+" voidValid="+IntToString(GetIsObjectValid(oVoidArea))+" voidTag="+GetTag(oVoidArea));
     if (!GetIsObjectValid(oVoidArea)) { return; }
     AssignCommand(oPC, JumpToLocation(Location(oVoidArea, Vector(5.0, 5.0, 0.0), 0.0)));
+    DelayCommand(0.2, WriteTimestampedLogEntry("[force_refresh] 0.2s after jump-out, pc area="+GetTag(GetArea(oPC))));
     DelayCommand(0.5, AssignCommand(oPC, JumpToLocation(lHere)));
+    DelayCommand(0.7, WriteTimestampedLogEntry("[force_refresh] 0.7s after jump-back, pc area="+GetTag(GetArea(oPC))));
 }
 
 // ---------------------------------------------------------------------------
@@ -388,7 +391,8 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
     int iStructure = GetLocalInt(oFlag, "Structure");
     string sMaster = GetLocalString(oFlag, "Master");
 
-    if ((iSlot == 0) || (iStructure == 0)) { return; }
+    WriteTimestampedLogEntry("[domain_rot] flag="+ObjectToString(oFlag)+" pc="+GetName(oPC)+" iSlot="+IntToString(iSlot)+" iStructure="+IntToString(iStructure)+" iRot="+IntToString(iRot));
+    if ((iSlot == 0) || (iStructure == 0)) { WriteTimestampedLogEntry("[domain_rot] bailing - iSlot or iStructure is 0"); return; }
 
     SetPersistentInt(oModule, sPlanet + "&" + sArea + "&Rot&" + IntToString(iSlot), iRot);
 
