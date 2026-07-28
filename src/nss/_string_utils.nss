@@ -358,6 +358,19 @@ float RotateFacing90(float fF, int iRotation90)
 // genuine area-exit/re-enter is the only reliable way to flush client-side
 // static-object render state without waiting for the player to travel away
 // on their own.
+//
+// The jump-back MUST be scheduled via AssignCommand(oPC, DelayCommand(...))
+// rather than a bare DelayCommand(...) here - confirmed via testing: oPC's
+// original area (oArea in domain_rot_apply.nss, this function's usual
+// caller) is a per-coordinate clone, and area_exit.nss schedules
+// area_save.nss (which destroys such clones) 0.3s after the last player
+// leaves it. The moment the jump-out above empties it, oArea is at risk of
+// being destroyed - and a bare DelayCommand here would still be tied to
+// THIS script instance's originating object (oArea, per the same class of
+// bug fixed in DomainSetRotation/domain_rot_apply.nss above), getting
+// cancelled right along with it. Wrapping in AssignCommand(oPC,...) first
+// re-anchors the nested DelayCommand to oPC's own lifetime instead, which
+// isn't at risk the same way.
 void ForceAreaRefresh(object oPC)
 {
     location lHere = GetLocation(oPC);
@@ -365,9 +378,8 @@ void ForceAreaRefresh(object oPC)
     WriteTimestampedLogEntry("[force_refresh] pc="+GetName(oPC)+" pcValid="+IntToString(GetIsObjectValid(oPC))+" voidValid="+IntToString(GetIsObjectValid(oVoidArea))+" voidTag="+GetTag(oVoidArea));
     if (!GetIsObjectValid(oVoidArea)) { return; }
     AssignCommand(oPC, JumpToLocation(Location(oVoidArea, Vector(5.0, 5.0, 0.0), 0.0)));
-    DelayCommand(0.2, WriteTimestampedLogEntry("[force_refresh] 0.2s after jump-out, pc area="+GetTag(GetArea(oPC))));
-    DelayCommand(0.5, AssignCommand(oPC, JumpToLocation(lHere)));
-    DelayCommand(0.7, WriteTimestampedLogEntry("[force_refresh] 0.7s after jump-back, pc area="+GetTag(GetArea(oPC))));
+    AssignCommand(oPC, DelayCommand(0.5, JumpToLocation(lHere)));
+    AssignCommand(oPC, DelayCommand(0.7, WriteTimestampedLogEntry("[force_refresh] 0.7s after jump-back, pc area="+GetTag(GetArea(oPC)))));
 }
 
 // ---------------------------------------------------------------------------
