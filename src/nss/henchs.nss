@@ -284,6 +284,15 @@ fY = StringToFloat(GetStringRight(GetStringLeft(sStayHench,FindSubString(sStayHe
 // per-PC StoreCampaignObject snapshot (identity + gear together), not the
 // session-only "AdvAreaSnap" area-cycling snapshot used for genuinely
 // dismissed henches.
+// Missing-guard bug (same shape as area_interests.nss's, fixed earlier):
+// nothing ever read "HenchObject"+iHenchs back before this point, only
+// wrote it (below) - so re-entering the same area with a "stay here" hench
+// waiting recreated a brand new hench EVERY time with no check the
+// previous instance from the last visit was ever gone, leaving duplicate
+// NPCs (each with their own full equipment set from action 14 below)
+// standing around. Destroy any stale tracked instance first.
+object oStaleHench = GetLocalObject(oPC,"HenchObject"+IntToString(iHenchs));
+if(GetIsObjectValid(oStaleHench)){AssignCommand(oStaleHench,SetIsDestroyable(TRUE,FALSE,FALSE));DestroyObject(oStaleHench);}
 if(sBP=="adventurer")
    {
 oHench = RetrieveCampaignObject(sCampaignName,"AdvHench"+IntToString(iHenchs),Location(oArea,Vector(fX,fY,0.0),DIRECTION_NORTH),OBJECT_INVALID,OBJECT_INVALID,TRUE);
@@ -675,18 +684,6 @@ sItemCharges = GetStringRight(GetStringLeft(sAll,FindSubString(sAll,"_I_")),GetS
 sItemVar = GetStringRight(GetStringLeft(sAll,FindSubString(sAll,"_J_")),GetStringLength(GetStringLeft(sAll,FindSubString(sAll,"_J_")))-FindSubString(sAll,"_I_")-3);
 sItemBonus = GetStringRight(GetStringLeft(sAll,FindSubString(sAll,"_K_")),GetStringLength(GetStringLeft(sAll,FindSubString(sAll,"_K_")))-FindSubString(sAll,"_J_")-3);
 
-oItem = CreateItemOnObject(sItemBP,oHench,StringToInt(sItemStack),sItemTag);
-if(GetName(oItem)!=sItemName){SetName(oItem,sItemName);}if(FindSubString(sItemName,"(Quality")!=-1){AddItemProperty(DURATION_TYPE_PERMANENT,ItemPropertyQuality(IP_CONST_QUALITY_EXCELLENT),oItem);}
-SetLocalString(oItem,"Master",sItemMaster);
-SetLocalInt(oItem,"Wear",StringToInt(sItemWear));
-SetLocalInt(oItem,"Wear%",StringToInt(sItemWear2));
-SetLocalInt(oItem,"Fix",StringToInt(sItemFix));
-SetLocalString(oItem,"Bonus",sItemBonus);if(sItemBonus!=""){ExecuteScript("bonus",oItem);}
-SetLocalString(oItem,"Var",sItemVar);
-if(StringToInt(sItemCharges)>0){SetItemCharges(oItem,StringToInt(sItemCharges));}
-SetIdentified(oItem,TRUE);
-SetDroppableFlag(oItem,TRUE);
-
 if(i==1) {iSlot = INVENTORY_SLOT_ARMS;}
 if(i==2) {iSlot = INVENTORY_SLOT_ARROWS;}
 if(i==3) {iSlot = INVENTORY_SLOT_BELT;}
@@ -706,7 +703,29 @@ if(i==16){iSlot = INVENTORY_SLOT_NECK;}
 if(i==17){iSlot = INVENTORY_SLOT_RIGHTHAND;}
 if(i==18){iSlot = INVENTORY_SLOT_RIGHTRING;}
 
+// Defense-in-depth guard (TASK-16): this loop used to unconditionally
+// CreateItemOnObject + equip every saved slot with no check the hench
+// didn't already have something equipped there - harmless the first time
+// action 14 runs on a freshly-created, empty-inventory hench, but stacked
+// a full duplicate gear set on top if it ever fired a second time on the
+// same object (e.g. before the missing destroy-before-recreate guard was
+// added to action 5 above). Skip recreating a slot that's already filled.
+if((sItemBP!="")&&(!GetIsObjectValid(GetItemInSlot(iSlot,oHench))))
+   {
+oItem = CreateItemOnObject(sItemBP,oHench,StringToInt(sItemStack),sItemTag);
+if(GetName(oItem)!=sItemName){SetName(oItem,sItemName);}if(FindSubString(sItemName,"(Quality")!=-1){AddItemProperty(DURATION_TYPE_PERMANENT,ItemPropertyQuality(IP_CONST_QUALITY_EXCELLENT),oItem);}
+SetLocalString(oItem,"Master",sItemMaster);
+SetLocalInt(oItem,"Wear",StringToInt(sItemWear));
+SetLocalInt(oItem,"Wear%",StringToInt(sItemWear2));
+SetLocalInt(oItem,"Fix",StringToInt(sItemFix));
+SetLocalString(oItem,"Bonus",sItemBonus);if(sItemBonus!=""){ExecuteScript("bonus",oItem);}
+SetLocalString(oItem,"Var",sItemVar);
+if(StringToInt(sItemCharges)>0){SetItemCharges(oItem,StringToInt(sItemCharges));}
+SetIdentified(oItem,TRUE);
+SetDroppableFlag(oItem,TRUE);
+
 AssignCommand(oHench,ActionEquipItem(oItem,iSlot));
+   }
   }
 
 //
