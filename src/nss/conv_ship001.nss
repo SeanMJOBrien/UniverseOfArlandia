@@ -1,3 +1,5 @@
+#include "_module"
+#include "inc_flight"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +59,8 @@ if(GetLocalInt(oGoldbag,"OrigApp")==0){SetLocalInt(oGoldbag,"OrigApp",GetAppeara
 
 SetLocalInt(oPC,"Henchs",1);
 ExecuteScript("transitions",oPC);
+// Bring nearby party PCs along in a cloned cabin (see inc_flight.nss).
+FlightBoardParty(oPC,1,fFlightBoardRadius);
   }
  }
 ////////////////////////////////////////////////////////////////////////////////

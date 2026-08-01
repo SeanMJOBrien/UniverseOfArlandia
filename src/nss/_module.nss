@@ -130,6 +130,11 @@ int iStarshipSec =      60;                     //*// Seconds of travel for each
 //
 int iStarshipLvl =      6;                      //*// Players must be min. level iStarshipLvl to be able to travel in the Universe (starships or personal starships).
 int iStarshipPass =     100;                    //*// Cost of the intergalactical star pass.
+//
+// Personal-flight party cabins (see inc_flight.nss): when a PC pilots their own
+// airship/starship, party PCs standing within this radius are boarded into a
+// freshly-cloned cabin area and rejoin the pilot via the cabin's hatch.
+float fFlightBoardRadius = 12.0;                 //*// Boarding radius (m) for party co-flight.
 ////////////////////////////////////////////////////////////////////////////////
 // UOA references
 int iUOAreferences =    30;                     //*// Number of references in the UOA book.

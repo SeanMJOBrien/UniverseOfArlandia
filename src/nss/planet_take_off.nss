@@ -1,4 +1,5 @@
 #include "_module"
+#include "inc_flight"
 void main()
 {
 object oModule = GetModule();
@@ -47,6 +48,8 @@ if(GetLocalInt(oGoldbag,"OrigApp")==0){SetLocalInt(oGoldbag,"OrigApp",GetAppeara
 //SetLocalObject(oPC,"DestroyIt",oGem);
 
 ExecuteScript("transitions",oPC);
+// Bring nearby party PCs along in a cloned cabin (see inc_flight.nss).
+FlightBoardParty(oPC,2,fFlightBoardRadius);
   }
  }
 }

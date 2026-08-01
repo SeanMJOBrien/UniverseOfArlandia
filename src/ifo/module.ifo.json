@@ -1518,6 +1518,20 @@
           "type": "resref",
           "value": "test001"
         }
+      },
+      {
+        "__struct_id": 6,
+        "Area_Name": {
+          "type": "resref",
+          "value": "cabin_air000"
+        }
+      },
+      {
+        "__struct_id": 6,
+        "Area_Name": {
+          "type": "resref",
+          "value": "cabin_star000"
+        }
       }
     ]
   },
