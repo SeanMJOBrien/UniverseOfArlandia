@@ -13,25 +13,21 @@ string sSite = GetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite")
 string sCampArea = Between(sSite,"","&");
 int iTier = StringToInt(Between(sSite,"&",""));
 
+// Authoritative kill-verification via persisted flags, NOT a live-area scan:
+// the camp area is almost never loaded at turn-in time (the player has
+// travelled back to town), and an unloaded area used to read as "clear" -
+// a free-reward loophole. CampSpawned is set the first time the camp
+// populates; CampCleared is set by creatures_death.nss the moment the last
+// Camp-tagged guard dies, and wiped whenever the camp repopulates
+// (area_creatures.nss). Neither depends on the area being resident.
 int iSpawned = (GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampSpawned")=="1");
-object oCampAreaObj = GetLocalObject(oModule,sPlanet+"_"+sCampArea);
-
-int iStillGuarded;
-if(GetIsObjectValid(oCampAreaObj))
- {
-object oCre = GetFirstObjectInArea(oCampAreaObj);
-while(GetIsObjectValid(oCre))
-  {
-if((GetObjectType(oCre)==OBJECT_TYPE_CREATURE)&&(GetLocalInt(oCre,"Camp")==1)&&(GetCurrentHitPoints(oCre)>0)){iStillGuarded=1;}
-oCre = GetNextObjectInArea(oCampAreaObj);
-  }
- }
+int iCleared = (GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared")=="1");
 
 if(!iSpawned)
  {
 SetCustomToken(10481,"Nobody's even scouted that far out yet. Come back once you've found it.");
  }
-else if(iStillGuarded)
+else if(!iCleared)
  {
 SetCustomToken(10481,"That camp's still crawling with monsters. Come back when it's clear.");
  }

@@ -1037,6 +1037,6 @@ SetLocalInt(OBJECT_SELF,"DungeonRespawn",4);ExecuteScript("dungeons",OBJECT_SELF
 // Lets the plot-giver camp-clear mission (TASK-14/15) tell "never visited
 // yet" apart from "visited and cleared" without needing this area's live
 // object to still be loaded.
-}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");}DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
+}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampCleared","");}DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
 ////////////////////////////////////////////////////////////////////////////////
 }

@@ -1,4 +1,5 @@
 #include "_module"
+#include "aps_include"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +116,29 @@ SetLocalString(oEnigm,"Var",GetLocalString(oEnigm,"Var")+"&Success");
 ////////////////////////////////////////////////////////////////////////////////
 // Missions creatures
 if(GetLocalString(OBJECT_SELF,"Tag")=="mission"){SetLocalObject(OBJECT_SELF,"MissionObject",OBJECT_SELF);SetLocalInt(OBJECT_SELF,"MissionToPlace",2);ExecuteScript("missions",OBJECT_SELF);}
+////////////////////////////////////////////////////////////////////////////////
+// Monster camp clear-out (TASK-14/15). When the last Camp-tagged guard in
+// this area dies, persist a CampCleared flag for this coordinate so the
+// plot-giver turn-in (conv_campcheck) can verify the kill authoritatively -
+// without the camp area needing to still be loaded at turn-in time (the old
+// live-area scan treated an unloaded area as "clear", a free-reward loophole).
+// Reset on any (re)population in area_creatures.nss, so a refilled camp must
+// be cleared again. Gated on OBJECT_SELF being a guard so the common death
+// path pays nothing.
+if(GetLocalInt(OBJECT_SELF,"Camp")==1)
+ {
+ int iGuardsLeft;object oGuard = GetFirstObjectInArea(oArea);
+ while(GetIsObjectValid(oGuard))
+  {
+  if((oGuard!=OBJECT_SELF)&&(GetObjectType(oGuard)==OBJECT_TYPE_CREATURE)&&(GetLocalInt(oGuard,"Camp")==1)&&(GetCurrentHitPoints(oGuard)>0)){iGuardsLeft=1;break;}
+  oGuard = GetNextObjectInArea(oArea);
+  }
+ if(!iGuardsLeft)
+  {
+  string sCampArea = GetLocalString(oArea,"Area");if(FindSubString(sCampArea,"&")!=-1){sCampArea = GetStringLeft(sCampArea,FindSubString(sCampArea,"&"));}
+  SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared","1");
+  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Animal reserves
 if(GetLocalInt(oPC,"AniReserve")>0)
