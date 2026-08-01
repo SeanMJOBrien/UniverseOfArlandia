@@ -1,8 +1,10 @@
 // cabin_hatch - OnUsed for the personal-flight cabin hatch placeable.
-// Sends the user to the flight owner (or back to their boarding spot if the
-// owner has logged out). See inc_flight.nss.
-#include "inc_flight"
+// Opens the hatch menu (cabin_hatch.dlg): rejoin the pilot, or drop back to
+// where you boarded. See inc_flight.nss and cabin_join.nss / cabin_disemb.nss.
 void main()
 {
-    FlightHatchToOwner(GetLastUsedBy());
+    object oPC = GetLastUsedBy();
+    if(!GetIsObjectValid(oPC)){return;}
+    AssignCommand(oPC,ClearAllActions(TRUE));
+    AssignCommand(oPC,ActionStartConversation(OBJECT_SELF,"cabin_hatch",TRUE,FALSE));
 }

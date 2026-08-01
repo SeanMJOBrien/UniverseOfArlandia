@@ -92,19 +92,34 @@ void FlightBoardParty(object oOwner, int iType, float fRadius)
     }
 }
 
-// Hatch action: send oUser to the flight owner's current location, or (owner
-// gone) back to where oUser boarded. Then clean up an emptied cabin.
-void FlightHatchToOwner(object oUser)
+// Shared hatch exit: clear oUser's flight locals, send them to lDest, and
+// destroy the cabin clone once the last PC has left. Read any location off
+// oUser (FLIGHT_BOARD_LOC) BEFORE calling this - it wipes those locals.
+void FlightExitTo(object oUser, location lDest)
 {
     object oCabin = GetArea(oUser);
-    object oOwner = GetLocalObject(oCabin,FLIGHT_OWNER);
-    location lDest;
-    if(GetIsObjectValid(oOwner)){lDest = GetLocation(oOwner);}
-    else{lDest = GetLocalLocation(oUser,FLIGHT_BOARD_LOC);}
-
     DeleteLocalObject(oUser,FLIGHT_CABIN);
     DeleteLocalLocation(oUser,FLIGHT_BOARD_LOC);
     AssignCommand(oUser,ClearAllActions(TRUE));
     AssignCommand(oUser,ActionJumpToLocation(lDest));
     DelayCommand(6.0,FlightDestroyCabinIfEmpty(oCabin));
+}
+
+// Hatch option 1: rejoin the flight owner at their CURRENT location (aloft or
+// already landed). If the owner has logged out, fall back to oUser's boarding
+// spot so they are never stranded.
+void FlightHatchJoinOwner(object oUser)
+{
+    object oOwner = GetLocalObject(GetArea(oUser),FLIGHT_OWNER);
+    location lDest = GetIsObjectValid(oOwner)
+                     ? GetLocation(oOwner)
+                     : GetLocalLocation(oUser,FLIGHT_BOARD_LOC);
+    FlightExitTo(oUser,lDest);
+}
+
+// Hatch option 2: leave the flight and drop back to where oUser boarded, even
+// while the owner is still piloting (TASK-24).
+void FlightHatchToBoarding(object oUser)
+{
+    FlightExitTo(oUser,GetLocalLocation(oUser,FLIGHT_BOARD_LOC));
 }
