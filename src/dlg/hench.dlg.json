@@ -660,25 +660,6 @@
               "__struct_id": 3,
               "Active": {
                 "type": "resref",
-                "value": "cond_hench004"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 37
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 4,
-              "Active": {
-                "type": "resref",
                 "value": "cond_hench007"
               },
               "ConditionParams": {
@@ -695,121 +676,7 @@
               }
             },
             {
-              "__struct_id": 5,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench017"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 35
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 6,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench012"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 34
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 7,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench011"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 19
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 8,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench011"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 18
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 9,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench014"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 17
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 10,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench014"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 16
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
-              "__struct_id": 11,
+              "__struct_id": 4,
               "Active": {
                 "type": "resref",
                 "value": "cond_hench006"
@@ -828,7 +695,7 @@
               }
             },
             {
-              "__struct_id": 12,
+              "__struct_id": 5,
               "Active": {
                 "type": "resref",
                 "value": "cond_hench006"
@@ -847,7 +714,7 @@
               }
             },
             {
-              "__struct_id": 13,
+              "__struct_id": 6,
               "Active": {
                 "type": "resref",
                 "value": "cond_hench018"
@@ -866,7 +733,7 @@
               }
             },
             {
-              "__struct_id": 14,
+              "__struct_id": 7,
               "Active": {
                 "type": "resref",
                 "value": "cond_hench018"
@@ -885,10 +752,10 @@
               }
             },
             {
-              "__struct_id": 15,
+              "__struct_id": 8,
               "Active": {
                 "type": "resref",
-                "value": "cond_hench006"
+                "value": "cond_hench014"
               },
               "ConditionParams": {
                 "type": "list",
@@ -896,7 +763,140 @@
               },
               "Index": {
                 "type": "dword",
-                "value": 11
+                "value": 17
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 9,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench014"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 16
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 10,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench012"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 34
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 11,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench020"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 44
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 12,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench017"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 35
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 13,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench004"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 37
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 14,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench011"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 19
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 15,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench011"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 18
               },
               "IsChild": {
                 "type": "byte",
@@ -923,10 +923,10 @@
               }
             },
             {
-              "__struct_id": 18,
+              "__struct_id": 17,
               "Active": {
                 "type": "resref",
-                "value": ""
+                "value": "cond_hench021"
               },
               "ConditionParams": {
                 "type": "list",
@@ -934,7 +934,26 @@
               },
               "Index": {
                 "type": "dword",
-                "value": 6
+                "value": 45
+              },
+              "IsChild": {
+                "type": "byte",
+                "value": 0
+              }
+            },
+            {
+              "__struct_id": 18,
+              "Active": {
+                "type": "resref",
+                "value": "cond_hench006"
+              },
+              "ConditionParams": {
+                "type": "list",
+                "value": []
+              },
+              "Index": {
+                "type": "dword",
+                "value": 11
               },
               "IsChild": {
                 "type": "byte",
@@ -961,7 +980,7 @@
               }
             },
             {
-              "__struct_id": 0,
+              "__struct_id": 20,
               "Active": {
                 "type": "resref",
                 "value": "cond_hench015"
@@ -980,29 +999,10 @@
               }
             },
             {
-              "__struct_id": 20,
-              "Active": {
-                "type": "resref",
-                "value": "cond_hench020"
-              },
-              "ConditionParams": {
-                "type": "list",
-                "value": []
-              },
-              "Index": {
-                "type": "dword",
-                "value": 44
-              },
-              "IsChild": {
-                "type": "byte",
-                "value": 0
-              }
-            },
-            {
               "__struct_id": 21,
               "Active": {
                 "type": "resref",
-                "value": "cond_hench021"
+                "value": ""
               },
               "ConditionParams": {
                 "type": "list",
@@ -1010,7 +1010,7 @@
               },
               "Index": {
                 "type": "dword",
-                "value": 45
+                "value": 6
               },
               "IsChild": {
                 "type": "byte",
@@ -2245,7 +2245,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Abort."
+            "0": "Leave."
           }
         }
       },

@@ -67,7 +67,7 @@
               },
               "Index": {
                 "type": "dword",
-                "value": 15
+                "value": 1
               },
               "IsChild": {
                 "type": "byte",
@@ -82,7 +82,7 @@
               },
               "Index": {
                 "type": "dword",
-                "value": 1
+                "value": 15
               },
               "IsChild": {
                 "type": "byte",
@@ -93,11 +93,11 @@
               "__struct_id": 3,
               "Active": {
                 "type": "resref",
-                "value": ""
+                "value": "cond_campmission"
               },
               "Index": {
                 "type": "dword",
-                "value": 0
+                "value": 47
               },
               "IsChild": {
                 "type": "byte",
@@ -108,11 +108,11 @@
               "__struct_id": 4,
               "Active": {
                 "type": "resref",
-                "value": "cond_campmission"
+                "value": ""
               },
               "Index": {
                 "type": "dword",
-                "value": 47
+                "value": 0
               },
               "IsChild": {
                 "type": "byte",
@@ -2652,7 +2652,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Abort."
+            "0": "Leave."
           }
         }
       },
