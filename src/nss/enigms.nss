@@ -34,6 +34,10 @@ int iEnigm1 = StringToInt(GetStringLeft(sEnigms,FindSubString(sEnigms,"_")));
 int iEnigm2 = StringToInt(GetStringRight(sEnigms,GetStringLength(sEnigms)-FindSubString(sEnigms,"_")-1));
 //
 if(sEnigms==""){if(GetTag(OBJECT_SELF)=="enigmmaker"){iEnigm1 = Random(iEnigms-2)+1;}else{iEnigm1 = Random(iEnigms)+1;}}
+// No more math/logic puzzles in dungeons: reroll categories 1 (Math) and 2 (Logic)
+// into monster or skill challenges. enigmmaker only supports the monster category (3);
+// the general enigmas use monster (3) or the find-items search challenge (4).
+if((iEnigm1==1)||(iEnigm1==2)){if(GetTag(OBJECT_SELF)=="enigmmaker"){iEnigm1 = 3;}else{iEnigm1 = 3+Random(2);}}
 ////////////////////////////////////////////////////////////////////////////////
 
 
