@@ -75,7 +75,14 @@ if(Random(iCandidates)==0){iPickedDx = iCampDx;iPickedDy = iCampDy;}
   }
 if(iCandidates>0)
  {
-int iCampTier = Random(3)+1;
+// Tier 3 (Fort) is level-gated on the spawn side: area_creatures.nss's Fort
+// branch requires the planet to be level 3+, and a tier-3 assignment on a
+// lower-level planet matches NO camp branch at all - no camp is built, no
+// CampSpawned is written, and the mission can never be turned in ("Nobody's
+// even scouted that far out yet." forever). Don't offer a tier the planet
+// can't actually spawn.
+int iCampTier;
+if(GetPlanetLevel(oModule,sPlanet)<3){iCampTier = Random(2)+1;}else{iCampTier = Random(3)+1;}
 string sCampArea = FormatAreaCoord(iX+iPickedDx,iY+iPickedDy);
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite",sCampArea+"&"+IntToString(iCampTier));
 SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&ForcedCamp",IntToString(iCampTier));

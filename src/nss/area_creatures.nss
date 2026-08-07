@@ -44,6 +44,23 @@ int iCampSize = GetLocalInt(OBJECT_SELF,"CampSize");
 // camp assignment from missions.nss's guaranteed-nearby-camp feature
 // (TASK-14/15) instead of leaving this to the plain Random(45) roll below.
 if(iCampSize==0){iCampSize = StringToInt(GetPersistentString(oModule,sPlanet+"&"+sArea+"&ForcedCamp"));}
+// Tier 3 maps to the Fort branch below, which needs planet level 3+ - on a
+// lower-level planet a tier-3 assignment would match no branch at all and
+// silently create NO camp (and so never write CampSpawned, leaving the
+// plot-giver mission permanently un-turn-in-able). missions.nss no longer
+// rolls tier 3 on those planets; this repairs assignments already persisted
+// in live pwdata without needing a data migration.
+if((iCampSize==3)&&(iLevel<3)){iCampSize = 2;}
+// A camp this coordinate already had cleared out stays cleared until the next
+// server restart (volatile module local, set by creatures_death.nss next to
+// the persistent CampCleared key). Exterior tiles are per-coordinate CopyArea
+// clones destroyed shortly after their last occupant leaves, so this script
+// re-runs on a fresh clone at EVERY re-entry - without this, simply walking
+// back into the tile (or stepping into the camp's own tent interior and back
+// out) would rebuild the camp and wipe CampCleared before the player could
+// reach the plot-giver to turn the mission in.
+int iCampClearedBoot = GetLocalInt(oModule,sPlanet+"&"+sArea+"&CampClearedBoot");
+if(iCampClearedBoot==1){iCampSize = 0;}
 int iCampCreated;
 //
 int iAreaX = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;
@@ -851,7 +868,11 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 /////////////////////////////////////////////////////////////////////////////
 // Monster camps
 ////////////////////////////////////////////////////////////////////////////////
-if((iNoCamp==0)&&(!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),6)!="clouds")&&(GetStringLeft(GetTag(OBJECT_SELF),3)!="gaz")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")){if(iCampSize==1){iRandom1 = 1;}else if(iCampSize==2){iRandom1 = 6;}else if(iCampSize==3){iRandom1 = 9;}else{iRandom1 = Random(45)+1;}
+// iCampClearedBoot also blocks the plain Random(45) roll below, not just the
+// ForcedCamp assignment: any camp created here wipes CampCleared at the tail
+// of this script, so letting a random one land on an already-cleared tile
+// would erase the flag just as surely as rebuilding the assigned camp would.
+if((iNoCamp==0)&&(iCampClearedBoot==0)&&(!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),6)!="clouds")&&(GetStringLeft(GetTag(OBJECT_SELF),3)!="gaz")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")){if(iCampSize==1){iRandom1 = 1;}else if(iCampSize==2){iRandom1 = 6;}else if(iCampSize==3){iRandom1 = 9;}else{iRandom1 = Random(45)+1;}
 ////////////////////////////////////////////////////////////////////////////////
 if(iRandom1<6) // Little camp
  {
@@ -1037,6 +1058,12 @@ SetLocalInt(OBJECT_SELF,"DungeonRespawn",4);ExecuteScript("dungeons",OBJECT_SELF
 // Lets the plot-giver camp-clear mission (TASK-14/15) tell "never visited
 // yet" apart from "visited and cleared" without needing this area's live
 // object to still be loaded.
-}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampCleared","");}DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
+}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampCleared","");}
+// A forced camp (missions.nss's ForcedCamp assignment) that produced nothing
+// means the plot-giver is pointing a player at a camp that doesn't exist and
+// can never be turned in - log it loudly rather than failing silently, which
+// is how the tier-3-on-a-low-level-planet bug went unnoticed.
+if((iCampSize>0)||(iCampCreated==1)||(iCampClearedBoot==1)){WriteTimestampedLogEntry("[camp] "+sPlanet+"&"+sArea+" campSize="+IntToString(iCampSize)+" planetLevel="+IntToString(iLevel)+" clearedThisBoot="+IntToString(iCampClearedBoot)+" created="+IntToString(iCampCreated));}
+DeleteLocalInt(OBJECT_SELF,"NoCamp");DeleteLocalInt(OBJECT_SELF,"CampSize");
 ////////////////////////////////////////////////////////////////////////////////
 }

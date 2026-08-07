@@ -23,6 +23,8 @@ int iTier = StringToInt(Between(sSite,"&",""));
 int iSpawned = (GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampSpawned")=="1");
 int iCleared = (GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared")=="1");
 
+WriteTimestampedLogEntry("[camp] turn-in by "+GetName(oPC)+" town="+sPlanet+"&"+sArea+" site="+sPlanet+"&"+sCampArea+" tier="+IntToString(iTier)+" spawned="+IntToString(iSpawned)+" cleared="+IntToString(iCleared));
+
 if(!iSpawned)
  {
 SetCustomToken(10481,"Nobody's even scouted that far out yet. Come back once you've found it.");

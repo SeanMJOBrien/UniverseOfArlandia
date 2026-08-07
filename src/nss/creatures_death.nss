@@ -137,6 +137,16 @@ if(GetLocalInt(OBJECT_SELF,"Camp")==1)
   {
   string sCampArea = GetLocalString(oArea,"Area");if(FindSubString(sCampArea,"&")!=-1){sCampArea = GetStringLeft(sCampArea,FindSubString(sCampArea,"&"));}
   SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared","1");
+  // Volatile companion flag (module local, so it dies at every server boot).
+  // area_creatures.nss reads THIS one to suppress rebuilding the camp on this
+  // coordinate: without it, the tile's next population pass - which happens on
+  // every re-entry, since exterior tiles are per-coordinate CopyArea clones
+  // destroyed once empty - would recreate the camp and wipe the persistent
+  // CampCleared above before the player got back to the plot-giver. Keeping it
+  // boot-scoped rather than persistent means a restart re-arms the camp and
+  // the mission becomes available again.
+  SetLocalInt(oModule,sPlanet+"&"+sCampArea+"&CampClearedBoot",1);
+  WriteTimestampedLogEntry("[camp] cleared "+sPlanet+"&"+sCampArea+" by "+GetName(oPC));
   }
  }
 ////////////////////////////////////////////////////////////////////////////////
