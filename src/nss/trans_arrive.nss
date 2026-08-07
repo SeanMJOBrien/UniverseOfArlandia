@@ -83,6 +83,12 @@ if(iPoll>=ARRIVE_MAX_POLLS){WriteTimestampedLogEntry("[trans_arrive] timed out w
 
 // Jump - identical to transitions.nss's normal (non-Gate) jump block.
 location lLoc = GetLocalLocation(oModule,GetName(oPC)+"Loc");
+// Clear the PC's queue too, not just the henchs' below: anything queued before
+// the transition (notably a click/use action against the placeable that
+// triggered it, see transitions2.nss) survives the poll window and, once the
+// PC is somewhere else, leaves the client fighting to re-face a target in
+// another area - the PC keeps snapping back to its old orientation.
+AssignCommand(oPC,ClearAllActions(TRUE));
 AssignCommand(oPC,ActionJumpToLocation(lLoc));
 int iH=1;object oH=GetHenchman(oPC,iH);
 while(GetIsObjectValid(oH))

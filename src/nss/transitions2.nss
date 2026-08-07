@@ -218,6 +218,17 @@ SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
 // area_pop_inc.nss). These are pre-placed static areas, not runtime clones,
 // but their locals still reset on a server restart same as everywhere else.
 location lTarget = Location(oTargetArea,Vector(GetLocalFloat(oTargetArea,"fX"),GetLocalFloat(oTargetArea,"fY"),0.0),GetLocalFloat(oTargetArea,"fF"));
+// Clear the PC's own action queue before moving them, the same way henchs are
+// already handled below. This script runs from the entry placeable's OnClick,
+// and that placeable is Useable with no OnUsed script - so clicking it leaves
+// the client with a queued "walk to placeable / use placeable" action aimed at
+// an object that is about to be in a different area. Left queued, the client
+// keeps trying to face it: the PC can walk but keeps snapping back to its old
+// orientation until the player relogs (which is what clears the queue today).
+// Done in the deferred branch too, not just the immediate one - trans_arrive
+// can poll for a couple of seconds before it jumps, and the stale action would
+// sit there the whole time.
+AssignCommand(oPC,ClearAllActions(TRUE));
 if(!AreaPopIsReady(oTargetArea))
    {
 SetLocalObject(oPC,"PendingArriveArea",oTargetArea);
@@ -261,6 +272,9 @@ if(GetIsObjectValid(oExitDirect))
  {
 location lDirect = Location(oExitDirect,Vector(fX,fY,0.0),fF);
 SetLocalString(oPC,"PlayerAreaTo",GetTag(oExitDirect));
+// Same stale-click-action clear as the entry branch above - the exit placeable
+// is clicked exactly the same way.
+AssignCommand(oPC,ClearAllActions(TRUE));
 AssignCommand(oPC,ActionJumpToLocation(lDirect));
 int iH=1;object oH=GetHenchman(oPC,iH);
 while(GetIsObjectValid(oH)){AssignCommand(oH,ClearAllActions(TRUE));AssignCommand(oH,ActionJumpToLocation(lDirect));iH++;oH=GetHenchman(oPC,iH);}
