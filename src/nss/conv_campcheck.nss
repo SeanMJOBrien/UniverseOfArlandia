@@ -27,17 +27,17 @@ WriteTimestampedLogEntry("[camp] turn-in by "+GetName(oPC)+" town="+sPlanet+"&"+
 
 if(!iSpawned)
  {
-SetCustomToken(10481,"Nobody's even scouted that far out yet. Come back once you've found it.");
+SetCustomToken(10481,"Nobody's even scouted that far out yet. Come back once you've found it (area : "+sCampArea+").");
  }
 else if(!iCleared)
  {
-SetCustomToken(10481,"That camp's still crawling with monsters. Come back when it's clear.");
+SetCustomToken(10481,"That camp's still crawling with monsters (area : "+sCampArea+"). Come back when it's clear.");
  }
 else
  {
 int iReward = 100*iTier;
 GiveGoldToCreature(oPC,iReward);
 SetLocalInt(oGoldbag,sPlanet+sArea+"CampMissionDone",1);
-SetCustomToken(10481,"Well done! That camp's clear. Here's your "+IntToString(iReward)+" gold.");
+SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iReward)+" gold.");
  }
 }

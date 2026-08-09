@@ -28,5 +28,5 @@ if(iDy>0){sDir = "north";}else if(iDy<0){sDir = "south";}
 if(iDx>0){sDir = sDir+"east";}else if(iDx<0){sDir = sDir+"west";}
 if(sDir==""){sDir = "right here";}else{sDir = "to the "+sDir;}
 
-SetCustomToken(10480,"There's a "+sTierName+" of monsters "+IntToString(iDist)+" area"+((iDist==1)?"":"s")+" "+sDir+" of here. Clear it out and I'll pay you "+IntToString(iReward)+" gold.");
+SetCustomToken(10480,"There's a "+sTierName+" of monsters "+IntToString(iDist)+" area"+((iDist==1)?"":"s")+" "+sDir+" of here (area : "+sCampArea+"). Clear it out and I'll pay you "+IntToString(iReward)+" gold.");
 }
