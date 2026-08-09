@@ -34,7 +34,10 @@ services:
       DB_PASS: ${DB_PASS:-uoa}
       DB_NAME: uoa
       NWN_PORT: "6041"
-      DM_PASSWORD: ${DM_PASSWORD:-dmpassword}
+      # Falls back to a dev-only default hash in docker-entrypoint.sh if unset.
+      # Generate your own with:
+      #   php -r "echo password_hash('yourpassword', PASSWORD_BCRYPT);"
+      DM_PASSWORD_HASH: ${DM_PASSWORD_HASH:-}
       CHROME_BINARY: /usr/bin/chromium
     volumes:
       - .:/var/www/html
