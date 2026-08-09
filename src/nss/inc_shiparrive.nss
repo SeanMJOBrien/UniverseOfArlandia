@@ -14,7 +14,7 @@
 // approach is far less likely to visually clip through scenery between
 // the entry point and the actual dock. Also raises view distance to
 // 1000m.
-void EaseShipHullIn(object oPla, float fStartY=240.0, float fStartAltitude=200.0, float fDurationSeconds=10.0)
+void EaseShipHullIn(object oPla, float fStartY=240.0, float fStartAltitude=200.0, float fDurationSeconds=20.0)
 {
     if (!GetIsObjectValid(oPla)) { return; }
     vector vPos = GetPosition(oPla);
@@ -25,6 +25,23 @@ void EaseShipHullIn(object oPla, float fStartY=240.0, float fStartAltitude=200.0
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0, OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, fDurationSeconds);
     SetObjectVisibleDistance(oPla, 1000.0);
+}
+
+// Departure mirror of EaseShipHullIn. Unlike arrival, the departing hull is
+// already sitting at its true (docked) position, so there's no instant
+// offset jump to a fake start point - the ease begins right where the ship
+// currently is (its own coordinates) and translates Y/Z out to
+// (fEndY, fEndAltitude) along the same fixed-longitude path arrival used,
+// i.e. it flies straight back out toward the edge of the area and climbs
+// away, rather than departing toward a fixed corner. Same 20s duration as
+// EaseShipHullIn by default, but EASE_IN (accelerating away) instead of
+// EASE_OUT (decelerating to a stop), so arrival settles gently into the
+// dock while departure picks up speed as it leaves.
+void EaseShipHullOut(object oPla, float fEndY=240.0, float fEndAltitude=200.0, float fDurationSeconds=20.0)
+{
+    if (!GetIsObjectValid(oPla)) { return; }
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, fEndY, OBJECT_VISUAL_TRANSFORM_LERP_EASE_IN, fDurationSeconds);
+    SetObjectVisualTransform(oPla, OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, fEndAltitude, OBJECT_VISUAL_TRANSFORM_LERP_EASE_IN, fDurationSeconds);
 }
 
 // Spawns the 4 mooring-rope pieces at the given ship anchor (fPX,fPY,fPZ -
