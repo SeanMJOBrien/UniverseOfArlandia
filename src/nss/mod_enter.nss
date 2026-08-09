@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "inc_mappin"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +139,8 @@ AddJournalQuestEntry("Missions",1,oPC,FALSE,FALSE,FALSE);
 if(GetItemPossessedBy(oPC,"analyser")==OBJECT_INVALID){CreateItemOnObject("analyser",oPC);}
 if(GetItemPossessedBy(oPC,"uoabook")==OBJECT_INVALID){CreateItemOnObject("uoabook",oPC);}
 if(GetIsObjectValid(GetItemPossessedBy(oPC,"clones"))){DeleteLocalInt(GetItemPossessedBy(oPC,"clones"),"Uses");}
+// Map memory
+if(GetIsObjectValid(oPC)&&GetIsPC(oPC)){MapPin_LoadPCMapPins(oPC);}
 // Set PC enter
 SetLocalInt(oPC,"Entered",1);
 SetLocalInt(oPC,"Entering",1);
