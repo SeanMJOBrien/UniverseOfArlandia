@@ -32,11 +32,17 @@ const string MAPMEMORY_AREA_EXPLORED = "explored";
 // areas, or the area's tag for static areas that never get those locals set.
 string MapMemory_GetAreaKey(object oArea);
 
-// Saves the current area's minimap data for the PC.
-void ExportMinimap(object oPC);
+// Saves oArea's minimap data for the PC. oArea is caller-supplied rather than
+// derived from GetArea(oPC): called from an area's OnExit, GetArea(oPC) is
+// unreliable (the engine may have already pointed the PC at the destination
+// area by the time OnExit runs, silently saving/clobbering the WRONG area's
+// key) - pass OBJECT_SELF from area OnExit scripts to name the exiting area
+// unambiguously, same convention area_exit.nss already uses for everything
+// else in that script.
+void ExportMinimap(object oPC, object oArea);
 
-// Loads the PC's current area minimap data (or fully reveals "explored" areas).
-void ImportMinimap(object oPC);
+// Loads oArea's minimap data for the PC (or fully reveals "explored" areas).
+void ImportMinimap(object oPC, object oArea);
 
 // -------------------------------------------------------------------------
 
@@ -58,12 +64,11 @@ string MapMemory_GetAreaKey(object oArea)
     return GetTag(oArea);
 }
 
-void ExportMinimap(object oPC)
+void ExportMinimap(object oPC, object oArea)
 {
     if (!GetIsObjectValid(oPC)) return;
     if (!GetIsPC(oPC)) return;
 
-    object oArea = GetArea(oPC);
     // GetIsAreaNatural returns AREA_INVALID (-1) for non-areas.
     if (GetIsAreaNatural(oArea) == AREA_INVALID) return;
 
@@ -86,12 +91,11 @@ void ExportMinimap(object oPC)
     SendDebugMessage("exporting minimap map_" + sKey);
 }
 
-void ImportMinimap(object oPC)
+void ImportMinimap(object oPC, object oArea)
 {
     if (!GetIsObjectValid(oPC)) return;
     if (!GetIsPC(oPC)) return;
 
-    object oArea = GetArea(oPC);
     if (GetIsAreaNatural(oArea) == AREA_INVALID) return;
 
     // Always-known areas: fully reveal and stop.

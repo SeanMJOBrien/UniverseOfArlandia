@@ -120,7 +120,7 @@ int a = 12;int b;if(GetLocalInt(oGoldbag,"Uoabook"+IntToString(a))!=1){SetLocalI
 if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")||(GetStringLeft(sInterests,1)=="1")){SetLocalString(oGoldbag,"LastCiv",sArea);}
 ////////////////////////////////////////////////////////////////////////////////
 // Map and pins
-if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="townhall")){ExploreAreaForPlayer(OBJECT_SELF,oPC,TRUE);}else if((!GetIsDMPossessed(oPC))&&(!GetIsDM(oPC))){ImportMinimap(oPC);}
+if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")||(GetStringLeft(GetTag(OBJECT_SELF),8)=="townhall")){ExploreAreaForPlayer(OBJECT_SELF,oPC,TRUE);}else if((!GetIsDMPossessed(oPC))&&(!GetIsDM(oPC))){ImportMinimap(oPC,OBJECT_SELF);}
 ////////////////////////////////////////////////////////////////////////////////
 // Missions
 if(iPCMissions>0){while(iPCMissions>0){

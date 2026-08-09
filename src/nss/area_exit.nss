@@ -19,7 +19,7 @@ int iNum;object oHench;int i1;
 if(((GetIsObjectValid(oPC))&&(GetLocalInt(oModule,sName)!=0)&&(GetLocalInt(oPC,"Entering")==0))||(GetLocalInt(OBJECT_SELF,"SpecialSavePCDead")==1)){
 ////////////////////////////////////////////////////////////////////////////////
 // Map memory
-ExportMinimap(oPC);
+ExportMinimap(oPC,OBJECT_SELF);
 ////////////////////////////////////////////////////////////////////////////////
 // Destroy henchs stayed here
 while(iNum<iMaxHenchs+1){iNum++;oHench = GetLocalObject(oPC,"HenchObject"+IntToString(iNum));if((GetIsObjectValid(oHench))&&(GetMaster(oHench)==OBJECT_INVALID)){SetImmortal(oHench,FALSE);SetPlotFlag(oHench,FALSE);AssignCommand(oHench,SetIsDestroyable(TRUE,FALSE,FALSE));DestroyObject(oHench);DeleteLocalObject(oPC,"HenchObject"+IntToString(iNum));}}
