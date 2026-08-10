@@ -42,14 +42,24 @@ object oFaction;object oItems;string sMission;string sMaster;int iRandom1;int iR
 ExecuteScript("conv_dm_varempty",OBJECT_SELF);
 ////////////////////////////////////////////////////////////////////////////////
 // Guaranteed nearby camp + its clear-out mission (TASK-14/15). Runs on every
-// plot-giver conversation start (this whole script's Script hook), but only
-// does work once per town/city - idempotent via CampMissionSite. Picks a
-// random valid, empty, non-ocean/space neighbor tile within Chebyshev
-// distance 2 and permanently assigns it a camp; area_creatures.nss reads
-// the ForcedCamp record back when that specific area next populates.
+// plot-giver conversation start (this whole script's Script hook). Re-rolls
+// once per server boot per town/city - gated by a volatile module local
+// (CampRolled..., wiped on restart same as area_recall.nss's iReady/
+// ContentReady convention) rather than being permanent, so a town's camp
+// doesn't sit at the same coordinate forever. Picks a random valid, empty,
+// non-ocean/space neighbor tile within Chebyshev distance 2; area_creatures.nss
+// reads the ForcedCamp record back when that specific area next populates.
 string sCampMissionSite = GetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite");
-if(sCampMissionSite=="")
+string sCampRolledKey = "CampRolled&"+sPlanet+"&"+sArea;
+if((sCampMissionSite=="")||(GetLocalInt(oModule,sCampRolledKey)!=1))
  {
+// Clear the previous boot's camp assignment so a stale tile doesn't keep
+// forcing a now-mission-less camp forever once this town re-rolls a new one.
+if((sCampMissionSite!="")&&(sCampMissionSite!="none"))
+  {
+string sOldCampArea = Between(sCampMissionSite,"","&");
+SetPersistentString(oModule,sPlanet+"&"+sOldCampArea+"&ForcedCamp","");
+  }
 int iCandidates;int iPickedDx;int iPickedDy;int iCampDx;int iCampDy;string sCandTile;string sCandArea;
 for(iCampDx=-2;iCampDx<=2;iCampDx++)
   {
@@ -93,6 +103,7 @@ else
 // town/city simply never offers a camp-clear mission.
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampMissionSite","none");
  }
+SetLocalInt(oModule,sCampRolledKey,1);
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Area_enter : place mission
