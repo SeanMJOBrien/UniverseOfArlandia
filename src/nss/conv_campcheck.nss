@@ -36,8 +36,33 @@ SetCustomToken(10481,"That camp's still crawling with monsters (area : "+sCampAr
 else
  {
 int iReward = 100*iTier;
-GiveGoldToCreature(oPC,iReward);
+
+// Split the reward across any party PCs present. GetFirstFactionMember with
+// the default bPCOnly=TRUE enumerates fellow party PCs only (not henchmen) -
+// the same convention creatures_death.nss uses to split XP among a party.
+int iPartyCount = 1;
+object oPartyPC = GetFirstFactionMember(oPC);
+while(GetIsObjectValid(oPartyPC))
+ {
+if((oPartyPC!=oPC)&&(GetArea(oPartyPC)==GetArea(OBJECT_SELF))&&(GetDistanceToObject(oPartyPC)<=40.0)){iPartyCount++;}
+oPartyPC = GetNextFactionMember(oPC);
+ }
+int iShare = iReward/iPartyCount;
+
+GiveGoldToCreature(oPC,iShare);
 SetLocalInt(oGoldbag,sPlanet+sArea+"CampMissionDone"+sSite,1);
-SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iReward)+" gold.");
+
+oPartyPC = GetFirstFactionMember(oPC);
+while(GetIsObjectValid(oPartyPC))
+ {
+if((oPartyPC!=oPC)&&(GetArea(oPartyPC)==GetArea(OBJECT_SELF))&&(GetDistanceToObject(oPartyPC)<=40.0))
+  {
+GiveGoldToCreature(oPartyPC,iShare);
+SetLocalInt(GetItemPossessedBy(oPartyPC,"goldbag"),sPlanet+sArea+"CampMissionDone"+sSite,1);
+  }
+oPartyPC = GetNextFactionMember(oPC);
+ }
+
+SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iShare)+" gold"+((iPartyCount>1)?(" (split "+IntToString(iPartyCount)+" ways)"):"")+".");
  }
 }
