@@ -137,6 +137,24 @@ if(GetLocalInt(OBJECT_SELF,"Camp")==1)
   {
   string sCampArea = GetLocalString(oArea,"Area");if(FindSubString(sCampArea,"&")!=-1){sCampArea = GetStringLeft(sCampArea,FindSubString(sCampArea,"&"));}
   SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared","1");
+  // Credit whoever actually did the work - the killer plus any fellow party
+  // PCs nearby at the instant the last guard died (same faction/distance
+  // convention as the XP split above) - so conv_campcheck.nss's turn-in
+  // reward only pays people who were here, not whoever shows up later.
+  string sCreditedBy = "&"+GetName(oPC)+"&";
+  int iCreditedCount = 1;
+  object oCreditPC = GetFirstFactionMember(oPC);
+  while(GetIsObjectValid(oCreditPC))
+   {
+   if((oCreditPC!=oPC)&&(GetArea(oCreditPC)==oArea)&&(GetDistanceToObject(oCreditPC)<=40.0))
+    {
+    sCreditedBy = sCreditedBy+GetName(oCreditPC)+"&";
+    iCreditedCount++;
+    }
+   oCreditPC = GetNextFactionMember(oPC);
+   }
+  SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampClearedBy",sCreditedBy);
+  SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampClearedByCount",IntToString(iCreditedCount));
   // Volatile companion flag (module local, so it dies at every server boot).
   // area_creatures.nss reads THIS one to suppress rebuilding the camp on this
   // coordinate: without it, the tile's next population pass - which happens on

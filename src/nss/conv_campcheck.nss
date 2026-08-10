@@ -37,32 +37,25 @@ else
  {
 int iReward = 100*iTier;
 
-// Split the reward across any party PCs present. GetFirstFactionMember with
-// the default bPCOnly=TRUE enumerates fellow party PCs only (not henchmen) -
-// the same convention creatures_death.nss uses to split XP among a party.
-int iPartyCount = 1;
-object oPartyPC = GetFirstFactionMember(oPC);
-while(GetIsObjectValid(oPartyPC))
- {
-if((oPartyPC!=oPC)&&(GetArea(oPartyPC)==GetArea(OBJECT_SELF))&&(GetDistanceToObject(oPartyPC)<=40.0)){iPartyCount++;}
-oPartyPC = GetNextFactionMember(oPC);
- }
-int iShare = iReward/iPartyCount;
+// Only pay whoever creatures_death.nss actually credited with the final
+// blow (the killer plus any party PCs it found nearby at that instant) -
+// not whoever happens to be standing at the turn-in later. sCreditedBy is
+// "&"-wrapped ("&Name1&Name2&") so membership is an exact-name substring
+// match, not a partial one.
+string sCreditedBy = GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampClearedBy");
+int iCreditedCount = StringToInt(GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampClearedByCount"));
+if(iCreditedCount<1){iCreditedCount=1;}
 
+if(FindSubString(sCreditedBy,"&"+GetName(oPC)+"&")==-1)
+ {
+SetCustomToken(10481,"That camp's clear, but you weren't there for it (area : "+sCampArea+") - talk to whoever actually cleared it out.");
+ }
+else
+ {
+int iShare = iReward/iCreditedCount;
 GiveGoldToCreature(oPC,iShare);
 SetLocalInt(oGoldbag,sPlanet+sArea+"CampMissionDone"+sSite,1);
-
-oPartyPC = GetFirstFactionMember(oPC);
-while(GetIsObjectValid(oPartyPC))
- {
-if((oPartyPC!=oPC)&&(GetArea(oPartyPC)==GetArea(OBJECT_SELF))&&(GetDistanceToObject(oPartyPC)<=40.0))
-  {
-GiveGoldToCreature(oPartyPC,iShare);
-SetLocalInt(GetItemPossessedBy(oPartyPC,"goldbag"),sPlanet+sArea+"CampMissionDone"+sSite,1);
-  }
-oPartyPC = GetNextFactionMember(oPC);
+SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iShare)+" gold"+((iCreditedCount>1)?(" (split "+IntToString(iCreditedCount)+" ways)"):"")+".");
  }
-
-SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iShare)+" gold"+((iPartyCount>1)?(" (split "+IntToString(iPartyCount)+" ways)"):"")+".");
  }
 }
