@@ -37,7 +37,7 @@ else
  {
 int iReward = 100*iTier;
 GiveGoldToCreature(oPC,iReward);
-SetLocalInt(oGoldbag,sPlanet+sArea+"CampMissionDone",1);
+SetLocalInt(oGoldbag,sPlanet+sArea+"CampMissionDone"+sSite,1);
 SetCustomToken(10481,"Well done! That camp's clear (area : "+sCampArea+"). Here's your "+IntToString(iReward)+" gold.");
  }
 }
