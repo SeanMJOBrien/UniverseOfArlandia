@@ -1,4 +1,5 @@
 #include "_module"
+#include "inc_adventurer"
 int StartingConditional()
 {
 object oPC = GetPCSpeaker();
@@ -15,5 +16,17 @@ int iGrade = GetLocalInt(oGoldbag,"Grade");if(iGrade==1){iGrade = 2;}else if(iGr
 int i=1;int j;object oHenchs = GetHenchman(oPC,i);while(GetIsObjectValid(oHenchs)){if(GetResRef(oHenchs)!=sFamiliar4){j++;}i++;oHenchs = GetHenchman(oPC,i);}j = j-GetLocalInt(oGoldbag,"Clones");
 int k=1;int iHenchs;string sHench;while(k<iMaxHenchs){k++;sHench = GetLocalString(oGoldbag,IntToString(k)+"Hench");if(sHench!=""){iHenchs++;}}
 
-if((iWait==0)&&(iHench>0)&&(iHenchs<iMaxHenchs)&&(sTag!="mission")&&(iClone==0)&&(iSummon==0)&&((j<iGrade)||(GetIsDM(oPC)))){return TRUE;}else{return FALSE;}
+if((iWait==0)&&(iHench>0)&&(iHenchs<iMaxHenchs)&&(sTag!="mission")&&(iClone==0)&&(iSummon==0)&&((j<iGrade)||(GetIsDM(oPC))))
+ {
+// This gates the greeting entry whose Text is <CUSTOM10472> - that
+// substitution happens here, at conditional-check time, before the entry's
+// own action script (conv_hench027) ever runs. Setting the token only in
+// conv_hench027 always showed the PREVIOUS conversation's value (or none at
+// all, the very first time any henchman was ever talked to): SetCustomToken
+// is a single module-wide slot, not per-conversation, so it has to be
+// (re)populated here to be correct on this display rather than the next one.
+SetCustomToken(10472,GetAdventurerGreetingLine(OBJECT_SELF));
+return TRUE;
+ }
+return FALSE;
 }

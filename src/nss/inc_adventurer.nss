@@ -99,6 +99,13 @@ void RevealTrueNameToPlayer(object oAdventurer, object oPC);
 
 string GetAdventurerTrueName(object oAdventurer);
 
+// Greeting line for oHench listing its class/season breakdown (blank for
+// non-adventurer henches). Shared by cond_hench001 (must run before the
+// greeting node's text is substituted) and conv_hench027 (the node's own
+// action script, which only takes effect on the following display) - see
+// cond_hench001.nss for why both need it.
+string GetAdventurerGreetingLine(object oHench);
+
 // Mark oAdventurer as the leader of their little group.
 void DesignateAdventurerAsPartyLeader(object oAdventurer);
 
@@ -309,7 +316,10 @@ int GetRacialTypeForAdventurerPath(int nPath)
         }
         break;
     }
-    int nHumanWeight = 100;
+    // Human weighted to land ~50% overall, with the other 6 races splitting
+    // the remaining ~50% evenly (~8% each) - the other 6 weights below stay
+    // at the same 100 each they always were, only human moved.
+    int nHumanWeight = 600;
     int nDwarfWeight = 100;
     int nHalfelfWeight = 100;
     int nElfWeight = 100;
@@ -549,10 +559,16 @@ void AdjustAdventurerAlignment(object oCreature, int nPath)
     }
     if (nGoodEvil == -1)
     {
-        int nRoll = d3();
-        if (nRoll == 1) { nGoodEvil = ALIGNMENT_EVIL; }
-        else if (nRoll == 2) { nGoodEvil = ALIGNMENT_NEUTRAL; }
-        else if (nRoll == 3) { nGoodEvil = ALIGNMENT_GOOD; }
+        // Unweighted d3 here gave a flat 1/3 chance of EVIL for every path
+        // that doesn't force an alignment (roughly two-thirds of the roster,
+        // on top of the paths above - assassins, blackguards - that force
+        // EVIL outright), which read as "most henchmen are evil". Skew the
+        // default toward neutral/good instead; forced-evil paths above are
+        // unaffected since they never reach this branch.
+        int nRoll = Random(5);
+        if (nRoll == 0) { nGoodEvil = ALIGNMENT_EVIL; }
+        else if (nRoll <= 2) { nGoodEvil = ALIGNMENT_NEUTRAL; }
+        else { nGoodEvil = ALIGNMENT_GOOD; }
     }
     if (nLawChaos == ALIGNMENT_LAWFUL)
     {
@@ -3903,6 +3919,34 @@ string GetAdventurerTrueName(object oAdventurer)
 {
     string sTrueName = GetLocalString(oAdventurer, "adventurer_firstname") + " " + GetLocalString(oAdventurer, "adventurer_lastname");
     return sTrueName;
+}
+
+string GetAdventurerGreetingLine(object oHench)
+{
+    string sLine = "What can I do for you ?";
+    if (GetTag(oHench) != "adventurer")
+    {
+        return sLine;
+    }
+    int nClass1 = GetClassByPosition(1, oHench);
+    int nClass2 = GetClassByPosition(2, oHench);
+    int nClass3 = GetClassByPosition(3, oHench);
+    string s1 = IntToString(GetLevelByPosition(1, oHench)) + " " + GetStringByStrRef(StringToInt(Get2DAString("classes", "Name", nClass1))) + " seasons";
+    string sAll = s1;
+    if (nClass2 != CLASS_TYPE_INVALID)
+    {
+        string s2 = IntToString(GetLevelByPosition(2, oHench)) + " " + GetStringByStrRef(StringToInt(Get2DAString("classes", "Name", nClass2))) + " seasons";
+        if (nClass3 != CLASS_TYPE_INVALID)
+        {
+            string s3 = IntToString(GetLevelByPosition(3, oHench)) + " " + GetStringByStrRef(StringToInt(Get2DAString("classes", "Name", nClass3))) + " seasons";
+            sAll = s1 + ", " + s2 + " and " + s3;
+        }
+        else
+        {
+            sAll = s1 + " and " + s2;
+        }
+    }
+    return "Are you looking to hire? I have " + sAll + ".";
 }
 
 // Reveal oAdventurer's true name to oPC and their party.
