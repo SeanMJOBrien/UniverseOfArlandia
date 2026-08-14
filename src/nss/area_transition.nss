@@ -13,6 +13,7 @@ string sPlanetVar = GetPersistentString(oModule,sPlanet);
 int iPlanetSize = StringToInt(GetStringRight(GetStringLeft(sPlanetVar,FindSubString(sPlanetVar,"&002&")),GetStringLength(GetStringLeft(sPlanetVar,FindSubString(sPlanetVar,"&002&")))-FindSubString(sPlanetVar,"&001&")-5));
 //
 string sT = GetTag(OBJECT_SELF);
+int bIsSpace = (GetStringLeft(sTag,5)=="space");
 int iAreaWidth = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;int iAreaHeight = GetAreaSize(AREA_HEIGHT,OBJECT_SELF)*10;
 float fPos = 5.0;int iCorner = 10;
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,18 +45,18 @@ SetLocalString(oPC,"PlanetDest",sPlanet);
 if(sT=="North")
  {
 // North
-if((sY==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew="m"+sY;}else if(sY=="m1"){sYnew="0";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))-1);}else{sYnew=IntToString(StringToInt(sY)+1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,1,bIsSpace);
 fY = fPos;
 // West Corner
 if(FloatToInt(fX)<=iCorner)
   {
-if((sX=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew=GetStringRight(sX,GetStringLength(sX)-1);}else if(sX=="0"){sXnew="m1";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))+1);}else{sXnew=IntToString(StringToInt(sX)-1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,-1,bIsSpace);
 fX = IntToFloat(iAreaWidth)-fPos;
   }
 // East Corner
 else if(FloatToInt(fX)>=(iAreaWidth-iCorner))
   {
-if((sX==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew="m"+sX;}else if(sX=="m1"){sXnew="0";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))-1);}else{sXnew=IntToString(StringToInt(sX)+1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,1,bIsSpace);
 fX = fPos;
   }
 //
@@ -64,18 +65,18 @@ fX = fPos;
 else if(sT=="South")
  {
 // South
-if((sY=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew=GetStringRight(sY,GetStringLength(sY)-1);}else if(sY=="0"){sYnew="m1";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))+1);}else{sYnew=IntToString(StringToInt(sY)-1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,-1,bIsSpace);
 fY = IntToFloat(iAreaHeight)-fPos;
 // West Corner
 if(FloatToInt(fX)<=iCorner)
   {
-if((sX=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew=GetStringRight(sX,GetStringLength(sX)-1);}else if(sX=="0"){sXnew="m1";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))+1);}else{sXnew=IntToString(StringToInt(sX)-1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,-1,bIsSpace);
 fX = IntToFloat(iAreaWidth)-fPos;
   }
 // East Corner
 else if(FloatToInt(fX)>=(iAreaWidth-iCorner))
   {
-if((sX==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew="m"+sX;}else if(sX=="m1"){sXnew="0";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))-1);}else{sXnew=IntToString(StringToInt(sX)+1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,1,bIsSpace);
 fX = fPos;
   }
 //
@@ -84,18 +85,18 @@ fX = fPos;
 else if(sT=="East")
  {
 // East
-if((sX==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew="m"+sX;}else if(sX=="m1"){sXnew="0";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))-1);}else{sXnew=IntToString(StringToInt(sX)+1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,1,bIsSpace);
 fX = fPos;
 // North Corner
 if(FloatToInt(fY)>=(iAreaHeight-iCorner))
   {
-if((sY==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew="m"+sY;}else if(sY=="m1"){sYnew="0";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))-1);}else{sYnew=IntToString(StringToInt(sY)+1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,1,bIsSpace);
 fY = fPos;
   }
 // South Corner
 else if(FloatToInt(fY)<=iCorner)
   {
-if((sY=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew=GetStringRight(sY,GetStringLength(sY)-1);}else if(sY=="0"){sYnew="m1";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))+1);}else{sYnew=IntToString(StringToInt(sY)-1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,-1,bIsSpace);
 fY = IntToFloat(iAreaHeight)-fPos;
   }
 //
@@ -104,18 +105,18 @@ fY = IntToFloat(iAreaHeight)-fPos;
 else if(sT=="West")
  {
 // West
-if((sX=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sXnew=GetStringRight(sX,GetStringLength(sX)-1);}else if(sX=="0"){sXnew="m1";}else if(GetStringLeft(sArea,1)=="m"){sXnew="m"+IntToString(StringToInt(GetStringRight(sX,GetStringLength(sX)-1))+1);}else{sXnew=IntToString(StringToInt(sX)-1);}
+sXnew=AdvanceCoordAxis(sX,iPlanetSize,-1,bIsSpace);
 fX = IntToFloat(iAreaWidth)-fPos;
 // North Corner
 if(FloatToInt(fY)>=(iAreaHeight-iCorner))
   {
-if((sY==IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew="m"+sY;}else if(sY=="m1"){sYnew="0";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))-1);}else{sYnew=IntToString(StringToInt(sY)+1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,1,bIsSpace);
 fY = fPos;
   }
 // South Corner
 else if(FloatToInt(fY)<=iCorner)
   {
-if((sY=="m"+IntToString(iPlanetSize/2))&&(GetStringLeft(sTag,5)!="space")){sYnew=GetStringRight(sY,GetStringLength(sY)-1);}else if(sY=="0"){sYnew="m1";}else if(GetSubString(sArea,iM,1)=="m"){sYnew="m"+IntToString(StringToInt(GetStringRight(sArea,GetStringLength(sArea)-iM-1))+1);}else{sYnew=IntToString(StringToInt(sY)-1);}
+sYnew=AdvanceCoordAxis(sY,iPlanetSize,-1,bIsSpace);
 fY = IntToFloat(iAreaHeight)-fPos;
   }
 //

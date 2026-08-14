@@ -456,3 +456,37 @@ void DomainSetRotation(object oFlag, object oPC, int iRot)
     FloatingTextStringOnCreature("Structure rotated - refreshing the area...", oPC);
     DomainTravelRefresh(oPC, sPlanet, sArea);
 }
+
+// ---------------------------------------------------------------------------
+// AdvanceCoordAxis(sCoord, iPlanetSize, iStep, bIsSpace)
+//
+// Advances one coordinate component (X or Y, as a signed "m"-prefixed string,
+// e.g. "m3", "0", "12") by iStep (+1 or -1), wrapping at +-iPlanetSize/2.
+// Space tiles (bIsSpace) never wrap - they just increment/decrement.
+//
+// Replaces the sXnew/sYnew ternary chains duplicated throughout
+// area_transition.nss - same rationale as the tile-column helpers above.
+// ---------------------------------------------------------------------------
+string AdvanceCoordAxis(string sCoord, int iPlanetSize, int iStep, int bIsSpace)
+{
+    if (bIsSpace)
+    {
+        int iC = StringToInt(sCoord);
+        if (GetStringLeft(sCoord,1)=="m") {iC=-StringToInt(GetStringRight(sCoord,GetStringLength(sCoord)-1));}
+        iC += iStep;
+        return (iC<0) ? ("m"+IntToString(-iC)) : IntToString(iC);
+    }
+
+    int iHalf = iPlanetSize/2;
+    if (iStep>0)
+    {
+        if (sCoord==IntToString(iHalf)) return "m"+sCoord;
+        if (sCoord=="m1") return "0";
+        if (GetStringLeft(sCoord,1)=="m") return "m"+IntToString(StringToInt(GetStringRight(sCoord,GetStringLength(sCoord)-1))-1);
+        return IntToString(StringToInt(sCoord)+1);
+    }
+    if (sCoord=="m"+IntToString(iHalf)) return GetStringRight(sCoord,GetStringLength(sCoord)-1);
+    if (sCoord=="0") return "m1";
+    if (GetStringLeft(sCoord,1)=="m") return "m"+IntToString(StringToInt(GetStringRight(sCoord,GetStringLength(sCoord)-1))+1);
+    return IntToString(StringToInt(sCoord)-1);
+}
