@@ -465,4 +465,12 @@ Each task below is self-contained. Fields:
 - **status**: done — implemented on branch `feature/party-coflight`
 - **action**: The cabin hatch now opens a menu (self/placeable conversation `cabin_hatch.dlg`, started from `cabin_hatch.nss` OnUsed) with two options: "Climb up to the pilot" (`cabin_join.nss` -> `FlightHatchJoinOwner`, current-owner-location, logout-fallback to boarding spot) and "Drop back down to where you boarded" (`cabin_disemb.nss` -> `FlightHatchToBoarding`, always the boarding spot even while the owner is still piloting), plus "Stay aboard". `inc_flight.nss`'s old `FlightHatchToOwner` was split into `FlightExitTo` (shared jump + local-clear + empty-cabin self-destroy) and the two option functions. No cabin-area change was needed — the placeable's `OnUsed=cabin_hatch` is unchanged; only what that script does changed.
 - **files**: `src/nss/inc_flight.nss`, `src/nss/cabin_hatch.nss`, `src/nss/cabin_join.nss` (new), `src/nss/cabin_disemb.nss` (new), `src/dlg/cabin_hatch.dlg.json` (new).
+
+---
+
+### TASK-25: tile_util.nss has no caller yet
+- **status**: todo — library exists, unwired
+- **action**: `tile_util.nss` was written (alongside the spawn-group-capture feature) as a self-contained, engine-only tile-editing library — grid↔world conversion, bounds-checked single-tile read/write, rotatable multi-tile "footprint" builder/apply, and snapshot/restore for undoing a stamp. It's fully documented and compiles clean, but `grep`ing the codebase turns up zero `#include "tile_util"` anywhere — nothing calls it. Original intent isn't recorded; likely candidates are letting a spawn-group capture/restamp its terrain footprint alongside its creatures/placeables (`spawngrp_save.nss`/`spawngrp_load.nss`), or a `.w`-command DM tool for reshaping terrain the same way `.warea` reshapes a whole tile. Needs a decision on which feature actually wants it before wiring it in - don't guess and bolt it onto the first plausible caller.
+- **files**: `src/nss/tile_util.nss` (existing), likely `src/nss/spawngrp_save.nss`/`spawngrp_load.nss` or a new `dmb_*`/`mod_chat.nss` DM command if/when a consumer is chosen.
+- **verify**: not yet planned - depends on which consumer is picked.
 - **verify**: board a follower, take off; while the pilot is still aloft, use the hatch and choose "drop back to where you boarded" — confirm the follower lands back where they boarded (not at the pilot), and "climb up to the pilot" still works. Confirm the cabin clone is destroyed once empty via either path.
