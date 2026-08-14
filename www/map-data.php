@@ -6,7 +6,8 @@ include('helpers.php');
 
 $is_dm = $_SESSION['is_dm'] ?? false;
 
-$link = mysqli_connect($host, $user, $pass, $data, (int)($port ?? 3306));
+mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
+$link = @mysqli_connect($host, $user, $pass, $data, (int)($port ?? 3306));
 if (!$link) {
     http_response_code(503);
     header('Content-Type: application/json');

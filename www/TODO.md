@@ -1,6 +1,6 @@
 ---
 project: Universe of Arlandia — www (PHP/HTML web frontend)
-updated: 2026-06-09
+updated: 2026-07-29
 stack: PHP 8.4 · MySQLi prepared statements · Apache · Playwright (Node)
 validate_with: |
   PHP: open page in browser via Apache; check for PHP errors/warnings.
@@ -19,7 +19,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-01: Delete or restrict phpinfo.php
-- **status**: todo
+- **status**: done
 - **action**: Delete `phpinfo.php`. It exposes full PHP configuration, loaded modules, and all environment variables (including DB credentials and DM password) to any visitor.
 - **file**: `www/phpinfo.php` — entire file
 - **pattern**:
@@ -36,7 +36,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-02: Delete legacy test files with deprecated mysql_* functions
-- **status**: todo
+- **status**: done
 - **action**: Delete `test.php` and `testmysql.php`. Both use the removed `mysql_query()` / `mysql_connect()` functions (deprecated PHP 5.5, removed PHP 7.0) and are not used by any production page.
 - **files**:
   - `www/test.php` — uses `mysql_query()`, `mysql_result()`
@@ -51,7 +51,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-03: Remove or sanitise uoaBKP.php
-- **status**: todo
+- **status**: done — file did not exist in the repo (already gone/never present); closed as not-applicable, no action needed
 - **action**: Delete `uoaBKP.php`. It contains hardcoded DB credentials and DM password inside HTML comments. Not used by any production page.
 - **file**: `www/uoaBKP.php` — entire file
 - **pattern**:
@@ -64,7 +64,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-04: Add CSRF tokens to all POST forms
-- **status**: todo
+- **status**: done
 - **action**: Add a CSRF token to every form that performs a state-changing POST. The DM login form (index.php) and the player reset form (galaxy.php, playerInfo.php) are the affected pages.
 - **files**:
   - `www/index.php` — DM login form
@@ -93,7 +93,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-05: Hash DM password with bcrypt
-- **status**: todo
+- **status**: done — also updated docker-compose.yml (DM_PASSWORD → DM_PASSWORD_HASH, default is the bcrypt hash of "dmpassword") and docker/docker-entrypoint.sh, which regenerates uoa.php from env vars on every container start and would otherwise have reverted this on restart
 - **action**: Replace plaintext DM password storage with a bcrypt hash. The password is currently compared with `hash_equals($dmlogin, $_POST['login'])` where `$dmlogin` is a plaintext env var.
 - **files**:
   - `www/uoa.php` — where `$dmlogin` is set from `DM_PASSWORD` env var
@@ -129,7 +129,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-06: Fix JavaScript escaping in galaxy.php confirm dialog
-- **status**: todo
+- **status**: done — galaxy.php already used json_encode(); the actual addslashes() bug was in playerInfo.php's reset-button confirm() dialog, fixed there instead
 - **action**: Replace `addslashes()` in the JavaScript `confirm()` call with `json_encode()`. `addslashes()` is for SQL, not JavaScript string escaping — a character name containing a single quote breaks the JS syntax.
 - **file**: `www/galaxy.php` — the `onclick` attribute on the reset form button
 - **pattern**:
@@ -146,7 +146,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-07: Add session_start() to playerInfo.php
-- **status**: todo
+- **status**: done
 - **action**: Add `session_start()` as the very first line of `playerInfo.php` for consistency and to allow future use of `$_SESSION['is_dm']` checks.
 - **file**: `www/playerInfo.php` — line 1
 - **pattern**:
@@ -164,7 +164,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-08: Add pwdata parse validation to helpers.php
-- **status**: todo
+- **status**: done
 - **action**: Add bounds/safety checks to `between()` and `encoded_field()` in `helpers.php` so corrupted pwdata records fail gracefully rather than returning misleading partial data.
 - **file**: `www/helpers.php`
 - **pattern**:
@@ -191,7 +191,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-09: Write Playwright tests for playerInfo.php
-- **status**: todo
+- **status**: done
 - **action**: Create `www/tests/playerInfo.spec.js` covering the same scenarios as `galaxy.spec.js` infos panel tests.
 - **file**: `www/tests/playerInfo.spec.js` (new file)
 - **pattern**:
@@ -209,7 +209,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-10: Write Playwright tests for nwnservers.php
-- **status**: todo
+- **status**: done
 - **action**: Create `www/tests/nwnservers.spec.js`.
 - **file**: `www/tests/nwnservers.spec.js` (new file)
 - **pattern**:
@@ -226,7 +226,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-11: Expand interests.spec.js for type-specific rendering
-- **status**: todo
+- **status**: done
 - **action**: Add per-interest-type tests to `www/tests/interests.spec.js` for Domain, Town, Dungeon, Castle, Animal Reserve, and Resource Mountain types.
 - **file**: `www/tests/interests.spec.js` — append new test blocks
 - **pattern**:
@@ -244,7 +244,7 @@ Each task is self-contained with enough context to act on without reading other 
 ---
 
 ### WEB-12: Remove or repurpose duplicate crafting HTML files
-- **status**: todo
+- **status**: done — kept Crafting.html (dark-theme table); deleted crafting.html/UOA_Crafting.html/UOA_Crafting2.html; index.php and news.html now link directly to Crafting.html (previously they linked to the thin crafting.html wrapper, which pointed at the older light-theme UOA_Crafting.html — that hop is now gone)
 - **action**: Determine which of the three crafting files (`crafting.html`, `UOA_Crafting.html`, `UOA_Crafting2.html`, `Crafting.html`) is canonical and delete the rest.
 - **files**:
   - `www/crafting.html` — FrontPage-era static page
@@ -260,3 +260,13 @@ Each task is self-contained with enough context to act on without reading other 
   ```
 - **constraint**: Check what nav links in `index.php` and `.html` files reference before deleting. `grep -r "crafting" /var/www/html/www/*.html /var/www/html/www/*.php`
 - **verify**: All nav links to crafting pages resolve to one file. Deleted files return 404.
+
+---
+
+## Also fixed during this pass (not originally on this list)
+
+### Silent graceful-degradation failure on PHP 8.1+
+- **found while**: adding Playwright tests for playerInfo.php/nwnservers.php (WEB-09/10) surfaced that `isDbConnected()`'s DB-down detection was unreliable.
+- **root cause**: `galaxy.php`, `index.php`, `interests.php`, `statut.php`, `map-data.php`, `playerLocations.php`, `planetCreator.php` all connect with plain `mysqli_connect()` and rely on `if (!$link) { die/echo '...offline'; }`. On PHP 8.1+, mysqli's default error-reporting mode throws an uncaught `mysqli_sql_exception` on connection failure instead of returning `false` — so that fallback never ran, and a DB-down visitor saw a raw PHP warning + fatal error dump instead of the intended message.
+- **fix**: added `mysqli_report(MYSQLI_REPORT_OFF);` immediately before each `mysqli_connect()` call, plus `@` on the call itself to suppress the underlying E_WARNING (display_errors is on for these pages), restoring the documented "fail fast if down" convention.
+- **also fixed**: `tests/index.spec.js` and `tests/statut.spec.js` had "page structure" test blocks that assumed static HTML (title, nav, meta tags) renders before the DB connection attempt — it doesn't, the connection (and possible fail-fast exit) happens first in both files. This was previously masked by the bug above (DB-down detection always reported "connected"). Gated those blocks on `dbAvailable`, matching every other spec file's pattern.

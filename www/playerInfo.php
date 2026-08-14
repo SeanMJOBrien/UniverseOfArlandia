@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // PHP 8 compatible script to find player locations and add a feature to reset coordinates.
 
 // --- SETUP AND HELPER FUNCTIONS ---
@@ -6,6 +8,9 @@
 // Include database credentials.
 // Assumes a file named uoa.php exists with $host, $user, $pass, $data.
 include("uoa.php");
+include("helpers.php");
+
+$is_dm = $_SESSION['is_dm'] ?? false;
 
 // Establish a robust database connection.
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
@@ -36,6 +41,14 @@ function setPwData($link, $name, $value): bool {
 
 $feedbackMessage = '';
 $playerToReset = $_POST['reset_player'] ?? null;
+
+if ($playerToReset && !$is_dm) {
+    $feedbackMessage = "Error: DM session required to reset player coordinates.";
+    $playerToReset = null;
+} elseif ($playerToReset && !csrf_verify()) {
+    $feedbackMessage = "Error: Invalid or expired form submission.";
+    $playerToReset = null;
+}
 
 if ($playerToReset) {
     $players_count = (int)getPwData($link, "Players");
@@ -187,12 +200,15 @@ if ($playerToReset) {
         <td><?= htmlspecialchars($var3) ?></td>
         <td><?= htmlspecialchars($var4) ?></td>
         <td>
+            <?php if ($is_dm): ?>
             <form method="post" action="playerInfo.php" style="margin:0;">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                 <input type="hidden" name="reset_player" value="<?= htmlspecialchars($var2) ?>">
-                <button type="submit" onclick="return confirm('Are you sure you want to reset coordinates for <?= htmlspecialchars(addslashes($var2)) ?> to 0,0?');">
+                <button type="submit" onclick="return confirm('Are you sure you want to reset coordinates for ' + <?= json_encode($var2) ?> + ' to 0,0?');">
                     Set to 0,0
                 </button>
             </form>
+            <?php endif; ?>
         </td>
       </tr>
       <?php

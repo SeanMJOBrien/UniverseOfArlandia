@@ -8,7 +8,8 @@ error_reporting(E_ALL);
 include('uoa.php');
 include('helpers.php');
 
-$link = mysqli_connect($host, $user, $pass, $data, (int)$port);
+mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
+$link = @mysqli_connect($host, $user, $pass, $data, (int)$port);
 if (!$link) { die('service offline'); }
 
 $galaxyx = (int)($_GET['galaxyx'] ?? 0);

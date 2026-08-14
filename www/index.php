@@ -8,7 +8,8 @@ error_reporting(E_ALL);
 include('uoa.php');
 include('helpers.php');
 
-$link = mysqli_connect($host, $user, $pass, $data, (int)$port);
+mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
+$link = @mysqli_connect($host, $user, $pass, $data, (int)$port);
 if (!$link) {
     die('Failed to connect to MySQL.');
 }
@@ -20,8 +21,7 @@ if (isset($_GET['logout'])) {
     exit();
 }
 if (isset($_POST['login'])) {
-    // hash_equals prevents timing-based attacks; migrate DM_PASSWORD env var to bcrypt for stronger security
-    if (hash_equals($dmlogin, $_POST['login'])) {
+    if (csrf_verify() && $dmlogin !== '' && password_verify($_POST['login'], $dmlogin)) {
         $_SESSION['is_dm'] = true;
     }
 }
@@ -156,7 +156,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                 <a target="UOA_Frame" href="screenshots.html">Screenshots</a><br>
                 <a target="UOA_Frame" href="interests.html">Interests</a><br>
                 <a target="UOA_Frame" href="domains.html">Domains</a><br>
-                <a target="UOA_Frame" href="crafting.html">Crafting</a><br>
+                <a target="UOA_Frame" href="Crafting.html">Crafting</a><br>
             </nav>
 
             <h2 class="section-title">Characters :</h2>
@@ -180,6 +180,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                 <?php if (!$is_dm): ?>
                 <form name="dmarea" action="index.php" method="post">
                     <h2 class="section-title dm-area-title">DM area :</h2>
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                     <input type="password" name="login" value="">
                     <noscript><input type="submit" value="connect"></noscript>
                 </form>

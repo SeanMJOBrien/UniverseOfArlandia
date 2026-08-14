@@ -10,13 +10,14 @@ include('helpers.php');
 
 $is_dm = $_SESSION['is_dm'] ?? false;
 
-$link = mysqli_connect($host, $user, $pass, $data, (int)($port ?? 3306));
+mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
+$link = @mysqli_connect($host, $user, $pass, $data, (int)($port ?? 3306));
 if (!$link) {
     die('service offline');
 }
 
 // Action: reset a player's map coordinates (DM only)
-if ($is_dm && isset($_POST['reset_player_char_name'])) {
+if ($is_dm && isset($_POST['reset_player_char_name']) && csrf_verify()) {
     $charToReset = $_POST['reset_player_char_name'];
 
     $stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE name LIKE 'Player%'");
@@ -49,7 +50,7 @@ if ($is_dm && isset($_POST['reset_player_char_name'])) {
 }
 
 // Action: teleport a player to a new location (DM only)
-if ($is_dm && isset($_POST['teleport_player_key'])) {
+if ($is_dm && isset($_POST['teleport_player_key']) && csrf_verify()) {
     $playerKey = $_POST['teleport_player_key'];
     if (!preg_match('/^Player\d+$/', $playerKey)) {
         http_response_code(400); exit('Invalid player key');
@@ -324,6 +325,7 @@ $tiletype   = encoded_field($planet_row, 3);
                     <td>
                         <?php if ($is_dm): ?>
                         <form method="post" action="galaxy.php?planet=infos" style="margin:0;">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                             <input type="hidden" name="reset_player_char_name" value="<?= htmlspecialchars($var2) ?>">
                             <button type="submit" class="action-button" data-testid="btn-reset-coords"
                                 onclick="return confirm('Reset coordinates for ' + <?= json_encode($var2) ?> + ' to 0,0?')">
@@ -331,6 +333,7 @@ $tiletype   = encoded_field($planet_row, 3);
                             </button>
                         </form>
                         <form method="post" action="galaxy.php?planet=infos" style="margin:4px 0 0 0; white-space:nowrap;">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                             <input type="hidden" name="teleport_player_key" value="<?= htmlspecialchars($pk) ?>">
                             <?php
                                 $coords = explode('_', $var4, 2);
