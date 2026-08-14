@@ -73,4 +73,8 @@ ExecuteScript("_galaxy",oModule);
 // DM-built cluster tiles (restore runtime caches + member area locals)
 ExecuteScript("dmb_cluster_boot",oModule);
 ////////////////////////////////////////////////////////////////////////////////
+// DM-built cluster tiles (restore Creator-tool creatures - must run after
+// dmb_cluster_boot above, which stamps the member area locals this depends on)
+ExecuteScript("dmb_clucre_boot",oModule);
+////////////////////////////////////////////////////////////////////////////////
 }

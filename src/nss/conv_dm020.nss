@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "dmb_clucre_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +127,13 @@ else if(GetLocalInt(oPC,IntToString(iFly)+"Faction")==3){ChangeToStandardFaction
 else if(GetLocalInt(oPC,IntToString(iFly)+"Faction")==4){ChangeToStandardFaction(oNew,STANDARD_FACTION_MERCHANT);}
 
 ApplyEffectToObject(DURATION_TYPE_INSTANT,EffectAppear(),oNew);
+
+// Cluster member areas are never destroyed/recreated during a session, so
+// they never go through the generic area_save.nss save pipeline (see its
+// IsClusterMember early-return) - snapshot a Persistent landed creature
+// here instead, so it survives a restart even without ever being resaved.
+if(GetLocalInt(oNew,"Persistent")==1){SetLocalInt(oNew,"DontSave",1);if(GetLocalInt(GetArea(oNew),"IsClusterMember")==1){DmbSaveCluCreature(oModule,oNew);}}
+
 iFly--;
    }
   }

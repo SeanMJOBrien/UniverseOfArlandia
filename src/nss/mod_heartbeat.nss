@@ -27,7 +27,7 @@ if(iResetOff==0)
 SetLocalInt(oModule,"Counter",iCounter);
 SetLocalInt(oModule,"Counter2",iCounter2);
 if(iCounter2>=10){SetLocalInt(oModule,"Counter3",iCounter3);DeleteLocalInt(oModule,"Counter2");SetPersistentString(oModule,"Reboot",IntToString(iCounter3)+"&&&"+IntToString(iCounter4));}
-if(iCounter>=iReset){SetPersistentString(oModule,"Calendar",IntToString(GetCalendarYear())+"/C1/"+IntToString(GetCalendarMonth())+"/C2/"+IntToString(GetCalendarDay())+"/C3/"+IntToString(GetTimeHour())+"/C4/");SetPersistentString(oModule,"Reboot","rebooting");NWNX_CallFunction(NWNX_Administration, "ShutdownServer");}
+if(iCounter>=iReset){SetPersistentString(oModule,"Calendar",IntToString(GetCalendarYear())+"/C1/"+IntToString(GetCalendarMonth())+"/C2/"+IntToString(GetCalendarDay())+"/C3/"+IntToString(GetTimeHour())+"/C4/");SetPersistentString(oModule,"Reboot","rebooting");ExecuteScript("dmb_clucre_save",oModule);NWNX_CallFunction(NWNX_Administration, "ShutdownServer");}
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Time & Calendar
