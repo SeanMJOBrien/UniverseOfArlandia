@@ -8,6 +8,9 @@ www/nwn_server_status.cache
 .build/
 .nasher/
 
+# Swamp CLI tool cache/state (not project source)
+.swamp/
+
 # Server runtime dir and vendored base-scripts tree (not source)
 uoa/
 DwarfStory/
