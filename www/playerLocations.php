@@ -16,10 +16,13 @@ if (!$link) {
 $pc_records = [];
 if ($is_dm) {
     $pwdata_cache = [];
-    $res = mysqli_query($link, 'SELECT name, val FROM pwdata');
+    $stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE player='~' AND tag='uoa'");
+    mysqli_stmt_execute($stmt);
+    $res = mysqli_stmt_get_result($stmt);
     while ($row = mysqli_fetch_assoc($res)) {
         $pwdata_cache[$row['name']] = $row['val'];
     }
+    mysqli_stmt_close($stmt);
 
     $pc_keys = array_filter(array_keys($pwdata_cache), fn($k) => str_starts_with($k, 'PCLoc_'));
     foreach ($pc_keys as $k) {

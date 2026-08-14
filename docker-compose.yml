@@ -28,8 +28,8 @@ services:
       db:
         condition: service_healthy
     environment:
-      DB_HOST: db
-      DB_PORT: "3306"
+      DB_HOST: ${DB_HOST:-db}
+      DB_PORT: ${DB_PORT:-3306}
       DB_USER: uoa
       DB_PASS: ${DB_PASS:-uoa}
       DB_NAME: uoa

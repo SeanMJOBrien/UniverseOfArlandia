@@ -31,16 +31,17 @@ $pwdata_cache = [];
 if ($planet === 'Space') {
     $stmt = mysqli_prepare($link,
         "SELECT name, val FROM pwdata
-         WHERE name IN ('ShowAreas','ShowInterests')
-            OR name LIKE 'Space%'");
+         WHERE player='~' AND tag='uoa'
+           AND (name IN ('ShowAreas','ShowInterests') OR name LIKE 'Space%')");
     mysqli_stmt_execute($stmt);
     $res = mysqli_stmt_get_result($stmt);
 } else {
     $stmt = mysqli_prepare($link,
         "SELECT name, val FROM pwdata
-         WHERE name IN ('ShowAreas','ShowInterests',?)
-            OR name LIKE ?
-            OR name LIKE ?");
+         WHERE player='~' AND tag='uoa'
+           AND (name IN ('ShowAreas','ShowInterests',?)
+                OR name LIKE ?
+                OR name LIKE ?)");
     $areasX    = $planet . 'AreasX%';
     $interests = $planet . '&%&Interests';
     mysqli_stmt_bind_param($stmt, 'sss', $planet, $areasX, $interests);

@@ -28,7 +28,7 @@ if (isset($_POST['login'])) {
 $is_dm = $_SESSION['is_dm'] ?? false;
 
 // Load galaxy list
-$stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
+$stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
 $key = 'Galaxy';
 mysqli_stmt_bind_param($stmt, 's', $key);
 mysqli_stmt_execute($stmt);

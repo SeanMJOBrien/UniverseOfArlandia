@@ -20,7 +20,7 @@ if (!$link) {
 if ($is_dm && isset($_POST['reset_player_char_name']) && csrf_verify()) {
     $charToReset = $_POST['reset_player_char_name'];
 
-    $stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE name LIKE 'Player%'");
+    $stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE player='~' AND tag='uoa' AND name LIKE 'Player%'");
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -39,11 +39,21 @@ if ($is_dm && isset($_POST['reset_player_char_name']) && csrf_verify()) {
     if ($playerKey && $playerData) {
         $newData = preg_replace('/(&3&)(.*?)(?=&4&)/', '$10_0', $playerData, 1);
         if ($newData !== null && $newData !== $playerData) {
-            $upd = mysqli_prepare($link, 'UPDATE pwdata SET val = ? WHERE name = ?');
+            $upd = mysqli_prepare($link, "UPDATE pwdata SET val = ? WHERE player='~' AND tag='uoa' AND name = ?");
             mysqli_stmt_bind_param($upd, 'ss', $newData, $playerKey);
             mysqli_stmt_execute($upd);
             mysqli_stmt_close($upd);
         }
+        // Write a WebReset flag so the game heartbeat teleports the player if online.
+        // charname is stored with ~ for apostrophes (APS encoding), matching NWScript GetName via APS.
+        $charNameRaw  = between($playerData, '&1&', '&2&');
+        $planet       = between($playerData, '&2&', '&3&');
+        $webResetKey  = 'WebReset_' . $charNameRaw;
+        $webResetVal  = $planet . '|0_0';
+        $ins = mysqli_prepare($link, "INSERT INTO pwdata (player,tag,name,val,expire,last) VALUES ('~','uoa',?,?,0,NOW()) ON DUPLICATE KEY UPDATE val=VALUES(val),last=NOW()");
+        mysqli_stmt_bind_param($ins, 'ss', $webResetKey, $webResetVal);
+        mysqli_stmt_execute($ins);
+        mysqli_stmt_close($ins);
     }
     header('Location: ' . $_SERVER['PHP_SELF'] . '?planet=infos&reset_success=' . urlencode($charToReset));
     exit();
@@ -56,7 +66,7 @@ if ($is_dm && isset($_POST['teleport_player_key']) && csrf_verify()) {
         http_response_code(400); exit('Invalid player key');
     }
 
-    $stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
+    $stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name = ?");
     mysqli_stmt_bind_param($stmt, 's', $playerKey);
     mysqli_stmt_execute($stmt);
     $row = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
@@ -77,7 +87,7 @@ if ($is_dm && isset($_POST['teleport_player_key']) && csrf_verify()) {
                  . $new_planet . '&3&' . $new_x . '_' . $new_y . '&4&'
                  . $after4;
 
-        $upd = mysqli_prepare($link, 'UPDATE pwdata SET val = ? WHERE name = ?');
+        $upd = mysqli_prepare($link, "UPDATE pwdata SET val = ? WHERE player='~' AND tag='uoa' AND name = ?");
         mysqli_stmt_bind_param($upd, 'ss', $new_val, $playerKey);
         mysqli_stmt_execute($upd);
         mysqli_stmt_close($upd);
@@ -92,12 +102,15 @@ $galaxyy = (int)($_GET['galaxyy'] ?? 0);
 $system  = $_GET['system'] ?? '';
 $planet  = $_GET['planet'] ?? '';
 
-// Cache all pwdata in one query
+// Cache all module-level pwdata in one query
 $pwdata_cache = [];
-$res = mysqli_query($link, 'SELECT name, val FROM pwdata');
+$stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE player='~' AND tag='uoa'");
+mysqli_stmt_execute($stmt);
+$res = mysqli_stmt_get_result($stmt);
 while ($row = mysqli_fetch_assoc($res)) {
     $pwdata_cache[$row['name']] = $row['val'];
 }
+mysqli_stmt_close($stmt);
 function get_pw(string $key): string {
     global $pwdata_cache;
     return $pwdata_cache[$key] ?? '';

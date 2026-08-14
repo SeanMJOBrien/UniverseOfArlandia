@@ -13,12 +13,14 @@ if (!$link) {
     exit;
 }
 
-$stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
+$stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
 
-// Player count from Beamdog API
-$api_json   = @file_get_contents('https://api.nwn.beamdog.net/v1/servers/142.47.97.210/5121');
-$decoded    = json_decode($api_json);
-$player_count = $decoded->current_players ?? 0;
+// Player count from DB (Player1, Player2, ... records deleted on logout)
+$pc_stmt = mysqli_prepare($link, "SELECT COUNT(*) FROM pwdata WHERE player='~' AND tag='uoa' AND name REGEXP '^Player[0-9]+$' AND val != ''");
+mysqli_stmt_execute($pc_stmt);
+$pc_row = mysqli_fetch_row(mysqli_stmt_get_result($pc_stmt));
+$player_count = (int)($pc_row[0] ?? 0);
+mysqli_stmt_close($pc_stmt);
 
 // Next reboot time
 $key = 'Reboot';

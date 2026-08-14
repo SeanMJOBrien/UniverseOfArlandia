@@ -1,6 +1,6 @@
 ---
 project: Universe of Arlandia — www (PHP/HTML web frontend)
-updated: 2026-06-09
+updated: 2026-06-30
 purpose: |
   Agent reference for established patterns. Follow these exactly when editing
   any PHP file. Do not introduce new patterns without updating this file.
@@ -35,6 +35,23 @@ if (!$link) { echo 'service offline'; exit; }
 
 ## DATABASE ACCESS
 
+### Schema
+
+The live (production) pwdata table has **5 columns** matching the APS persistent system:
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `player` | varchar(64) | `'~'` for module-level vars, lowercase account name for PC vars |
+| `tag`    | varchar(64) | Module tag (`'uoa'`) for module vars, char name for PC vars |
+| `name`   | varchar(64) | Variable name (`'Galaxy'`, `'Player1'`, etc.) |
+| `val`    | text        | Encoded value string |
+| `expire` / `last` | — | Managed by APS, not read by PHP |
+
+**Primary key is `(player, tag, name)` — `name` alone is NOT unique.**
+
+All web-page data is module-level: filter with `WHERE player='~' AND tag=?` using `$module_tag`
+from `uoa.php`.
+
 ### Connection
 ```php
 include('uoa.php');   // sets $host, $user, $pass, $data, $port
@@ -44,7 +61,8 @@ if (!$link) { echo 'service offline'; exit; }
 
 ### Single lookup (one key)
 ```php
-$stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
+// tag='uoa' is the NWN module tag — hardcoded because it never changes for this project
+$stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
 $key  = 'SomeKey';
 mysqli_stmt_bind_param($stmt, 's', $key);
 mysqli_stmt_execute($stmt);
@@ -55,12 +73,15 @@ mysqli_stmt_close($stmt);
 
 ### Bulk load (all rows matching a pattern)
 ```php
-// galaxy.php pattern — load entire table into associative array
+// galaxy.php pattern — load all module-level rows into associative array
 $pwdata_cache = [];
-$res = mysqli_query($link, 'SELECT name, val FROM pwdata');
+$stmt = mysqli_prepare($link, "SELECT name, val FROM pwdata WHERE player='~' AND tag='uoa'");
+mysqli_stmt_execute($stmt);
+$res = mysqli_stmt_get_result($stmt);
 while ($row = mysqli_fetch_assoc($res)) {
     $pwdata_cache[$row['name']] = $row['val'];
 }
+mysqli_stmt_close($stmt);
 function get_pw(string $key): string {
     global $pwdata_cache;
     return $pwdata_cache[$key] ?? '';
@@ -74,6 +95,9 @@ $val = mysqli_query($link, "SELECT val FROM pwdata WHERE name = '$key'");
 
 // WRONG — raw GET param in SQL
 $val = mysqli_query($link, "SELECT val FROM pwdata WHERE name = '{$_GET['planet']}'");
+
+// WRONG — missing player/tag filter (returns all players' vars with the same name)
+$stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
 ```
 
 ---

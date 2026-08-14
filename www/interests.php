@@ -18,7 +18,7 @@ $planet  = $_GET['planet'] ?? '';
 $area    = $_GET['area']   ?? '';
 
 // Fetch the primary interest record
-$stmt = mysqli_prepare($link, 'SELECT val FROM pwdata WHERE name = ?');
+$stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
 $key = $planet . '&' . $area . '&Interests';
 mysqli_stmt_bind_param($stmt, 's', $key);
 mysqli_stmt_execute($stmt);

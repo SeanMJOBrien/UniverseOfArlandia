@@ -1,6 +1,10 @@
 USE uoa;
 CREATE TABLE IF NOT EXISTS pwdata (
-    name VARCHAR(255) NOT NULL,
-    val  TEXT,
-    PRIMARY KEY (name)
+    player VARCHAR(64)  NOT NULL,
+    tag    VARCHAR(64)  NOT NULL,
+    name   VARCHAR(64)  NOT NULL,
+    val    TEXT,
+    expire INT          DEFAULT NULL,
+    last   TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (player, tag, name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

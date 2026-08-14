@@ -23,7 +23,7 @@ try {
 mysqli_report(MYSQLI_REPORT_OFF);
 
 function getPwData($link, $name): string {
-    $stmt = mysqli_prepare($link, "SELECT `val` FROM `pwdata` WHERE `name` = ?");
+    $stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
     mysqli_stmt_bind_param($stmt, "s", $name);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
@@ -32,7 +32,7 @@ function getPwData($link, $name): string {
 }
 
 function setPwData($link, $name, $value): bool {
-    $stmt = mysqli_prepare($link, "UPDATE `pwdata` SET `val` = ? WHERE `name` = ?");
+    $stmt = mysqli_prepare($link, "UPDATE pwdata SET val=? WHERE player='~' AND tag='uoa' AND name=?");
     mysqli_stmt_bind_param($stmt, "ss", $value, $name);
     return mysqli_stmt_execute($stmt);
 }
