@@ -12,6 +12,7 @@ Players menu, etc.), which this guide doesn't repeat.
 1. [World coordinates, quick primer](#world-coordinates-quick-primer)
 2. [In-game: `.w` chat commands](#in-game-w-chat-commands)
 3. [In-game: building a cluster](#in-game-building-a-cluster)
+   - [Creatures placed inside a cluster member](#creatures-placed-inside-a-cluster-member)
 4. [Website: Planet Creator](#website-planet-creator)
 5. [Troubleshooting](#troubleshooting)
 
@@ -133,6 +134,24 @@ Rules:
 The cluster mapping is saved to the database and rebuilt automatically at
 every server reboot, so it survives restarts without you needing to redo
 anything.
+
+### Creatures placed inside a cluster member
+
+Creatures you land with the base toolset's Creator tool ("Land creatures")
+inside a cluster member area are **not** covered by the game's normal
+per-tile object persistence — cluster members are excluded from that system
+so multiple members sharing one coordinate don't overwrite each other's
+saved objects. Instead, a creature landed with the Creator tool's
+**Persistent** toggle on survives restarts through a separate path:
+
+- It's snapshotted immediately when you land it, so it comes back even
+  after a crash or an unscheduled restart — at the position/HP it had when
+  placed.
+- Its position and HP are refreshed once more right before every scheduled
+  reboot, so a normal restart brings it back as you last left it (moved,
+  damaged, etc.) rather than only where you originally placed it.
+- A creature without **Persistent** checked is session-only, same as
+  everywhere else in the world.
 
 ---
 
