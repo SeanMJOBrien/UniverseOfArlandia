@@ -1,12 +1,10 @@
 /**
  * Tests for index.php — the main 3-column shell page.
  *
- * Without DB: PHP renders the left nav column then calls `die()` at the galaxy
- * query. Title, header, left-nav links, status iframe, and DM login form are
- * all output before that point and are always testable.
- *
- * With DB: the full page renders including the content iframe, star-systems
- * right column, and footer. Those tests are skipped when DB is unavailable.
+ * Without DB: per this project's page-structure convention (DB connection with
+ * fail-fast happens before any HTML output), the whole page dies immediately
+ * with "Failed to connect to MySQL." — nothing else renders. All tests below
+ * that depend on rendered HTML are skipped when DB is unavailable.
  */
 
 const { test, expect } = require('@playwright/test');
@@ -19,10 +17,26 @@ test.beforeAll(async ({ request }) => {
 });
 
 // ---------------------------------------------------------------------------
-// Structure — always testable (rendered before the DB query that may die())
+// Graceful degradation — always testable
+// ---------------------------------------------------------------------------
+test.describe('index.php — without DB', () => {
+  test('responds without an unhandled PHP crash', async ({ page }) => {
+    test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
+    await page.goto('/index.php', { waitUntil: 'domcontentloaded' });
+    const body = await page.textContent('body');
+    expect(body).toContain('Failed to connect to MySQL.');
+    await expect(page.locator('body')).not.toContainText('Fatal error');
+    await expect(page.locator('body')).not.toContainText('Warning:');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Structure — requires a working DB connection (the whole page dies before
+// any HTML output otherwise, per this project's fail-fast convention)
 // ---------------------------------------------------------------------------
 test.describe('index.php — page structure', () => {
   test.beforeEach(async ({ page }) => {
+    test.skip(!dbAvailable, 'Database not connected');
     // domcontentloaded avoids hanging on the status iframe loading statut.php
     await page.goto('/index.php', { waitUntil: 'domcontentloaded' });
   });
@@ -61,7 +75,7 @@ test.describe('index.php — page structure', () => {
       { href: 'screenshots.html', label: 'Screenshots' },
       { href: 'interests.html',   label: 'Interests' },
       { href: 'domains.html',     label: 'Domains' },
-      { href: 'crafting.html',    label: 'Crafting' },
+      { href: 'Crafting.html',    label: 'Crafting' },
     ];
     for (const { href, label } of moduleLinks) {
       const link = page.locator(`a[href="${href}"]`);
@@ -139,12 +153,14 @@ test.describe('index.php — DB-dependent content', () => {
 // ---------------------------------------------------------------------------
 test.describe('index.php — DM login', () => {
   test('?logout=1 shows login form, not DM links', async ({ page }) => {
+    test.skip(!dbAvailable, 'Database not connected');
     await page.goto('/index.php?logout=1', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('input[type="password"][name="login"]')).toBeVisible();
     await expect(page.locator('a[href*="galaxy.php?planet=infos"]')).toHaveCount(0);
   });
 
   test('wrong password keeps login form visible', async ({ page }) => {
+    test.skip(!dbAvailable, 'Database not connected');
     await page.goto('/index.php', { waitUntil: 'domcontentloaded' });
     await page.locator('input[type="password"][name="login"]').fill('wrong_password_xyz');
     await page.locator('form[name="dmarea"]').evaluate(f => f.submit());

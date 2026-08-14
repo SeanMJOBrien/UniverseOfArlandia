@@ -195,3 +195,100 @@ test.describe('interests.php — Dungeon interest type', () => {
     await expect(page.locator('body')).toContainText('Dungeon statut');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Interest type: Town (inttype === '1')
+// ---------------------------------------------------------------------------
+test.describe('interests.php — Town interest type', () => {
+  let townPlanet = '';
+  let townArea   = '';
+
+  test.beforeAll(async ({ request }) => {
+    if (!dbAvailable) return;
+    try {
+      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const html = await response.text();
+      const match = html.match(/href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'[^>]*><img[^>]+src='[^']*_town[^']*'/);
+      if (match) {
+        const url = new URL(match[1], 'http://localhost:8765');
+        townPlanet = url.searchParams.get('planet') || '';
+        townArea   = url.searchParams.get('area') || '';
+      }
+    } catch {
+      // leave empty — tests will skip
+    }
+  });
+
+  test.beforeEach(async ({ page }) => {
+    test.skip(!dbAvailable || !townPlanet, 'No town interest data found in DB');
+    await page.goto(
+      `/interests.php?planet=${encodeURIComponent(townPlanet)}&area=${encodeURIComponent(townArea)}`,
+      { waitUntil: 'domcontentloaded' }
+    );
+  });
+
+  test('shows special shop type', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('Special shop');
+  });
+
+  test('shows local player shop section', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('Local player shop');
+  });
+
+  test('shows local message board section', async ({ page }) => {
+    await expect(page.locator('body')).toContainText('Local message board');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Interest type: Animal Reserve (inttype === '5')
+// ---------------------------------------------------------------------------
+test.describe('interests.php — Animal Reserve interest type', () => {
+  let reservePlanet = '';
+  let reserveArea   = '';
+
+  test.beforeAll(async ({ request }) => {
+    if (!dbAvailable) return;
+    try {
+      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const html = await response.text();
+      const match = html.match(/href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'[^>]*><img[^>]+src='[^']*anre[^']*'/);
+      if (match) {
+        const url = new URL(match[1], 'http://localhost:8765');
+        reservePlanet = url.searchParams.get('planet') || '';
+        reserveArea   = url.searchParams.get('area') || '';
+      }
+    } catch {
+      // leave empty — tests will skip
+    }
+  });
+
+  test.beforeEach(async ({ page }) => {
+    test.skip(!dbAvailable || !reservePlanet, 'No animal reserve interest data found in DB');
+    await page.goto(
+      `/interests.php?planet=${encodeURIComponent(reservePlanet)}&area=${encodeURIComponent(reserveArea)}`,
+      { waitUntil: 'domcontentloaded' }
+    );
+  });
+
+  test('shows five pen status cells', async ({ page }) => {
+    for (let i = 1; i <= 5; i++) {
+      await expect(page.locator('body')).toContainText(`Pen ${i} :`);
+    }
+  });
+
+  test('each pen shows an animal type or "None"', async ({ page }) => {
+    const body = await page.textContent('body');
+    const knownAnimals = ['Deers', 'Wild Angus', 'Badgers', 'Bears', 'Boars', 'Goats', 'Unknown', 'None'];
+    const found = knownAnimals.some((a) => body?.includes(a));
+    expect(found).toBeTruthy();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Interest types without page-specific fields (Castle, Ruins, Resource
+// mountain, Amusement place) — interests.php only renders the common
+// planet/area/title structure for these, already exercised by the
+// "interests.php — common structure" describe block above. No additional
+// type-specific markup exists in interests.php to assert on.
+// ---------------------------------------------------------------------------

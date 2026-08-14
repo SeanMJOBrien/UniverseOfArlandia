@@ -32,7 +32,7 @@ const staticPages = [
   '/screenshots.html',
   '/interests.html',
   '/domains.html',
-  '/crafting.html',
+  '/Crafting.html',
   '/races.html',
   '/classes.html',
   '/feats.html',
@@ -147,9 +147,9 @@ test.describe('contact.html', () => {
   });
 });
 
-test.describe('crafting.html', () => {
+test.describe('Crafting.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/crafting.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/Crafting.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
