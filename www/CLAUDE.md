@@ -42,6 +42,10 @@ Key naming conventions:
 - `Calendar` — server time (/C3/ = hour, /C4/ = next field delimiter)
 - `ShowAreas`, `ShowInterests`, `ShowPlanets` — DM visibility flags
 - `Space<X>_<Y>` — space tile data for the star map
+- `WebChars_<cdkey>` — characters seen on a public CD key, `<account>&1&<charname>&2&` repeated
+- `WebCode_<cdkey>` — one-time website registration code (its `last` column is the issue time)
+- `WMap_<PlanetName>_X<X>` — per-character discovered tiles, stored under
+  `player=<account>, tag=<charname>` as a run of `&+05&` keys
 
 Negative coordinates in keys are stored with `m` replacing `-` (e.g., `m3_5` = `-3,5`).
 
@@ -54,7 +58,9 @@ www/                  Apache DocumentRoot — PHP and HTML files served from her
   interests.php       Detail view for a map area (town, dungeon, castle, domain, etc.)
   statut.php          Server status widget (iframe); pings NWN server via UDP
   map-data.php        JSON API — returns tile grid for a planet or Space sector
+  register.php        Player registration (CD key + in-game .web code + password)
   helpers.php         Shared PHP helpers: between(), tile_key(), encoded_field()
+  player_auth.php     Player login/registration + per-player map discovery lookups
   uoa.php             Config only: DB credentials, NWN port, DM password
   ServerInfo.php      UDP library for NWN BNES/BNER/BNXI/BNXR server queries
   database-mysql.php  Legacy DB abstraction layer (not used by main pages)
@@ -84,6 +90,28 @@ Interest type codes (first character of interest `val`):
 All terrain tile GIFs (`forest.gif`, `plain_town.gif`, etc.) and domain/screenshot JPGs
 live in `www/app/assets/`. They are referenced from PHP and HTML as `app/assets/forest.gif`
 (root-relative from the DocumentRoot `www/`).
+
+### Per-player map discovery
+
+The map shows each player only the areas *they* have discovered.
+
+- Players register at `register.php` with their 8-character public CD key plus a
+  one-time code they get in game by typing `.web` (issued by `mod_chat.nss`, read
+  from `WebCode_<cdkey>`, valid 30 minutes, burnt on use). Accounts live in the
+  `web_players` table — `docker/mysql-init/02-web-players.sql`, which must be
+  applied by hand to an existing database.
+- They log in from the "Player area" box in `index.php`; the session holds
+  `$_SESSION['player_cdkey']`.
+- The module writes discovery per character (`WMap_<Planet>_X<X>`, from
+  `_webmap.nss` via `transitions.nss` and `area_enter.nss`). The site unions
+  every character on the CD key into one map.
+- Visibility for a tile is decided by `tile_is_visible()` in `player_auth.php`:
+  DM sees everything; the `ShowAreas` / `ShowInterests` module flags stay global
+  overrides; otherwise the tile is drawn only for a logged-in player who has
+  discovered it. Anonymous visitors get an empty grid and a login prompt.
+- The server-wide `*` discovery marker on `<Planet>AreasX<X>` (and
+  `Space<X>_<Y>Show`) is still written by the module and still drives discovery
+  XP and DM tooling — it no longer reveals tiles on the website.
 
 ### DM area
 

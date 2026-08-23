@@ -3,6 +3,7 @@ session_start();
 
 include('uoa.php');
 include('helpers.php');
+include('player_auth.php');
 
 $is_dm = $_SESSION['is_dm'] ?? false;
 
@@ -51,6 +52,14 @@ if ($planet === 'Space') {
 while ($row = mysqli_fetch_assoc($res)) {
     $pwdata_cache[$row['name']] = $row['val'];
 }
+
+// Tiles the logged-in player (all characters on their CD key) has discovered
+// here. Empty for anonymous callers, who therefore get an all-hidden grid.
+$player_cdkey = player_cdkey();
+$player_tiles = $player_cdkey !== ''
+    ? player_discovered_tiles($link, $player_cdkey, $planet)
+    : [];
+
 mysqli_close($link);
 
 function get_pw(string $key): string {
@@ -95,9 +104,12 @@ for ($Y = $half; $Y >= -$half; $Y--) {
         $prev_key  = ($YY === -$half) ? '' : '&' . tile_key($YY - 1) . '&';
         $tiletype  = between($tile_col, $prev_key, $curr_key);
 
-        $discovered = (substr($tiletype, -1) === '*');
-        if ($discovered) $tiletype = substr($tiletype, 0, -1);
+        // The trailing "*" is the server-wide "someone has been here" flag; it
+        // is stripped from the terrain code but no longer grants visibility.
+        if (substr($tiletype, -1) === '*') $tiletype = substr($tiletype, 0, -1);
         if ($planet !== 'Space') $tiletype = $tile_map[$tiletype] ?? $tiletype;
+
+        $discovered = isset($player_tiles[$XX . '_' . $YY]);
 
         $area_key  = str_replace('-', 'm', $XX . '_' . $YY);
         $interests = get_pw($planet . '&' . $area_key . '&Interests');
@@ -109,15 +121,13 @@ for ($Y = $half; $Y >= -$half; $Y--) {
 
         $space_data  = '';
         $planet_show = '';
-        $show2       = '';
         if ($planet === 'Space') {
             $space_data  = get_pw('Space' . $area_key);
             $planet_show = between($space_data, '&004&', '&005&');
-            $show2       = get_pw('Space' . $area_key . 'Show');
         }
 
-        $tile_visible  = !empty($tiletype) && ($is_dm || $discovered || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
-        $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
+        $tile_visible  = !empty($tiletype) && tile_is_visible($is_dm, $discovered, $showAreas, $showInterests, $interest2);
+        $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $discovered);
 
         $href = '';
         if ($tile_visible || $space_visible) {
@@ -129,6 +139,8 @@ for ($Y = $half; $Y >= -$half; $Y--) {
             }
         }
 
+        // 'discovered' is viewer-scoped: has *this* CD key been here (false for
+        // anonymous callers), not whether anyone on the server ever has.
         $tile_shown = $tile_visible || $space_visible;
         $tiles[] = [
             'x'          => $XX,

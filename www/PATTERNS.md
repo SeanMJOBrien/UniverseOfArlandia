@@ -1,6 +1,6 @@
 ---
 project: Universe of Arlandia — www (PHP/HTML web frontend)
-updated: 2026-06-30
+updated: 2026-08-14
 purpose: |
   Agent reference for established patterns. Follow these exactly when editing
   any PHP file. Do not introduce new patterns without updating this file.
@@ -134,6 +134,55 @@ if ($is_dm && isset($_POST['reset_player_char_name'])) {
 
 ---
 
+## PLAYER AUTHENTICATION (CD key)
+
+Players log in with the 8-character public CD key they play on. `player_auth.php`
+owns every piece of this — never re-implement the lookups inline.
+
+### Include order
+```php
+session_start();
+include('uoa.php');
+include('helpers.php');
+include('player_auth.php');   // after helpers.php, before any data fetching
+```
+
+### Check player status
+```php
+$is_dm = $_SESSION['is_dm'] ?? false;   // DM checks are unchanged
+if (player_is_logged_in()) { $cdkey = player_cdkey(); }
+```
+
+### Decide whether a map tile is visible
+```php
+// Load the viewer's discovered tiles once per page, before mysqli_close():
+$player_tiles = player_is_logged_in()
+    ? player_discovered_tiles($link, player_cdkey(), $planet)
+    : [];
+
+// Then per tile — never hand-roll this rule:
+$discovered   = isset($player_tiles[$XX . '_' . $YY]);   // plain signed ints
+$tile_visible = !empty($tiletype)
+    && tile_is_visible($is_dm, $discovered, $showAreas, $showInterests, $interest2);
+```
+
+`tile_is_visible()` is the single source of truth: DM sees everything, the
+`ShowAreas` / `ShowInterests` module flags are global overrides, and otherwise
+only the viewer's own discoveries show. The trailing `*` on a terrain code is
+the *server-wide* discovery marker — strip it from the code, but never treat it
+as a reason to display a tile.
+
+### NEVER do this
+```php
+// WRONG — the "*" flag reveals the tile to every visitor
+$visible = (substr($tiletype, -1) === '*');
+
+// WRONG — a detail page must be gated too, not just the map grid
+// (interests.php answers 403 for a tile the viewer has not discovered)
+```
+
+---
+
 ## OUTPUT ESCAPING
 
 ### All user-facing string output
@@ -227,7 +276,10 @@ $key = $planet_name . '&' . $x . '_' . tile_key($y) . '&Interests';
 | `Calendar` | Server in-game date/time |
 | `Reboot` | Minutes until next reboot (or literal `rebooting`) |
 | `Space<X>_<Y>` | Space tile type at star map coordinate |
-| `Space<X>_<Y>Show` | Space tile visibility flag |
+| `Space<X>_<Y>Show` | Space tile visibility flag (server-wide; not used for web visibility) |
+| `WebChars_<cdkey>` | Characters seen on a public CD key — see below |
+| `WebCode_<cdkey>` | One-time website registration code; `last` column = issue time |
+| `WMap_<Planet>_X<X>` | Per-character discovered tiles (player=account, tag=charname) |
 
 ---
 
@@ -279,13 +331,16 @@ table.map-grid td:not(.map-tile) { font-size: 0.8em; }  /* axis labels */
 ```
 uoa.php          ← config only (no includes)
 helpers.php      ← utilities only (no includes)
+player_auth.php  ← player accounts + map discovery (no includes)
 
-index.php        → uoa.php, helpers.php
-galaxy.php       → uoa.php, helpers.php
-interests.php    → uoa.php, helpers.php
+index.php        → uoa.php, helpers.php, player_auth.php
+galaxy.php       → uoa.php, helpers.php, player_auth.php
+interests.php    → uoa.php, helpers.php, player_auth.php
+map-data.php     → uoa.php, helpers.php, player_auth.php
 statut.php       → uoa.php, helpers.php
 playerLocations.php → uoa.php, helpers.php
 playerInfo.php   → uoa.php  (helpers.php not currently used)
+register.php     → uoa.php, helpers.php, player_auth.php
 nwnservers.php   → standalone (no includes)
 
 database-mysql.php → sql.php  (legacy bundle, NOT used by main pages)
@@ -353,6 +408,34 @@ $y        = encoded_field($p, 7);
 $z        = encoded_field($p, 8);
 $facing   = encoded_field($p, 9);
 $is_dm    = encoded_field($p, 10);
+```
+
+---
+
+## PER-PLAYER MAP DISCOVERY FORMAT
+
+Written by `_webmap.nss` (module side), read by `player_auth.php` (web side).
+
+### WebChars_<cdkey> — module-level row, one per CD key
+```
+<account>&1&<charname>&2&<account>&1&<charname>&2&...
+```
+Repeated entries, each terminated by `&2&`. Account is lowercase, matching the
+`player` column APS writes for per-PC rows; apostrophes are stored as `~` in
+both this value and the `tag` column, so the two match without unescaping.
+
+### WMap_<Planet>_X<X> — per-PC row (player=account, tag=charname)
+```
+&+05&&-03&&+00&
+```
+A run of `&±YY&` keys — the same signed, zero-padded form used by
+`<Planet>AreasX<X>` — one per discovered row in that column. Presence means
+discovered; there is no value. `Space` is stored as a planet name like any other.
+
+```php
+// Parse (player_auth.php pattern)
+preg_match_all('/&([+-]\d+)&/', $val, $m);
+foreach ($m[1] as $y) { $tiles[$x . '_' . (int)$y] = true; }
 ```
 
 ---

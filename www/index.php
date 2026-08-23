@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 
 include('uoa.php');
 include('helpers.php');
+include('player_auth.php');
 
 mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
 $link = @mysqli_connect($host, $user, $pass, $data, (int)$port);
@@ -26,6 +27,23 @@ if (isset($_POST['login'])) {
     }
 }
 $is_dm = $_SESSION['is_dm'] ?? false;
+
+// Player auth via session — the CD key a player registered with decides which
+// map areas galaxy.php shows them.
+$player_error = '';
+if (isset($_GET['player_logout'])) {
+    player_logout();
+    header('Location: index.php');
+    exit();
+}
+if (isset($_POST['player_cdkey'])) {
+    if (csrf_verify()) {
+        $player_error = player_login($link, $_POST['player_cdkey'], $_POST['player_password'] ?? '');
+    } else {
+        $player_error = 'Session expired — try again.';
+    }
+}
+$player_chars = player_is_logged_in() ? player_characters($link, player_cdkey()) : [];
 
 // Load galaxy list
 $stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
@@ -124,6 +142,12 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
 
         .dm-area input[type="password"] { width: 8em; font-size: 0.9em; }
         .dm-area-title { color: #66CCFF; }
+
+        .player-area input[type="text"],
+        .player-area input[type="password"] { width: 8em; font-size: 0.9em; margin-bottom: 3px; }
+        .player-area input[type="submit"] { font-size: 0.8em; }
+        .hint { font-size: 0.75em; color: #b9b9c8; margin: 0 0 0.5em; }
+        .login-error { font-size: 0.75em; color: #FF6666; font-weight: bold; margin: 0 0 0.5em; }
     </style>
 </head>
 
@@ -175,6 +199,35 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                 <a target="UOA_Frame" href="links.html">Links</a><br>
                 <a target="UOA_Frame" href="contact.html">Contact</a><br>
             </nav>
+
+            <div class="dm-area player-area">
+                <h2 class="section-title dm-area-title">Player area :</h2>
+                <?php if (!player_is_logged_in()): ?>
+                <p class="hint">Your map shows the areas you have discovered.</p>
+                <?php if ($player_error !== ''): ?>
+                    <p class="login-error" data-testid="player-login-error"><?= htmlspecialchars($player_error) ?></p>
+                <?php endif; ?>
+                <form name="playerarea" action="index.php" method="post" data-testid="player-login-form">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
+                    <input type="text" name="player_cdkey" maxlength="8" placeholder="CD key" autocomplete="username">
+                    <input type="password" name="player_password" placeholder="password" autocomplete="current-password">
+                    <input type="submit" value="log in">
+                </form>
+                <p class="nav-links"><a target="UOA_Frame" href="register.php">Register</a></p>
+                <?php else: ?>
+                <p class="info-text" data-testid="player-logged-in">
+                    CD key <span class="ip-address"><?= htmlspecialchars(player_cdkey()) ?></span>
+                </p>
+                <?php if ($player_chars): ?>
+                <p class="info-text">
+                    <?php foreach ($player_chars as $char): ?>
+                        <?= htmlspecialchars(str_replace('~', "'", $char['charname'])) ?><br>
+                    <?php endforeach; ?>
+                </p>
+                <?php endif; ?>
+                <p class="nav-links"><a href="index.php?player_logout=1">Disconnect</a></p>
+                <?php endif; ?>
+            </div>
 
             <div class="dm-area">
                 <?php if (!$is_dm): ?>

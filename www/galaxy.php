@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 
 include('uoa.php');
 include('helpers.php');
+include('player_auth.php');
 
 $is_dm = $_SESSION['is_dm'] ?? false;
 
@@ -119,7 +120,7 @@ function get_pw(string $key): string {
 function build_tile_data(
     string $planet, int $XX, int $YY, int $half,
     bool $is_dm, $showAreas, $showInterests,
-    int $galaxyx, int $galaxyy
+    int $galaxyx, int $galaxyy, array $player_tiles
 ): array {
     static $tile_map = [
         '01' => 'clouds',    '02' => 'desert',    '03' => 'foothills', '04' => 'forest',
@@ -151,13 +152,16 @@ function build_tile_data(
 
     $space_data  = get_pw('Space' . $area_key);
     $planet_show = between($space_data, '&004&', '&005&');
-    $show2       = get_pw('Space' . $area_key . 'Show');
 
     $alt = $area_key . ' : ' . ucwords($tiletype);
     if (strpos($tiletype, 'city') === 0) { $tiletype = 'city'; $alt = $area_key . ' : ' . $iname; }
 
-    $tile_visible  = !empty($tiletype) && ($is_dm || $show || $showAreas == 1 || ($showInterests == 1 && $interest2 !== ''));
-    $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $show2 == 1);
+    // $show (the server-wide "*" flag) and Space<X>_<Y>Show still record that
+    // *someone* has been here — they no longer reveal the tile to everyone.
+    // Visibility for a non-DM now comes from this viewer's own discoveries.
+    $discovered    = isset($player_tiles[$XX . '_' . $YY]);
+    $tile_visible  = !empty($tiletype) && tile_is_visible($is_dm, $discovered, $showAreas, $showInterests, $interest2);
+    $space_visible = $planet === 'Space' && !empty($space_data) && ($is_dm || $planet_show == 1 || $discovered);
 
     $tiletype2 = '';
     $href = '';
@@ -204,6 +208,13 @@ function render_map_tile(array $t): string {
     $out .= '</td>';
     return $out;
 }
+
+// Tiles the logged-in player (all characters on their CD key) has discovered
+// on this planet. Empty for anonymous visitors, who therefore see a blank map.
+$player_cdkey = player_cdkey();
+$player_tiles = ($player_cdkey !== '' && $planet !== '' && $planet !== 'infos')
+    ? player_discovered_tiles($link, $player_cdkey, $planet)
+    : [];
 
 $planet_row = get_pw($planet);
 $tiletype   = encoded_field($planet_row, 3);
@@ -266,6 +277,19 @@ $tiletype   = encoded_field($planet_row, 3);
             font-weight: bold;
         }
         .action-button:hover { background-color: #c00; }
+
+        .map-notice {
+            max-width: 60em;
+            margin: 0 auto 10px;
+            padding: 8px 12px;
+            border: 1px solid #005064;
+            background-color: #001d24;
+            color: #66CCFF;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .map-notice a { color: #00FFFF; }
+        .map-notice code { color: #FFC800; }
 
         .lbl { color: #66CCFF; font-weight: bold; }
         .val { color: #00FFFF; font-weight: bold; }
@@ -434,6 +458,19 @@ $tiletype   = encoded_field($planet_row, 3);
     ?>
 
     <br>
+    <?php if (!$is_dm && !player_is_logged_in()): ?>
+        <p class="map-notice" data-testid="map-login-notice">
+            This map shows only the areas you have discovered.
+            <a target="_top" href="index.php">Log in</a> with your CD key, or
+            <a target="_top" href="register.php">register</a> — type
+            <code>.web</code> in game to get your code.
+        </p>
+    <?php elseif (player_is_logged_in() && empty($player_tiles)): ?>
+        <p class="map-notice" data-testid="map-empty-notice">
+            You have not discovered any area on <?= htmlspecialchars($planetname) ?> yet.
+        </p>
+    <?php endif; ?>
+
     <div style="text-align:center;">
         <p><span class="lbl"><u data-testid="map-heading" data-name="<?= htmlspecialchars($planetname) ?>"><?php
         if ($planet === 'Space' && isset($system_centers[$planetname])) {
@@ -535,7 +572,7 @@ $tiletype   = encoded_field($planet_row, 3);
             for ($X = -$half; $X < $half + 1; $X++) {
                 echo render_map_tile(build_tile_data(
                     $planet, $X + $galaxyx * 15, $Y + $galaxyy * 15, $half,
-                    $is_dm, $showAreas, $showInterests, $galaxyx, $galaxyy
+                    $is_dm, $showAreas, $showInterests, $galaxyx, $galaxyy, $player_tiles
                 ));
             }
         }

@@ -7,6 +7,9 @@ error_reporting(E_ALL);
 
 include('uoa.php');
 include('helpers.php');
+include('player_auth.php');
+
+$is_dm = $_SESSION['is_dm'] ?? false;
 
 mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
 $link = @mysqli_connect($host, $user, $pass, $data, (int)$port);
@@ -16,6 +19,15 @@ $galaxyx = (int)($_GET['galaxyx'] ?? 0);
 $galaxyy = (int)($_GET['galaxyy'] ?? 0);
 $planet  = $_GET['planet'] ?? '';
 $area    = $_GET['area']   ?? '';
+
+// Same visibility rule as the map itself: a detail page must not be readable
+// by URL for a tile the viewer has not discovered.
+$area_coord = str_replace('m', '-', $area);   // "m3_5" -> "-3_5"
+$player_tiles = player_is_logged_in()
+    ? player_discovered_tiles($link, player_cdkey(), $planet)
+    : [];
+$area_discovered = isset($player_tiles[$area_coord]);
+$area_readable   = $is_dm || $area_discovered || pw_value($link, 'ShowAreas') == 1;
 
 // Fetch the primary interest record
 $stmt = mysqli_prepare($link, "SELECT val FROM pwdata WHERE player='~' AND tag='uoa' AND name=?");
@@ -36,6 +48,41 @@ $title = $title_map[$inttype] ?? 'Interest';
 $back_params   = http_build_query(['planet' => $planet, 'area' => $area, 'galaxyx' => $galaxyx, 'galaxyy' => $galaxyy]);
 $map_url       = 'galaxy.php?'    . $back_params;
 $refresh_url   = 'interests.php?' . $back_params;
+
+if (!$area_readable) {
+    mysqli_close($link);
+    http_response_code(403);
+    ?>
+    <!DOCTYPE html>
+    <html lang="fr-CH">
+    <head>
+        <meta charset="UTF-8">
+        <title>Undiscovered area - UOA</title>
+        <style>
+            body {
+                margin: 0; padding: 40px 30px;
+                background-image: url('app/assets/UOA_BG2.jpg');
+                color: #FFFFFF; font-family: Arial, sans-serif; text-align: center;
+            }
+            a { color: #00FFFF; }
+            .lbl { color: #66CCFF; font-weight: bold; }
+            code { color: #FFC800; }
+        </style>
+    </head>
+    <body>
+        <p class="lbl" data-testid="interest-undiscovered">You have not discovered this area yet.</p>
+        <?php if (!player_is_logged_in()): ?>
+            <p>
+                <a target="_top" href="index.php">Log in</a> with your CD key, or
+                <a target="_top" href="register.php">register</a> — type <code>.web</code> in game for your code.
+            </p>
+        <?php endif; ?>
+        <p><a href="<?= htmlspecialchars($map_url) ?>">back to map</a></p>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr-CH">

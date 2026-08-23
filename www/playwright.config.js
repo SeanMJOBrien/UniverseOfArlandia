@@ -1,5 +1,11 @@
 const { defineConfig, devices } = require('@playwright/test');
 
+// By default the suite runs against a throwaway `php -S` server, which has no
+// database — every DB-backed test then skips itself. Point UOA_BASE_URL at the
+// docker stack (http://localhost:88) to run those tests for real.
+const baseURL = process.env.UOA_BASE_URL || 'http://localhost:8765';
+const useOwnServer = !process.env.UOA_BASE_URL;
+
 module.exports = defineConfig({
   testDir: './tests',
   timeout: 20000,
@@ -10,16 +16,20 @@ module.exports = defineConfig({
   ],
   outputDir: 'test-results/artifacts',
   use: {
-    baseURL: 'http://localhost:8765',
+    baseURL,
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: 'php -S localhost:8765',
-    url: 'http://localhost:8765/news.html',
-    reuseExistingServer: true,
-    timeout: 10000,
-  },
+  ...(useOwnServer
+    ? {
+        webServer: {
+          command: 'php -S localhost:8765',
+          url: 'http://localhost:8765/news.html',
+          reuseExistingServer: true,
+          timeout: 10000,
+        },
+      }
+    : {}),
   projects: [
     {
       name: 'chromium',
