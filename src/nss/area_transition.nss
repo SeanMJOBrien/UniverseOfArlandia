@@ -11,9 +11,12 @@ string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");if(GetStringRight(sArea,5)=="_Ship"){sArea = GetStringLeft(sArea,GetStringLength(sArea)-5);}
 string sPlanetVar = GetPersistentString(oModule,sPlanet);
 int iPlanetSize = StringToInt(GetStringRight(GetStringLeft(sPlanetVar,FindSubString(sPlanetVar,"&002&")),GetStringLength(GetStringLeft(sPlanetVar,FindSubString(sPlanetVar,"&002&")))-FindSubString(sPlanetVar,"&001&")-5));
+int bIsSpace = (GetStringLeft(sTag,5)=="space");
 //
 string sT = GetTag(OBJECT_SELF);
-int bIsSpace = (GetStringLeft(sTag,5)=="space");
+// Consumed by transitions.nss's static-cluster lookup (Cluster areas: static
+// multi-area city groups) to pick the entering member for this direction.
+SetLocalString(oPC,"Direction",sT);
 int iAreaWidth = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;int iAreaHeight = GetAreaSize(AREA_HEIGHT,OBJECT_SELF)*10;
 float fPos = 5.0;int iCorner = 10;
 ////////////////////////////////////////////////////////////////////////////////
