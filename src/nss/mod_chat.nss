@@ -1,16 +1,20 @@
-// mod_chat - Module OnPlayerChat handler: DM world-builder ".w" commands.
+// mod_chat - Module OnPlayerChat handler: player ".web" command and DM
+// world-builder ".w" commands.
 // ---
-// Only reacts to DM / DM-possessed speakers whose message starts with ".w";
-// everyone else's chat passes through untouched. Recognized commands are
-// suppressed from broadcast and dispatched:
+// Only reacts to messages starting with ".w"; everything else passes through
+// untouched. Recognized commands are suppressed from broadcast and dispatched:
+//   .web                      (any player) issue a one-time website
+//                             registration code for this CD key
 //   .wjump <X_Y>              jump to a coordinate on the current planet
 //   .warea <tagprefix> [X_Y]  set a tile's code to a hand-built area prefix
 //                             (or a 2-digit terrain code), persisted
 //   .wcluster [X_Y]           open the cluster editor NUI (dmb_nui_inc)
+// Every command except .web is DM-only.
 // Coordinates use the world's "m = negative" form, e.g. m3_5.
 
 #include "dmb_inc"
 #include "dmb_nui_inc"
+#include "_webmap"
 
 // Command target: a validated planet + coordinate.
 struct DmbTarget
@@ -177,12 +181,38 @@ void DmbCmdCluster(object oPC, string sArgs)
     DmbClusterNuiOpen(oPC, t.sPlanet, t.sCoord);
 }
 
+// .web - issue this player a one-time code for registering on the website.
+// The code is written to pwdata (WebCode_<cdkey>); register.php accepts it for
+// a short window, proving the person on the site is the person holding the key.
+void WebCmdCode(object oPC)
+{
+    string sCDKey = WebMapKey(oPC);
+    if (sCDKey == "")
+    {
+        SendMessageToPC(oPC, "No public CD key found for you - website registration needs a multiplayer CD key.");
+        return;
+    }
+
+    string sCode = WebMapIssueCode(oPC);
+    SendMessageToPC(oPC, "Website registration - CD key: " + sCDKey + "   code: " + sCode);
+    SendMessageToPC(oPC, "Enter both on the site's Register page within 30 minutes to pick your password. The code stops working once used, and .web issues a fresh one.");
+}
+
 void main()
 {
     object oPC = GetPCChatSpeaker();
     string sMsg = GetPCChatMessage();
 
     if (GetStringLeft(sMsg, 2) != ".w") return;
+
+    // .web is the one command open to ordinary players.
+    if (DmbTrim(sMsg) == ".web")
+    {
+        SetPCChatMessage("");
+        WebCmdCode(oPC);
+        return;
+    }
+
     if ((!GetIsDM(oPC)) && (!GetIsDMPossessed(oPC))) return;
 
     SetPCChatMessage(""); // never broadcast DM commands

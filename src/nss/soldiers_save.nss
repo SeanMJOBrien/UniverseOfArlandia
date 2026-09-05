@@ -19,7 +19,11 @@ SetLocalObject(OBJECT_SELF,"Hench",OBJECT_SELF);
 SetLocalInt(OBJECT_SELF,"HenchAction",13);
 ExecuteScript("henchs",OBJECT_SELF);
 ////////////////////////////////////////////////////////////////////////////////
-string sHench = GetName(OBJECT_SELF)+"_A_"+FloatToString(GetPosition(OBJECT_SELF).x)+"_B_"+FloatToString(GetPosition(OBJECT_SELF).y)+"_C_"+FloatToString(GetFacing(OBJECT_SELF))+"_D_"+GetLocalString(OBJECT_SELF,"Master")+"_E_"+IntToString(GetLocalInt(OBJECT_SELF,"Race"))+"_F_"+IntToString(GetLocalInt(OBJECT_SELF,"Level"))+"_G_"+IntToString(GetLocalInt(OBJECT_SELF,"Class"))+"_H_"+IntToString(GetLocalInt(OBJECT_SELF,"Head"))+"_I_"+GetLocalString(OBJECT_SELF,"Var")+"_J_";
+// PaidLevels (from conv_hench028.nss's paid "Level up" dialog option) is
+// appended right after the original _J_ terminator, closed with a new _K_,
+// so an old saved record with nothing after _J_ still parses fine -
+// soldiers_recall.nss treats a missing _K_ as 0 paid levels, not an error.
+string sHench = GetName(OBJECT_SELF)+"_A_"+FloatToString(GetPosition(OBJECT_SELF).x)+"_B_"+FloatToString(GetPosition(OBJECT_SELF).y)+"_C_"+FloatToString(GetFacing(OBJECT_SELF))+"_D_"+GetLocalString(OBJECT_SELF,"Master")+"_E_"+IntToString(GetLocalInt(OBJECT_SELF,"Race"))+"_F_"+IntToString(GetLocalInt(OBJECT_SELF,"Level"))+"_G_"+IntToString(GetLocalInt(OBJECT_SELF,"Class"))+"_H_"+IntToString(GetLocalInt(OBJECT_SELF,"Head"))+"_I_"+GetLocalString(OBJECT_SELF,"Var")+"_J_"+IntToString(GetLocalInt(OBJECT_SELF,"PaidLevels"))+"_K_";
 string sVar1 = GetLocalString(oGoldbag2,"HenchCasernSlots"+IntToString(iNum));
 string sVar2 = GetLocalString(oGoldbag2,"HenchCasernInv"+IntToString(iNum));
 //

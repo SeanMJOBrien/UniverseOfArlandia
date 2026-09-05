@@ -2,6 +2,7 @@
 #include "zep_inc_phenos"
 #include "_module"
 #include "inc_adventurer"
+#include "_hench_gear"
 #include "nwnx_object"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -346,7 +347,7 @@ i++;
 sCount = IntToString(i);if(i<10){sCount = "00"+IntToString(i);}else if(i<100){sCount = "0"+IntToString(i);}sCount = "&"+sCount+"&";
 sVar = sVar+sAll+sCount;
 
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
 oItem = GetNextItemInInventory(oHench);
   }
 SetLocalString(oGoldbag,"Ox"+IntToString(iHench),sVar);
@@ -388,7 +389,7 @@ SetLocalString(oItem,"Bonus",sItemBonus);if(sItemBonus!=""){ExecuteScript("bonus
 SetLocalString(oItem,"Var",sItemVar);
 if(StringToInt(sItemCharges)>0){SetItemCharges(oItem,StringToInt(sItemCharges));}
 SetIdentified(oItem,TRUE);
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
   }
 DelayCommand(0.5,DeleteLocalInt(oHench,"HenchRecall"));
  }
@@ -607,7 +608,7 @@ sAll = sItemBP+"_A_"+sItemTag+"_B_"+sItemName+"_C_"+sItemStack+"_D_"+sItemMaster
 sCount = IntToString(i);if(i<10){sCount = "00"+IntToString(i);}else if(i<100){sCount = "0"+IntToString(i);}sCount = "&"+sCount+"&";
 sVar = sVar+sAll+sCount;
 
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
   }
 SetLocalString(oGoldbag,"HenchCasernSlots"+IntToString(iHench),sVar);
 
@@ -640,7 +641,7 @@ i++;
 sCount = IntToString(i);if(i<10){sCount = "00"+IntToString(i);}else if(i<100){sCount = "0"+IntToString(i);}sCount = "&"+sCount+"&";
 if(sItemTag!="goldbag"){sVar = sVar+sAll+sCount;}else{i--;}
 
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
    }
 oItem = GetNextItemInInventory(oHench);
   }
@@ -722,7 +723,7 @@ SetLocalString(oItem,"Bonus",sItemBonus);if(sItemBonus!=""){ExecuteScript("bonus
 SetLocalString(oItem,"Var",sItemVar);
 if(StringToInt(sItemCharges)>0){SetItemCharges(oItem,StringToInt(sItemCharges));}
 SetIdentified(oItem,TRUE);
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
 
 AssignCommand(oHench,ActionEquipItem(oItem,iSlot));
    }
@@ -764,7 +765,7 @@ SetLocalString(oItem,"Bonus",sItemBonus);
 SetLocalString(oItem,"Var",sItemVar);
 if(StringToInt(sItemCharges)>0){SetItemCharges(oItem,StringToInt(sItemCharges));}
 SetIdentified(oItem,TRUE);
-SetDroppableFlag(oItem,TRUE);
+HenchSetItemDroppable(oItem);
   }
 DelayCommand(0.5,DeleteLocalInt(oHench,"HenchRecall"));
  }
@@ -795,6 +796,12 @@ else if((iClass==5)||(iClass==10)||(iClass==11)){iLevels = (iLevels*80)/100;}
 else if(iClass==3){iLevels = (iLevels*60)/100;}
 
 while(i<iLevels){i++;LevelUpHenchman(OBJECT_SELF,iClass,TRUE);}
+// Replay levels bought through conv_hench028.nss's "Level up" dialog option
+// on top of the tier cascade above - PaidLevels is separate from "Level"
+// (the 1-5 garrison tier) specifically so it can't corrupt the tier lookup
+// this block just did.
+int iPaidLevels = GetLocalInt(OBJECT_SELF,"PaidLevels");
+i=0;while(i<iPaidLevels){i++;LevelUpHenchman(OBJECT_SELF,iClass,TRUE);}
  }
 ////////////////////////////////////////////////////////////////////////////////
 DeleteLocalInt(oPC,"HenchAction");

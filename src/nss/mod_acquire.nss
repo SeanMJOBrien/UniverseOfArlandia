@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_hench_gear"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,6 +22,26 @@ int iItem;
 // PCS
 if(((GetIsPC(oPC))||(GetIsDM(oPC))))
  {
+////////////////////////////////////////////////////////////////////////////////
+// Henchman armor stays on the henchman.
+// SetDroppableFlag() only decides whether an item drops as loot when the
+// creature dies - it does nothing to stop a player opening the henchman's
+// inventory panel and lifting the armor straight out, which is exactly how a
+// henchman was being stripped. This is the event that fires when they do:
+// GetModuleItemAcquiredFrom() is the henchman it came off. Hand it back and
+// put it back on. DMs are exempt so they can still fix a broken loadout.
+object oArmorFrom = GetModuleItemAcquiredFrom();
+if((!GetIsDM(oPC))&&(GetIsObjectValid(oArmorFrom))&&(GetLocalInt(oArmorFrom,"Hench")>0)&&(HenchItemIsArmor(oItem)))
+  {
+// CopyItem rather than ActionGiveItem: the give would queue behind whatever
+// the PC is already doing, leaving the henchman bare in the meantime.
+object oKept = CopyItem(oItem,oArmorFrom,TRUE);
+DestroyObject(oItem);
+HenchSetItemDroppable(oKept);
+AssignCommand(oArmorFrom,ActionEquipItem(oKept,INVENTORY_SLOT_CHEST));
+FloatingTextStringOnCreature(GetName(oArmorFrom)+" keeps their armor on.",oPC,FALSE);
+return;
+  }
 ////////////////////////////////////////////////////////////////////////////////
 // Shop Players
 if(GetLocalInt(oPC,"Seller")==1)

@@ -1,6 +1,7 @@
 #include "aps_include"
 #include "_module"
 #include "_string_utils"
+#include "_webmap"
 #include "dmb_inc"
 #include "area_pop_inc"
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +171,13 @@ iCheck = 2;
 // Discover the area
 if((!GetIsDM(oPC))&&(!GetIsDMPossessed(oPC)))
  {
+// Per-character record for the website map. Kept separate from the global
+// flags below: those are server wide (first player to arrive reveals the tile
+// for everyone and earns the discovery XP), this one is what galaxy.php shows
+// to a player logged in with their CD key, so it must be written on every
+// arrival - not only the first arrival on the server.
+if(sPlanetDest!=""){WebMapDiscover(oPC,sPlanetDest,iX,iY);}
+
 if((sPlanetDest=="Space")&&(sPlanet!="")&&(iPlanetShow==0)&&(GetPersistentInt(oModule,"Space"+sAreaDest+"Show")==0))
   {
 iNewArea = 1;

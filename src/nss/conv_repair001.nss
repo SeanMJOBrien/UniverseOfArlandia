@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_string_utils"
+#include "nwnx_item"
 
 void main()
 {
@@ -12,6 +13,7 @@ string sBP = GetLocalString(oTarget,"Master");
 string sName = StripWearSuffix(GetStringRight(GetName(oTarget),GetStringLength(GetName(oTarget))-7));
 string sVar = GetLocalString(oTarget,"Var");
 string sBonus = GetLocalString(oTarget,"Bonus");
+string sAppearance = GetLocalString(oTarget,"Appearance");
 int iPrice = GetLocalInt(oTarget,"Fix");
 object oNew;
 
@@ -22,6 +24,11 @@ if(GetName(oNew)!=sName){SetName(oNew,sName);}if(FindSubString(sName,"(Quality")
 SetIdentified(oNew,TRUE);
 SetLocalString(oNew,"Var",sVar);
 SetLocalString(oNew,"Bonus",sBonus);
+// Put back the exact model/parts/colors the item had when it broke, not the
+// blueprint's default look - captured at break time in wear.nss. Items that
+// broke before this fix never captured it, so this is empty for those and
+// the repaired item keeps the blueprint's stock appearance instead.
+if(sAppearance!=""){NWNX_Item_RestoreItemAppearance(oNew,sAppearance);}
 DestroyObject(oTarget);
  }
 else

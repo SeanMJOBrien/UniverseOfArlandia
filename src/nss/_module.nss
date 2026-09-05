@@ -73,6 +73,10 @@ int iGradeUpgradeGP =   300;                    //*// GPs cost to upgrade the mi
 int iGradeUpgradeXP =   1000;                   //*// XPs cost to upgrade the military grade (iGradeUpgradeXP * target grade).
 int iMaxHenchs =        99;                     //*// Max number of henchs players can have (max = 99).
 int iHenchsPrice =      50;                     //*// Price of non-domain henchs.
+int iSoldierLevelUpCost = 100;                  //*// Gold cost per level for a posted Soldier's "Level up" dialog option (conv_hench028/cond_hench028).
+int iHenchArmorACBase = 4;                      //*// Max armor AC a level 1-3 henchman may wear (4 = scale mail / chain shirt).
+int iHenchArmorACLevels = 3;                    //*// Hit dice per +1 to that cap (so full plate, AC 8, needs level 13).
+int iHenchArmorACMax =  8;                      //*// Highest armor AC any henchman may wear (8 = full plate).
 int iHenchLevelUpCostPerLevel = 100;            //*// Gold cost per level for the hench level-up dialog option.
 int iHenchLevelUpMaxLevel =     20;             //*// Max character level a hired adventurer hench can be leveled up to.
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +86,12 @@ int iInn =              10;                     //*// Price of one night sleep a
 // Maps (website)
 int iShowAreas =        0;                      //*// 1 = Show the areas totally revealed on the website planet maps.  Qlippoth changed to 1
 int iShowInterests =    0;                      //*// 1 = Show the interests on the website planets maps even if not discovered.
+////////////////////////////////////////////////////////////////////////////////
+// Gold auto-loot (_loot.nss, via loot_gold.nss and treasures.nss)
+int iAutoLootGold =     1;                      //*// 1 = Opening a corpse, bodybag, chest or crate hands its gold straight to the player.
+int iAutoLootGoldClose = 1;                     //*// 1 = Skip opening the loot window when gold was all a corpse held (corpses only).
+string sGoldResRef = "nw_it_gold001";           //*// Blueprint UOA seeds gold with (treasures.nss, creatures_spawn.nss).
+int iAutoLootGoldDebug = 1;                     //*// 1 = Log every gold sweep to the server log ("[loot] ..."). Set 0 once the feature is confirmed working.
 ////////////////////////////////////////////////////////////////////////////////
 // Missions
 int iMaxMissions =      3;                      //*// Max number of mission a player can take at the same time per plot giver.
@@ -152,6 +162,22 @@ int iCatB = 1500;           int iWearB = 32;    int iFixB = 25; //*// items with
 int iCatC = 5000;           int iWearC = 64;    int iFixC = 12; //*// items with gold value up to iCatC will brake after iWearC days and the fix will cost iFixC % of the item price.
 int iCatD = 20000;          int iWearD = 128;    int iFixD = 6;  //*// items with gold value up to iCatD will brake after iWearD days and the fix will cost iFixD % of the item price.
                             int iWearE = 256;   int iFixE = 3;  //*// items with gold value up to iCatE will brake after iWearE days and the fix will cost iFixE % of the item price.
+// Item breaks once its Wear% (remaining condition) drops to this or lower.
+// wear.nss used to derive the break point from a formula that folded this
+// threshold in implicitly instead of checking it directly - it worked out to
+// ~14%/24%/39%/56%/72% remaining for categories A-E respectively (higher-value
+// items broke with MORE life left, backwards from the intent), which is why a
+// high-value item could snap at 79% remaining with most of its wear budget
+// untouched. This constant is the actual, fixed threshold now.
+int iWearBreakThreshold = 20; //*// item breaks when Wear% remaining is <= this, for every category.
+// wear.nss runs on the module heartbeat, which ticks roughly every 5 real
+// seconds - the same cadence iTorch's "iTorch*12" burn-out math above already
+// assumes (12 ticks/real minute). Out of combat, only worn armor (the CHEST
+// slot) still wears at all; everything else takes none. This is how many of
+// those ~5-second ticks make up the 10-minute interval between armor's idle
+// wear applications - change iWearIdleArmorMinutes, not this, to retune it.
+int iWearIdleArmorMinutes = 10; //*// real minutes between each out-of-combat armor wear tick.
+int iWearIdleArmorTicks = iWearIdleArmorMinutes*12;
 ////////////////////////////////////////////////////////////////////////////////
 
 

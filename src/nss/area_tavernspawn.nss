@@ -23,13 +23,14 @@
 #include "_string_utils"
 #include "inc_adventurer"
 #include "inc_weaponpick"
+#include "_hench_gear"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
 object oModule = GetModule();
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
-int iAdvSlot;int iAdvHD;int iAdvPath;int iAdvAC;string sAdvItem;object oAdvItem;object oNew;object oAdvScan;
+int iAdvSlot;int iAdvHD;int iAdvPath;int iAdvAC;int iAdvACCap;string sAdvItem;object oAdvItem;object oNew;object oAdvScan;
 ////////////////////////////////////////////////////////////////////////////////
 // area_recall.nss already checked iReady!=1 before scheduling this via
 // DelayCommand - don't re-check it here. By the time this deferred script
@@ -98,6 +99,12 @@ ChangeToStandardFaction(oNew,STANDARD_FACTION_COMMONER);
 else if(GetHasFeat(FEAT_ARMOR_PROFICIENCY_MEDIUM,oNew)){iAdvAC = 3+Random(3);}
 else if(GetHasFeat(FEAT_ARMOR_PROFICIENCY_LIGHT,oNew)){iAdvAC = 1+Random(2);}
 else{iAdvAC = 0;}
+// Proficiency alone says what they CAN wear, not what someone that green would
+// own: heavy proficiency arrives at level 1, so the roll above handed out full
+// plate (AC 8) to 2nd and 3rd level adventurers. Cap the tier by hit dice -
+// scale mail at 1-3, working up to full plate at 13. See _hench_gear.nss.
+iAdvACCap = GetHenchMaxArmorAC(iAdvHD);
+if(iAdvAC>iAdvACCap){iAdvAC = iAdvACCap;}
 // Starter gear is marked non-droppable (can't be dropped/sold/stolen) so it
 // can't be stripped off before the player gets a chance to upgrade it; gear
 // the player later gives them equips/saves normally (droppable).

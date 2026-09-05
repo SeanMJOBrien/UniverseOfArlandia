@@ -7,7 +7,7 @@ string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
 int iNum = GetPersistentInt(oModule,sPlanet+"&"+sArea+"&"+"&SoldierN");
 //
-object oGuard;object oGoldbag;string sPer;string sHench;string sVar1;string sVar2;int iX;int iY;string sX;string sY;string sName;string sPosX;string sPosY;string sPosF;string sMaster;string sAppearance;string sLevel;string sClass;string sHead;string sVar;
+object oGuard;object oGoldbag;string sPer;string sHench;string sVar1;string sVar2;int iX;int iY;string sX;string sY;string sName;string sPosX;string sPosY;string sPosF;string sMaster;string sAppearance;string sLevel;string sClass;string sHead;string sVar;string sPaidLevels;
 ////////////////////////////////////////////////////////////////////////////////
 while(iNum>0)
  {
@@ -29,6 +29,9 @@ sLevel = GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"_G_")),GetStr
 sClass = GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"_H_")),GetStringLength(GetStringLeft(sHench,FindSubString(sHench,"_H_")))-FindSubString(sHench,"_G_")-3);
 sHead = GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"_I_")),GetStringLength(GetStringLeft(sHench,FindSubString(sHench,"_I_")))-FindSubString(sHench,"_H_")-3);
 sVar = GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"_J_")),GetStringLength(GetStringLeft(sHench,FindSubString(sHench,"_J_")))-FindSubString(sHench,"_I_")-3);
+// PaidLevels was added after _J_ later - a record saved before that has
+// nothing there, so default to 0 rather than parsing garbage.
+if(FindSubString(sHench,"_K_")!=-1){sPaidLevels = GetStringRight(GetStringLeft(sHench,FindSubString(sHench,"_K_")),GetStringLength(GetStringLeft(sHench,FindSubString(sHench,"_K_")))-FindSubString(sHench,"_J_")-3);}else{sPaidLevels = "0";}
 
 oGuard = CreateObject(OBJECT_TYPE_CREATURE,"hench000",Location(OBJECT_SELF,Vector(StringToFloat(sPosX),StringToFloat(sPosY),0.0),StringToFloat(sPosF)));
 ChangeToStandardFaction(oGuard,STANDARD_FACTION_COMMONER);
@@ -38,6 +41,7 @@ SetLocalString(oGuard,"Var",sVar);
 SetLocalInt(oGuard,"DontSave",1);
 SetLocalInt(oGuard,"SoldierNum",iNum);
 SetLocalInt(oGuard,"HenchNum",iNum);
+SetLocalInt(oGuard,"PaidLevels",StringToInt(sPaidLevels));
 
 oGoldbag = CreateItemOnObject("goldbag",oGuard);
 SetLocalString(oGoldbag,"HenchCasernSlots"+IntToString(iNum),sVar1);

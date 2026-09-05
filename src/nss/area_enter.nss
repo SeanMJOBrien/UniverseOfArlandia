@@ -2,6 +2,7 @@
 #include "_module"
 #include "zep_inc_phenos"
 #include "_string_utils"
+#include "_webmap"
 #include "dmb_inc"
 #include "area_pop_inc"
 #include "inc_persist"
@@ -42,6 +43,20 @@ if((GetIsObjectValid(oPC))&&((GetIsPC(oPC))||(GetIsDMPossessed(oPC))||(GetIsDM(o
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetIsDM(oPC)){sDM = "1";}else{sDM = "0";}SetPersistentString(oModule,"Player"+IntToString(GetLocalInt(oModule,sName)),sPCName+"&1&"+sName+"&2&"+sPlanet+"&3&"+sArea+"&4&"+sDM+"&5&");
+////////////////////////////////////////////////////////////////////////////////
+// Website per-player map: index this character under its public CD key (the
+// site logs players in with that key), and record the tile they are standing
+// on. transitions.nss covers normal travel; this catches the tile a player
+// logs in on, which no transition ever fires for.
+if(WebMapKey(oPC)!="")
+ {
+WebMapRegisterChar(oPC);
+if((sPlanet!="")&&(FindSubString(sArea,"_")!=-1))
+  {
+struct AreaCoord cWebTile = ParseAreaCoord(sArea);
+WebMapDiscover(oPC,sPlanet,cWebTile.X,cWebTile.Y);
+  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Persist last known location for this character (DM lookup tool, never deleted)
 vector vPCPos = GetPosition(oPC);

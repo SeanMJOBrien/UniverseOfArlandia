@@ -1,5 +1,6 @@
 #include "_module"
 #include "aps_include"
+#include "_loot"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +126,16 @@ if(GetLocalString(OBJECT_SELF,"Tag")=="mission"){SetLocalObject(OBJECT_SELF,"Mis
 // Reset on any (re)population in area_creatures.nss, so a refilled camp must
 // be cleared again. Gated on OBJECT_SELF being a guard so the common death
 // path pays nothing.
-if(GetLocalInt(OBJECT_SELF,"Camp")==1)
+// Only a real player kill counts. A camp guard also "dies" when the tile's
+// CopyArea clone is torn down and repopulated on re-entry, and GetLastKiller()
+// is then whatever the cleanup ran as - in practice the area itself, so the
+// credit list below was being overwritten with the area's name ("Rural") and
+// the player who actually cleared the camp could no longer claim the reward.
+// Associates land the final blow often enough to matter, so credit the master.
+object oCampKiller = oPC;
+if((!GetIsPC(oCampKiller))&&(GetIsObjectValid(GetMaster(oCampKiller)))){oCampKiller = GetMaster(oCampKiller);}
+
+if((GetLocalInt(OBJECT_SELF,"Camp")==1)&&(GetIsPC(oCampKiller)))
  {
  int iGuardsLeft;object oGuard = GetFirstObjectInArea(oArea);
  while(GetIsObjectValid(oGuard))
@@ -133,9 +143,14 @@ if(GetLocalInt(OBJECT_SELF,"Camp")==1)
   if((oGuard!=OBJECT_SELF)&&(GetObjectType(oGuard)==OBJECT_TYPE_CREATURE)&&(GetLocalInt(oGuard,"Camp")==1)&&(GetCurrentHitPoints(oGuard)>0)){iGuardsLeft=1;break;}
   oGuard = GetNextObjectInArea(oArea);
   }
- if(!iGuardsLeft)
+ string sCampArea = GetLocalString(oArea,"Area");if(FindSubString(sCampArea,"&")!=-1){sCampArea = GetStringLeft(sCampArea,FindSubString(sCampArea,"&"));}
+ // Already flagged clear and not repopulated since (area_creatures.nss wipes the
+ // flag when it refills the camp): a repeat death on an empty camp, so leave the
+ // original credit list alone rather than rewriting it with this kill.
+ int bAlreadyCleared = (GetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared")=="1");
+
+ if((!iGuardsLeft)&&(!bAlreadyCleared))
   {
-  string sCampArea = GetLocalString(oArea,"Area");if(FindSubString(sCampArea,"&")!=-1){sCampArea = GetStringLeft(sCampArea,FindSubString(sCampArea,"&"));}
   SetPersistentString(oModule,sPlanet+"&"+sCampArea+"&CampCleared","1");
   // Credit whoever actually did the work - the killer plus any fellow party
   // PCs nearby at the instant the last guard died (same faction/distance
@@ -183,6 +198,24 @@ if((GetResRef(OBJECT_SELF)=="nw_allip")||(GetResRef(OBJECT_SELF)=="nw_spectre")|
 ////////////////////////////////////////////////////////////////////////////////
 // Destroy creature items
 while(GetIsObjectValid(oItem)){if((GetBaseItemType(oItem)==BASE_ITEM_CBLUDGWEAPON)||(GetBaseItemType(oItem)==BASE_ITEM_CPIERCWEAPON)||(GetBaseItemType(oItem)==BASE_ITEM_CREATUREITEM)||(GetBaseItemType(oItem)==BASE_ITEM_CSLASHWEAPON)||(GetBaseItemType(oItem)==BASE_ITEM_CSLSHPRCWEAP)){DestroyObject(oItem);}oItem = GetNextItemInInventory(OBJECT_SELF);}
+////////////////////////////////////////////////////////////////////////////////
+// Corpse gold, auto-collected on the kill itself rather than waiting for a
+// click. loot_gold.nss's NWNX_ON_OBJECT_USE_BEFORE hook was meant to cover
+// this when the player opens the body, but a still-fresh creature corpse
+// never actually raises that event (only placeables do - a chest's own
+// OnOpen, or the BodyBag a corpse eventually decays into), which is exactly
+// why chests autoloot fine and corpses never have, through every previous
+// fix to the click-side matching/StringToObject code. Doing it here instead
+// needs no click at all - OBJECT_SELF still has its full gold/inventory at
+// the instant of death - and runs after the creature-item cleanup above so
+// destroying a gold stack here can't invalidate that loop's own oItem walk.
+// Same associate-to-master credit convention as the camp-clear block below:
+// a henchman/pet lands the killing blow often enough that crediting only
+// GetLastKiller() would silently strand the loot on a creature with no
+// inventory screen a player can open.
+object oGoldKiller = oPC;
+if((!GetIsPC(oGoldKiller))&&(GetIsObjectValid(GetMaster(oGoldKiller)))){oGoldKiller = GetMaster(oGoldKiller);}
+LootGoldSweep(OBJECT_SELF,oGoldKiller);
 ////////////////////////////////////////////////////////////////////////////////
 // Remove summoneds
 object oFamiliar1 = GetAssociate(ASSOCIATE_TYPE_ANIMALCOMPANION,OBJECT_SELF);
