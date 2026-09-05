@@ -646,8 +646,16 @@ The signs already carry everything needed — `domains.nss` gives each structure
      - Rent — the replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
    Dialog edits must round-trip through `nwn_gff` before being trusted, and the struct array is append-only — add replies rather than renumbering.
 
-#### Ask (2) may already be built
-A per-slot RENT system exists: `<planet>&<area>&Domain&<slot>` holds a renter's name, and `transitions2.nss` sets the claimed interior's `Master` to the RENTER, which is what makes `mod_unacquire.nss:36`'s furniture check grant them decorating rights. So "claim a room and furnish it" may need no new mechanism — only access to the rent reply, per the split above. Confirm in-game before building anything.
+#### Ask (2) — DONE, and it needed gating rather than opening
+Claim-a-room-and-furnish-it turned out to be fully built already, and completely ungated. The rent menu (`domain.dlg.json` `EntryList[0]`, "Structure menu :") is its OWN root entry reached from `StartingList[6]` via `cond_domain020` — NOT nested under the `cond_domain005` structureflag menu — and `cond_domain020` used to return TRUE for any player at any House flag in any domain. So every player on the server could already rent any house anywhere.
+
+The chain that already works: rent (`conv_domain008.nss:480` writes the renter's name to `<planet>&<area>&Domain&<slot>`) → enter (`transitions2.nss` Structure 11 sets the claimed interior's `Master` to the RENTER) → furnish (`mod_unacquire.nss:36` accepts an `ofurniture*` item in an area named "Home"/"House" when `GetName(oPC)` matches that `Master`; `h_house_001` is indeed named "House").
+
+`cond_domain020.nss` now requires `DomainCanUseHere` — so granting a character the House slot IS designating that house for them — with the sitting tenant always let through, whether or not they hold a grant, so revoking a grant (or this change landing on a live server) never strands someone with no way to pay rent or move out. Because the rent menu is its own root entry, this needed no dialog edit at all.
+
+**Behaviour change on a live server**: players who could previously rent any house anywhere now need a grant. Existing tenants are unaffected.
+
+**Gap found**: furniture does NOT survive a server restart. `conv_furnitur003.nss` creates the placeable with no `Persistent` flag, so `area_save.nss:48` routes it to the module-local path — it survives the interior emptying and refilling within a session, and is lost on reboot. Setting `Persistent`=1 on placed furniture (and confirming the DB path's float truncation at `area_save.nss:65` doesn't matter at furniture scale) would fix it. This matters for ask (3), which asks for ship quarters "furnished and saved the same way".
 
 #### Constraints and open questions
 - Names as identifiers inherit TASK-33's fragility. If domain ownership moves to a stable id, these lists must move in the same change.
