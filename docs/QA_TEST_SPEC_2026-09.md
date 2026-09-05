@@ -406,3 +406,81 @@ These are deliberately unbuilt or gated off this session:
 - **Steps:** After §1, check `~/uoa/server/database/`.
 - **Expected:** A `pcstorage.sqlite3` exists and grows. Confirm it is included
   in whatever backup you run — a `mysqldump` does NOT cover it.
+
+---
+
+## 10. Multi-unit rental doors
+
+Covers TASK-38. Nothing places these doors automatically — a DM must place
+`pla_unitdoor` and configure it, so this section starts with setup.
+
+### 10.1 DM setup
+- **Steps:** Place a `pla_unitdoor` in a hand-built area. Set `Units` = 6, and
+  `Unit5` = 3, `Unit6` = 1. Leave `Unit1`-`Unit4` unset.
+- **Expected:** Using the door lists 6 units. Units 1-4 read as small (unset
+  defaults to small rather than breaking), 5 as large, 6 as small.
+
+### 10.2 The list reads as intended
+- **Expected:** A header like "6 units, 2 for rent", then one row per unit —
+  a tenant's name, or `VACANT: <size>` with a Rent button showing the price.
+
+### 10.3 Renting a vacant unit
+- **Steps:** Click Rent on a vacant unit with enough gold.
+- **Expected:** Gold taken at the size's price (250/500/1000), the row becomes
+  yours, and the list refreshes in place.
+
+### 10.4 The one-home cap spans both kinds — KEY CASE
+- **Setup:** A character already renting a domain house.
+- **Steps:** Try to rent a unit.
+- **Expected:** Refused: "You already have a home." Then give up the domain
+  house and try again — it should now succeed. Repeat in reverse: rent a unit,
+  then try to rent a domain house.
+
+### 10.5 Entering your unit
+- **Steps:** Click Enter on your own row.
+- **Expected:** The window closes and you arrive inside an interior matching
+  the size — small 2x2, medium 4x2, large 3x5 over three floors.
+
+### 10.6 Getting back out — KEY CASE
+- **Steps:** From inside, click the front door.
+- **Expected:** You return to the doorstep outside. Before this was wired the
+  interior had no exit at all, so a failure here strands the player.
+
+### 10.7 Upper floors are reachable
+- **Setup:** A medium (2 floors) and a large (3 floors) unit.
+- **Steps:** Use the internal staircase doors in each.
+- **Expected:** They move you between floors both ways. Unlinked doors lead
+  nowhere, so check both directions on every floor.
+
+### 10.8 Two units never share an interior
+- **Setup:** Two units rented by different characters at the same door.
+- **Steps:** Both enter at once, and one drops an item.
+- **Expected:** Separate interiors; neither sees the other or their item. Each
+  unit instances its own area under a deterministic tag.
+
+### 10.9 Chests work inside a unit
+- **Steps:** Inside your unit, open a chest and store something.
+- **Expected:** It opens (the tenant is the interior's Master) and shows your
+  account storage. Small units expose 1 chest, medium 2, large 4 — the Level
+  baked into each template drives the existing gating.
+
+### 10.10 Paying rent extends rather than resets
+- **Steps:** With days remaining, click Pay.
+- **Expected:** Gold taken, days remaining go UP by a term rather than back to
+  exactly one term.
+
+### 10.11 Leaving frees the unit and the home slot
+- **Steps:** Click Leave, then rent a different unit or a domain house.
+- **Expected:** The old unit shows VACANT to everyone, and the new rental is
+  allowed.
+
+### 10.12 Another player's unit offers nothing
+- **Steps:** Open the list as someone who rents nothing there.
+- **Expected:** Occupied rows show only the tenant's name — no Enter, Pay or
+  Leave button on someone else's unit.
+
+### 10.13 Interiors do not survive a restart (expected)
+- **Steps:** Drop an item inside your unit, restart the server, re-enter.
+- **Expected:** The tenancy and days remaining survive; the interior is rebuilt
+  from the template and loose items are gone. Chest contents DO survive, being
+  account-scoped. This is a known limitation, not a bug.

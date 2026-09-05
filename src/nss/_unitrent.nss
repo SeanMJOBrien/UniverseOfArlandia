@@ -141,6 +141,20 @@ void UnitClearTenant(object oDoor, int iUnit)
 // Interior instancing
 // ---------------------------------------------------------------------------
 
+// NWScript has no "find an object by tag INSIDE this area" call, and the
+// module-wide GetObjectByTag would return whichever instance it saw first -
+// fatal here, since every unit interior carries the same internal door tags.
+object GetObjectInAreaByTag(object oArea, string sTag)
+{
+    object oObj = GetFirstObjectInArea(oArea);
+    while (GetIsObjectValid(oObj))
+    {
+        if (GetTag(oObj) == sTag) { return oObj; }
+        oObj = GetNextObjectInArea(oArea);
+    }
+    return OBJECT_INVALID;
+}
+
 // The tfndev home templates come in four door facings so the interior's own
 // door lines up with the one you walked through. Same orientation bands TFN
 // uses, defaulting to north rather than failing if a door sits off-axis.
@@ -162,6 +176,39 @@ string UnitInteriorTag(object oDoor, int iUnit)
     return "U" + GetStringLeft(GetTag(GetArea(oDoor)), 8)
          + IntToString(FloatToInt(v.x)) + "_" + IntToString(FloatToInt(v.y))
          + "_" + IntToString(iUnit);
+}
+
+// Prepare a freshly instanced interior:
+//  - link its internal staircase doors to each other (norm has two floors,
+//    rich three; unlinked they lead nowhere), and
+//  - turn its front door into the way out, by retagging it "door_exit" and
+//    pointing its OnClick at transitions2. That script's existing exit branch
+//    then reads the AreaExit/AreaExitObj/fXExit/fYExit locals set above, so no
+//    new exit code is needed and no floating exit marker has to be added
+//    indoors.
+void UnitWireInterior(object oArea)
+{
+    object oUp1 = GetObjectInAreaByTag(oArea, "level1_to_level2");
+    object oDn2 = GetObjectInAreaByTag(oArea, "level2_to_level1");
+    object oUp2 = GetObjectInAreaByTag(oArea, "level2_to_level3");
+    object oDn3 = GetObjectInAreaByTag(oArea, "level3_to_level2");
+    if (GetIsObjectValid(oUp1) && GetIsObjectValid(oDn2))
+    {
+        SetTransitionTarget(oUp1, oDn2);
+        SetTransitionTarget(oDn2, oUp1);
+    }
+    if (GetIsObjectValid(oUp2) && GetIsObjectValid(oDn3))
+    {
+        SetTransitionTarget(oUp2, oDn3);
+        SetTransitionTarget(oDn3, oUp2);
+    }
+
+    object oFront = GetObjectInAreaByTag(oArea, "interior_door");
+    if (GetIsObjectValid(oFront))
+    {
+        SetTag(oFront, "door_exit");
+        SetEventScript(oFront, EVENT_SCRIPT_DOOR_ON_CLICKED, "transitions2");
+    }
 }
 
 // The live interior for a unit, instancing it on first use. CreateArea() areas
@@ -186,6 +233,7 @@ object UnitInterior(object oDoor, int iUnit)
     SetLocalFloat(oArea, "fXExit", GetPosition(oDoor).x);
     SetLocalFloat(oArea, "fYExit", GetPosition(oDoor).y - 1.0);
     SetPersistentString(GetModule(), UnitTenantKey(oDoor, iUnit) + "Area", sTag);
+    UnitWireInterior(oArea);
     return oArea;
 }
 
@@ -216,30 +264,29 @@ json UnitRentRow(object oPC, object oDoor, int iUnit)
 {
     string sTenant = UnitTenant(oDoor, iUnit);
     int iSize = UnitSize(oDoor, iUnit);
+    int iMine = (sTenant != "") && (sTenant == GetName(oPC));
     string sLabel;
-    string sBtn;
+
+    if (sTenant == "")      { sLabel = IntToString(iUnit) + ". VACANT: " + UnitSizeLabel(iSize); }
+    else if (iMine)         { sLabel = IntToString(iUnit) + ". " + sTenant + "  (yours, " + IntToString(UnitDaysLeft(oDoor, iUnit)) + "d)"; }
+    else                    { sLabel = IntToString(iUnit) + ". " + sTenant; }
+
+    json jRow = JsonArray();
+    jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiLabel(JsonString(sLabel), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 240.0), 30.0));
 
     if (sTenant == "")
     {
-        sLabel = IntToString(iUnit) + ". VACANT: " + UnitSizeLabel(iSize);
-        sBtn = "Rent (" + IntToString(UnitSizePrice(iSize)) + " gp)";
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Rent " + IntToString(UnitSizePrice(iSize)) + "gp")), "u_" + IntToString(iUnit)), 190.0), 30.0));
+    }
+    else if (iMine)
+    {
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Enter")), "e_" + IntToString(iUnit)), 62.0), 30.0));
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Pay")),   "p_" + IntToString(iUnit)), 62.0), 30.0));
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Leave")), "l_" + IntToString(iUnit)), 62.0), 30.0));
     }
     else
     {
-        sLabel = IntToString(iUnit) + ". " + sTenant;
-        if (sTenant == GetName(oPC)) { sLabel = sLabel + "  (yours)"; }
-        sBtn = (sTenant == GetName(oPC)) ? "Enter" : "";
-    }
-
-    json jRow = JsonArray();
-    jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiLabel(JsonString(sLabel), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 250.0), 30.0));
-    if (sBtn != "")
-    {
-        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString(sBtn)), "u_" + IntToString(iUnit)), 130.0), 30.0));
-    }
-    else
-    {
-        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiSpacer(), 130.0), 30.0));
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiSpacer(), 190.0), 30.0));
     }
     return NuiRow(jRow);
 }
@@ -258,7 +305,7 @@ json UnitRentPage(object oPC)
     else                   { sHead = sHead + ", none for rent"; }
 
     json jList = JsonArray();
-    jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiLabel(JsonString(sHead), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 390.0), 30.0));
+    jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiLabel(JsonString(sHead), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 430.0), 30.0));
     for (n = 1; n <= iUnits; n++) { jList = JsonArrayInsert(jList, UnitRentRow(oPC, oDoor, n)); }
     return NuiCol(jList);
 }
@@ -271,7 +318,7 @@ void UnitRentOpen(object oPC, object oDoor)
         return;
     }
     SetLocalObject(oPC, UNITRENT_DOOR, oDoor);
-    json jWin = NuiWindow(UnitRentPage(oPC), JsonString(GetName(GetArea(oDoor))), NuiRect(-1.0, -1.0, 430.0, 420.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
+    json jWin = NuiWindow(UnitRentPage(oPC), JsonString(GetName(GetArea(oDoor))), NuiRect(-1.0, -1.0, 470.0, 440.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
     NuiCreate(oPC, jWin, UNITRENT_WINDOW, UNITRENT_EVENT);
 }
 
@@ -301,5 +348,42 @@ int UnitRentTake(object oPC, object oDoor, int iUnit)
     UnitSetTenant(oDoor, iUnit, oPC);
     DomainSetRentedUnit(oPC, UnitTenantKey(oDoor, iUnit));
     FloatingTextStringOnCreature("You rent unit " + IntToString(iUnit) + " for " + IntToString(iDomainRentDays) + " days.", oPC, FALSE);
+    return TRUE;
+}
+
+// Extend a tenancy by one term, at the unit's own price.
+int UnitRentPay(object oPC, object oDoor, int iUnit)
+{
+    if (UnitTenant(oDoor, iUnit) != GetName(oPC)) { return FALSE; }
+    int iPrice = UnitSizePrice(UnitSize(oDoor, iUnit));
+    if (GetGold(oPC) < iPrice)
+    {
+        FloatingTextStringOnCreature("You cannot afford the rent (" + IntToString(iPrice) + " gp).", oPC, FALSE);
+        return FALSE;
+    }
+    TakeGoldFromCreature(iPrice, oPC, TRUE);
+
+    // Extend from the later of today and the current expiry, so paying early
+    // adds a term rather than throwing the remainder away.
+    object oModule = GetModule();
+    string sKey = UnitTenantKey(oDoor, iUnit) + "Until";
+    int iFrom = GetPersistentInt(oModule, sKey);
+    int iToday = DomainGameDay();
+    if (iFrom < iToday) { iFrom = iToday; }
+    SetPersistentInt(oModule, sKey, iFrom + iDomainRentDays);
+
+    FloatingTextStringOnCreature("Rent paid. " + IntToString(UnitDaysLeft(oDoor, iUnit)) + " days remaining.", oPC, FALSE);
+    return TRUE;
+}
+
+// Give up a unit, freeing it for someone else and freeing this character's
+// single home slot. The interior shell is left standing; nothing of value is
+// in it, since player storage is account-scoped.
+int UnitRentLeave(object oPC, object oDoor, int iUnit)
+{
+    if (UnitTenant(oDoor, iUnit) != GetName(oPC)) { return FALSE; }
+    UnitClearTenant(oDoor, iUnit);
+    DomainClearRented(oPC);
+    FloatingTextStringOnCreature("You give up unit " + IntToString(iUnit) + ".", oPC, FALSE);
     return TRUE;
 }

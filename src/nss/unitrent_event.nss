@@ -13,7 +13,8 @@ void main()
     if (sEvent != "click") { return; }
 
     string sElem = NuiGetEventElement();
-    if (GetStringLeft(sElem, 2) != "u_") { return; }
+    string sKind = GetStringLeft(sElem, 2);
+    if ((sKind != "u_") && (sKind != "e_") && (sKind != "p_") && (sKind != "l_")) { return; }
 
     object oDoor = GetLocalObject(oPC, UNITRENT_DOOR);
     if (!GetIsObjectValid(oDoor)) { return; }
@@ -21,18 +22,20 @@ void main()
     int iUnit = StringToInt(GetStringRight(sElem, GetStringLength(sElem) - 2));
     if ((iUnit < 1) || (iUnit > UnitCount(oDoor))) { return; }
 
-    string sTenant = UnitTenant(oDoor, iUnit);
-
-    // Occupied by this player: the button is "Enter". Occupied by anyone else:
-    // no button was drawn, so a click can only be a stale window - ignore it.
-    if (sTenant != "")
+    int bRefresh;
+         if (sKind == "u_") { bRefresh = UnitRentTake(oPC, oDoor, iUnit); }
+    else if (sKind == "p_") { bRefresh = UnitRentPay(oPC, oDoor, iUnit); }
+    else if (sKind == "l_") { bRefresh = UnitRentLeave(oPC, oDoor, iUnit); }
+    else if (sKind == "e_")
     {
-        if (sTenant == GetName(oPC)) { UnitEnter(oPC, oDoor, iUnit); }
+        // Entering closes the window - the player is leaving the doorstep.
+        if (UnitTenant(oDoor, iUnit) == GetName(oPC))
+        {
+            NuiDestroy(oPC, nTok);
+            UnitEnter(oPC, oDoor, iUnit);
+        }
         return;
     }
 
-    if (UnitRentTake(oPC, oDoor, iUnit))
-    {
-        NuiSetGroupLayout(oPC, nTok, "_window_", UnitRentPage(oPC));
-    }
+    if (bRefresh) { NuiSetGroupLayout(oPC, nTok, "_window_", UnitRentPage(oPC)); }
 }

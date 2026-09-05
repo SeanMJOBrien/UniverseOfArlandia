@@ -762,9 +762,18 @@ Two things are needed and both fall inside that skip:
 
 **Interiors** are instanced per unit with `CreateArea()` under a deterministic tag, so the same unit resolves to the same tag after a reboot. `CreateArea` areas do not survive a restart — the shell is recreated on next entry, its loose contents are not. Player storage is account-scoped (TASK-37) and unaffected; furniture is not, the same known gap as everywhere else.
 
+#### Interior wiring, and the way out
+`UnitWireInterior` runs on a freshly instanced interior and does two things:
+- Links the internal staircase doors to each other with `SetTransitionTarget` (`level1_to_level2` <-> `level2_to_level1`, and the same for 2<->3). Norm has two floors and rich three; unlinked, their upper floors are unreachable.
+- Turns the front door into the way out, by retagging `interior_door` to `door_exit` and pointing its `OnClick` at `transitions2`. That script's existing exit branch then reads the `AreaExit`/`AreaExitObj`/`fXExit`/`fYExit` locals the instancer set, so no new exit code was needed and no floating exit marker had to be planted indoors.
+
+A local `GetObjectInAreaByTag` was needed for this: NWScript has no "find by tag inside THIS area" call, and module-wide `GetObjectByTag` would return whichever instance it saw first — fatal here, because every unit interior carries the same internal door tags.
+
+#### Tenant actions
+A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**. Paying extends from the later of today and the current expiry, so paying early adds a term instead of discarding the remainder. Leaving clears the tenancy and the one-home back-pointer, freeing both the unit and the character's home slot.
+
 #### Still to build
-- **Rent renewal and moving out.** The window rents and enters; there is no "pay rent" or "leave" action yet, so a tenant cannot free their unit or extend the term.
-- **Expiry handling.** `UnitDaysLeft` computes it, nothing acts on it — same open question as TASK-36 for domain houses.
-- **A way back out of the interior.** `UnitInterior` stores `AreaExit`/`AreaExitObj`/`fXExit`/`fYExit` in the shape `transitions2.nss`'s exit branch reads, but the ported templates contain no `exit`-tagged placeable, so nothing consumes them yet.
-- **Days remaining in the list** — the row shows the tenant, not their remaining term.
+- **Expiry handling.** `UnitDaysLeft` computes it and the window shows it, but nothing acts on it — the same open decision as TASK-36 for domain houses. An overdue unit currently keeps its tenant indefinitely.
+- **Furniture does not survive a restart.** `CreateArea` interiors are rebuilt from the template on next entry, so placed furniture is lost. Player storage is unaffected (account-scoped, TASK-37). Same underlying gap as domain houses.
+- **No DM tooling.** Units are configured by hand-setting variables on the door; a `.w` command or NUI panel would be friendlier.
 - **verify**: not yet planned.
