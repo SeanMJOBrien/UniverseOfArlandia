@@ -131,6 +131,12 @@ int iStarshipSec =      60;                     //*// Seconds of travel for each
 int iStarshipLvl =      6;                      //*// Players must be min. level iStarshipLvl to be able to travel in the Universe (starships or personal starships).
 int iStarshipPass =     100;                    //*// Cost of the intergalactical star pass.
 //
+// Decorative space asteroids (area_resources.nss) are offset by a random
+// +/- this many decimetres on Z, so a starfield reads as layered depth rather
+// than a flat plane. Re-rolled every time the area populates, which the
+// iReady!=1 gate in area_recall.nss makes once per coordinate per server boot.
+int iAsteroidJitterZ =  30;                     //*// Max +/- Z offset for decorative space asteroids, in decimetres (30 = +/-3.0m).
+//
 // Personal-flight party cabins (see inc_flight.nss): when a PC pilots their own
 // airship/starship, party PCs standing within this radius are boarded into a
 // freshly-cloned cabin area and rejoin the pilot via the cabin's hatch.

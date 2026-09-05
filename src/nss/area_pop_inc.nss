@@ -54,7 +54,13 @@ void AreaPopSetupPlaceables(object oArea)
       {
     SetObjectVisibleDistance(oPlaceable,200.0);
     if(GetResRef(oPlaceable)=="nwn2house003"){WriteTimestampedLogEntry("[area_pop_setup] obj="+ObjectToString(oPlaceable)+" tag="+GetTag(oPlaceable)+" useable="+IntToString(GetUseableFlag(oPlaceable))+" willMarkStatic="+IntToString((!GetUseableFlag(oPlaceable))&&(GetStringLeft(GetTag(oPlaceable),8)!="lamppost")));}
-    if((!GetUseableFlag(oPlaceable))&&(GetStringLeft(GetTag(oPlaceable),8)!="lamppost")){NWNX_Object_SetPlaceableIsStatic(oPlaceable,TRUE);}
+    // "NoStatic"=1 opts an object out permanently. Needed by anything that
+    // animates via SetObjectVisualTransform (ship hulls, see inc_shiparrive.nss):
+    // a client-side static placeable is baked into the area's geometry and
+    // won't follow a transform. It has to be a property of the object, not a
+    // one-time undo - this function re-scans on every poll tick by design, so
+    // anything cleared elsewhere would just be re-marked on the next pass.
+    if((!GetUseableFlag(oPlaceable))&&(GetLocalInt(oPlaceable,"NoStatic")!=1)&&(GetStringLeft(GetTag(oPlaceable),8)!="lamppost")){NWNX_Object_SetPlaceableIsStatic(oPlaceable,TRUE);}
       }
     oPlaceable = GetNextObjectInArea(oArea);
      }

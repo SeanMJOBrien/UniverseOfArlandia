@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "area_pop_inc"
+#include "inc_conflict"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -256,6 +257,9 @@ FloatingTextStringOnCreature("*no area available*",oPC);
 ////////////////////////////////////////////////////////////////////////////////
 else if((sTag=="exit")||(sTag=="door_exit"))
  {
+// Leaving a conflict clears the flag the cabin hatch checks, so followers can
+// climb up to the pilot again once the fight is behind them.
+if(GetLocalInt(oArea,CONFLICT_IS_AREA)==1){DeleteLocalInt(oPC,CONFLICT_ACTIVE);}
 fX = GetLocalFloat(oArea,"fXExit");
 fY = GetLocalFloat(oArea,"fYExit");
 fF = DIRECTION_SOUTH;
@@ -426,6 +430,46 @@ FloatingTextStringOnCreature("*no area available*",oPC);
 else if(sTag=="Ruins_Int")
  {
 AssignCommand(oPC,ActionJumpToObject(GetNearestObject(OBJECT_TYPE_WAYPOINT,oPC)));
+ }
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Conflict (TASK-30) - a red light shaft in a ship-travel area. Drops the pilot
+// into a battle cloned from this tile's own terrain template, and brings their
+// cabin passengers along. Shared instance, keyed by origin coordinate + the
+// shaft's own position, exactly like the tent/dungeon entries above - everyone
+// who clicks the same shaft joins the same live fight.
+////////////////////////////////////////////////////////////////////////////////
+else if(sTag=="conflict")
+ {
+string sConflictKey = sPlanet+"_"+sArea+"&"+sX+sY+"&Conflict";
+oTargetArea = GetLocalObject(oModule,sConflictKey);
+
+if(!GetIsObjectValid(oTargetArea))
+  {
+oTargetArea = ConflictCloneFor(oArea);
+if(!GetIsObjectValid(oTargetArea)){FloatingTextStringOnCreature("*no area available*",oPC);return;}
+SetLocalObject(oModule,sConflictKey,oTargetArea);
+ConflictSetReturn(oTargetArea,oArea,OBJECT_SELF,sPlanet,sArea);
+ConflictSpawnExit(oTargetArea);
+// Composition hook - deliberately empty for now. conflict_pop reads
+// "ConflictTier" off the area and spawns the two opposing groups (stock
+// Hostile vs Defender, which fight each other for free). Tiers are still to
+// be designed, so today this stamps nothing and the clone is a bare arena.
+SetLocalInt(oTargetArea,"ConflictTier",GetLocalInt(OBJECT_SELF,"ConflictTier"));
+ExecuteScript("conflict_pop",oTargetArea);
+  }
+
+vector vArrive = ConflictArrivalPoint(oTargetArea);
+location lConflict = Location(oTargetArea,vArrive,DIRECTION_NORTH);
+SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
+SetLocalInt(oPC,CONFLICT_ACTIVE,1);
+ConflictJump(oPC,lConflict);
+// Hybrid model: passengers riding this pilot's flight cabin come too. Ordinary
+// travel still leaves them in the cabin; only a conflict empties it.
+ConflictBoardCabinParty(oPC,lConflict);
  }
 ////////////////////////////////////////////////////////////////////////////////
 }

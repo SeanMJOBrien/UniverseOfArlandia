@@ -108,9 +108,20 @@ void FlightExitTo(object oUser, location lDest)
 // Hatch option 1: rejoin the flight owner at their CURRENT location (aloft or
 // already landed). If the owner has logged out, fall back to oUser's boarding
 // spot so they are never stranded.
+//
+// Refused outright while the owner is inside a conflict (TASK-30): the battle
+// is entered through its own shaft, which brings the whole cabin along at once,
+// and a hatch jump would drop a lone follower into a live fight by a side door.
+// "ConflictActive" is inc_conflict.nss's flag, read by name rather than by
+// including that file, which would make the include order circular.
 void FlightHatchJoinOwner(object oUser)
 {
     object oOwner = GetLocalObject(GetArea(oUser),FLIGHT_OWNER);
+    if(GetIsObjectValid(oOwner)&&(GetLocalInt(oOwner,"ConflictActive")==1))
+    {
+        FloatingTextStringOnCreature("The pilot is under attack - you cannot climb up right now.",oUser);
+        return;
+    }
     location lDest = GetIsObjectValid(oOwner)
                      ? GetLocation(oOwner)
                      : GetLocalLocation(oUser,FLIGHT_BOARD_LOC);

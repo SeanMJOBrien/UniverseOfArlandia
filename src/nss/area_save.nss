@@ -9,6 +9,13 @@ void main(){
 // content. Leave them live and untouched instead.
 if(GetLocalInt(OBJECT_SELF,"IsClusterMember")==1){return;}
 ////////////////////////////////////////////////////////////////////////////////
+// Conflict battle instances (inc_conflict.nss) are shared and have to outlive
+// their last occupant leaving - a party that retreats to heal must find the
+// same fight when it comes back, and other players can join the same instance
+// later. Letting the generic save/destroy below run would tear the arena down
+// 0.3s after it emptied. They are torn down on resolution instead.
+if(GetLocalInt(OBJECT_SELF,"IsConflictArea")==1){return;}
+////////////////////////////////////////////////////////////////////////////////
 object oModule = GetModule();
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");

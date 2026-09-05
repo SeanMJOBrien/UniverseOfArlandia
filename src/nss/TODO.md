@@ -474,3 +474,118 @@ Each task below is self-contained. Fields:
 - **files**: `src/nss/tile_util.nss` (existing), likely `src/nss/spawngrp_save.nss`/`spawngrp_load.nss` or a new `dmb_*`/`mod_chat.nss` DM command if/when a consumer is chosen.
 - **verify**: not yet planned - depends on which consumer is picked.
 - **verify**: board a follower, take off; while the pilot is still aloft, use the hatch and choose "drop back to where you boarded" — confirm the follower lands back where they boarded (not at the pilot), and "climb up to the pilot" still works. Confirm the cabin clone is destroyed once empty via either path.
+
+---
+
+### TASK-26: Free-form ship flight paths (random entry/exit, PC-designated landing)
+- **status**: done — code written and compiles clean (586 scripts, zero errors); NOT yet confirmed in-game.
+- **action**: Generalise TASK-15's fixed-longitude arrival into a reusable flight-path library, so a ship can enter from any of the four area edges, land at an arbitrary point (e.g. wherever a PC used a hailing item), and depart over a different edge.
+- **files**:
+  - `src/nss/inc_shiparrive.nss` — rewritten around one primitive, `ShipFlyLeg(oShip, vLand, vFrom, vTo, fDuration, nLerp, fRotFrom, fRotTo)`. Everything is a client-side visual offset from the hull's real position (its landing spot); nothing moves server-side. New helpers: `ShipEdgePoint` (a point beyond a given edge, axis-aligned with the landing spot), `ShipEdgeApproachFacing`, `ShipPickEdge` (random edge, optionally excluding the arrival edge), `ShipArriveFromEdge` / `ShipDepartToEdge` (EASE_OUT in / EASE_IN out), `ShipDockRotationToward` (which 90° dock rotation puts the boarding ramp on the PC's side), and `ShipPieceAt` (one rope/ramp piece, offset+facing rotated together). `EaseShipHullIn`/`EaseShipHullOut` are kept as the fixed-longitude entry points transports.nss's scheduled arrivals still use, now implemented on top of `ShipFlyLeg`.
+  - `src/nss/inc_shiparrive.nss` — `SpawnShipRopes`/`SpawnShipLadder` take a new trailing `iRotation90` (default 0 = original hardcoded layout), routing every offset through `_string_utils.nss`'s `RotateOffset90`/`RotateFacing90`. Without this, a ship landing at a PC-chosen facing puts its boarding ramp on the wrong side — the offsets are authored in world axes for a hull docked at facing 180.
+  - `src/nss/area_pop_inc.nss:57` — added a `GetLocalInt(oPlaceable,"NoStatic")!=1` term to the static-marking condition. `NWNX_Object_SetPlaceableIsStatic` bakes a placeable into client-side area geometry, where it won't follow a visual transform; that function marks *every* non-useable placeable and re-scans on every poll tick, so an animating hull needs a permanent opt-out rather than a one-time undo.
+  - `src/nss/transports.nss:159,171,200` — `SetLocalInt(oPla,"NoStatic",1)` alongside the existing `DontSave` on all three ship-spawn branches. Line 200's flourish ship explicitly calls `SetUseableFlag(oPla,FALSE)`, so it was definitely being marked static mid-flight.
+- **constraint**: Flights are single-axis by design (a leg shares one coordinate between start and end). `ShipEdgePoint` preserves that for all four edges rather than allowing true point-to-point diagonals — a diagonal cuts across the middle of the area and is far more likely to clip through scenery, which is why TASK-15 chose a fixed longitude in the first place. Randomising the *edge* rather than the *point* keeps the guarantee.
+- **unverified**: (a) `OBJECT_VISUAL_TRANSFORM_ROTATE_Z` is assumed to take degrees, not radians — the translation half is proven by TASK-15, the rotation half is new; check before trusting a non-zero rotation. (b) `ShipDockRotationToward`'s index→compass mapping is derived from the rope/ramp offsets, not confirmed in-game (same caveat TASK-17 carried for domain rotation). (c) What a player entering an area mid-flight sees — `nwscript.nss:12027` doesn't say whether an in-progress lerp is replayed on object load for a late joiner.
+- **not built**: the hailing item itself. The library supports it (`ShipPickEdge` → `ShipArriveFromEdge` → hold → `ShipDepartToEdge` over a different edge, landing at `GetItemActivatedTargetLocation()`), but no `.uti` or `mod_activate.nss` branch exists yet.
+- **verify**: trigger a scheduled airship/starship arrival and confirm the descent still looks exactly as it did before this refactor (the `EaseShipHullIn` path must be behaviour-identical). Then, with a test caller, confirm a ship arrives from a random edge, its ropes/ramp land on the correct side for a non-zero `iRotation90`, and it departs over a different edge than it arrived from.
+
+---
+
+### TASK-27: Space asteroid Z jitter
+- **status**: done — compiles clean; NOT yet confirmed in-game.
+- **action**: Decorative space asteroids sat on one flat Z plane. They now get a random ±3.0m Z offset so a field reads as layered depth.
+- **files**: `src/nss/area_resources.nss:69` (jitter applied to the `CreateObject` vector), `src/nss/_module.nss` (`iAsteroidJitterZ = 30`, decimetres).
+- **pattern**: real Z at creation, not a visual transform — so the click hull follows the model and the offset round-trips through `area_save.nss:50` / `area_recall.nss:61` for free. Scoped to `asteroid001-003` only: `pla_asteroid` is a mineable resource whose click hull must stay on the model, and `pla_spacedung001/002` are dungeon entrances needing a predictable height.
+- **constraint**: `area_resources.nss` runs under `area_recall.nss`'s `iReady!=1` gate — once per coordinate per server boot. Module locals hold the exact float Z within a session, and die on restart, so heights are stable while the server is up and re-roll on each restart. That was the requirement; no persistence work needed.
+- **verify**: enter a `space0*` area and confirm asteroids sit at visibly varied heights; leave and re-enter and confirm the heights do NOT change; restart the server and confirm they do. Watch specifically for the −3.0 end putting asteroids below the walkable plane in a way that reads badly — if so, bias the range upward (`Random(41)/10.0` for 0…+4) rather than adding clamping.
+
+---
+
+### TASK-28: Spawn-group DM tool items had no blueprints
+- **status**: done — blueprints created and round-trip through `nwn_gff`; NOT yet tested in-game.
+- **action**: `spawngrp_save.nss`/`spawngrp_load.nss` and their `mod_activate.nss:54-55` dispatch branches were written and deployed, but no `spawngrab` or `spawnstamp` item existed anywhere — not in `src/uti/`, not in the live `UOA.mod`. The engine was unreachable. Both blueprints now exist, cloned from `dmtool.uti.json` (same Unique Power activation property).
+- **files**: `src/uti/spawngrab.uti.json`, `src/uti/spawnstamp.uti.json` (new).
+- **constraint**: the group name and level still come from `GrpName`/`GrpLevel` *locals on the item itself* (`mod_activate.nss:54`), which a DM has to set with the variable editor — there is no UI for it. Worth a `.w` chat command or a NUI panel later if this sees real use.
+- **known limits of the engine these items drive**: (a) `spawngrp_load.nss:55-56` always stamps at the **area centre**, not where the DM stands. (b) `spawngrp_load.nss:68` flags every stamped object `Camp`=1, hooking it into camp despawn/clear — wrong for a permanent station, right for a clearable mission target. (c) `spawngrp_save.nss:65` stores only `dX/dY/facing/type`, no Z, and `spawngrp_load.nss:57` recomputes Z from the area tag prefix (0.0 for space) — fine for default-Z layouts, but a group whose design depends on stacked heights will flatten. (d) Auto-stamping via the camp roll never fires in space: `area_creatures.nss:887` excludes the `space` tag prefix. Manual stamping is unaffected by (d).
+- **verify**: give a DM both items, set `GrpName` on `spawngrab`, decorate a staging area, activate it and confirm the "Spawn group '<name>' saved: N object(s)" message. Then activate `spawnstamp` in an empty area and confirm the layout rebuilds at the area centre.
+
+---
+
+### TASK-29: Pre-existing dead code — space dungeon placeables never spawn
+- **status**: found, not fixed (changes spawn rates; wants a decision).
+- **action**: In `src/nss/area_resources.nss`'s space-asteroid loop, `pla_spacedung001`/`pla_spacedung002` are assigned on `iRandom==1`/`iRandom==2`, and then the very next statement, `if(iRandom<12){sBP = "pla_asteroid";}`, unconditionally overwrites both — 1 and 2 are both `<12`. The two space-dungeon placeables can therefore never spawn. Reordering the branches (or making the asteroid case an `else if`) would fix it, but that shifts the asteroid/dungeon mix in every space area, so it needs a call on the intended rates rather than a silent fix.
+- **files**: `src/nss/area_resources.nss:69`.
+- **verify**: after a fix, enter several `space0*` areas and confirm `pla_spacedung001`/`002` appear at roughly the intended 1-in-100 / 1-in-100 rate.
+
+---
+
+### TASK-30: "Join the conflict" placeable — click to pull the party into a cloned battle area
+- **status**: plumbing implemented and compiling clean; NOT tested in-game. Composition deliberately unbuilt (see TASK-32).
+- **action**: A red light-shaft placeable standing in a ship-travel area (space / clouds / ocean). Clicking it drops the pilot into a battle area cloned from that tile's own terrain, bringing their flight-cabin passengers along. Ground areas are explicitly OUT of scope — ordinary ground battles keep working exactly as they do today, since players can already walk into and out of them.
+
+#### The one rule that made this small
+`transitions.nss:143-147` builds every exterior tile as `CopyArea()` of a `<type>000` template, and a clone keeps its source's tag forever — so from inside a live tile, `GetTag(oArea)` **is** its own template tag. One lookup therefore yields blank space in `space000`, blank sky in `clouds000` and blank sea in `ocean000`, with no per-environment branching. It must read the `AreaTemplate_` cache rather than `GetObjectByTag`, or a live clone can be copied instead of the master (the TASK-22 bug that `area_tmpl_boot.nss` exists to prevent).
+
+#### Hybrid model (agreed)
+The cabin (`inc_flight.nss`) still carries followers for ordinary travel — the pilot hops between tiles constantly, and a detached clone is the only thing that survives that cheaply. Only a conflict moves them out of it, which is one bounded transition instead of dragging passengers through every hop.
+
+#### Files (all new/changed this session)
+- `src/nss/inc_conflict.nss` (new) — `ConflictTemplateFor`, `ConflictCloneFor`, `ConflictArrivalPoint`, `ConflictSpawnExit`, `ConflictSetReturn`, `ConflictJump`, `ConflictBoardCabinParty`.
+- `src/nss/conflict_pop.nss` (new) — composition hook. Runs on the fresh clone, reads `ConflictTier`, and deliberately spawns nothing yet; its header carries the agreed faction rules for whoever fills it in.
+- `src/nss/transitions2.nss` — new `sTag=="conflict"` branch, and a `ConflictActive` clear in the existing `exit` branch. Instance is shared, keyed `<planet>_<area>&<x><y>&Conflict` on the module, matching the tent/dungeon key shape directly above it.
+- `src/utp/pla_conflict.utp.json` (new) — tag `conflict`, appearance 826 (Lightshaft Red), `OnClick=transitions2`, Useable=1/Static=0 (a static placeable cannot be clicked at all — `area_pop_inc.nss:57`).
+- `src/utp/conflict_exit.utp.json` (new) — tag `exit`, appearance 828 (Lightshaft Green). Tagged `exit` on purpose so `transitions2.nss`'s existing exit branch handles the return verbatim, including its fallback to `transitions.nss` when the origin tile was destroyed while we were inside — the normal case for a lone pilot, whose tile empties the moment they leave.
+- `src/nss/inc_flight.nss` — `FlightHatchJoinOwner` now refuses while the owner has `ConflictActive`, so a lone follower can't side-door into a live fight.
+- `src/nss/area_save.nss:11` — conflict clones exempted from the destroy-when-empty pass, beside the existing `IsClusterMember` exemption, so a retreating party finds the same fight on return.
+
+#### Settled decisions
+- Entry is **clicker-only** everywhere; the cabin party is the one exception, and they come as a group.
+- Victory = every creature hostile to the PC dead. Surviving Defenders don't block it.
+- Players leave via the exit shaft when ready, not on an auto-return.
+- Factions are stock **Hostile vs Defender** — two Hostile groups would be allies and just stand there, and `src/fac/repute.fac.json` has only the 5 stock factions. Consequence: the party always has an ally side. `SetIsTemporaryEnemy(oPC, oCreature)` is the per-PC escape hatch when a Defender group needs to be hostile too.
+
+#### Still to do
+- **Composition** (TASK-32) — `conflict_pop.nss` is an empty hook today.
+- **Placement** — nothing creates a conflict placeable yet. Needs the random roll (beside `area_creatures.nss`'s camp roll, with a persistent record written at roll time — `area_creatures.nss` records nothing about camps today, the gap TASK-14 found) and a DM placement branch in `mod_activate.nss`.
+- **Resolution** — nothing yet detects "all hostiles dead", marks the record resolved, or tears the instance down.
+- **verify**: place a `conflict` shaft in a space tile, click it as a pilot with a party aboard the cabin, confirm everyone lands in a blank clone of the same terrain type, confirm the cabin self-destroys, confirm the exit shaft returns everyone to the shaft's position even after the origin tile was torn down, and confirm the cabin hatch refuses while the pilot is inside.
+
+---
+
+### TASK-31: Ship decks, ghost-follow passengers, and pilot death
+- **status**: designed, not implemented. This is the full model TASK-30's hybrid is a stepping stone toward; both are wanted.
+- **action**: Give a ship owner's flight a real interior and a real answer to the pilot dying.
+
+#### Design
+- The ship owner is currently the only permitted pilot. Every other party member is moved to a **cloned ship deck**, mirroring the ticketed transport areas (`airship001/002`, `starship001/002`).
+- The deck has a **doorway to a ship interior**, so passengers can be above on deck or below in the cabin — again as ticketed transport does.
+- While in a ship-travel area (clouds / space / sea), non-pilot party members are **invisible, cutscene-ghosted, and cutscene-forced to follow the pilot**.
+- Passengers can **toggle** between that follow-the-pilot observer mode and being back on the deck, so watching the flight is a choice rather than a state they're stuck in.
+- **If the pilot dies**, move them — bleeding, not dead — aboard the ship deck so the party can stabilise them. Afterwards the pilot can either return to the same space location and fly on, or use a **ship control** to fly to a chosen destination like ticketed travel, with the same interruptible flight delay.
+- Safe fallback destination is **Arland `0_0`** — the `citya` start tile named "Arlandia" (`_galaxy.nss:1221`). Parallels the existing `DOMAIN_REFRESH_AWAY_PLANET`/`_AREA` constants in `_string_utils.nss`.
+
+#### Engine facts established while designing this (do not re-derive)
+- **There is no cutscene invisibility.** NWScript offers `EffectCutsceneGhost` (creature-collision passthrough only — not invisibility, and not through walls), `EffectCutsceneParalyze`, `EffectCutsceneImmobilize`, `EffectCutsceneDominated`. For hiding there is only `EffectInvisibility(INVISIBILITY_TYPE_NORMAL|DARKNESS|IMPROVED)`, which is real spell invisibility: concealment, breaks on attack, defeated by See Invisibility / True Seeing.
+- **The clean hiding tool is `NWNX_Visibility_SetVisibilityOverride`** (per-observer, no spell mechanics). `src/nss/nwnx_visibility.nss` is present but **the plugin is not loaded**: `~/uoa/config/nwserver.env` sets `NWNX_CORE_SKIP_ALL=yes` and has no `NWNX_VISIBILITY_SKIP=no` line. One line plus a container restart.
+- **`SetCutsceneMode(oPC, TRUE)` also makes the player plot/unkillable**, restoring the prior plot flag on exit (`nwscript.nss:10754`). Useful for passengers; must be off before they can fight.
+- **`ActionForceFollowObject` on a PC breaks the moment the player touches a movement key** — input clears the action queue. Follow is not actually forced without cutscene mode.
+- **Force-follow does not survive an area transition.** `transitions.nss` moves ONE PC via `PlanetDest`/`AreaDest` locals; a following passenger is left in the old tile, which `area_exit.nss` then destroys 0.3s later. Since a flight is a chain of tile hops, ghost-follow needs explicit party movement on every hop — precisely the cost the detached cabin avoids. Budget for this; it is the main work in this task.
+- **`area_enter.nss:151` swaps appearance to 338 for ANY PC entering a space area** (clouds→342, ocean→339), stashing the real one in `OrigApp` on the goldbag. So passengers standing in the pilot's area become ships too; invisibility is what hides that.
+- **Two pre-existing bugs this task should fix**: `FlightHatchJoinOwner` checks only `GetIsObjectValid(oOwner)`, which is TRUE for a corpse — so a follower using the hatch after the pilot dies is teleported onto the body, in space. And once the pilot presses respawn, `mod_respawn.nss` jumps them to `WP_Death`, so the hatch dumps followers onto the Death plane. Both disappear once death moves the pilot to the deck instead.
+- The current cabin is a **single** area (`cabin_air000` / `cabin_star000`); the deck/interior split does not exist yet and has to be built.
+
+#### Files (anticipated)
+- `src/nss/inc_flight.nss` — deck/interior split, ghost-follow mode and its toggle, per-hop passenger movement, pilot-death handling.
+- New deck + interior area templates, modelled on `airship001`/`starship001`.
+- New ship-control placeable and its destination dialog, modelled on the ticketed-travel conversation (`conv_trans006.nss` and friends).
+- `~/uoa/config/nwserver.env` — `NWNX_VISIBILITY_SKIP=no` (outside the repo).
+- **verify**: not yet planned.
+
+---
+
+### TASK-32: Conflict composition and tiers
+- **status**: deferred by design; TASK-30 ships an empty `conflict_pop.nss` hook waiting on this.
+- **action**: Decide what actually spawns in a conflict, per tier and per environment. Space "requires more systems" and is expected to differ substantially from clouds/sea.
+- **constraint**: stock Hostile vs Defender only (see TASK-30) unless custom factions are added to `src/fac/repute.fac.json`, which is a build-time change — NWScript cannot create a faction at runtime.
+- **verify**: not yet planned.
