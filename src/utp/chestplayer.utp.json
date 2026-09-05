@@ -116,7 +116,7 @@
   },
   "OnInvDisturbed": {
     "type": "resref",
-    "value": ""
+    "value": "pcstore_distu"
   },
   "OnLock": {
     "type": "resref",

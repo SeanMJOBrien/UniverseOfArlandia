@@ -689,3 +689,18 @@ So on every scheduled reboot, everything inside every rented house already vanis
 4. **Retrieval.** At a bank (a branch in `shop.dlg.json`, which already hosts the bank), and on renting a new house — dumped into chests there.
 - **open**: per-house item cap; what happens to escrow if the character is deleted; whether the owner should be able to evict before expiry (`DomainCanBuild` would gate it).
 - **verify**: rent a house, let the term lapse across a reboot, and confirm the day count shown is unchanged by the restart. Then, once escrow exists, confirm the house frees up, the belongings survive, and both retrieval paths return them.
+
+---
+
+### TASK-37: Player chest storage made persistent and per-account
+- **status**: implemented and deployed. Not yet tested in-game.
+- **problem**: UOA's four house chests (`chestplayer1-4`) wrote their contents to MODULE LOCALS (`chestplay_open/close.nss`, zero persistent writes), and `mod_heartbeat.nss:30` reboots the server on a timer — so players were silently losing everything they stored, every reboot.
+- **model**, taken from The Frozen North (`~/tfndev`, `pc_storage_distu.nss` / `storage_onuse.nss`): storage belongs to the ACCOUNT (public CD key), not to a house. The chest in the world is only a portal — using it opens the player's own storage object via `NWNX_Player_ForcePlaceableInventoryWindow` (plugin confirmed enabled). The whole object is saved as ONE campaign entry per (account, slot) on `OnInvDisturbed`, contents intact.
+- **why per-account rather than per-house**: it dissolves the escrow problem in TASK-36 entirely. Losing a house — evicted, demolished, rent lapsed — can no longer cost anyone their belongings, and renting somewhere new means the chests are already stocked, which is exactly what the "dump it into chests at the new lodgings" requirement asked for.
+- **no item cap, deliberately**: TFN imposes none, and none is needed. Because one campaign entry holds a whole chest, row count is bounded by players x slots regardless of how many items are inside — unlike a per-item scheme, which is what made a cap look necessary earlier.
+- **files**: `src/nss/_pcstorage.nss` (new), `src/nss/pcstore_distu.nss` (new), `src/nss/chestplay_used.nss` (rewritten as a portal), `src/utp/chestplayer.utp.json` (`OnInvDisturbed` = `pcstore_distu`), `src/nss/_module.nss` (`iPCStorageChests` = 4).
+- **unchanged**: the four slots and their house-level gating (1 at level 1, 2 at level 4, 3 and 4 at level 5) and the Master check, which for a rented house is the RENTER.
+- **migration**: the first time an owner opens a chest, anything still in the old per-house container is moved into their account store and saved. Those contents were doomed at the next reboot anyway; this just avoids losing them sooner.
+- **campaign namespace** is `PCStorage`, deliberately NOT `AdvAreaSnap` — `mod_load.nss:59` destroys that one at every boot.
+- **follow-up**: `chestplay_open.nss` / `chestplay_close.nss` still contain the old module-local save/restore. They are now dead weight for these chests but may still serve the "Desk" tags (3/4) they special-case — check before deleting.
+- **verify**: store items in a house chest, reboot the server, and confirm they are still there. Confirm a second character on the SAME account sees the same contents, and one on a different account does not. Rent a different house and confirm the chests carry over. Confirm chests 2-4 stay locked below the required house level.
