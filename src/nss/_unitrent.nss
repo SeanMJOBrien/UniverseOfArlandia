@@ -27,6 +27,13 @@ const string UNITRENT_EVENT  = "unitrent_event";
 const string UNITRENT_DOOR   = "UnitRentDoor";   // PC local: door whose list is open
 const string UNITRENT_PICK   = "UnitRentPick";   // PC local: unit being confirmed
 
+// Forward declarations - expiry and furniture persistence are defined at the
+// foot of this file but called from the instancer and the window above it.
+int  UnitSweepExpired(object oDoor);
+void UnitSaveFurniture(object oArea);
+void UnitRestoreFurniture(object oArea, string sUnitKey);
+void UnitClearFurniture(string sUnitKey);
+
 // ---------------------------------------------------------------------------
 // Identity and configuration
 // ---------------------------------------------------------------------------
@@ -45,9 +52,34 @@ string UnitTenantKey(object oDoor, int iUnit)
     return UnitDoorKey(oDoor) + "&" + IntToString(iUnit);
 }
 
+// Where a door's configuration lives. A DM setting it in-game (.wunits) must
+// survive a restart, and local variables set at runtime do not - so the
+// database is the authority and the door's own locals are only a fallback for
+// doors configured in the toolset.
+string UnitCfgKey(object oDoor)
+{
+    return UnitDoorKey(oDoor) + "&Cfg";
+}
+
+// Stored as "<count>&<size1>,<size2>,..." e.g. "6&1,1,1,1,3,1".
+void UnitSetConfig(object oDoor, int iUnits, string sSizes)
+{
+    if (iUnits < 1) { DeletePersistentVariable(GetModule(), UnitCfgKey(oDoor)); return; }
+    if (iUnits > UNITRENT_MAX) { iUnits = UNITRENT_MAX; }
+    SetPersistentString(GetModule(), UnitCfgKey(oDoor), IntToString(iUnits) + "&" + sSizes);
+}
+
+string UnitCfg(object oDoor)
+{
+    return GetPersistentString(GetModule(), UnitCfgKey(oDoor));
+}
+
 int UnitCount(object oDoor)
 {
-    int iUnits = GetLocalInt(oDoor, "Units");
+    string sCfg = UnitCfg(oDoor);
+    int iUnits;
+    if (sCfg != "") { iUnits = StringToInt(GetStringLeft(sCfg, FindSubString(sCfg, "&"))); }
+    else            { iUnits = GetLocalInt(oDoor, "Units"); }
     if (iUnits < 1) { return 0; }
     if (iUnits > UNITRENT_MAX) { iUnits = UNITRENT_MAX; }
     return iUnits;
@@ -58,7 +90,22 @@ int UnitCount(object oDoor)
 // rather than a broken door.
 int UnitSize(object oDoor, int iUnit)
 {
-    int iSize = GetLocalInt(oDoor, "Unit" + IntToString(iUnit));
+    int iSize;
+    string sCfg = UnitCfg(oDoor);
+    if (sCfg != "")
+    {
+        // Walk to the iUnit'th comma-separated size after the "&".
+        string sList = GetStringRight(sCfg, GetStringLength(sCfg) - FindSubString(sCfg, "&") - 1) + ",";
+        int n;
+        for (n = 1; n <= iUnit; n++)
+        {
+            int iComma = FindSubString(sList, ",");
+            if (iComma < 0) { break; }
+            if (n == iUnit) { iSize = StringToInt(GetStringLeft(sList, iComma)); }
+            sList = GetStringRight(sList, GetStringLength(sList) - iComma - 1);
+        }
+    }
+    else { iSize = GetLocalInt(oDoor, "Unit" + IntToString(iUnit)); }
     if ((iSize < 1) || (iSize > 3)) { iSize = 1; }
     return iSize;
 }
@@ -233,7 +280,12 @@ object UnitInterior(object oDoor, int iUnit)
     SetLocalFloat(oArea, "fXExit", GetPosition(oDoor).x);
     SetLocalFloat(oArea, "fYExit", GetPosition(oDoor).y - 1.0);
     SetPersistentString(GetModule(), UnitTenantKey(oDoor, iUnit) + "Area", sTag);
+    // Stamp the unit key so area_exit.nss can snapshot this interior's
+    // furniture without having to work out which unit it belongs to.
+    SetLocalString(oArea, "UnitKey", UnitTenantKey(oDoor, iUnit));
+    SetLocalInt(oArea, "IsUnitArea", 1);
     UnitWireInterior(oArea);
+    UnitRestoreFurniture(oArea, UnitTenantKey(oDoor, iUnit));
     return oArea;
 }
 
@@ -317,6 +369,7 @@ void UnitRentOpen(object oPC, object oDoor)
         FloatingTextStringOnCreature("This door has no rental units configured.", oPC, FALSE);
         return;
     }
+    UnitSweepExpired(oDoor);
     SetLocalObject(oPC, UNITRENT_DOOR, oDoor);
     json jWin = NuiWindow(UnitRentPage(oPC), JsonString(GetName(GetArea(oDoor))), NuiRect(-1.0, -1.0, 470.0, 440.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
     NuiCreate(oPC, jWin, UNITRENT_WINDOW, UNITRENT_EVENT);
@@ -345,6 +398,14 @@ int UnitRentTake(object oPC, object oDoor, int iUnit)
     }
 
     TakeGoldFromCreature(iPrice, oPC, TRUE);
+    // A unit changing hands starts bare - the incoming tenant does not inherit
+    // the last one's furniture. Re-renting your OWN unit keeps it, because the
+    // record is only wiped when the name actually differs.
+    if (GetPersistentString(GetModule(), UnitTenantKey(oDoor, iUnit) + "Last") != GetName(oPC))
+    {
+        UnitClearFurniture(UnitTenantKey(oDoor, iUnit));
+    }
+    SetPersistentString(GetModule(), UnitTenantKey(oDoor, iUnit) + "Last", GetName(oPC));
     UnitSetTenant(oDoor, iUnit, oPC);
     DomainSetRentedUnit(oPC, UnitTenantKey(oDoor, iUnit));
     FloatingTextStringOnCreature("You rent unit " + IntToString(iUnit) + " for " + IntToString(iDomainRentDays) + " days.", oPC, FALSE);
@@ -386,4 +447,113 @@ int UnitRentLeave(object oPC, object oDoor, int iUnit)
     DomainClearRented(oPC);
     FloatingTextStringOnCreature("You give up unit " + IntToString(iUnit) + ".", oPC, FALSE);
     return TRUE;
+}
+
+// ---------------------------------------------------------------------------
+// Expiry and re-letting
+// ---------------------------------------------------------------------------
+
+// Release any unit at this door whose rent has run out. Called whenever the
+// list is opened and whenever a tenant tries to enter, because a tenant who
+// stops paying may simply never come back - so expiry cannot be detected from
+// the tenant's own actions alone. Anyone opening the door is exactly the
+// person who cares whether a unit has come free.
+//
+// The interior shell is left standing and its furniture record kept: if the
+// same character re-rents, their home is as they left it. A different tenant
+// gets a clean unit, because UnitRentTake wipes the record when the unit
+// changes hands.
+int UnitSweepExpired(object oDoor)
+{
+    int iUnits = UnitCount(oDoor);
+    int iFreed;
+    int n;
+    for (n = 1; n <= iUnits; n++)
+    {
+        if (UnitTenant(oDoor, n) == "") { continue; }
+        if (UnitDaysLeft(oDoor, n) >= 0) { continue; }
+        UnitClearTenant(oDoor, n);
+        iFreed++;
+    }
+    return iFreed;
+}
+
+// ---------------------------------------------------------------------------
+// Furniture persistence
+//
+// A unit interior is a CreateArea() instance and does not survive a restart,
+// so anything a tenant placed would be lost. Storage chests are unaffected -
+// they are portals to account storage (_pcstorage.nss) and hold nothing
+// locally - but furniture is a real placeable in the area, so it needs its own
+// record. area_save.nss cannot do this: it keys on the Planet/Area coordinate
+// locals, which unit interiors deliberately do not carry.
+//
+// Stored as one pwdata row per unit: "<resref>_A_<x>_B_<y>_C_<z>_D_<facing>_E_"
+// repeated, matching the delimiter style used elsewhere in this module.
+// ---------------------------------------------------------------------------
+
+string UnitFurnKeyFor(string sUnitKey)
+{
+    return sUnitKey + "Furn";
+}
+
+// Snapshot every piece of furniture in a unit interior.
+void UnitSaveFurniture(object oArea)
+{
+    string sUnitKey = GetLocalString(oArea, "UnitKey");
+    if (sUnitKey == "") { return; }
+
+    string sAll;
+    object oObj = GetFirstObjectInArea(oArea);
+    while (GetIsObjectValid(oObj))
+    {
+        if ((GetObjectType(oObj) == OBJECT_TYPE_PLACEABLE) && (GetLocalInt(oObj, "Furniture") == 1))
+        {
+            vector v = GetPosition(oObj);
+            sAll = sAll + GetResRef(oObj)
+                 + "_A_" + FloatToString(v.x)
+                 + "_B_" + FloatToString(v.y)
+                 + "_C_" + FloatToString(v.z)
+                 + "_D_" + FloatToString(GetFacing(oObj)) + "_E_";
+        }
+        oObj = GetNextObjectInArea(oArea);
+    }
+
+    if (sAll == "") { DeletePersistentVariable(GetModule(), UnitFurnKeyFor(sUnitKey)); }
+    else            { SetPersistentString(GetModule(), UnitFurnKeyFor(sUnitKey), sAll); }
+}
+
+// Rebuild the furniture recorded for a unit into a freshly instanced interior.
+void UnitRestoreFurniture(object oArea, string sUnitKey)
+{
+    string sAll = GetPersistentString(GetModule(), UnitFurnKeyFor(sUnitKey));
+    while (sAll != "")
+    {
+        int iEnd = FindSubString(sAll, "_E_");
+        if (iEnd < 0) { break; }
+        string sRec = GetStringLeft(sAll, iEnd);
+        sAll = GetStringRight(sAll, GetStringLength(sAll) - iEnd - 3);
+
+        int iA = FindSubString(sRec, "_A_");
+        int iB = FindSubString(sRec, "_B_");
+        int iC = FindSubString(sRec, "_C_");
+        int iD = FindSubString(sRec, "_D_");
+        if ((iA < 0) || (iB < 0) || (iC < 0) || (iD < 0)) { continue; }
+
+        string sRes = GetStringLeft(sRec, iA);
+        float fX = StringToFloat(GetStringRight(GetStringLeft(sRec, iB), iB - iA - 3));
+        float fY = StringToFloat(GetStringRight(GetStringLeft(sRec, iC), iC - iB - 3));
+        float fZ = StringToFloat(GetStringRight(GetStringLeft(sRec, iD), iD - iC - 3));
+        float fF = StringToFloat(GetStringRight(sRec, GetStringLength(sRec) - iD - 3));
+
+        object oNew = CreateObject(OBJECT_TYPE_PLACEABLE, sRes, Location(oArea, Vector(fX, fY, fZ), fF));
+        if (GetIsObjectValid(oNew)) { SetLocalInt(oNew, "Furniture", 1); }
+    }
+}
+
+// Forget a unit's furniture entirely - used when the unit changes hands, so an
+// incoming tenant does not inherit the last one's decorating.
+void UnitClearFurniture(string sUnitKey)
+{
+    DeletePersistentVariable(GetModule(), UnitFurnKeyFor(sUnitKey));
 }

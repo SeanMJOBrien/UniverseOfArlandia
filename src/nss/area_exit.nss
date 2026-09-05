@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_unitrent"
 #include "_module"
 #include "inc_persist"
 ////////////////////////////////////////////////////////////////////////////////
@@ -10,6 +11,9 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 string sPlanet = GetLocalString(OBJECT_SELF,"Planet");
 string sArea = GetLocalString(OBJECT_SELF,"Area");
 string sName = GetName(oPC);
+// Rental unit interiors are CreateArea() instances with no Planet/Area locals,
+// so area_save.nss never records them. Snapshot their furniture here instead.
+if(GetLocalInt(OBJECT_SELF,"IsUnitArea")==1){UnitSaveFurniture(OBJECT_SELF);}
 object oPCs = GetFirstPC();
 object oObjects = GetFirstObjectInArea(OBJECT_SELF);
 string sTag = GetTag(OBJECT_SELF);

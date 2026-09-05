@@ -772,8 +772,23 @@ A local `GetObjectInAreaByTag` was needed for this: NWScript has no "find by tag
 #### Tenant actions
 A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**. Paying extends from the later of today and the current expiry, so paying early adds a term instead of discarding the remainder. Leaving clears the tenancy and the one-home back-pointer, freeing both the unit and the character's home slot.
 
+#### Expiry, re-letting, and furniture
+- **Expiry sweep.** `UnitSweepExpired` releases every overdue unit at a door, and runs whenever the list is opened. A tenant who stops paying may simply never return, so expiry cannot be detected from the tenant's own actions — and whoever opens the door is exactly the person who cares whether something has come free.
+- **Re-letting keeps the right furniture.** The interior shell and its furniture record survive a release, so a tenant who re-rents their own unit finds it as they left it. `UnitRentTake` wipes the record only when the unit actually changes hands, comparing against a `Last` tenant name, so an incoming tenant never inherits someone else's decorating.
+- **Furniture now persists.** A unit interior is a `CreateArea()` instance and does not survive a restart, and `area_save.nss` cannot help because it keys on the Planet/Area coordinate locals these interiors deliberately do not carry. So `conv_furnitur003.nss` marks every placed piece `Furniture`=1, `area_exit.nss` snapshots a unit interior's pieces to pwdata when its last occupant leaves, and the instancer rebuilds them on next entry.
+- **Containers needed no work.** The chests in these templates are `chestplayer` portals to account storage (TASK-37) and hold nothing locally, so they come back full regardless of the interior being rebuilt.
+
+#### DM configuration: `.wunits`
+`.wunits <count> [sizes]` configures the nearest `unitdoor` within 10m. Sizes is a comma list, one entry per unit — 1 small, 2 medium, 3 large — padded out to the count so every unit gets an explicit entry:
+```
+.wunits 6 1,1,1,1,3,1     six units, the fifth large
+.wunits 4                 four small units
+.wunits 0                 clear the door
+```
+**Saved to the database, not to the door.** A local variable set in-game does not survive a restart, so pwdata is the authority (`<areaTag>&Unit&<x>_<y>&Cfg`, stored `"<count>&<size1>,<size2>,..."`). A door configured in the toolset still works: its own `Units`/`Unit<n>` locals are the fallback whenever no database row exists.
+
 #### Still to build
-- **Expiry handling.** `UnitDaysLeft` computes it and the window shows it, but nothing acts on it — the same open decision as TASK-36 for domain houses. An overdue unit currently keeps its tenant indefinitely.
-- **Furniture does not survive a restart.** `CreateArea` interiors are rebuilt from the template on next entry, so placed furniture is lost. Player storage is unaffected (account-scoped, TASK-37). Same underlying gap as domain houses.
-- **No DM tooling.** Units are configured by hand-setting variables on the door; a `.w` command or NUI panel would be friendlier.
+- **No expiry warning.** A tenant gets no notice before losing a unit; the sweep simply releases it. A message on entry when the term is nearly up would be kinder.
+- **The sweep only covers doors someone opens.** A building nobody visits keeps its expired tenants until it is next looked at. That is deliberate — there is no index of doors to walk — but it means "released" really means "released the next time anyone looks".
+- **Domain houses still have no expiry action** (TASK-36). Units now do; the two should probably behave the same way.
 - **verify**: not yet planned.
