@@ -709,3 +709,50 @@ So on every scheduled reboot, everything inside every rented house already vanis
 - **item cap**: `iPCStorageMaxItems` (40) is enforced in `pcstore_distu.nss`, counting item STACKS not units. NWN has no per-container cap of its own — capacity is a slot grid and `baseitems.2da` gives each item type an `InvSlotWidth`/`Height` footprint — so a definite limit has to be imposed in script. It also bounds the save cost: every add or removal re-serialises the entire chest.
 - **storage location**: `StoreCampaignObject` does NOT write to MySQL. It writes a local SQLite file under `~/uoa/server/database/` (`pcstorage.sqlite3`, alongside the existing `advareasnap.sqlite3`). Only `aps_include`'s pwdata/pwobjdata go to MySQL via NWNX_SQL. So chest contents are invisible to the website and are NOT covered by a MySQL dump — they need the `database/` directory backed up separately.
 - **verify**: store items in a house chest, reboot the server, and confirm they are still there. Confirm a second character on the SAME account sees the same contents, and one on a different account does not. Rent a different house and confirm the chests carry over. Confirm chests 2-4 stay locked below the required house level.
+
+---
+
+### TASK-38: Multi-unit rental doors (apartment buildings)
+- **status**: home area templates ported, cleaned and committed. The feature itself is NOT built, and deploying the templates is blocked — see below.
+- **action**: Mark a door as a multi-unit rental. Using it opens a dialog listing every unit: the character renting it, or `VACANT: <size>`. Selecting a vacant unit offers to rent it. Example:
+  ```
+  1. Bruno Beltrix
+  2. Vadil Tourn
+  3. Amber Rose
+  4. Gradle
+  5. VACANT: Large unit
+  6. VACANT: Small unit
+  ```
+
+#### Agreed design
+- Doors live in **hand-built areas**, configured by a DM with **variables on the door placeable** (the pattern `spawngrab`'s `GrpName` already uses).
+- **Size changes both price and interior.** Three tiers ported from tfndev: `slum` (small), `norm` (medium), `rich` (large).
+- The **one-home-per-character cap applies**, shared with domain house rentals — `iDomainOneRental` and the existing `DomainMayRent` self-healing back-pointer carry over unchanged.
+
+#### Done: home area templates ported from tfndev
+12 templates — 3 tiers x 4 door facings — converted from `~/tfndev` binary GFF into `src/are`, `src/git`, `src/gic`. TFN names them `_home<tier>_<facing>` and instantiates them with `CreateArea()`, one real area per home, which sidesteps UOA's pooled-interior limit entirely (only 2 instances each of `h_house_`/`h_home1-3_` exist, so pooling caps concurrent house occupancy at 2 server-wide).
+
+Sizes: slum 2x2, norm 4x2, rich 3x5 with three floors and internal level-to-level doors.
+
+Cleanup applied on the way in:
+- Tilesets `tni01`/`tni02` verified present in UOA (4 and 14 existing areas use them), so the templates will load.
+- TFN's `storage1-6` / `gold_storage1-3` placeables replaced with UOA's `chestplayer`, tagged `chestplayer1..N` and capped at the 4 slots `chestplay_used.nss` supports; surplus containers dropped rather than left pointing at absent blueprints.
+- `door_wood003` and `x3_door_wood001` (used by no UOA area) swapped for `x3_door_wood003`, which 8 UOA areas already use. `nw_door_fancy` (173 uses) and `nw_door_jeweled` (130) were left alone.
+- A `Level` variable baked into each template's VarTable — slum 1, norm 4, rich 5 — so `chestplay_used.nss`'s existing level gating opens the right number of chests with no extra code.
+- All 36 files round-trip through `nwn_gff`; no TFN-only blueprint references remain.
+
+#### BLOCKER: the deploy script will not ship new areas
+`~/uoa/build_deploy.sh` sets `SKIP_GFF_DIRS="ifo are git gic"` and never overlays those from `src/`. Its own header explains why: those GFFs drift between the repo and the live `.mod`, and a blanket overlay would silently revert live-only area state. The sanctioned procedure it names for such changes is to extract the live GFF, patch the single field, and convert back.
+
+Two things are needed and both fall inside that skip:
+1. The 36 new `.are`/`.git`/`.gic` resources have to reach the `.mod`. Confirmed absent after a normal deploy (`nwn_erf -t` finds zero `_home*` resources).
+2. Each template needs an entry in the live `module.ifo`'s `Mod_Area_list`. TFN lists all 12 of its own, so `CreateArea()` requires it.
+
+**Adding is safe in a way overwriting is not** — a resource that does not yet exist in the `.mod` cannot revert anything. So the options are to relax the guard to permit new-only additions, or do a one-off manual extract/patch/repack. Either is a deliberate change to live-server deployment and wants an explicit decision, not a silent workaround.
+
+#### Still to build
+- Door blueprint plus its DM variables (unit count, per-unit tier).
+- The unit-list dialog. NWN replies are fixed, so this needs the module's usual pre-made-slots-plus-`SetCustomToken` pattern (as `cond_choice0..26` do) — one slot per unit up to a sensible maximum.
+- Per-unit tenancy keys, extending `<planet>&<area>&Domain&<slot>`, plus a price per tier.
+- `CreateArea()` instancing per rented unit, tagged uniquely per (door, unit), and its entry/exit wiring.
+- **verify**: not yet planned.
