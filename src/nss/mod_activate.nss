@@ -1,5 +1,6 @@
 #include "dmfi_dmw_inc"
 #include "_module"
+#include "_shipname"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,12 @@ else if(sItemTag=="cr_scroll"){if((!GetIsDM(oPC))&&(!GetIsDMPossessed(oPC))&&(!G
 else if(sItemTag=="cr_wand"){if((!GetIsDM(oPC))&&(!GetIsDMPossessed(oPC))&&(!GetHasFeat(FEAT_CRAFT_WAND,oPC))){FloatingTextStringOnCreature("you need the 'craft wand' feat to enchant this wand",oPC);}else if(GetLocalInt(oItem,"Ready")!=1){ExecuteScript("conv_dm_varempty",oPC);SetLocalObject(oPC,"Item",oItem);SetLocalString(oPC,"Bonus","Scroll_Wand");SetLocalInt(oPC,"Choice1",4);SetLocalInt(oPC,"Step",1);AssignCommand(oPC,ActionStartConversation(oPC,"crafting",TRUE,FALSE));}}
 ////////////////////////////////////////////////////////////////////////////////
 // Ships
-else if((sItemTag=="tool_ship")||(sItemTag=="tool_airship")||(sItemTag=="tool_starship")){SetLocalString(oPC,"shiptool",sItemTag);AssignCommand(oPC,ActionStartConversation(oPC,"ship",TRUE,FALSE));}
+// A ship tool used in its own element still opens the flight dialog, exactly as
+// before. Used anywhere else that dialog has nothing to offer (cond_ship001 and
+// friends gate every reply on the matching area), so the tool opens the rename
+// window instead - which is also the only sensible place to rename a ship, i.e.
+// not while you are steering it.
+else if((sItemTag=="tool_ship")||(sItemTag=="tool_airship")||(sItemTag=="tool_starship")){if(ShipToolForArea(sAreaTag)==sItemTag){SetLocalString(oPC,"shiptool",sItemTag);AssignCommand(oPC,ActionStartConversation(oPC,"ship",TRUE,FALSE));}else{ShipNameOpen(oPC,oItem);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Super power
 else if((sItemTag=="superpower")&&(GetLocalInt(oGoldbag,"Super Power")!=0)){if((GetIsObjectValid(oTarget))&&(oTarget==oPC)){AssignCommand(oPC,ActionStartConversation(oPC,"power",TRUE,FALSE));}else{ExecuteScript("superpower",oPC);}}

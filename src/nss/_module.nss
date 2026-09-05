@@ -147,6 +147,14 @@ int iStarshipPass =     100;                    //*// Cost of the intergalactica
 // iReady!=1 gate in area_recall.nss makes once per coordinate per server boot.
 int iAsteroidJitterZ =  30;                     //*// Max +/- Z offset for decorative space asteroids, in decimetres (30 = +/-3.0m).
 //
+// Players can name each ship they own (_shipname.nss); the name is meant to
+// replace the pilot's own while they are wearing the ship model. That swap is
+// OFF until the GetName(oPC) audit in TASK-33 is done: this module keys 96
+// lookups on the player's name, including the area-save gate at
+// area_exit.nss:19, so renaming a pilot mid-flight silently breaks their
+// area saves. Naming, storage and the rename window all work regardless.
+int iShipNameRename =   0;                      //*// 1 = a named ship replaces the pilot's name while in ship form. Needs TASK-33 first.
+//
 // Personal-flight party cabins (see inc_flight.nss): when a PC pilots their own
 // airship/starship, party PCs standing within this radius are boarded into a
 // freshly-cloned cabin area and rejoin the pilot via the cabin's hatch.

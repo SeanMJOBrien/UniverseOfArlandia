@@ -589,3 +589,51 @@ The cabin (`inc_flight.nss`) still carries followers for ordinary travel — the
 - **action**: Decide what actually spawns in a conflict, per tier and per environment. Space "requires more systems" and is expected to differ substantially from clouds/sea.
 - **constraint**: stock Hostile vs Defender only (see TASK-30) unless custom factions are added to `src/fac/repute.fac.json`, which is a build-time change — NWScript cannot create a faction at runtime.
 - **verify**: not yet planned.
+
+---
+
+### TASK-33: GetName(oPC) is used as a database key in 96 places
+- **status**: found while building ship naming (TASK-34); blocks that feature's rename half. Not started.
+- **action**: Convert every `GetName(oPC)` that is used as a KEY (not as display text) to `GetName(oPC, TRUE)`, which returns the character's true name regardless of any active rename override. The two calls are identical while no override exists, so the conversion is safe to land ahead of the feature that needs it.
+- **why it matters**: nothing can ever rename a PC until this is done. Renaming changes what `GetName(oPC)` returns — this is true of base `SetName()` AND of `NWNX_Rename_SetPCNameOverride`, whose own header directs you to `GetName(oPC, TRUE)` for the true name. Any renamed player silently starts reading and writing different rows.
+- **worst offenders found so far**:
+  - `area_exit.nss:19` — gates the whole area-save path on `GetLocalInt(oModule, GetName(oPC))`. A renamed player's areas stop saving, with no error.
+  - `area_exit.nss:28` / `transitions2.nss` — the `GetName(oPC)+"Loc"` pending-arrival location, written on transition and read on exit. Rename between the two and it resolves to nothing.
+  - `cond_domain004/005/018/019.nss` — domain ownership is a string compare of `GetName(oPC)` against the domain's `Master`. A renamed owner stops owning their domain.
+  - `challenges.nss` (4 sites), `cond_challeng002/007.nss`, `conv_challeng001.nss` — per-player challenge progress keys.
+  - `clones.nss:54`, `cond_hench008.nss` — henchman `Master` strings.
+- **constraint**: display uses (`FloatingTextStringOnCreature`, `SendMessageToPC`, `SetCustomToken`, `SpeakString`, log lines) must be left alone — those SHOULD show the override once one exists. Only key uses convert.
+- **verify**: with `iShipNameRename` still 0, confirm no behaviour changes at all (the two calls are equivalent). Then flip it to 1, fly a named ship, and confirm area saves, domain ownership and challenge progress all still work for the renamed pilot.
+
+---
+
+### TASK-34: Player-named ships
+- **status**: naming, storage and the rename window are implemented and compile clean; the rename-the-pilot half is gated OFF behind `iShipNameRename` pending TASK-33. Not tested in-game.
+- **action**: Let a player name each ship they own, and have that name stand in for the pilot's own while they are wearing the ship model.
+- **files**:
+  - `src/nss/_shipname.nss` (new) — area↔tool mapping, name storage, the NUI page/open/commit, and `ShipApplyNameForArea`.
+  - `src/nss/shipname_event.nss` (new) — the window's event handler.
+  - `src/nss/mod_activate.nss` — a ship tool used in its own element still opens the flight dialog exactly as before; used anywhere else it opens the rename window instead. That split is deliberate: `cond_ship001.nss` and friends gate every flight reply on the matching area, so outside it the dialog had nothing to offer, and renaming a ship is not something to do while steering it.
+  - `src/nss/area_enter.nss` — `ShipApplyNameForArea` called beside the appearance swap, keyed off the area tag rather than the swap's own `iCheck` (that flag is also set for underwater and for airship/starship interiors, none of which put the PC in a ship model).
+  - `src/nss/_module.nss` — `iShipNameRename` (default 0).
+- **pattern**: the name lives as a local string on the tool item itself, so it travels with the character file and needs no pwdata row. `SetName(oObject,"")` reverts to the original name, so the real character name never has to be stashed.
+- **verify**: use a ship tool on land — the window should open, prefilled with any existing name, and Save/Clear should both report back. Use the same tool at sea/in the sky/in space and the flight dialog should appear exactly as it does today. After TASK-33, flip `iShipNameRename` and confirm the name swaps in and out with the ship model.
+
+---
+
+### TASK-35: Shared domains — co-owners, claimed rooms, and furnished ship quarters
+- **status**: requirements captured, design not started.
+- **action**: three related asks:
+  1. A domain owner can grant another PC use of their domain. The other PC applies at a bank, with both PCs present; the owner approves. Any PC on the SAME ACCOUNT can apply and approve alone, since one player is on both sides.
+  2. The owner can designate a house in the domain that an approved co-user may claim a room in and furnish.
+  3. Ship decks and cabins (TASK-31) should behave like private houses in a domain — furnished and saved the same way.
+- **what's already there**:
+  - Domain ownership is a plain string: the Interests record is written as `sInterestType+"&1&"+sMaster+"&2&"+sVar+"&3&"+sVisible+"&4&"` (`domains.nss:1676`), where `sMaster` is the owner's character NAME, and access is a string compare against `GetName(oPC)` (`cond_domain004/005/018/019.nss`). So co-access is naturally an allow-list stored beside `Master` — but see the constraint below.
+  - Furnishing already exists: `conv_furnitur001/002/003.nss` place, move and remove furniture, driven by a `PlaceFurniture` PC local (`cond_furnitur001.nss`).
+  - Structure interiors are pooled static areas claimed through `transitions2.nss`'s entry branch (`h_house_`, `h_home1/2/3_`, `inn`, etc.), with `Master`/`Slot`/`Structure`/`Level` set on the claimed area.
+- **constraints**:
+  - **Keying off character name is fragile and collides with TASK-33/34.** A rename breaks ownership outright. If co-access is being built anyway, this is the moment to move ownership to a stable id — `_webmap.nss` already indexes characters by public CD key, which is also exactly what "same account" means for ask (1), so one identifier can serve both.
+  - "Both PCs present" needs a definition: same area, or within some radius like `fFlightBoardRadius`?
+  - Ship decks don't exist yet (TASK-31), so ask (3) is blocked on that.
+- **open questions**: which bank NPC/dialog hosts the application; whether co-users get the whole domain or only the room they claim; whether a claimed room survives the owner demolishing the house; how many co-users a domain may have.
+- **verify**: not yet planned.

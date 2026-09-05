@@ -6,6 +6,7 @@
 #include "dmb_inc"
 #include "area_pop_inc"
 #include "inc_persist"
+#include "_shipname"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +155,11 @@ if(iCheck==1){oHenchs = GetHenchman(oPC);while(GetIsObjectValid(oHenchs)){Remove
 else{if((GetStringLeft(sTag,5)!="ocean")&&(GetStringLeft(sTag,6)!="clouds")&&(GetStringLeft(sTag,5)!="space")&&(GetLocalInt(oGoldbag,"OrigApp")!=0)&&(GetAppearanceType(oPC)!=GetLocalInt(oGoldbag,"OrigApp")-1)){SetCreatureAppearanceType(oPC,GetLocalInt(oGoldbag,"OrigApp")-1);SetFootstepType(FOOTSTEP_TYPE_DEFAULT,oPC);DeleteLocalInt(oPC,"HenchAction");ExecuteScript("henchs",oPC);effect eEffects = GetFirstEffect(oPC);while(GetIsEffectValid(eEffects)){if((GetEffectType(eEffects)==EFFECT_TYPE_HASTE)||(GetEffectType(eEffects)==EFFECT_TYPE_AC_INCREASE)){RemoveEffect(oPC,eEffects);}eEffects = GetNextEffect(oPC);}}
      if(GetLocalInt(oGoldbag,"NewPheno")!=0){SetPhenoType(GetLocalInt(oGoldbag,"NewPheno"),oPC);SetFootstepType(GetLocalInt(oGoldbag,"FootStep"),oPC);if(GetLocalInt(oPC,"Mounted")!=1){SetLocalInt(oPC,"HenchAction",10);ExecuteScript("henchs",oPC);}}
      if((GetPhenoType(oPC)>4)&&(GetIsAreaInterior(OBJECT_SELF))){SetLocalInt(oPC,"HenchAction",9);ExecuteScript("henchs",oPC);}}
+// A named ship replaces the pilot's own name for as long as they are wearing
+// the ship model set just above (see _shipname.nss). Keyed off the area tag,
+// not iCheck - that flag is also set for underwater and for airship/starship
+// interiors, none of which put the PC in a ship model.
+ShipApplyNameForArea(oPC,sTag);
      if((GetStringLeft(sTag,3)=="gaz")&&(GetLocalInt(oPC,"Flying")!=1)){SetLocalInt(oPC,"Flying",1);zep_Fly(oPC);SetFootstepType(FOOTSTEP_TYPE_NONE,oPC);ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectMovementSpeedIncrease(50),oPC);}else if((GetStringLeft(sTag,3)!="gaz")&&(GetLocalInt(oPC,"Flying")==1)){DeleteLocalInt(oPC,"Flying");zep_Fly_Land(oPC);SetFootstepType(FOOTSTEP_TYPE_DEFAULT,oPC);while(GetIsEffectValid(eEffects)){if(GetEffectType(eEffects)==EFFECT_TYPE_MOVEMENT_SPEED_INCREASE){     RemoveEffect(oPC,eEffects);}eEffects = GetNextEffect(oPC);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Sewers int
