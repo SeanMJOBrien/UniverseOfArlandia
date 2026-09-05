@@ -621,19 +621,35 @@ The cabin (`inc_flight.nss`) still carries followers for ordinary travel — the
 
 ---
 
-### TASK-35: Shared domains — co-owners, claimed rooms, and furnished ship quarters
-- **status**: requirements captured, design not started.
+### TASK-35: Shared domains — approved users, claimed rooms, and furnished ship quarters
+- **status**: foundation implemented (`_domainuser.nss`, compiles clean, nothing calls it yet). The dialog work that makes it visible is specified below but NOT done. Asks (2) and (3) still blocked.
 - **action**: three related asks:
-  1. A domain owner can grant another PC use of their domain. The other PC applies at a bank, with both PCs present; the owner approves. Any PC on the SAME ACCOUNT can apply and approve alone, since one player is on both sides.
-  2. The owner can designate a house in the domain that an approved co-user may claim a room in and furnish.
-  3. Ship decks and cabins (TASK-31) should behave like private houses in a domain — furnished and saved the same way.
-- **what's already there**:
-  - Domain ownership is a plain string: the Interests record is written as `sInterestType+"&1&"+sMaster+"&2&"+sVar+"&3&"+sVisible+"&4&"` (`domains.nss:1676`), where `sMaster` is the owner's character NAME, and access is a string compare against `GetName(oPC)` (`cond_domain004/005/018/019.nss`). So co-access is naturally an allow-list stored beside `Master` — but see the constraint below.
-  - Furnishing already exists: `conv_furnitur001/002/003.nss` place, move and remove furniture, driven by a `PlaceFurniture` PC local (`cond_furnitur001.nss`).
-  - Structure interiors are pooled static areas claimed through `transitions2.nss`'s entry branch (`h_house_`, `h_home1/2/3_`, `inn`, etc.), with `Master`/`Slot`/`Structure`/`Level` set on the claimed area.
-- **constraints**:
-  - **Keying off character name is fragile and collides with TASK-33/34.** A rename breaks ownership outright. If co-access is being built anyway, this is the moment to move ownership to a stable id — `_webmap.nss` already indexes characters by public CD key, which is also exactly what "same account" means for ask (1), so one identifier can serve both.
-  - "Both PCs present" needs a definition: same area, or within some radius like `fFlightBoardRadius`?
-  - Ship decks don't exist yet (TASK-31), so ask (3) is blocked on that.
-- **open questions**: which bank NPC/dialog hosts the application; whether co-users get the whole domain or only the room they claim; whether a claimed room survives the owner demolishing the house; how many co-users a domain may have.
-- **verify**: not yet planned.
+  1. A domain owner grants another PC use of their domain. Both must be in the same area; a banker dialog lists the PCs present and the owner picks one. Any PC on the same ACCOUNT can apply and approve alone.
+  2. The owner designates a house an approved user may claim a room in and furnish.
+  3. Ship decks and cabins (TASK-31) behave like private houses — furnished and saved the same way.
+
+#### Agreed permission split
+An approved user MAY take resources from the domain's extractors, and rent, enter and decorate a property. An approved user MAY NOT build or destroy anything, in this or any domain.
+
+#### What is built
+`src/nss/_domainuser.nss` — the allow-list and its semantics: `DomainAddUser`/`DomainRemoveUser`/`DomainIsApprovedName`, `DomainCanUse` (owner, approved, or DM) and `DomainCanBuild` (owner or DM only, deliberately a separate function so the distinction is explicit at each call site), `DomainSameAccount` (public CD key compare — the same identifier `_webmap.nss` indexes characters under), and `DomainAreaOf` (resolves a structure interior back to its outer world coordinate via the `AreaExit` local `transitions2.nss` sets). Storage is one pwdata row per coordinate, `<planet>&<area>&DomainUsers`, holding an &-wrapped name list so `Al` never matches `Alice`.
+
+#### The blocker, and why this stopped here
+`cond_domain005.nss` gates the ENTIRE structureflag menu on `Master == GetName(oPC)` — build, destroy, rotate, rent and extractor collection all sit behind that one condition. Relaxing it to admit approved users would hand them construction rights, which is exactly what must not happen. So the feature cannot be finished by editing condition scripts alone; individual replies in `src/dlg/domain.dlg.json` need their own conditions:
+
+- Replies that keep `cond_domain005` (owner only): build, destroy, and the rotation submenu added in TASK-17.
+- Replies that move to a new `cond_domainuser.nss` calling `DomainCanUse`: extractor collection (`conv_domain006/007/008/009`, `iStructure==5`, which reach `domain_content.nss`), and the rent replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
+
+Dialog edits must round-trip through `nwn_gff` before being trusted, and the existing struct array is append-only — add replies rather than renumbering.
+
+#### The banker branch
+The bank lives in `shop.dlg.json` ("I want to manage my bank account."), so the approval branch belongs there. NWN dialogs have fixed replies, so "list every PC in the area" is the module's usual N-replies-plus-custom-tokens pattern (as `cond_choice0..26` already do): pre-create a fixed number of reply slots, have a condition script fill `SetCustomToken` with the Nth PC's name and return FALSE past the end. `DomainSameAccount` is what lets the self-approval case skip the second party.
+
+#### Ask (2) may be largely built already
+There is an existing per-slot RENT system: `<planet>&<area>&Domain&<slot>` holds a renter's name, `cond_domain018` offers an unrented slot, `cond_domain019` recognises the renter, and `transitions2.nss` sets the claimed house interior's `Master` to the RENTER rather than the domain owner — which is what makes `mod_unacquire.nss:36`'s furniture check (`GetName(oPC) == GetLocalString(oArea,"Master")`) already grant decorating rights to a renter. So "claim a room and furnish it" may need no new mechanism at all: just let an approved user reach the rent reply, per the dialog split above. Confirm that in-game before building anything new.
+
+#### Constraints
+- Names as identifiers inherit TASK-33's fragility. If domain ownership moves to a stable id, this allow-list must move in the same change.
+- Ship decks do not exist yet (TASK-31), so ask (3) stays blocked.
+- **open**: whether an approved user may rent more than one property; whether a claimed room survives the owner demolishing the house; how many approved users a domain may have; whether approval is revocable from the same banker dialog (`DomainRemoveUser` exists for it).
+- **verify**: with two characters in one area, approve one at the banker and confirm the approved character can collect extractor output and rent/decorate a house, and that build and destroy stay invisible to them. Then repeat with two characters on one account, alone.
