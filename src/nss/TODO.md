@@ -638,7 +638,10 @@ An approved user MAY take resources from the domain's extractors, and rent, ente
 `cond_domain005.nss` gates the ENTIRE structureflag menu on `Master == GetName(oPC)` — build, destroy, rotate, rent and extractor collection all sit behind that one condition. Relaxing it to admit approved users would hand them construction rights, which is exactly what must not happen. So the feature cannot be finished by editing condition scripts alone; individual replies in `src/dlg/domain.dlg.json` need their own conditions:
 
 - Replies that keep `cond_domain005` (owner only): build, destroy, and the rotation submenu added in TASK-17.
-- Replies that move to a new `cond_domainuser.nss` calling `DomainCanUse`: extractor collection (`conv_domain006/007/008/009`, `iStructure==5`, which reach `domain_content.nss`), and the rent replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
+- Replies that move to a new `cond_domainuser.nss` calling `DomainCanUse`:
+  - **Production collection** — the six structures `conv_domain006.nss:77` routes to `domain_content.nss`: Extractor (5), Factory (6), Farm (7), Field (8), House (11), Sawmill (21).
+  - **Caserne soldier hiring** (3) — `conv_domain007.nss:26` lists tiers and prices, `conv_domain008.nss:41` creates the `hench000` soldier with the chosen appearance.
+  - **Rent** — the replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
 
 Dialog edits must round-trip through `nwn_gff` before being trusted, and the existing struct array is append-only — add replies rather than renumbering.
 
