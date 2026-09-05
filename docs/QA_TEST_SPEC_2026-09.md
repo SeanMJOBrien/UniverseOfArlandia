@@ -277,6 +277,32 @@ Covers TASK-27.
   Only `asteroid001`–`003` are jittered, precisely so the click hull stays on
   the model.
 
+### 5.6 Space dungeon entrances now spawn
+- **Steps:** Visit several `space0*` areas and look for `pla_spacedung001`
+  (Space Tower) and `pla_spacedung002` (Derelict Ship).
+- **Expected:** Roughly half of space tiles hold at least one. Before this
+  change they could never spawn at all, so any sighting confirms the fix.
+
+### 5.7 The entrances are clickable and lead somewhere — KEY CASE
+- **Steps:** Click a `pla_spacedung001`, then a `pla_spacedung002`.
+- **Expected:** 001 takes you into `d_towerb1_`, 002 into `d_spaceship1_`.
+  Both dungeons existed with working transition code but no reachable
+  entrance, so this is the first time either has been enterable. If clicking
+  does nothing, the blueprint change (Useable/Static/OnClick) did not take —
+  report it.
+
+### 5.8 Mineable asteroid density is unchanged
+- **Steps:** Count mineable `pla_asteroid` objects in a few space tiles and
+  compare with what you remember, or with a pre-`a83791d` build.
+- **Expected:** About the same, ~4 per tile. The two percentage points for
+  dungeon entrances were taken from decorative asteroids (89% to 87%), not
+  from mineable ones (still 11%).
+
+### 5.9 Entrances move between restarts (expected, not a bug)
+- **Steps:** Note where an entrance is, restart the server, return.
+- **Expected:** It may be gone, and another tile may have one instead.
+  Placement is re-rolled per boot by choice and is not persisted.
+
 ### 5.5 Watch for asteroids sunk below the plane
 - **Expected:** Note whether the −3m end looks wrong in your space tileset. If
   it does, bias the range upward — `iAsteroidJitterZ` in `_module.nss`.

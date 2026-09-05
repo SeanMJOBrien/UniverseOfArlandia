@@ -512,11 +512,14 @@ Each task below is self-contained. Fields:
 
 ---
 
-### TASK-29: Pre-existing dead code — space dungeon placeables never spawn
-- **status**: found, not fixed (changes spawn rates; wants a decision).
-- **action**: In `src/nss/area_resources.nss`'s space-asteroid loop, `pla_spacedung001`/`pla_spacedung002` are assigned on `iRandom==1`/`iRandom==2`, and then the very next statement, `if(iRandom<12){sBP = "pla_asteroid";}`, unconditionally overwrites both — 1 and 2 are both `<12`. The two space-dungeon placeables can therefore never spawn. Reordering the branches (or making the asteroid case an `else if`) would fix it, but that shifts the asteroid/dungeon mix in every space area, so it needs a call on the intended rates rather than a silent fix.
-- **files**: `src/nss/area_resources.nss:69`.
-- **verify**: after a fix, enter several `space0*` areas and confirm `pla_spacedung001`/`002` appear at roughly the intended 1-in-100 / 1-in-100 rate.
+### TASK-29: Space dungeon entrances could never spawn
+- **status**: fixed and deployed. Not yet confirmed in-game.
+- **the bug**: `area_resources.nss`'s space loop assigned `pla_spacedung001` on a roll of 1 and `pla_spacedung002` on a roll of 2, then ran a SEPARATE `if(iRandom<12){sBP="pla_asteroid";}` that overwrote both, because 1 and 2 are below 12. Neither entrance ever reached `CreateObject`, so the `d_towerb1_` and `d_spaceship1_` dungeons behind them — which exist in `src/are/` with working transition code in `transitions2.nss:122-123` — were unreachable in the entire game.
+- **second bug, found while fixing the first**: spawning them would not have been enough. Both blueprints had `Useable=0` and `Static=1`, and NOTHING in a space area is wired to `transitions2` — a check of every `.utp` shows only `entry`-tagged placeables, doors and the new conflict shafts route to it. So the entrances would have appeared as unclickable scenery. `transitions2.nss`'s `sSpaceDung` branch was dead code alongside them.
+- **fix**: the roll is now one `else if` chain, so an earlier match survives. The entrances are `Useable=1`, `Static=0`, `OnClick=transitions2` (useable also keeps `area_pop_inc.nss:57` from marking them static). `transitions2.nss` now checks the clicked object's OWN tag for a `pla_spacedung` prefix before falling back to the original nearest-placeable check — `GetNearestObject` excludes `OBJECT_SELF`, so an entrance could never have found itself.
+- **rates**: dungeon entrances take 1% each (`iSpaceDungeonPct`), mineable asteroids keep exactly 11% (`iSpaceMineablePct`), decorative absorbs the difference and drops from 89% to 87%. Mineable density is unchanged by design. With 20-59 objects per tile, expect ~0.79 entrances per space tile, and roughly 54% of tiles holding at least one.
+- **persistence: deliberately none**. Placement is re-rolled once per coordinate per server boot, like the rest of `area_resources.nss`, so entrances move between restarts. This differs from planet interests, which `_galaxy.nss:1243` writes to `pwdata` once and keeps forever. Chosen knowingly — a space dungeon found today may be gone after the next reboot.
+- **verify**: see §5.6-5.8 of `docs/QA_TEST_SPEC_2026-09.md`.
 
 ---
 

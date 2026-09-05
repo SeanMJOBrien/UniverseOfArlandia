@@ -38,7 +38,14 @@ object oDoor3 = GetLocalObject(oArea,"Door3");
 int iLevel2 = StringToInt(GetStringRight(GetName(OBJECT_SELF),1));
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
-string sSpaceDung;if(GetStringLeft(GetTag(oHang),13)=="pla_spacedung"){sSpaceDung = GetStringRight(GetTag(oHang),1);}
+// A space dungeon can be entered two ways: by clicking the entrance itself
+// (its OnClick is this script), or - the original behaviour - by clicking a
+// placeable standing next to one. The direct case has to be checked first,
+// because GetNearestObject excludes OBJECT_SELF, so an entrance would never
+// find itself.
+string sSpaceDung;
+     if(GetStringLeft(sTag,13)=="pla_spacedung")          {sSpaceDung = GetStringRight(sTag,1);}
+else if(GetStringLeft(GetTag(oHang),13)=="pla_spacedung") {sSpaceDung = GetStringRight(GetTag(oHang),1);}
 //
 object oTargetArea;string sTargetArea;string sAreaNumber;string sNewArea;int iCheck;int i;float fF = DIRECTION_NORTH;
 string sCheckStore;string sCheckChest;string sCheckDungeon;string sCheckDomain;string sCheckSpace;object oStore;object oChest;string sLeft;string sRight;

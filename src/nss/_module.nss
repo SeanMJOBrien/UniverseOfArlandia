@@ -148,6 +148,15 @@ int iStarshipPass =     100;                    //*// Cost of the intergalactica
 // +/- this many decimetres on Z, so a starfield reads as layered depth rather
 // than a flat plane. Re-rolled every time the area populates, which the
 // iReady!=1 gate in area_recall.nss makes once per coordinate per server boot.
+// Space-tile object mix (area_resources.nss). Each placed object rolls 1-100:
+// the two dungeon entrances take one percentage point each, mineable asteroids
+// take the next iSpaceMineablePct, and everything left over is decorative.
+// Raising the dungeon chance therefore costs decorative asteroids, not mineable
+// ones. Placement is re-rolled once per coordinate per server boot and is not
+// persisted, so entrances move between restarts by design.
+int iSpaceDungeonPct =  1;                      //*// % chance per placed space object for EACH of the two space-dungeon entrances.
+int iSpaceMineablePct = 11;                     //*// % chance per placed space object for a mineable asteroid.
+//
 int iAsteroidJitterZ =  30;                     //*// Max +/- Z offset for decorative space asteroids, in decimetres (30 = +/-3.0m).
 //
 // Players can name each ship they own (_shipname.nss); the name is meant to
