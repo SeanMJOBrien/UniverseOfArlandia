@@ -750,9 +750,21 @@ Two things are needed and both fall inside that skip:
 
 **Adding is safe in a way overwriting is not** — a resource that does not yet exist in the `.mod` cannot revert anything. So the options are to relax the guard to permit new-only additions, or do a one-off manual extract/patch/repack. Either is a deliberate change to live-server deployment and wants an explicit decision, not a silent workaround.
 
+#### Built
+- `src/nss/_unitrent.nss` — data model and window. Per-unit tenancy keyed on the AREA TAG plus the door's integer position (`<areaTag>&Unit&<x>_<y>&<n>`), NOT on Planet/Area: those belong to the coordinate travel system and are empty in the hand-built areas these doors are for. Rent runs on the same absolute game-day clock as domain houses.
+- `src/nss/unitrent_event.nss`, `src/nss/unit_used.nss`, `src/utp/pla_unitdoor.utp.json` (tag `unitdoor`).
+- `_module.nss` — `iUnitRentSmall` 250 / `iUnitRentMedium` 500 / `iUnitRentLarge` 1000 per term.
+- `_domainuser.nss` — the one-home cap now covers both kinds. A `RentedKind` flag on the goldbag says whether the back-pointer describes a domain slot or a rental unit; units store their whole pwdata key, so verification needs no knowledge of `_unitrent.nss` and the include stays one-directional. Both self-heal.
+
+**Built as NUI, not a dialog.** NWN dialog replies are fixed, so a dialog would have capped the unit count at however many reply slots were pre-made and needed `SetCustomToken` juggling per row. The window has no such limit (`UNITRENT_MAX` 12 is only a sanity bound) and reuses the pattern already proven by the ship-rename window.
+
+**DM setup:** place `pla_unitdoor`, set `Units` = count, and `Unit<n>` = 1 small / 2 medium / 3 large. Anything unset reads as small, so a door with only `Units` set works rather than breaking.
+
+**Interiors** are instanced per unit with `CreateArea()` under a deterministic tag, so the same unit resolves to the same tag after a reboot. `CreateArea` areas do not survive a restart — the shell is recreated on next entry, its loose contents are not. Player storage is account-scoped (TASK-37) and unaffected; furniture is not, the same known gap as everywhere else.
+
 #### Still to build
-- Door blueprint plus its DM variables (unit count, per-unit tier).
-- The unit-list dialog. NWN replies are fixed, so this needs the module's usual pre-made-slots-plus-`SetCustomToken` pattern (as `cond_choice0..26` do) — one slot per unit up to a sensible maximum.
-- Per-unit tenancy keys, extending `<planet>&<area>&Domain&<slot>`, plus a price per tier.
-- `CreateArea()` instancing per rented unit, tagged uniquely per (door, unit), and its entry/exit wiring.
+- **Rent renewal and moving out.** The window rents and enters; there is no "pay rent" or "leave" action yet, so a tenant cannot free their unit or extend the term.
+- **Expiry handling.** `UnitDaysLeft` computes it, nothing acts on it — same open question as TASK-36 for domain houses.
+- **A way back out of the interior.** `UnitInterior` stores `AreaExit`/`AreaExitObj`/`fXExit`/`fYExit` in the shape `transitions2.nss`'s exit branch reads, but the ported templates contain no `exit`-tagged placeable, so nothing consumes them yet.
+- **Days remaining in the list** — the row shows the tenant, not their remaining term.
 - **verify**: not yet planned.

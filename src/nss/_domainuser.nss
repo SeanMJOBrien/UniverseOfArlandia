@@ -201,6 +201,12 @@ int DomainCanBuild(object oPC, string sMaster)
 // tenant whose house was demolished would be locked out of renting forever.
 // ---------------------------------------------------------------------------
 
+// Which kind of tenancy the back-pointer describes: absent/0 a domain house
+// slot, 1 a multi-unit rental door (_unitrent.nss). Units store their whole
+// pwdata key, so verifying one needs no knowledge of that file's layout and
+// the include stays one-directional.
+const string DOMAINRENT_KIND   = "RentedKind";
+const string DOMAINRENT_UKEY   = "RentedUnitKey";
 const string DOMAINRENT_PLANET = "RentedPlanet";
 const string DOMAINRENT_AREA   = "RentedArea";
 const string DOMAINRENT_SLOT   = "RentedSlot";
@@ -211,11 +217,21 @@ string DomainSlotTenant(string sPlanet, string sArea, int iSlot)
     return GetPersistentString(GetModule(), sPlanet + "&" + sArea + "&Domain&" + IntToString(iSlot));
 }
 
+// Record a rental-unit tenancy, keyed by the full pwdata key of the unit.
+void DomainSetRentedUnit(object oPC, string sUnitKey)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return; }
+    SetLocalInt(oBag, DOMAINRENT_KIND, 1);
+    SetLocalString(oBag, DOMAINRENT_UKEY, sUnitKey);
+}
+
 // Record oPC's tenancy. Called right where conv_domain008.nss takes the rent.
 void DomainSetRented(object oPC, string sPlanet, string sArea, int iSlot)
 {
     object oBag = GetItemPossessedBy(oPC, "goldbag");
     if (!GetIsObjectValid(oBag)) { return; }
+    SetLocalInt(oBag, DOMAINRENT_KIND, 0);
     SetLocalString(oBag, DOMAINRENT_PLANET, sPlanet);
     SetLocalString(oBag, DOMAINRENT_AREA, sArea);
     SetLocalInt(oBag, DOMAINRENT_SLOT, iSlot);
@@ -229,6 +245,8 @@ void DomainClearRented(object oPC)
     DeleteLocalString(oBag, DOMAINRENT_PLANET);
     DeleteLocalString(oBag, DOMAINRENT_AREA);
     DeleteLocalInt(oBag, DOMAINRENT_SLOT);
+    DeleteLocalInt(oBag, DOMAINRENT_KIND);
+    DeleteLocalString(oBag, DOMAINRENT_UKEY);
 }
 
 // Does oPC currently rent a house that still exists and still names them as its
@@ -237,6 +255,15 @@ int DomainHasRental(object oPC)
 {
     object oBag = GetItemPossessedBy(oPC, "goldbag");
     if (!GetIsObjectValid(oBag)) { return FALSE; }
+    if (GetLocalInt(oBag, DOMAINRENT_KIND) == 1)
+    {
+        string sUKey = GetLocalString(oBag, DOMAINRENT_UKEY);
+        if (sUKey == "") { return FALSE; }
+        if (GetPersistentString(GetModule(), sUKey) == GetName(oPC)) { return TRUE; }
+        DomainClearRented(oPC);   // unit gone, or tenancy ended elsewhere
+        return FALSE;
+    }
+
     string sPlanet = GetLocalString(oBag, DOMAINRENT_PLANET);
     string sArea = GetLocalString(oBag, DOMAINRENT_AREA);
     if ((sPlanet == "") || (sArea == "")) { return FALSE; }
