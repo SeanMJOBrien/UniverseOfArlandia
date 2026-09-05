@@ -662,3 +662,17 @@ The chain that already works: rent (`conv_domain008.nss:480` writes the renter's
 - Ship decks do not exist yet (TASK-31), so ask (3) stays blocked.
 - **open**: which structure groups beyond production/caserne/rent an approved user should reach — Services (Guild, Hall, Inn, Mission Office, School, Shop, Tavern, Temple), Transport (Airship, Starship) and Adventure (Amusement Place, Dungeon, Tower) are all undecided. Also whether a grant holder may rent more than one property, and how many grants a domain may issue.
 - **verify**: with two characters in one area, grant one the use of a single Extractor slot from the domain sign; confirm they can collect its output, cannot collect from an ungranted slot, and never see build or destroy. Rebuild that slot as something else and confirm the grant is gone. Repeat with two characters on one account, alone.
+
+---
+
+### TASK-36: Unpaid rent has no consequence beyond a locked door
+- **status**: found while adding the one-rental cap (TASK-35). Not changed — wants a design decision.
+- **finding**: renting sets `iRent = 17280` on the tenant's goldbag (`conv_domain008.nss:481`), and paying a month adds another 17280. `domain_content.nss:591-601` decrements it by the heartbeat ticks elapsed and reports `iRent/576` as days remaining, so 17280 is 30 days. When it runs out, the ONLY effect is `conv_domain014.nss:19`: the door refuses to unlock, printing "No more rent".
+- **what does NOT happen**: the tenancy record (`<planet>&<area>&Domain&<slot>`, the renter's name) is never cleared on expiry. The tenant stays the tenant indefinitely, the house is never released back to the owner or to other players, and the owner has no eviction path short of destroying the slot entirely (`conv_domain005.nss`).
+- **second issue**: `iRent` is only recomputed inside `domain_content.nss`'s `GetName(oPC)==sRent` branch — i.e. when the tenant themselves opens the structure menu. `conv_domain014.nss` reads the stored value raw. A tenant who never opens that menu keeps a stale positive balance and can keep unlocking the door indefinitely.
+- **why it now matters**: TASK-35 caps a character at one rental. With no auto-release, a tenant who simply stops paying occupies their single slot forever and can never rent anywhere else until they explicitly choose "Leave the house". The cap turns a soft problem into a hard lockout.
+- **options**:
+  1. Leave as-is; document that non-payment means the tenant must move out manually before renting elsewhere.
+  2. Auto-release on expiry: when `iRent` reaches 0, clear the tenancy so the house returns to the market and the tenant regains their rental slot. Needs a decision on what happens to furniture and anything stored inside, and somewhere reliable to run the check (the tenant may never revisit — the balance would have to be evaluated from the OWNER's side, or on a heartbeat, rather than only in the tenant's own menu).
+  3. Give the owner an explicit evict action on the structure flag, gated by `DomainCanBuild`.
+- **verify**: not yet planned.

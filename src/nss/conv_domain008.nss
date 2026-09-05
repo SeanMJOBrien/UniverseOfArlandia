@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_domainuser"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -478,6 +479,11 @@ int iGain = GetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iS
 if(iChoice1==1)
   {
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot),GetName(oPC));
+// Back-pointer so the one-rental-per-character rule can be checked without
+// scanning every domain in the galaxy - there is no index of tenancies.
+// Verified against this pwdata row on every read, so it self-heals if the
+// owner later demolishes the house (see _domainuser.nss).
+DomainSetRented(oPC,sPlanet,sArea,iSlot);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),17280);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
 TakeGoldFromCreature(iPrice,oPC,TRUE);
@@ -497,6 +503,7 @@ else if(iLevel>=3){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToSt
 // Leave
 else if(iChoice1==3)
   {
+DomainClearRented(oPC);
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot));
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot));
   }

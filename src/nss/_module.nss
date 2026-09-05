@@ -153,6 +153,11 @@ int iAsteroidJitterZ =  30;                     //*// Max +/- Z offset for decor
 // lookups on the player's name, including the area-save gate at
 // area_exit.nss:19, so renaming a pilot mid-flight silently breaks their
 // area saves. Naming, storage and the rename window all work regardless.
+// A character may rent at most one house at a time (_domainuser.nss). Nothing
+// enforced this before - cond_domain018 only checked the SLOT was free, so one
+// character could rent every unrented house in every domain simultaneously.
+int iDomainOneRental =  1;                      //*// 1 = a PC may rent only one house at a time. 0 = no limit (the old behaviour).
+//
 int iShipNameRename =   0;                      //*// 1 = a named ship replaces the pilot's name while in ship form. Needs TASK-33 first.
 //
 // Personal-flight party cabins (see inc_flight.nss): when a PC pilots their own

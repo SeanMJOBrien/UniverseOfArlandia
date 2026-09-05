@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_module"
 // _domainuser - per-structure access grants inside someone else's domain
 // (TASK-35).
 //
@@ -178,4 +179,78 @@ int DomainCanBuild(object oPC, string sMaster)
     if (!GetIsObjectValid(oPC)) { return FALSE; }
     if (GetIsDM(oPC) || GetIsDMPossessed(oPC)) { return TRUE; }
     return ((sMaster != "") && (sMaster == GetName(oPC)));
+}
+
+// ---------------------------------------------------------------------------
+// Rental limit
+//
+// A character may rent at most one house at a time (iDomainOneRental). Nothing
+// enforced this before: cond_domain018 only checked that the SLOT was free, so
+// one character could rent every unrented house in every domain at once.
+//
+// The tenancy itself stays where it always lived - the renter's name in pwdata
+// at "<planet>&<area>&Domain&<slot>", written by conv_domain008.nss. What is
+// added here is a back-pointer on the renter's goldbag so we can answer "does
+// this character already rent somewhere?" without scanning every domain in the
+// galaxy, which there is no index for.
+//
+// That back-pointer is a HINT, never the authority. An owner can destroy the
+// house, or the whole domain, from a script that has no access to the tenant's
+// goldbag - so the marker is verified against the pwdata tenancy on every read
+// and silently cleared when it no longer holds. Without that self-healing, a
+// tenant whose house was demolished would be locked out of renting forever.
+// ---------------------------------------------------------------------------
+
+const string DOMAINRENT_PLANET = "RentedPlanet";
+const string DOMAINRENT_AREA   = "RentedArea";
+const string DOMAINRENT_SLOT   = "RentedSlot";
+
+// Who pwdata says is renting this slot ("" when nobody is).
+string DomainSlotTenant(string sPlanet, string sArea, int iSlot)
+{
+    return GetPersistentString(GetModule(), sPlanet + "&" + sArea + "&Domain&" + IntToString(iSlot));
+}
+
+// Record oPC's tenancy. Called right where conv_domain008.nss takes the rent.
+void DomainSetRented(object oPC, string sPlanet, string sArea, int iSlot)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return; }
+    SetLocalString(oBag, DOMAINRENT_PLANET, sPlanet);
+    SetLocalString(oBag, DOMAINRENT_AREA, sArea);
+    SetLocalInt(oBag, DOMAINRENT_SLOT, iSlot);
+}
+
+// Forget oPC's tenancy (they moved out, or the marker went stale).
+void DomainClearRented(object oPC)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return; }
+    DeleteLocalString(oBag, DOMAINRENT_PLANET);
+    DeleteLocalString(oBag, DOMAINRENT_AREA);
+    DeleteLocalInt(oBag, DOMAINRENT_SLOT);
+}
+
+// Does oPC currently rent a house that still exists and still names them as its
+// tenant? Clears the marker and returns FALSE when it has gone stale.
+int DomainHasRental(object oPC)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return FALSE; }
+    string sPlanet = GetLocalString(oBag, DOMAINRENT_PLANET);
+    string sArea = GetLocalString(oBag, DOMAINRENT_AREA);
+    if ((sPlanet == "") || (sArea == "")) { return FALSE; }
+
+    if (DomainSlotTenant(sPlanet, sArea, GetLocalInt(oBag, DOMAINRENT_SLOT)) == GetName(oPC)) { return TRUE; }
+
+    DomainClearRented(oPC);   // house gone, or tenancy ended elsewhere
+    return FALSE;
+}
+
+// May oPC take on a new tenancy? False only when the one-rental rule is on and
+// they already hold a live one.
+int DomainMayRent(object oPC)
+{
+    if (iDomainOneRental != 1) { return TRUE; }
+    return (!DomainHasRental(oPC));
 }
