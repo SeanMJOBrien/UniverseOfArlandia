@@ -78,6 +78,7 @@ DeleteLocalInt(oGoldbag,sPlanet+"&BoardPriv");
 // The domain is gone, so every access grant in it goes too - slot 0 included,
 // unlike the per-slot rebuild reset above (TASK-35).
 DomainClearAllGrants(sPlanet,sArea);
+j=0;while(j<10){j++;DomainRentClear(sPlanet,sArea,j);}
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Interests");
 while(j<10){j++;DeletePersistentVariable(oModule,sPlanet+"&"+sArea+IntToString(j));DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(j));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter");DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(j));i=0;while(i<9){i++;DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter"+IntToString(i));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(j)+IntToString(i));}}
   }

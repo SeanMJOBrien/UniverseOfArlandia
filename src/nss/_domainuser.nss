@@ -254,3 +254,75 @@ int DomainMayRent(object oPC)
     if (iDomainOneRental != 1) { return TRUE; }
     return (!DomainHasRental(oPC));
 }
+
+// ---------------------------------------------------------------------------
+// Rent expiry clock
+//
+// Rent used to live ONLY on the tenant's goldbag as a decrementing tick count
+// (conv_domain008.nss wrote 17280, domain_content.nss subtracted elapsed
+// heartbeats, 576 ticks per day = 30 days). Two problems with that: nobody
+// except the tenant could read it - not the owner, not a would-be renter, not
+// the door - and the heartbeat counter it measured against is a module local
+// that resets on every reboot, which mod_heartbeat.nss:30 schedules routinely.
+//
+// The tenancy now carries an absolute expiry DAY in pwdata beside the tenant's
+// name, read off the game calendar. The calendar is saved at reboot and
+// restored in mod_load.nss:37-42, so it is monotonic across restarts and
+// readable by anyone.
+// ---------------------------------------------------------------------------
+
+// Absolute game-day number. NWN months are 12 per year, 28 days per month.
+int DomainGameDay()
+{
+    return (((GetCalendarYear() * 12) + (GetCalendarMonth() - 1)) * 28) + GetCalendarDay();
+}
+
+// pwdata key for a tenancy's expiry day.
+string DomainRentUntilKey(string sPlanet, string sArea, int iSlot)
+{
+    return sPlanet + "&" + sArea + "&Domain&" + IntToString(iSlot) + "Until";
+}
+
+// The day this tenancy runs out. Returns 0 when the slot has no expiry recorded.
+int DomainRentUntil(string sPlanet, string sArea, int iSlot)
+{
+    return GetPersistentInt(GetModule(), DomainRentUntilKey(sPlanet, sArea, iSlot));
+}
+
+// Push the expiry out by iDays, from today or from the existing expiry,
+// whichever is later - so paying early adds time rather than losing it.
+void DomainRentExtend(string sPlanet, string sArea, int iSlot, int iDays)
+{
+    int iFrom = DomainRentUntil(sPlanet, sArea, iSlot);
+    int iToday = DomainGameDay();
+    if (iFrom < iToday) { iFrom = iToday; }
+    SetPersistentInt(GetModule(), DomainRentUntilKey(sPlanet, sArea, iSlot), iFrom + iDays);
+}
+
+// Forget a tenancy's expiry (tenant moved out, slot destroyed).
+void DomainRentClear(string sPlanet, string sArea, int iSlot)
+{
+    DeletePersistentVariable(GetModule(), DomainRentUntilKey(sPlanet, sArea, iSlot));
+}
+
+// Days of rent left, negative once overdue. Tenancies predating this clock have
+// no expiry recorded, so they are seeded with a full term on first read rather
+// than being treated as instantly overdue.
+int DomainRentDaysLeft(string sPlanet, string sArea, int iSlot)
+{
+    if (DomainSlotTenant(sPlanet, sArea, iSlot) == "") { return 0; }
+    int iUntil = DomainRentUntil(sPlanet, sArea, iSlot);
+    if (iUntil <= 0)
+    {
+        DomainRentExtend(sPlanet, sArea, iSlot, iDomainRentDays);
+        iUntil = DomainRentUntil(sPlanet, sArea, iSlot);
+    }
+    return iUntil - DomainGameDay();
+}
+
+// Is this slot rented but overdue?
+int DomainRentExpired(string sPlanet, string sArea, int iSlot)
+{
+    if (DomainSlotTenant(sPlanet, sArea, iSlot) == "") { return FALSE; }
+    return (DomainRentDaysLeft(sPlanet, sArea, iSlot) < 0);
+}

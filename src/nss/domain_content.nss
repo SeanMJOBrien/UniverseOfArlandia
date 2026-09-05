@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_domainuser"
 #include "_module"
 #include "dmfi_dmw_inc"
 ////////////////////////////////////////////////////////////////////////////////
@@ -595,7 +596,9 @@ iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counte
 iHBPassed = iCounter-iOrigCounter;
 iRent = iRent-iHBPassed;
 
-SendMessageToPC(oPC,"Rent : "+IntToString(iRent/576)+" days.");
+// Days come from the shared expiry clock now, not the tenant-only tick count -
+// so the owner, the door and a would-be renter all read the same number.
+SendMessageToPC(oPC,"Rent : "+IntToString(DomainRentDaysLeft(sPlanet,sArea,iSlot))+" days.");
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),iRent);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);

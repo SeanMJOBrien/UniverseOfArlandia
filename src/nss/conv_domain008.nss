@@ -484,6 +484,8 @@ SetPersistentString(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot),GetN
 // Verified against this pwdata row on every read, so it self-heals if the
 // owner later demolishes the house (see _domainuser.nss).
 DomainSetRented(oPC,sPlanet,sArea,iSlot);
+// Absolute expiry day, readable by anyone and restart-proof (_domainuser.nss).
+DomainRentExtend(sPlanet,sArea,iSlot,iDomainRentDays);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),17280);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
 TakeGoldFromCreature(iPrice,oPC,TRUE);
@@ -494,6 +496,7 @@ else if(iLevel>=3){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToSt
 // Pay month rent
 else if(iChoice1==2)
   {
+DomainRentExtend(sPlanet,sArea,iSlot,iDomainRentDays);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot))+17280);
 TakeGoldFromCreature(iPrice,oPC,TRUE);
 
@@ -504,6 +507,7 @@ else if(iLevel>=3){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToSt
 else if(iChoice1==3)
   {
 DomainClearRented(oPC);
+DomainRentClear(sPlanet,sArea,iSlot);
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot));
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot));
   }

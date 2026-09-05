@@ -66,6 +66,7 @@ DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iChoic
 // access when the owner rebuilds the slot as something else entirely. The
 // domain-wide grant (slot 0) is untouched; only the owner revokes that.
 DomainClearSlot(sPlanet,sArea,iChoice2);
+DomainRentClear(sPlanet,sArea,iChoice2);
 DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2));
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter");
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iChoice2));

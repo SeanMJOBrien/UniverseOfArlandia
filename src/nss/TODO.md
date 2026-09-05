@@ -665,14 +665,27 @@ The chain that already works: rent (`conv_domain008.nss:480` writes the renter's
 
 ---
 
-### TASK-36: Unpaid rent has no consequence beyond a locked door
-- **status**: found while adding the one-rental cap (TASK-35). Not changed — wants a design decision.
-- **finding**: renting sets `iRent = 17280` on the tenant's goldbag (`conv_domain008.nss:481`), and paying a month adds another 17280. `domain_content.nss:591-601` decrements it by the heartbeat ticks elapsed and reports `iRent/576` as days remaining, so 17280 is 30 days. When it runs out, the ONLY effect is `conv_domain014.nss:19`: the door refuses to unlock, printing "No more rent".
-- **what does NOT happen**: the tenancy record (`<planet>&<area>&Domain&<slot>`, the renter's name) is never cleared on expiry. The tenant stays the tenant indefinitely, the house is never released back to the owner or to other players, and the owner has no eviction path short of destroying the slot entirely (`conv_domain005.nss`).
-- **second issue**: `iRent` is only recomputed inside `domain_content.nss`'s `GetName(oPC)==sRent` branch — i.e. when the tenant themselves opens the structure menu. `conv_domain014.nss` reads the stored value raw. A tenant who never opens that menu keeps a stale positive balance and can keep unlocking the door indefinitely.
-- **why it now matters**: TASK-35 caps a character at one rental. With no auto-release, a tenant who simply stops paying occupies their single slot forever and can never rent anywhere else until they explicitly choose "Leave the house". The cap turns a soft problem into a hard lockout.
-- **options**:
-  1. Leave as-is; document that non-payment means the tenant must move out manually before renting elsewhere.
-  2. Auto-release on expiry: when `iRent` reaches 0, clear the tenancy so the house returns to the market and the tenant regains their rental slot. Needs a decision on what happens to furniture and anything stored inside, and somewhere reliable to run the check (the tenant may never revisit — the balance would have to be evaluated from the OWNER's side, or on a heartbeat, rather than only in the tenant's own menu).
-  3. Give the owner an explicit evict action on the structure flag, gated by `DomainCanBuild`.
-- **verify**: not yet planned.
+### TASK-36: Rent expiry — shared clock done, auto-release and escrow blocked
+- **status**: the expiry clock is implemented and deployed. Auto-release and belongings escrow are NOT built, and are blocked on a persistence bug found while designing them (below).
+- **agreed design**: when rent runs out the tenancy auto-releases, and the tenant's belongings go to the database until they collect them at a bank or rent somewhere new, where they get dumped into chests.
+
+#### Done: a shared, restart-proof expiry clock
+Rent used to live ONLY on the tenant's goldbag, as a tick count decremented against `GetLocalInt(oModule,"Counter")`. Two problems: nobody but the tenant could read it — not the owner, not a would-be renter, not the door — and that heartbeat counter is a module local that resets on every reboot, which `mod_heartbeat.nss:30` schedules routinely. So rent silently stretched every restart.
+
+Tenancies now carry an absolute expiry DAY in pwdata (`<planet>&<area>&Domain&<slot>Until`), read off the game calendar, which `mod_heartbeat.nss:30` saves and `mod_load.nss:37-42` restores — monotonic across reboots and readable by anyone. `DomainGameDay`, `DomainRentUntil`, `DomainRentExtend`, `DomainRentClear`, `DomainRentDaysLeft`, `DomainRentExpired` in `_domainuser.nss`; term length is `iDomainRentDays` (30). Tenancies predating the clock are seeded with a full term on first read rather than being treated as instantly overdue. `domain_content.nss` (day display), `conv_domain014.nss` (door), `conv_domain008.nss` (rent / pay / leave), `conv_domain005.nss` and `conv_domain003.nss` (slot and domain destruction) all now read and clear the one value.
+
+#### Blocker: house contents already do not survive a restart
+Escrowing a tenant's belongings assumes those belongings persist in the first place. They do not:
+- `chestplay_close.nss` saves player-chest contents with `SetLocalString(oModule,...)` and has **zero** persistent writes — module locals, wiped on reboot.
+- Placed furniture (`conv_furnitur003.nss`) is created with no `Persistent` flag, so `area_save.nss:48` routes it to the same module-local path.
+- House interiors are pooled static areas claimed through `transitions2.nss`; the claim mapping is a module local too.
+
+So on every scheduled reboot, everything inside every rented house already vanishes. Auto-release with escrow would frequently capture nothing, and — worse — releasing a tenancy WITHOUT working escrow lets the next tenant walk into whatever the previous one left. Auto-release is therefore strictly worse than the status quo until this is fixed, which is why only the clock shipped.
+
+#### Order of work
+1. **Make house contents persistent.** Player chests and placed furniture need the pwdata/campaign path rather than module locals. `StoreCampaignObject` is the module's existing tool for whole objects with gear intact (`area_save.nss:68`, `spawngrp_save.nss:64`); note `mod_load.nss:59` wipes the `AdvAreaSnap` namespace at boot, so escrow must use a different one. Decide on a per-house item cap first — `iDomainContainer` (10) is the existing precedent for container limits.
+2. **Auto-release on expiry.** Evaluate `DomainRentExpired` wherever the slot is looked at — `domain_content.nss`, `cond_domain018`, `cond_domain020`, `conv_domain014` — since the tenant may never return. Release clears the tenancy, the expiry and the tenant's back-pointer (`DomainClearRented`; the marker already self-heals).
+3. **Escrow on release.** Sweep the interior: loose items, container contents, and furniture converted back to its `o`-prefixed item form the way `conv_furnitur002.nss` already packs it. Key by character name, sanitised as `spawngrp_save.nss`'s `SG_Clean` does.
+4. **Retrieval.** At a bank (a branch in `shop.dlg.json`, which already hosts the bank), and on renting a new house — dumped into chests there.
+- **open**: per-house item cap; what happens to escrow if the character is deleted; whether the owner should be able to evict before expiry (`DomainCanBuild` would gate it).
+- **verify**: rent a house, let the term lapse across a reboot, and confirm the day count shown is unchanged by the restart. Then, once escrow exists, confirm the house frees up, the belongings survive, and both retrieval paths return them.
