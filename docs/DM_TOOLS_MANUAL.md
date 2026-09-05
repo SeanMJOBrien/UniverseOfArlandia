@@ -296,8 +296,11 @@ Rents are set by `iUnitRentSmall`, `iUnitRentMedium` and `iUnitRentLarge` in
 
 ### Things to know
 
-- A character may hold **one home in total**, whether a rented unit or a domain
-  house. They must give one up before taking another.
+- A character may **rent** only one home at a time, whether a rental unit or
+  someone else's domain house. They must give one up before taking another.
+  This limit covers rented homes only. A player who builds their own domains
+  may have a Personal House in each, and there is no limit on how many domains
+  they build — see below.
 - Rent that runs out releases the unit the next time anyone opens that door. A
   building nobody visits keeps its expired tenants until someone looks.
 - A tenant who re-rents their own unit finds their furniture as they left it. A
@@ -305,6 +308,29 @@ Rents are set by `iUnitRentSmall`, `iUnitRentMedium` and `iUnitRentLarge` in
 - Storage chests hold the player's account storage rather than anything kept in
   the building, so losing a unit never costs anyone their belongings.
 - Two rental doors are always separate buildings, even side by side in one area.
+
+---
+
+### Houses a player owns, versus homes they rent
+
+Two domain structures look like housing and behave differently:
+
+| | **House** (structure 11) | **Personal House** (structure 14) |
+|---|---|---|
+| Who lives there | a tenant | the domain owner |
+| Rent | tenant pays; owner earns from it at structure level 3 and above | none |
+| Counts against the one-rental limit | for the tenant only | no |
+
+A **House** is rental property. The domain owner is its landlord and cannot
+live in it — standing at its flag gives them the build menu, never the option
+to rent.
+
+A **Personal House** is the owner's own residence, rent-free.
+
+Neither domains nor Personal Houses are limited. A player who builds five
+domains may have five Personal Houses, and may still rent one home elsewhere on
+top of that. This is deliberate: the one-rental limit governs tenants, not
+what a player builds for themselves.
 
 ---
 

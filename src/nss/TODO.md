@@ -805,3 +805,12 @@ A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**.
 - **The sweep only covers doors someone opens.** A building nobody visits keeps its expired tenants until it is next looked at. That is deliberate — there is no index of doors to walk — but it means "released" really means "released the next time anyone looks".
 - **Domain houses still have no expiry action** (TASK-36). Units now do; the two should probably behave the same way.
 - **verify**: not yet planned.
+
+---
+
+### TASK-39: Owner-occupied housing is deliberately unlimited (design note, no work)
+- **status**: decided. Recorded so it is not "fixed" later by someone reading the one-rental cap and assuming it was meant to apply everywhere.
+- **decision**: `iDomainOneRental` limits **rented** homes only. Domains, and the Personal Houses a player builds in them, are **not** limited and are not meant to be.
+- **why it looks like a gap**: a player with five domains can have five Personal Houses they enter, furnish and store in, and still rent an apartment on top — four or six "homes" while `DomainMayRent` reports them as having one. That is intended.
+- **the distinction in code**: `transitions2.nss` overrides the interior's `Master` to the RENTER for structure 11 (House) only; structure 14 (Personal House) keeps the domain owner. `conv_domain014.nss:15` forces `iRent = 1` for structure 14, so a Personal House door never needs rent. `StartingList` evaluates `cond_domain005` (owner) before `cond_domain020` (rent menu), so an owner can never become their own tenant.
+- **if it ever does need limiting**: the check belongs in the build path (`conv_domain003.nss`, `iChoice1==1`), refusing a second Personal House across all of that character's domains. That needs an index of domains by owner, which does not exist — records are keyed by coordinate, so "all domains owned by X" currently means scanning every tile.
