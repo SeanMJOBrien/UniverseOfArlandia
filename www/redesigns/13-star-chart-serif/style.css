@@ -1,0 +1,135 @@
+/* Star Chart Serif — same layout & palette as the live site, engraved-star-map typography */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #FFF;
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+a { color: #FFF; text-decoration: none; }
+a:hover { color: #00FF00; }
+
+.layout-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    background-image: url('../../app/assets/UOA_BG.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.header-cell { text-align: center; height: 60px; }
+.nav-cell {
+    width: 12%;
+    vertical-align: top;
+    text-align: left;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+.main-content-cell { width: 76%; vertical-align: top; }
+.footer-cell { text-align: center; height: 5%; }
+
+/* -- Title: engraved serif with a soft glow and a hairline flourish underneath -- */
+.page-title {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-size: 3em;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: 0.03em;
+    color: #82AAFF;
+    text-shadow: 0 0 18px rgba(130, 170, 255, 0.55), 0 0 2px rgba(130, 170, 255, 0.8);
+    margin: 0.5em 0 0.15em;
+    position: relative;
+}
+.page-title::after {
+    content: "";
+    display: block;
+    width: 220px;
+    max-width: 60%;
+    height: 1px;
+    margin: 0.35em auto 0;
+    background: linear-gradient(90deg, transparent, #82AAFF, transparent);
+}
+.page-subtitle {
+    font-family: Georgia, "Palatino Linotype", serif;
+    font-style: italic;
+    font-size: 1.1em;
+    font-weight: normal;
+    color: #82AAFF;
+    margin-bottom: 1em;
+}
+
+.section-title {
+    font-family: Georgia, "Palatino Linotype", "Book Antiqua", serif;
+    font-size: 0.95em;
+    font-weight: bold;
+    font-style: italic;
+    color: #66CCFF;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    margin-top: 1.1em;
+    margin-bottom: 0.4em;
+    padding-bottom: 0.25em;
+    border-bottom: 1px solid rgba(102, 204, 255, 0.35);
+}
+
+.nav-links { font-size: 0.9em; color: #b9b9c8; font-weight: bold; font-family: "Segoe UI", Arial, sans-serif; }
+.nav-links a { color: #b9b9c8; line-height: 1.9; transition: color 0.15s ease; }
+.nav-links a::before { content: "\2726  "; color: #66CCFF; opacity: 0.7; font-size: 0.85em; }
+.nav-links a:hover { color: #00FF00; }
+.nav-links a:hover::before { color: #00FF00; opacity: 1; }
+
+.info-text { font-size: 0.8em; font-weight: bold; }
+.ip-address { color: #00E600; }
+.status-mock p { margin: 0.3em 0; }
+
+.galaxy-link {
+    font-family: Georgia, "Palatino Linotype", serif;
+    font-size: 0.95em;
+    font-style: italic;
+    color: #00FFFF;
+    font-weight: bold;
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(0, 255, 255, 0.5);
+}
+.galaxy-link::before { content: "\2726  "; font-style: normal; opacity: 0.8; }
+.planet-link { font-weight: bold; padding-left: 1.1em; }
+.planet-link::before { content: "\2013  "; color: #66CCFF; }
+
+.footer-text { font-size: 0.8em; font-weight: bold; font-family: Georgia, serif; font-style: italic; letter-spacing: 0.02em; }
+
+.status-iframe, .content-iframe {
+    width: 100%;
+    margin: 1px 0;
+    box-sizing: border-box;
+    border: 1px solid rgba(130, 170, 255, 0.35);
+    box-shadow: 0 0 14px rgba(130, 170, 255, 0.12);
+}
+.status-iframe { height: 90px; }
+.content-iframe { height: 100%; border: 1px solid rgba(130, 170, 255, 0.35); }
+
+.dm-area input[type="password"] {
+    width: 8em;
+    font-size: 0.9em;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(102, 204, 255, 0.4);
+    color: #FFF;
+    padding: 0.2em 0.4em;
+}
+.dm-area-title { color: #66CCFF; }
+
+/* -- News page (loaded in the content iframe) -- */
+.news-page { padding: 1.2em 1.5em; }
+.news-heading { border-bottom: 1px solid rgba(102, 204, 255, 0.35); }
+.news-item { margin-bottom: 1.6em; }
+.news-date { font-size: 0.8em; color: #66CCFF; font-style: italic; margin: 0 0 0.1em; }
+.news-title {
+    font-family: Georgia, "Palatino Linotype", serif;
+    font-size: 1.2em;
+    color: #82AAFF;
+    margin: 0 0 0.35em;
+}
+.news-text { font-size: 0.9em; line-height: 1.5; margin: 0 0 0.4em; }
+.news-byline { font-size: 0.75em; color: #b9b9c8; font-style: italic; }

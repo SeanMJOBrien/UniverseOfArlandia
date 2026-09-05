@@ -1,0 +1,176 @@
+/* Constellation Lines — same layout & palette as the live site, star-map node/line motifs */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #FFF;
+    font-family: "Century Gothic", "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+}
+a { color: #FFF; text-decoration: none; }
+a:hover { color: #00FF00; }
+
+.layout-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    background-image: url('../../app/assets/UOA_BG.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.header-cell { text-align: center; height: 60px; }
+.nav-cell {
+    width: 12%;
+    vertical-align: top;
+    text-align: left;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+.main-content-cell { width: 76%; vertical-align: top; }
+.footer-cell { text-align: center; height: 5%; }
+
+.page-title {
+    font-size: 2.8em;
+    font-weight: bold;
+    font-style: normal;
+    letter-spacing: 0.02em;
+    color: #82AAFF;
+    margin: 0.5em 0 0.15em;
+    display: inline-block;
+}
+.page-title::after {
+    content: "";
+    display: block;
+    height: 2px;
+    margin-top: 0.2em;
+    background: linear-gradient(90deg, #82AAFF, #66CCFF, #00FFFF);
+}
+.page-subtitle {
+    font-size: 1.05em;
+    font-weight: bold;
+    color: #82AAFF;
+    letter-spacing: 0.02em;
+    margin-bottom: 1em;
+}
+
+.section-title {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #66CCFF;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 1.1em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    background-image: radial-gradient(circle, #66CCFF 1.5px, transparent 1.5px),
+                       linear-gradient(90deg, rgba(102, 204, 255, 0.5), transparent);
+    background-position: 0 100%, 6px 100%;
+    background-size: 3px 3px, 100% 1px;
+    background-repeat: no-repeat;
+}
+
+.nav-links { font-size: 0.9em; color: #b9b9c8; font-weight: bold; }
+.nav-links a {
+    color: #b9b9c8;
+    line-height: 1.8;
+    position: relative;
+    padding-left: 1.1em;
+}
+.nav-links a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #66CCFF;
+    box-shadow: 0 0 4px rgba(102, 204, 255, 0.8);
+}
+.nav-links a:hover::before { background: #00FF00; box-shadow: 0 0 6px rgba(0, 255, 0, 0.9); }
+
+.info-text { font-size: 0.8em; font-weight: bold; }
+.ip-address { color: #00E600; }
+.status-mock p { margin: 0.3em 0; }
+
+.galaxy-link {
+    font-size: 0.9em;
+    color: #00FFFF;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+}
+.galaxy-link::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00FFFF;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.9);
+    margin-right: 0.5em;
+}
+.planet-link {
+    font-weight: bold;
+    padding-left: 1.3em;
+    position: relative;
+}
+.planet-link::before {
+    content: "";
+    position: absolute;
+    left: 0.35em;
+    top: 0.5em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #66CCFF;
+    box-shadow: 0 0 3px rgba(102, 204, 255, 0.8);
+}
+
+.footer-text { font-size: 0.8em; font-weight: bold; letter-spacing: 0.03em; }
+
+.status-iframe, .content-iframe {
+    width: 100%;
+    margin: 1px 0;
+    box-sizing: border-box;
+    border: 1px solid rgba(102, 204, 255, 0.4);
+}
+.status-iframe { height: 90px; }
+.content-iframe { height: 100%; border: 1px solid rgba(102, 204, 255, 0.4); }
+
+.dm-area input[type="password"] {
+    width: 8em;
+    font-size: 0.9em;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(102, 204, 255, 0.5);
+    color: #FFF;
+    padding: 0.2em 0.4em;
+}
+.dm-area-title { color: #66CCFF; }
+
+/* -- News page (loaded in the content iframe) -- */
+.news-page { padding: 1.2em 1.5em; }
+.news-heading { background-image: none; }
+.news-item {
+    margin-bottom: 1.6em;
+    padding-left: 1.1em;
+    position: relative;
+}
+.news-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #82AAFF;
+    box-shadow: 0 0 4px rgba(130, 170, 255, 0.8);
+}
+.news-date { font-size: 0.8em; color: #66CCFF; margin: 0 0 0.15em; }
+.news-title { font-size: 1.1em; color: #82AAFF; margin: 0 0 0.35em; }
+.news-text { font-size: 0.88em; line-height: 1.5; margin: 0 0 0.4em; }
+.news-byline { font-size: 0.75em; color: #b9b9c8; }

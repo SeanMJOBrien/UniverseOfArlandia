@@ -1,0 +1,146 @@
+/* Frosted Glass Ledger — same layout & palette as the live site, softened into glass panels */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #FFF;
+    font-family: "Segoe UI", "Avenir Next", "Helvetica Neue", Arial, sans-serif;
+}
+a { color: #FFF; text-decoration: none; }
+a:hover { color: #00FF00; }
+
+.layout-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    background-image: url('../../app/assets/UOA_BG.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.header-cell { text-align: center; height: 60px; }
+.nav-cell {
+    width: 12%;
+    vertical-align: top;
+    text-align: left;
+    padding: 12px 15px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(102, 204, 255, 0.22);
+    border-radius: 10px;
+}
+.main-content-cell { width: 76%; vertical-align: top; padding: 0 10px; box-sizing: border-box; }
+.footer-cell { text-align: center; height: 5%; }
+
+.page-title {
+    font-size: 2.6em;
+    font-weight: 300;
+    font-style: normal;
+    letter-spacing: 0.01em;
+    color: #82AAFF;
+    margin: 0.5em 0 0.15em;
+}
+.page-subtitle {
+    font-size: 1.05em;
+    font-weight: 300;
+    color: #82AAFF;
+    margin-bottom: 1em;
+}
+
+.section-title {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: #66CCFF;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-variant: small-caps;
+    margin-top: 1.1em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid rgba(102, 204, 255, 0.25);
+}
+
+.nav-links { font-size: 0.88em; color: #b9b9c8; font-weight: 500; }
+.nav-links a {
+    color: #b9b9c8;
+    line-height: 1.9;
+    display: inline-block;
+    transition: color 0.15s ease, padding-left 0.15s ease;
+}
+.nav-links a:hover { color: #00FF00; padding-left: 0.2em; }
+
+.info-text { font-size: 0.8em; font-weight: 500; }
+.ip-address { color: #00E600; }
+.status-mock {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 204, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.5em 0.7em;
+}
+.status-mock p { margin: 0.3em 0; }
+
+.galaxy-link {
+    font-size: 0.9em;
+    color: #00FFFF;
+    font-weight: 600;
+    text-decoration: none;
+}
+.planet-link { font-weight: 500; padding-left: 1em; }
+
+.footer-text { font-size: 0.8em; font-weight: 400; letter-spacing: 0.02em; }
+
+.status-iframe, .content-iframe {
+    width: 100%;
+    margin: 1px 0;
+    box-sizing: border-box;
+    border: 1px solid rgba(102, 204, 255, 0.25);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.25);
+}
+.status-iframe { height: 90px; }
+.content-iframe { height: 100%; }
+
+.dm-area {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(102, 204, 255, 0.2);
+    border-radius: 8px;
+    padding: 0.5em 0.7em;
+    margin-top: 0.5em;
+}
+.dm-area input[type="password"] {
+    width: 8em;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(102, 204, 255, 0.3);
+    border-radius: 4px;
+    color: #FFF;
+    padding: 0.25em 0.5em;
+}
+.dm-area-title { color: #66CCFF; }
+
+/* -- News page (loaded in the content iframe) -- */
+body.news-body { background: transparent; }
+.news-page {
+    padding: 1.4em 1.6em;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    min-height: 100%;
+    box-sizing: border-box;
+}
+.news-item {
+    margin-bottom: 1.5em;
+    padding: 0.8em 1em;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(102, 204, 255, 0.15);
+    border-radius: 8px;
+}
+.news-date { font-size: 0.78em; color: #66CCFF; margin: 0 0 0.15em; }
+.news-title { font-size: 1.1em; font-weight: 600; color: #82AAFF; margin: 0 0 0.35em; }
+.news-text { font-size: 0.88em; line-height: 1.55; margin: 0 0 0.4em; color: #e5e8f5; }
+.news-byline { font-size: 0.75em; color: #b9b9c8; }
