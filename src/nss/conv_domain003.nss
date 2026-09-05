@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "dmfi_dmw_inc"
+#include "_domainuser"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,11 @@ SetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests",sInterestType+"&1&"+s
 // Build domain
 else if(iChoice1==1)
  {
+// Building into a slot resets that slot's access grants (TASK-35) - a grant is
+// permission to use one specific structure, so it must not carry over to
+// whatever gets built here next. conv_domain005.nss does the same on destroy.
+// The domain-wide grant (slot 0) is untouched; only the owner revokes that.
+DomainClearSlot(sPlanet,sArea,iChoice2);
 SetLocalString(oArea,"Domain_Build",IntToString(iChoice2)+"_+_"+IntToString(iChoice3));
 SetLocalObject(oArea,"PC",oPC);
 ExecuteScript("domains",oArea);
@@ -69,6 +75,9 @@ if((GetLocalInt(oObjects,"Hench")==0)&&(GetLocalString(oObjects,"Master")==sMast
 oObjects = GetNextObjectInArea(oArea);
    }
 DeleteLocalInt(oGoldbag,sPlanet+"&BoardPriv");
+// The domain is gone, so every access grant in it goes too - slot 0 included,
+// unlike the per-slot rebuild reset above (TASK-35).
+DomainClearAllGrants(sPlanet,sArea);
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Interests");
 while(j<10){j++;DeletePersistentVariable(oModule,sPlanet+"&"+sArea+IntToString(j));DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(j));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter");DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(j));i=0;while(i<9){i++;DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter"+IntToString(i));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(j)+IntToString(i));}}
   }

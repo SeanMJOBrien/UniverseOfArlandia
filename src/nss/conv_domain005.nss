@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_domainuser"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +60,12 @@ else if(iChoice2==10){sVar10 = "%";}
 sVar = sVar1+"_01_"+sVar2+"_02_"+sVar3+"_03_"+sVar4+"_04_"+sVar5+"_05_"+sVar6+"_06_"+sVar7+"_07_"+sVar8+"_08_"+sVar9+"_09_"+sVar10+"_10_"+sVar11+"_11_";
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests",sInterestType+"&1&"+sMaster+"&2&"+sVar+"&3&"+sVisible+"&4&");
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iChoice2));
+// Per-structure access grants die with the structure (TASK-35). A grant is
+// permission to use one specific building, so it must not survive the slot
+// being torn down - otherwise a character granted an Extractor silently keeps
+// access when the owner rebuilds the slot as something else entirely. The
+// domain-wide grant (slot 0) is untouched; only the owner revokes that.
+DomainClearSlot(sPlanet,sArea,iChoice2);
 DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2));
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter");
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iChoice2));

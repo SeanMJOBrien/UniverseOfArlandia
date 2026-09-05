@@ -621,38 +621,36 @@ The cabin (`inc_flight.nss`) still carries followers for ordinary travel — the
 
 ---
 
-### TASK-35: Shared domains — approved users, claimed rooms, and furnished ship quarters
-- **status**: foundation implemented (`_domainuser.nss`, compiles clean, nothing calls it yet). The dialog work that makes it visible is specified below but NOT done. Asks (2) and (3) still blocked.
-- **action**: three related asks:
-  1. A domain owner grants another PC use of their domain. Both must be in the same area; a banker dialog lists the PCs present and the owner picks one. Any PC on the same ACCOUNT can apply and approve alone.
-  2. The owner designates a house an approved user may claim a room in and furnish.
-  3. Ship decks and cabins (TASK-31) behave like private houses — furnished and saved the same way.
+### TASK-35: Shared domains — per-structure access grants from the domain sign
+- **status**: storage, semantics and lifecycle implemented and wired; the dialog that exposes it is specified below but NOT built. Asks (2) and (3) still open.
+- **action**: A domain owner grants another character the use of individual structures in their domain, managed from **the domain's own sign** — not a bank NPC. Both characters are naturally present, since granting happens at the sign.
 
-#### Agreed permission split
-An approved user MAY take resources from the domain's extractors, and rent, enter and decorate a property. An approved user MAY NOT build or destroy anything, in this or any domain.
+#### Permission model
+- Granularity is **per slot** (a domain has 10, `domains.nss:99`). Slot 0 is the domain-wide grant: one write instead of ten.
+- A grant confers USE — collect an extractor's output, hire at a caserne, rent and decorate a house. It **never** confers building or destroying, in this or any domain.
+- Grants **reset when the slot changes**. A grant is permission to use one specific structure, so it must not survive that structure being replaced. Wired at all three lifecycle points: build (`conv_domain003.nss`, `iChoice1==1`), destroy-slot (`conv_domain005.nss`), destroy-domain (`conv_domain003.nss`, `iChoice2==2`, which clears slot 0 as well). Rebuilding a slot as a different structure therefore starts with a clean list.
+- Any two characters on the same **account** short-circuit the two-party requirement — `DomainSameAccount` compares public CD keys, so a player can approve their own alt alone.
 
 #### What is built
-`src/nss/_domainuser.nss` — the allow-list and its semantics: `DomainAddUser`/`DomainRemoveUser`/`DomainIsApprovedName`, `DomainCanUse` (owner, approved, or DM) and `DomainCanBuild` (owner or DM only, deliberately a separate function so the distinction is explicit at each call site), `DomainSameAccount` (public CD key compare — the same identifier `_webmap.nss` indexes characters under), and `DomainAreaOf` (resolves a structure interior back to its outer world coordinate via the `AreaExit` local `transitions2.nss` sets). Storage is one pwdata row per coordinate, `<planet>&<area>&DomainUsers`, holding an &-wrapped name list so `Al` never matches `Alice`.
+`src/nss/_domainuser.nss` — `DomainAddUser` / `DomainRemoveUser` / `DomainRemoveUserAll` / `DomainIsGrantedSlot` / `DomainIsApprovedName` (slot grant OR domain-wide), `DomainClearSlot` and `DomainClearAllGrants` for the lifecycle resets, `DomainCanUse` and the one-call `DomainCanUseHere` (reads planet/area/slot/master straight off a sign or structure flag), `DomainCanBuild` (owner or DM only, kept a separate function so no call site can blur the split), `DomainSameAccount`, and `DomainAreaOf`. Storage is one pwdata row per (domain, slot): `<planet>&<area>&DomainUsers&<slot>`, holding an &-wrapped name list so `Al` never matches `Alice`.
 
-#### The blocker, and why this stopped here
-`cond_domain005.nss` gates the ENTIRE structureflag menu on `Master == GetName(oPC)` — build, destroy, rotate, rent and extractor collection all sit behind that one condition. Relaxing it to admit approved users would hand them construction rights, which is exactly what must not happen. So the feature cannot be finished by editing condition scripts alone; individual replies in `src/dlg/domain.dlg.json` need their own conditions:
+#### What remains: the dialog work
+The signs already carry everything needed — `domains.nss` gives each structure a `zep_sign0XX` placeable with `Master`, `Slot` and `Structure` locals and a readable name ("Airship", "Casern"), and `domaincontrol` / `structureflag` both open the `domain` conversation (`OnUsed = domain_used`).
 
-- Replies that keep `cond_domain005` (owner only): build, destroy, and the rotation submenu added in TASK-17.
-- Replies that move to a new `cond_domainuser.nss` calling `DomainCanUse`:
-  - **Production collection** — the six structures `conv_domain006.nss:77` routes to `domain_content.nss`: Extractor (5), Factory (6), Farm (7), Field (8), House (11), Sawmill (21).
-  - **Caserne soldier hiring** (3) — `conv_domain007.nss:26` lists tiers and prices, `conv_domain008.nss:41` creates the `hench000` soldier with the chosen appearance.
-  - **Rent** — the replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
+1. **Granting UI** on the domain sign, behind the owner-only `cond_domain004`: list the PCs in the area (the module's usual fixed-replies-plus-`SetCustomToken` pattern, as `cond_choice0..26` do), then list the domain's built slots to pick which structure to grant, plus a domain-wide option and a revoke path (`DomainRemoveUser` / `DomainRemoveUserAll` exist for it).
+2. **Per-reply conditions** in `src/dlg/domain.dlg.json`. `cond_domain005.nss` currently gates the ENTIRE structureflag menu on `Master == GetName(oPC)` — build, destroy, rotate, rent, production and caserne all sit behind that one condition, so it cannot simply be relaxed. Replies must be split:
+   - **Stay on `cond_domain005`** (owner only): build, destroy, and the TASK-17 rotation submenu.
+   - **Move to a new `cond_domainuser.nss` calling `DomainCanUseHere`**:
+     - Production collection — the six structures `conv_domain006.nss:77` routes to `domain_content.nss`: Extractor (5), Factory (6), Farm (7), Field (8), House (11), Sawmill (21).
+     - Caserne soldier hiring (3) — `conv_domain007.nss:26` lists tiers and prices, `conv_domain008.nss:41` creates the `hench000` soldier.
+     - Rent — the replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
+   Dialog edits must round-trip through `nwn_gff` before being trusted, and the struct array is append-only — add replies rather than renumbering.
 
-Dialog edits must round-trip through `nwn_gff` before being trusted, and the existing struct array is append-only — add replies rather than renumbering.
+#### Ask (2) may already be built
+A per-slot RENT system exists: `<planet>&<area>&Domain&<slot>` holds a renter's name, and `transitions2.nss` sets the claimed interior's `Master` to the RENTER, which is what makes `mod_unacquire.nss:36`'s furniture check grant them decorating rights. So "claim a room and furnish it" may need no new mechanism — only access to the rent reply, per the split above. Confirm in-game before building anything.
 
-#### The banker branch
-The bank lives in `shop.dlg.json` ("I want to manage my bank account."), so the approval branch belongs there. NWN dialogs have fixed replies, so "list every PC in the area" is the module's usual N-replies-plus-custom-tokens pattern (as `cond_choice0..26` already do): pre-create a fixed number of reply slots, have a condition script fill `SetCustomToken` with the Nth PC's name and return FALSE past the end. `DomainSameAccount` is what lets the self-approval case skip the second party.
-
-#### Ask (2) may be largely built already
-There is an existing per-slot RENT system: `<planet>&<area>&Domain&<slot>` holds a renter's name, `cond_domain018` offers an unrented slot, `cond_domain019` recognises the renter, and `transitions2.nss` sets the claimed house interior's `Master` to the RENTER rather than the domain owner — which is what makes `mod_unacquire.nss:36`'s furniture check (`GetName(oPC) == GetLocalString(oArea,"Master")`) already grant decorating rights to a renter. So "claim a room and furnish it" may need no new mechanism at all: just let an approved user reach the rent reply, per the dialog split above. Confirm that in-game before building anything new.
-
-#### Constraints
-- Names as identifiers inherit TASK-33's fragility. If domain ownership moves to a stable id, this allow-list must move in the same change.
+#### Constraints and open questions
+- Names as identifiers inherit TASK-33's fragility. If domain ownership moves to a stable id, these lists must move in the same change.
 - Ship decks do not exist yet (TASK-31), so ask (3) stays blocked.
-- **open**: whether an approved user may rent more than one property; whether a claimed room survives the owner demolishing the house; how many approved users a domain may have; whether approval is revocable from the same banker dialog (`DomainRemoveUser` exists for it).
-- **verify**: with two characters in one area, approve one at the banker and confirm the approved character can collect extractor output and rent/decorate a house, and that build and destroy stay invisible to them. Then repeat with two characters on one account, alone.
+- **open**: which structure groups beyond production/caserne/rent an approved user should reach — Services (Guild, Hall, Inn, Mission Office, School, Shop, Tavern, Temple), Transport (Airship, Starship) and Adventure (Amusement Place, Dungeon, Tower) are all undecided. Also whether a grant holder may rent more than one property, and how many grants a domain may issue.
+- **verify**: with two characters in one area, grant one the use of a single Extractor slot from the domain sign; confirm they can collect its output, cannot collect from an ungranted slot, and never see build or destroy. Rebuild that slot as something else and confirm the grant is gone. Repeat with two characters on one account, alone.
