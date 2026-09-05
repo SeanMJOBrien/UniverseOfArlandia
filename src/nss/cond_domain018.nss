@@ -21,6 +21,7 @@ int StartingConditional()
     string sPlanet = GetLocalString(oArea, "Planet");
     string sArea = GetLocalString(oArea, "Area");
     int iSlot = GetLocalInt(OBJECT_SELF, "Slot");
+    DomainReleaseIfExpired(sPlanet, sArea, iSlot);
     string sRent = GetPersistentString(oModule, sPlanet + "&" + sArea + "&Domain&" + IntToString(iSlot));
 
     if (sRent != "") { return FALSE; }

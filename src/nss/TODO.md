@@ -668,15 +668,28 @@ The chain that already works: rent (`conv_domain008.nss:480` writes the renter's
 
 ---
 
-### TASK-36: Rent expiry — shared clock done, auto-release and escrow blocked
-- **status**: the expiry clock is implemented and deployed. Auto-release and belongings escrow are NOT built, and are blocked on a persistence bug found while designing them (below).
-- **agreed design**: when rent runs out the tenancy auto-releases, and the tenant's belongings go to the database until they collect them at a bank or rent somewhere new, where they get dumped into chests.
+### TASK-36: Rent expiry — clock and auto-release done
+- **status**: implemented and deployed. Not yet confirmed in-game.
 
 #### Done: a shared, restart-proof expiry clock
-Rent used to live ONLY on the tenant's goldbag, as a tick count decremented against `GetLocalInt(oModule,"Counter")`. Two problems: nobody but the tenant could read it — not the owner, not a would-be renter, not the door — and that heartbeat counter is a module local that resets on every reboot, which `mod_heartbeat.nss:30` schedules routinely. So rent silently stretched every restart.
+Rent used to live ONLY on the tenant's goldbag, as a tick count decremented against `GetLocalInt(oModule,"Counter")`. Two problems: nobody but the tenant could read it — not the owner, not a would-be renter, not the door — and that heartbeat counter is a module local reset on every reboot, which `mod_heartbeat.nss:30` schedules routinely, so rent silently stretched at every restart.
 
-Tenancies now carry an absolute expiry DAY in pwdata (`<planet>&<area>&Domain&<slot>Until`), read off the game calendar, which `mod_heartbeat.nss:30` saves and `mod_load.nss:37-42` restores — monotonic across reboots and readable by anyone. `DomainGameDay`, `DomainRentUntil`, `DomainRentExtend`, `DomainRentClear`, `DomainRentDaysLeft`, `DomainRentExpired` in `_domainuser.nss`; term length is `iDomainRentDays` (30). Tenancies predating the clock are seeded with a full term on first read rather than being treated as instantly overdue. `domain_content.nss` (day display), `conv_domain014.nss` (door), `conv_domain008.nss` (rent / pay / leave), `conv_domain005.nss` and `conv_domain003.nss` (slot and domain destruction) all now read and clear the one value.
+Tenancies now carry an absolute expiry DAY in pwdata (`<planet>&<area>&Domain&<slot>Until`), read off the game calendar, which `mod_heartbeat.nss:30` saves and `mod_load.nss:37-42` restores. `DomainGameDay`, `DomainRentUntil`, `DomainRentExtend`, `DomainRentClear`, `DomainRentDaysLeft`, `DomainRentExpired` in `_domainuser.nss`; term length `iDomainRentDays` (30). Tenancies predating the clock are seeded with a full term on first read rather than treated as instantly overdue.
 
+#### Done: auto-release on expiry
+`DomainReleaseIfExpired` clears an overdue tenancy and its expiry, returning the slot to the market. Called from `cond_domain020.nss` (the rent-menu gate, so an expired slot presents itself as vacant) and `cond_domain018.nss` (the rent reply itself). Evaluated wherever a slot is looked at rather than on a timer: a tenant who stops paying may never return, so expiry cannot be detected from their own actions, and there is no index of rented slots to sweep. The owner and would-be renters are exactly the people who care whether a slot has come free.
+
+**The escrow that once blocked this is no longer needed.** TASK-37 moved player storage out of houses and onto the account, so releasing a tenancy cannot cost anyone their belongings. The tenant's own back-pointer is not cleared at release — their goldbag is unreachable from these scripts — but `DomainHasRental` verifies against the record and heals itself, so their one-home slot frees the next time they try to rent.
+
+#### Known limits
+- A tenant gets no warning before losing a house.
+- Release only happens when someone looks at the slot; a domain nobody visits keeps its expired tenants until it is next visited.
+- Placed furniture in a domain house still does not survive a restart (module-local save path). Rental units solved this with their own snapshot (TASK-38); domain houses could use the same treatment.
+- **verify**: rent a house, set its `Until` back in the database, then have another character open the House flag — the slot should show as available to rent. Confirm the previous tenant can then rent elsewhere.
+
+---
+
+### TASK-36b: House contents do not survive a restart (superseded in part)
 #### Blocker: house contents already do not survive a restart
 Escrowing a tenant's belongings assumes those belongings persist in the first place. They do not:
 - `chestplay_close.nss` saves player-chest contents with `SetLocalString(oModule,...)` and has **zero** persistent writes — module locals, wiped on reboot.

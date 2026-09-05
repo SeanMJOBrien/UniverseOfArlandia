@@ -353,3 +353,26 @@ int DomainRentExpired(string sPlanet, string sArea, int iSlot)
     if (DomainSlotTenant(sPlanet, sArea, iSlot) == "") { return FALSE; }
     return (DomainRentDaysLeft(sPlanet, sArea, iSlot) < 0);
 }
+
+// Release a domain house tenancy whose rent has run out, so the slot returns
+// to the market. Returns TRUE if it released one.
+//
+// Called from wherever a slot is looked at rather than on a timer: a tenant
+// who stops paying may never come back, so expiry cannot be detected from the
+// tenant's own actions, and there is no index of rented slots to sweep. The
+// people who look at a House flag are the owner and would-be renters - exactly
+// those who care whether it has come free.
+//
+// Nothing of the tenant's is lost. Player storage is account-scoped
+// (_pcstorage.nss), so it follows them out. The tenant's own back-pointer is
+// not cleared here - their goldbag is not reachable from this script - but
+// DomainHasRental verifies against this record and heals itself, so their
+// one-home slot frees up the next time they try to rent.
+int DomainReleaseIfExpired(string sPlanet, string sArea, int iSlot)
+{
+    if (!DomainRentExpired(sPlanet, sArea, iSlot)) { return FALSE; }
+    object oModule = GetModule();
+    DeletePersistentVariable(oModule, sPlanet + "&" + sArea + "&Domain&" + IntToString(iSlot));
+    DomainRentClear(sPlanet, sArea, iSlot);
+    return TRUE;
+}

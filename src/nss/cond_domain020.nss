@@ -26,6 +26,14 @@ int StartingConditional()
     object oPC = GetPCSpeaker();
     if (!GetIsObjectValid(oPC)) { return FALSE; }
 
+    // Anyone looking at this House flag is a reason to check whether its rent
+    // has run out (TASK-36). Done before the tests below, so an expired slot
+    // presents itself as vacant rather than as someone else's.
+    object oFlagArea = GetArea(OBJECT_SELF);
+    DomainReleaseIfExpired(GetLocalString(oFlagArea, "Planet"),
+                           DomainAreaOf(oFlagArea),
+                           GetLocalInt(OBJECT_SELF, "Slot"));
+
     if (DomainCanUseHere(oPC, OBJECT_SELF)) { return TRUE; }
 
     // Sitting tenant: same test cond_domain019 uses for the rent replies.
