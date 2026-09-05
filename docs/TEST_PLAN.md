@@ -1,12 +1,16 @@
-# Test Plan — 2026 Work
+# Test Plan — 2026 Work (full year index)
 
 ## Scope
 
-- **Date range:** 2026-05-31 – 2026-08-08 (`d09e79a` .. `81968aa`). These are
-  the only commits in this repo dated on/after 2026-01-01 — despite the
+- **Date range:** 2026-05-31 – 2026-09-05 (`d09e79a` .. `85f5156`). These are
+  every commit in this repo dated on/after 2026-01-01 — despite the
   "since 2026-01-01" cutoff, the repo's first 2026 commit didn't land until
   late May.
-- **Commit count:** 96 commits (`git log --since=2026-01-01 --oneline | wc -l`).
+- **Commit count:** 141 commits (`git log --since=2026-01-01 --oneline | wc -l`).
+- **This document is the master index for the whole year.** The detailed,
+  step-by-step cases live in the four specs listed below; the test cases in
+  this file cover 2026-05-31 – 2026-08-08 in depth and cross-reference the
+  rest rather than duplicating it.
 - **Grouping method:** commits were read via `git log --since=2026-01-01
   --stat` and grouped by touched files / commit-message task tags
   (`TASK-NN`/`TODO-NN` references in `src/nss/TODO.md`) into feature/fix
@@ -24,6 +28,29 @@
     (covers `be3a1c3`..`81968aa`, a superset of this range).
   - `www/tests/TEST_SPEC.md` — `www/` PHP dashboard spec, sections 1-9+
     (covers `be3a1c3`..`6752100`, a superset of this range's web commits).
+  - `docs/QA_TEST_SPEC_2026-08.md` — 2026-08-09 – 2026-08-23 (`6b7f596`..
+    `dd56e5c`), plus the feature work that sat uncommitted until `d7401c7`
+    landed it. Map memory and pins, camp-mission refinements, DM cluster
+    creature persistence, player self-service auth, henchman gear rules,
+    gold auto-loot, item-wear rebalance.
+  - `docs/QA_TEST_SPEC_2026-09.md` — 2026-09-05 (`db5fc9a`..`85f5156`).
+    Ship flight paths, asteroid Z jitter, spawn-group DM items, conflict
+    battle instances, player-named ships, domain access grants, rent expiry
+    clock, per-account chest storage, space dungeon entrances.
+
+### Year coverage map
+
+| Range | Commits | Spec |
+|---|---|---|
+| 2026-05-31 – 2026-08-08 | 96 | this file + `QA_TEST_SPEC_GAME.md` + `www/tests/TEST_SPEC.md` |
+| 2026-08-09 – 2026-08-23 | ~29 | `QA_TEST_SPEC_2026-08.md` |
+| 2026-09-05 | ~16 | `QA_TEST_SPEC_2026-09.md` |
+
+Run order across the year, highest risk first: §1 of `QA_TEST_SPEC_2026-09.md`
+(player chest storage — it touches live player property), then §2-3 of the
+same (hot paths and the domain rent behaviour change), then
+`QA_TEST_SPEC_2026-08.md` §1 and §4 (map memory and player auth, both of
+which alter what every player sees), then the rest in any order.
 
 ## Test Strategy
 
