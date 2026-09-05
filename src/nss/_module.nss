@@ -43,6 +43,7 @@ int iDomainGuildXP3 =   4;                      //*// XPs bonus at level 3.
 
 int iDomainHouseGP =    500;                    //*// GP rent per month.
 int iPCStorageChests =  4;                      //*// Storage chests each ACCOUNT gets (_pcstorage.nss). Contents follow the player, not the house.
+int iPCStorageMaxItems= 40;                     //*// Max item STACKS per storage chest. Also bounds the save: every change re-serialises the whole chest.
 int iDomainRentDays =   30;                     //*// Game days a month's house rent buys (see _domainuser.nss's expiry clock).
 int iDomainMailItems =  10;                     //*// Max. items a mailbox can contain (out of sent mails).
 ////////////////////////////////////////////////////////////////////////////////
