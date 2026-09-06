@@ -28344,6 +28344,39 @@
                       "type": "dword",
                       "value": 16813468
                     }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Conflict (space/sky/sea)"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pla_conflict"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Conflict exit"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "conflict_exit"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Apartments door"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "pla_unitdoor"
+                    }
                   }
                 ]
               },
