@@ -40,6 +40,12 @@ object FlightCloneCabin(int iType)
     if(!GetIsObjectValid(oTemplate)){return OBJECT_INVALID;}
     object oCabin = CopyArea(oTemplate);
     SetLocalInt(oCabin,"IsCopy",1);
+    // The navigation helm is created here rather than baked into the cabin
+    // templates: those are .are/.git files, which build_deploy.sh never syncs
+    // (SKIP_GFF_DIRS), so a runtime placement is the only one that deploys.
+    // Named by string to keep this file free of a _spacenav include, which
+    // would be circular - _spacenav already includes this one.
+    SetLocalInt(oCabin,"NeedHelm",1);
     return oCabin;
 }
 

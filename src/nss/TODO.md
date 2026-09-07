@@ -824,3 +824,31 @@ A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**.
 - **the rule**: any hand-patched resource in a `SKIP_GFF_DIRS` category (`ifo`, `are`, `git`, `gic`) must be written into `<repo>/.build/modules/UOA.mod`. Patching the live module alone lasts exactly until the next deploy. Patching both is fine; patching only the base is sufficient, since the next build propagates it.
 - **how it was fixed**: extracted `.build/modules/UOA.mod`, replaced `frozen000.are` from `src/`, repacked in place, then ran a normal deploy and confirmed the corrected orientations survived it.
 - **worth automating**: a `--update-areas` flag that overlays `src/are|git|gic` files whose live copy is byte-identical to the previous src version would make this safe and routine. Identical-means-no-drift is exactly the condition that makes an overwrite lossless, and it is checkable.
+
+---
+
+### TASK-41: Personal starship navigation
+- **status**: core built and compiling (591 scripts). The ship-item dialog options are NOT yet added, so manual flight cannot be started in game yet. Not tested.
+- **agreed design**: two travel modes, the pilot chooses.
+  - **Manual flight** — the pilot IS the ship (appearance 338) and flies for real, tile by tile: walk into the `newtransition` edge trigger facing the destination, let the existing transition carry them across, re-issue on arrival. The pilot interrupts by moving, which clears the action queue so the next leg is never issued. On reaching the destination tile the ship heads for the `pla_orb` placeable and the existing landing option takes over.
+  - **Deck travel** — the pilot returns to the cabin and the party waits out a timed passage at `iStarshipSec` (60s) per area crossed, with start / halfway / arrival messages, exactly as ticketed starships work. Everyone lands together.
+- **dead pilot**: the ship is the owner's body, so a corpse cannot be given a move order. Resolved by moving a downed owner INTO the cabin (`SpaceRecoverOwner`), which removes the ship from space entirely and turns the trip into deck travel. A passenger may then use the helm — `SpaceOwnerIsDown` covers dead, at or below 0 HP, and logged out.
+
+#### Built
+- `src/nss/_spacenav.nss` — visit tracking, galaxy lookup, distance/time, manual-flight stepping, deck travel, and the destination window.
+- `src/nss/spacedeck_event.nss`, `src/nss/shipctrl_used.nss`, `src/utp/pla_shipctrl.utp.json` (tag `shipcontrol`).
+- `src/nss/area_enter.nss` — records the visit, continues a flight in progress, and creates the helm on a cabin's first entry.
+- `src/nss/inc_flight.nss` — flags a fresh cabin `NeedHelm`; the helm itself is created from `area_enter` to keep the include order one-directional.
+
+#### Decisions worth remembering
+- **Visits are recorded on the goldbag**, not in pwdata keyed by character name. The goldbag travels with the character file, so this is genuinely per-character and sidesteps TASK-33's name-as-key fragility. Consequence: **every character starts with an empty chart**, including existing ones.
+- **Arriving in a space tile at all is proof of personal flight.** Ticketed starships put passengers in the `starship001` interior areas and never in a space tile, so no extra flag is needed to tell the two apart.
+- **Distance is Manhattan, not diagonal** — space tiles carry only North/East/South/West triggers, so a ship can never move diagonally.
+- **The helm is created at runtime**, mirrored through the cabin's arrival waypoint so it sits opposite the hatch. The cabin templates are `.are`/`.git` files, which `build_deploy.sh` never syncs, so a runtime placement is the only one that can deploy.
+- **Trip timers are anchored to the module**, which never dies — a cabin clone or a PC can go away mid-trip, and TASK-17 established that destroying the object a `DelayCommand` was scheduled from cancels it silently.
+
+#### Still to build
+- **The ship item's dialog options** — "Fly to Arland" and "Return to the deck". These need replies appended to `ship.dlg.json` plus condition scripts, and are the entry point for manual flight, so nothing is reachable in game without them.
+- **Solo pilots have no cabin**, so "return to the deck" must clone one on demand.
+- **`SpaceFrom` fallback** — a cabin records no origin coordinate yet, so if the owner is already off the map the deck cannot compute distances.
+- **verify**: not yet planned.

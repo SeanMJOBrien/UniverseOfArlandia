@@ -7,6 +7,7 @@
 #include "area_pop_inc"
 #include "inc_persist"
 #include "_shipname"
+#include "_spacenav"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,6 +161,21 @@ else{if((GetStringLeft(sTag,5)!="ocean")&&(GetStringLeft(sTag,6)!="clouds")&&(Ge
 // not iCheck - that flag is also set for underwater and for airship/starship
 // interiors, none of which put the PC in a ship model.
 ShipApplyNameForArea(oPC,sTag);
+// Personal starship navigation (TASK-41). Arriving in a space tile at all is
+// proof of personal flight - ticketed starships put passengers in the
+// starship interior areas and never in a space tile - so this is where a
+// character's own "I have been here" record is written. Kept on the goldbag,
+// which travels with the character file, so it is genuinely per-character.
+// A freshly cloned flight cabin gets its navigation helm the first time
+// anyone walks in. inc_flight.nss only flags it, to avoid a circular include.
+if(GetLocalInt(OBJECT_SELF,"NeedHelm")==1){DeleteLocalInt(OBJECT_SELF,"NeedHelm");SpaceDeckSpawnControl(OBJECT_SELF);}
+if(GetStringLeft(sTag,5)=="space")
+ {
+SpaceNavMarkSeen(oPC,GetLocalString(OBJECT_SELF,"Area"));
+// A flight in progress continues from here: issue the next leg toward the
+// destination. Deferred so it lands after the arrival jump settles.
+if(GetLocalString(oPC,SPACENAV_FLY_TO)!=""){AssignCommand(oPC,DelayCommand(1.5,SpaceFlyStep(oPC)));}
+ }
      if((GetStringLeft(sTag,3)=="gaz")&&(GetLocalInt(oPC,"Flying")!=1)){SetLocalInt(oPC,"Flying",1);zep_Fly(oPC);SetFootstepType(FOOTSTEP_TYPE_NONE,oPC);ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectMovementSpeedIncrease(50),oPC);}else if((GetStringLeft(sTag,3)!="gaz")&&(GetLocalInt(oPC,"Flying")==1)){DeleteLocalInt(oPC,"Flying");zep_Fly_Land(oPC);SetFootstepType(FOOTSTEP_TYPE_DEFAULT,oPC);while(GetIsEffectValid(eEffects)){if(GetEffectType(eEffects)==EFFECT_TYPE_MOVEMENT_SPEED_INCREASE){     RemoveEffect(oPC,eEffects);}eEffects = GetNextEffect(oPC);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Sewers int
