@@ -271,6 +271,10 @@ const string SPACENAV_EVENT   = "spacedeck_event";
 const string SPACENAV_CTRL    = "SpaceDeckCtrl";   // PC local: control being used
 const string SPACENAV_TRIPTO  = "SpaceTripTo";     // cabin string: destination body
 const string SPACENAV_TRIPEND = "SpaceTripEnd";    // cabin int: 1 once underway
+const string SPACENAV_TRIPNO  = "SpaceTripNo";     // cabin int: trip generation, see SpaceTripArrive
+const string SPACENAV_TRIPFROM= "SpaceTripFrom";   // cabin string: coordinate the trip started from
+const string SPACENAV_TRIPSEC = "SpaceTripSecs";   // cabin int: total trip length in seconds
+const string SPACENAV_TRIPT0  = "SpaceTripT0";     // cabin int: game-time second the trip began
 
 // Is the flight owner unable to fly - dead, dying, or gone? Only then may a
 // passenger take the controls.
@@ -309,9 +313,41 @@ void SpaceRecoverOwner(object oOwner, object oCabin)
 // contract (PlanetDest/AreaDest) rather than a captured location, for the same
 // reason DomainTravelRefresh does: the destination is resolved from strings
 // every time, so nothing depends on an area object still existing.
-void SpaceTripArrive(object oCabin, string sBody)
+// Forward declaration - the halfway and interrupt paths below announce to the
+// cabin, which is defined further down with the rest of the trip machinery.
+void SpaceTripSay(object oCabin, string sMsg);
+
+void SpaceTripArrive(object oCabin, string sBody, int iTrip)
 {
     if (!GetIsObjectValid(oCabin)) { return; }
+    // A newer trip (or an interruption) has superseded this one. NWScript
+    // cannot cancel a DelayCommand, so every scheduled step carries the trip
+    // number it belongs to and quietly does nothing once that number moves on.
+    if (GetLocalInt(oCabin, SPACENAV_TRIPNO) != iTrip) { return; }
+
+    object oOwner = GetLocalObject(oCabin, FLIGHT_OWNER);
+    string sPlace = SpaceNavPlaceOf(sBody);
+
+    // Owner alive and conscious: the ship arrives at the helm, in the
+    // destination's space tile, and they land in their own time through the
+    // existing landing menu. Owner down: nobody can fly, so the party simply
+    // puts down at the planet's home tile.
+    if ((!SpaceOwnerIsDown(oOwner)) && (sPlace != ""))
+    {
+        SetLocalString(oCabin, "SpaceFrom", sPlace);
+        SpaceTripSay(oCabin, "The ship reaches " + sBody + ".");
+        SetLocalString(oOwner, "PlanetDest", "Space");
+        SetLocalString(oOwner, "AreaDest", sPlace);
+        SetLocalFloat(oOwner, "fX", 120.0);
+        SetLocalFloat(oOwner, "fY", 120.0);
+        SetLocalFloat(oOwner, "fFacing", DIRECTION_NORTH);
+        AssignCommand(oOwner, ClearAllActions(TRUE));
+        ExecuteScript("transitions", oOwner);
+        DeleteLocalString(oCabin, SPACENAV_TRIPTO);
+        DeleteLocalInt(oCabin, SPACENAV_TRIPEND);
+        return;
+    }
+
     object oPC = GetFirstObjectInArea(oCabin);
     while (GetIsObjectValid(oPC))
     {
@@ -345,6 +381,46 @@ void SpaceTripSay(object oCabin, string sMsg)
     }
 }
 
+// Seconds since the module started, from the game clock. Only differences
+// matter here, so any monotonic source would do.
+int SpaceNavNow()
+{
+    return (GetTimeHour() * 3600) + (GetTimeMinute() * 60) + GetTimeSecond();
+}
+
+// The coordinate a ship has reached after iGone of iTotal seconds, travelling
+// from sFrom to sTo. The route is Manhattan - all of the X leg, then the Y leg
+// - so walking a fraction of it is just spending that many tiles in order.
+string SpaceNavPartWay(string sFrom, string sTo, int iGone, int iTotal)
+{
+    if ((sFrom == "") || (sTo == "")) { return sFrom; }
+    if (iTotal <= 0) { return sTo; }
+
+    struct AreaCoord a = ParseAreaCoord(sFrom);
+    struct AreaCoord b = ParseAreaCoord(sTo);
+    int dx = b.X - a.X;
+    int dy = b.Y - a.Y;
+    int adx = (dx < 0) ? -dx : dx;
+    int ady = (dy < 0) ? -dy : dy;
+    int iTiles = ((adx + ady) * iGone) / iTotal;
+
+    int iX = a.X;
+    int iY = a.Y;
+    int iStepX = (dx > 0) ? 1 : -1;
+    int iStepY = (dy > 0) ? 1 : -1;
+    while ((iTiles > 0) && (iX != b.X)) { iX = iX + iStepX; iTiles--; }
+    while ((iTiles > 0) && (iY != b.Y)) { iY = iY + iStepY; iTiles--; }
+    return FormatAreaCoord(iX, iY);
+}
+
+// Halfway call, guarded by the trip number like the arrival.
+void SpaceTripHalfway(object oCabin, int iTrip)
+{
+    if (!GetIsObjectValid(oCabin)) { return; }
+    if (GetLocalInt(oCabin, SPACENAV_TRIPNO) != iTrip) { return; }
+    SpaceTripSay(oCabin, "We are half of the way.");
+}
+
 // Start a timed passage to a body. Returns FALSE and says why if it cannot.
 int SpaceDeckTravel(object oPC, object oCabin, string sBody)
 {
@@ -369,7 +445,13 @@ int SpaceDeckTravel(object oPC, object oCabin, string sBody)
 
     int iSecs = SpaceNavSeconds(sFrom, sTo);
     if (iSecs < iStarshipSec) { iSecs = iStarshipSec; }   // never instant
+
+    int iTrip = GetLocalInt(oCabin, SPACENAV_TRIPNO) + 1;
+    SetLocalInt(oCabin, SPACENAV_TRIPNO, iTrip);
     SetLocalString(oCabin, SPACENAV_TRIPTO, sBody);
+    SetLocalString(oCabin, SPACENAV_TRIPFROM, sFrom);
+    SetLocalInt(oCabin, SPACENAV_TRIPSEC, iSecs);
+    SetLocalInt(oCabin, SPACENAV_TRIPT0, SpaceNavNow());
     SetLocalInt(oCabin, SPACENAV_TRIPEND, 1);
 
     SpaceTripSay(oCabin, "The journey to " + sBody + " begins. " + SpaceNavTimeText(iSecs) + " to arrival.");
@@ -377,8 +459,45 @@ int SpaceDeckTravel(object oPC, object oCabin, string sBody)
     // away mid-trip, and TASK-17 established that destroying the object a
     // DelayCommand was scheduled from cancels it silently.
     object oModule = GetModule();
-    AssignCommand(oModule, DelayCommand(IntToFloat(iSecs) / 2.0, SpaceTripSay(oCabin, "We are half of the way.")));
-    AssignCommand(oModule, DelayCommand(IntToFloat(iSecs), SpaceTripArrive(oCabin, sBody)));
+    AssignCommand(oModule, DelayCommand(IntToFloat(iSecs) / 2.0, SpaceTripHalfway(oCabin, iTrip)));
+    AssignCommand(oModule, DelayCommand(IntToFloat(iSecs), SpaceTripArrive(oCabin, sBody, iTrip)));
+    return TRUE;
+}
+
+// Break off a trip in progress and drop the ship back into space at roughly
+// how far it got. Bumping the trip number is what disarms the pending arrival.
+int SpaceTripInterrupt(object oPC, object oCabin)
+{
+    if (GetLocalInt(oCabin, SPACENAV_TRIPEND) != 1) { return FALSE; }
+    object oOwner = GetLocalObject(oCabin, FLIGHT_OWNER);
+    if (SpaceOwnerIsDown(oOwner))
+    {
+        FloatingTextStringOnCreature("Nobody aboard can take the helm.", oPC, FALSE);
+        return FALSE;
+    }
+
+    string sFrom = GetLocalString(oCabin, SPACENAV_TRIPFROM);
+    string sTo = SpaceNavPlaceOf(GetLocalString(oCabin, SPACENAV_TRIPTO));
+    int iSecs = GetLocalInt(oCabin, SPACENAV_TRIPSEC);
+    int iGone = SpaceNavNow() - GetLocalInt(oCabin, SPACENAV_TRIPT0);
+    if (iGone < 0) { iGone = 0; }
+    if (iGone > iSecs) { iGone = iSecs; }
+
+    string sHere = SpaceNavPartWay(sFrom, sTo, iGone, iSecs);
+
+    SetLocalInt(oCabin, SPACENAV_TRIPNO, GetLocalInt(oCabin, SPACENAV_TRIPNO) + 1);  // disarms the pending arrival
+    DeleteLocalString(oCabin, SPACENAV_TRIPTO);
+    DeleteLocalInt(oCabin, SPACENAV_TRIPEND);
+    SetLocalString(oCabin, "SpaceFrom", sHere);
+
+    SpaceTripSay(oCabin, "The ship drops out of its course.");
+    SetLocalString(oOwner, "PlanetDest", "Space");
+    SetLocalString(oOwner, "AreaDest", sHere);
+    SetLocalFloat(oOwner, "fX", 120.0);
+    SetLocalFloat(oOwner, "fY", 120.0);
+    SetLocalFloat(oOwner, "fFacing", DIRECTION_NORTH);
+    AssignCommand(oOwner, ClearAllActions(TRUE));
+    ExecuteScript("transitions", oOwner);
     return TRUE;
 }
 
@@ -408,6 +527,9 @@ json SpaceDeckPage(object oPC)
         string sName = SpaceNavBodyName(sRec);
         string sPlace = SpaceNavBodyPlace(sRec);
         if ((sName == "") || (sPlace == "")) { continue; }
+        // Planets only. Moons are reached by flying there yourself, from the
+        // nearest planet or straight through the space tiles.
+        if (GetStringLeft(SpaceNavBodyType(sRec), 1) != "p") { continue; }
         if (!SpaceNavHasSeen(oPC, sPlace)) { continue; }   // own-ship visits only
         if ((sFrom != "") && (sPlace == sFrom)) { continue; }  // already here
 

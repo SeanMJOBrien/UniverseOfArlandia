@@ -847,8 +847,40 @@ A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**.
 - **The helm is created at runtime**, mirrored through the cabin's arrival waypoint so it sits opposite the hatch. The cabin templates are `.are`/`.git` files, which `build_deploy.sh` never syncs, so a runtime placement is the only one that can deploy.
 - **Trip timers are anchored to the module**, which never dies — a cabin clone or a PC can go away mid-trip, and TASK-17 established that destroying the object a `DelayCommand` was scheduled from cancels it silently.
 
+#### Ship item options (built)
+Four replies appended to `ship.dlg.json` — append-only, so no existing reply index moved, and Abort stays last:
+- **Fly to Arland** (`cond_ship008`/`conv_ship008`) — in space, not already under way, not already there.
+- **Break off course** (`cond_ship009`/`conv_ship009`) — only while flying. Clearing the flag is the reliable stop: walking away only cancels the current leg and the flight would resume at the next tile boundary.
+- **Go below to the deck** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones a cabin for a pilot flying alone.
+- **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to.
+
+#### Interrupting a trip
+`SpaceTripInterrupt` drops the ship back into space at roughly how far it travelled. Two mechanics: a **trip generation counter** on the cabin, since NWScript cannot cancel a `DelayCommand` — every scheduled step carries the trip number it belongs to and does nothing once that number moves on — and `SpaceNavPartWay`, which walks the Manhattan route (all of the X leg, then the Y leg) by the elapsed fraction and rounds to a whole tile.
+
+#### Settled behaviour
+- **Destinations are planets only.** Moons are reached by flying there yourself, from the nearest planet or through the space tiles.
+- **Arrival depends on the pilot.** Conscious owner: the ship arrives at the helm in the destination's SPACE tile and lands through the existing landing menu, which keeps the landing-site choice (`conv_ship005`'s `LandPlaceDest`) intact. Downed owner: nobody can fly, so the party puts down at the planet's `0_0`.
+- **Travel is free**, for the owner and every passenger.
+- **The cabin's `SpaceFrom` is stamped on every space-tile entry**, not just at dialog time — a dying pilot never opens a dialog, and that is exactly the case that would otherwise lose the coordinate.
+
 #### Still to build
-- **The ship item's dialog options** — "Fly to Arland" and "Return to the deck". These need replies appended to `ship.dlg.json` plus condition scripts, and are the entry point for manual flight, so nothing is reachable in game without them.
-- **Solo pilots have no cabin**, so "return to the deck" must clone one on demand.
-- **`SpaceFrom` fallback** — a cabin records no origin coordinate yet, so if the owner is already off the map the deck cannot compute distances.
+- **Combat does not interrupt a flight** — see TASK-42.
 - **verify**: not yet planned.
+
+---
+
+### TASK-42: Should combat interrupt a ship in flight?
+- **status**: deliberately deferred. No interruption for now.
+- **question**: a ship under manual flight keeps walking toward its edge trigger while hostiles engage it, and a deck trip keeps counting down. Space pirates (`mn_spacepirat001`) exist, so this is reachable.
+- **options**: stop a manual flight when the pilot is attacked; suspend a deck trip and resume when combat ends; or leave it, treating flight as committed and making pirates a hazard of travelling.
+- **verify**: not yet planned.
+
+---
+
+### TASK-43: DM tool to place and save a rental door
+- **status**: requested, not started.
+- **action**: give a DM a way to place a multi-unit rental door (`pla_unitdoor`) and configure it in one step, rather than placing it from the palette and then typing `.wunits`.
+- **what exists**: the door blueprint is in the palette as of `87736b3`, and `.wunits <count> [sizes]` configures the nearest one within 10m, writing to pwdata so it survives a restart (TASK-38). So the pieces work; what is missing is a single tool that does both.
+- **the part that needs care**: a DM-placed placeable does NOT survive a server restart on its own. `.wunits` persists the door's CONFIGURATION but nothing persists the door itself, so after a reboot the configuration row remains and the door it describes is gone. A save mechanism has to record the door's position, facing and area so `mod_load.nss` or the area's population pass can recreate it — the same problem `dmb_clucre_save.nss` solves for DM-landed cluster creatures, and worth copying rather than reinventing.
+- **suggested shape**: a `.wdoor <count> [sizes]` command that creates the door at the DM's feet, configures it, and writes a persistent record; plus a boot-time pass that recreates every recorded door.
+- **verify**: place a door with the tool, restart the server, and confirm both the door and its unit list come back.
