@@ -172,6 +172,12 @@ if(GetLocalInt(OBJECT_SELF,"NeedHelm")==1){DeleteLocalInt(OBJECT_SELF,"NeedHelm"
 if(GetStringLeft(sTag,5)=="space")
  {
 SpaceNavMarkSeen(oPC,GetLocalString(OBJECT_SELF,"Area"));
+// Keep the pilot's deck told where the ship has got to, on every tile rather
+// than only when they open the dialog to go below: a pilot who is knocked out
+// never opens a dialog, and that is exactly the case where a passenger has to
+// plot the course from the deck.
+object oOwnCabin = FlightOwnerCabin(oPC,2);
+if(GetIsObjectValid(oOwnCabin)){SetLocalString(oOwnCabin,"SpaceFrom",GetLocalString(OBJECT_SELF,"Area"));}
 // A flight in progress continues from here: issue the next leg toward the
 // destination. Deferred so it lands after the arrival jump settles.
 if(GetLocalString(oPC,SPACENAV_FLY_TO)!=""){AssignCommand(oPC,DelayCommand(1.5,SpaceFlyStep(oPC)));}

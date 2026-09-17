@@ -5,7 +5,10 @@
 void main()
 {
     object oPC = GetPCSpeaker();
-    object oCabin = GetLocalObject(oPC, "OwnCabin");
+    // The party's own cabin if one is already flying with this ship, so the
+    // pilot goes down to where their passengers are rather than to a second
+    // deck of their own.
+    object oCabin = FlightOwnerCabin(oPC, 2);
 
     if (!GetIsObjectValid(oCabin))
     {
@@ -15,8 +18,7 @@ void main()
             FloatingTextStringOnCreature("The ship has no deck to go down to.", oPC, FALSE);
             return;
         }
-        SetLocalObject(oCabin, FLIGHT_OWNER, oPC);
-        SetLocalObject(oPC, "OwnCabin", oCabin);
+        FlightSetOwnerCabin(oPC, 2, oCabin);
     }
 
     SpaceFlyStop(oPC);

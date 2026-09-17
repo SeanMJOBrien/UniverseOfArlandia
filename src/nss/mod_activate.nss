@@ -95,7 +95,12 @@ else if(sItemTag=="cr_wand"){if((!GetIsDM(oPC))&&(!GetIsDMPossessed(oPC))&&(!Get
 // friends gate every reply on the matching area), so the tool opens the rename
 // window instead - which is also the only sensible place to rename a ship, i.e.
 // not while you are steering it.
-else if((sItemTag=="tool_ship")||(sItemTag=="tool_airship")||(sItemTag=="tool_starship")){if(ShipToolForArea(sAreaTag)==sItemTag){SetLocalString(oPC,"shiptool",sItemTag);AssignCommand(oPC,ActionStartConversation(oPC,"ship",TRUE,FALSE));}else{ShipNameOpen(oPC,oItem);}}
+// The starship's own flight cabin counts as its element too: a pilot who has
+// gone below to the deck gets back to the helm through that same dialog, and
+// with no way to open it down there they would be shut in. The cabin is not in
+// ShipToolForArea, which also drives the ship-name rename (_shipname.nss) - in
+// the cabin the PC is themselves again, not the ship model.
+else if((sItemTag=="tool_ship")||(sItemTag=="tool_airship")||(sItemTag=="tool_starship")){if((ShipToolForArea(sAreaTag)==sItemTag)||((sItemTag=="tool_starship")&&(GetStringLeft(sAreaTag,10)=="cabin_star"))){SetLocalString(oPC,"shiptool",sItemTag);AssignCommand(oPC,ActionStartConversation(oPC,"ship",TRUE,FALSE));}else{ShipNameOpen(oPC,oItem);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Super power
 else if((sItemTag=="superpower")&&(GetLocalInt(oGoldbag,"Super Power")!=0)){if((GetIsObjectValid(oTarget))&&(oTarget==oPC)){AssignCommand(oPC,ActionStartConversation(oPC,"power",TRUE,FALSE));}else{ExecuteScript("superpower",oPC);}}

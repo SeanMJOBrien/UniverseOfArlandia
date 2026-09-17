@@ -501,6 +501,56 @@ int SpaceTripInterrupt(object oPC, object oCabin)
     return TRUE;
 }
 
+// May oPC take the helm of this cabin's ship? Only its owner, and only while
+// the ship still knows where it is - either a course in progress, or a
+// remembered space tile to drop back into.
+int SpaceMayTakeHelm(object oPC, object oCabin)
+{
+    if (GetLocalObject(oCabin, FLIGHT_OWNER) != oPC) { return FALSE; }
+    if (GetLocalInt(oCabin, SPACENAV_TRIPEND) == 1) { return TRUE; }
+    return (GetLocalString(oCabin, "SpaceFrom") != "");
+}
+
+// Put the ship's owner back at the helm, out in the space tile the ship is in.
+// Both ways out of the cabin land here: the ship item's "Return to the helm"
+// and the hatch, which for the owner means taking the helm rather than climbing
+// up to a pilot who is standing in the cabin with them.
+int SpaceReturnToHelm(object oPC, object oCabin)
+{
+    if (GetLocalObject(oCabin, FLIGHT_OWNER) != oPC) { return FALSE; }
+
+    // Under way: taking the helm breaks off the course and drops the ship
+    // wherever it has got to.
+    if (GetLocalInt(oCabin, SPACENAV_TRIPEND) == 1)
+    {
+        if (!SpaceTripInterrupt(oPC, oCabin)) { return FALSE; }
+    }
+    else
+    {
+        string sWhere = GetLocalString(oCabin, "SpaceFrom");
+        if (sWhere == "")
+        {
+            FloatingTextStringOnCreature("The ship has lost its bearings.", oPC, FALSE);
+            return FALSE;
+        }
+        SetLocalString(oPC, "PlanetDest", "Space");
+        SetLocalString(oPC, "AreaDest", sWhere);
+        SetLocalFloat(oPC, "fX", 120.0);
+        SetLocalFloat(oPC, "fY", 120.0);
+        SetLocalFloat(oPC, "fFacing", DIRECTION_NORTH);
+        AssignCommand(oPC, ClearAllActions(TRUE));
+        ExecuteScript("transitions", oPC);
+    }
+
+    // A pilot flying alone leaves an empty clone behind. Let it go the same way
+    // the hatch does when the last follower climbs out; the check inside is
+    // what keeps a cabin with passengers still aboard. Anchored to the module,
+    // which never dies - this can run from the hatch's own conversation, and
+    // the hatch goes away with the area it is standing in.
+    AssignCommand(GetModule(), DelayCommand(6.0, FlightDestroyCabinIfEmpty(oCabin)));
+    return TRUE;
+}
+
 // ---------------------------------------------------------------------------
 // The destination window
 // ---------------------------------------------------------------------------

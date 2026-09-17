@@ -1,5 +1,5 @@
 #include "_spacenav"
-// "Return to the helm." - the owner, standing in their own flight cabin.
+// "Take the helm." - the pilot, in their own cabin, with a ship still in space.
 int StartingConditional()
 {
     object oPC = GetPCSpeaker();

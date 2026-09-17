@@ -20,6 +20,29 @@ const string FLIGHT_OWNER     = "FlightOwner";    // object, set on the cabin ar
 const string FLIGHT_CABIN     = "FlightCabin";    // object, set on the follower
 const string FLIGHT_BOARD_LOC = "FlightBoardLoc"; // location, set on the follower
 
+// The pilot's own record of the cabin flying with them, so that going below
+// joins the party's cabin instead of cloning a second one alongside it. One
+// local per ship kind - an airship cabin must never answer for a starship.
+string FlightCabinVar(int iType) { return (iType==2) ? "OwnCabinStar" : "OwnCabinAir"; }
+
+// The pilot's cabin of this kind, or OBJECT_INVALID once it has been destroyed
+// (the clone goes away when the last passenger leaves, leaving this dangling).
+object FlightOwnerCabin(object oOwner,int iType)
+{
+    object oCabin = GetLocalObject(oOwner,FlightCabinVar(iType));
+    if(!GetIsObjectValid(oCabin)){DeleteLocalObject(oOwner,FlightCabinVar(iType));return OBJECT_INVALID;}
+    return oCabin;
+}
+
+// Tie a cabin and its pilot together. Both halves are needed: the cabin names
+// its owner for the hatch and the helm, and the owner names its cabin so a
+// second one is never cloned.
+void FlightSetOwnerCabin(object oOwner,int iType,object oCabin)
+{
+    SetLocalObject(oOwner,FlightCabinVar(iType),oCabin);
+    SetLocalObject(oCabin,FLIGHT_OWNER,oOwner);
+}
+
 // Find a waypoint tagged sTag INSIDE oArea specifically (not the module-wide
 // GetWaypointByTag, which on a clone would return the template's copy).
 object FlightWaypointIn(object oArea, string sTag)
@@ -83,7 +106,7 @@ void FlightBoardParty(object oOwner, int iType, float fRadius)
             {
                 oCabin = FlightCloneCabin(iType);
                 if(!GetIsObjectValid(oCabin)){return;} // template missing - bail
-                SetLocalObject(oCabin,FLIGHT_OWNER,oOwner);
+                FlightSetOwnerCabin(oOwner,iType,oCabin);
                 object oWP = FlightWaypointIn(oCabin,sWP);
                 if(GetIsObjectValid(oWP)){lBoard = GetLocation(oWP);}
                 else{lBoard = GetLocation(GetFirstObjectInArea(oCabin));}

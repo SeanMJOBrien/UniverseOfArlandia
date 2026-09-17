@@ -828,7 +828,7 @@ A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**.
 ---
 
 ### TASK-41: Personal starship navigation
-- **status**: core built and compiling (591 scripts). The ship-item dialog options are NOT yet added, so manual flight cannot be started in game yet. Not tested.
+- **status**: built and compiling (603 scripts). In-game testing reached the cabin and found the way back blocked — see "Getting out of the cabin" below, now fixed. Manual flight and deck travel are still untested end to end.
 - **agreed design**: two travel modes, the pilot chooses.
   - **Manual flight** — the pilot IS the ship (appearance 338) and flies for real, tile by tile: walk into the `newtransition` edge trigger facing the destination, let the existing transition carry them across, re-issue on arrival. The pilot interrupts by moving, which clears the action queue so the next leg is never issued. On reaching the destination tile the ship heads for the `pla_orb` placeable and the existing landing option takes over.
   - **Deck travel** — the pilot returns to the cabin and the party waits out a timed passage at `iStarshipSec` (60s) per area crossed, with start / halfway / arrival messages, exactly as ticketed starships work. Everyone lands together.
@@ -852,7 +852,15 @@ Four replies appended to `ship.dlg.json` — append-only, so no existing reply i
 - **Fly to Arland** (`cond_ship008`/`conv_ship008`) — in space, not already under way, not already there.
 - **Break off course** (`cond_ship009`/`conv_ship009`) — only while flying. Clearing the flag is the reliable stop: walking away only cancels the current leg and the flight would resume at the next tile boundary.
 - **Go below to the deck** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones a cabin for a pilot flying alone.
-- **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to.
+- **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to. The cabin's hatch offers the same thing as **Take the helm**.
+
+#### Getting out of the cabin
+First in-game test: going below worked, and nothing brought the pilot back. Three separate reasons, all fixed.
+- **The ship dialog could not be opened in the cabin at all.** `mod_activate.nss` only starts it when `ShipToolForArea(<area tag>)` matches the tool, and a cabin is tagged `cabin_star000`, so using the tool down there opened the rename window instead and "Return to the helm" was unreachable. The cabin is now a fourth case in that check rather than an entry in `ShipToolForArea`, which also drives the ship-name rename — in the cabin the PC is themselves again, not the ship model.
+- **The hatch was a no-op for the pilot.** `cabin_join` jumps the user to the cabin's `FLIGHT_OWNER`, which for the owner is themselves, and `cabin_disemb` jumps to `FLIGHT_BOARD_LOC`, which a pilot never has — they took the ship up rather than boarding it. The hatch now offers the owner **Take the helm** (`cond_cabin_helm`/`cabin_helm`) and hides the two passenger options (`cond_cabin_join`, `cond_cabin_drop`).
+- **A pilot with a party went below to the wrong deck.** `FlightBoardParty` recorded the cabin on the cabin only, so the pilot could not find it and `conv_ship010` cloned a second one. The pairing is now made in one place (`FlightSetOwnerCabin`), with the pilot's half kept per ship kind so an airship cabin never answers for a starship.
+
+Both ways out share `SpaceReturnToHelm`, and both conditions share `SpaceMayTakeHelm`. Leaving an empty cabin behind destroys the clone on the same 6-second delay the hatch uses.
 
 #### Interrupting a trip
 `SpaceTripInterrupt` drops the ship back into space at roughly how far it travelled. Two mechanics: a **trip generation counter** on the cabin, since NWScript cannot cancel a `DelayCommand` — every scheduled step carries the trip number it belongs to and does nothing once that number moves on — and `SpaceNavPartWay`, which walks the Manhattan route (all of the X leg, then the Y leg) by the elapsed fraction and rounds to a whole tile.
