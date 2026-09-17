@@ -851,8 +851,21 @@ A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**.
 Four replies appended to `ship.dlg.json` — append-only, so no existing reply index moved, and Abort stays last:
 - **Fly to Arland** (`cond_ship008`/`conv_ship008`) — in space, not already under way, not already there.
 - **Break off course** (`cond_ship009`/`conv_ship009`) — only while flying. Clearing the flag is the reliable stop: walking away only cancels the current leg and the flight would resume at the next tile boundary.
-- **Go below to the deck** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones a cabin for a pilot flying alone.
+- **Go below to the cabin** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones the cabin/deck pair for a pilot flying alone. The pilot lands in the cabin, where the helm is.
 - **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to. The cabin's hatch offers the same thing as **Take the helm**.
+
+#### A PC ship is two areas of its own
+`pcshipcabin` and `pcshipdeck` are new module areas, built for PC ship travel and nothing else, so they can be opened and decorated in the toolset without touching anything ticketed travel uses. They are cloned per flight, as the old cabin was.
+- **`pcshipcabin`** (`tin01`, 3x5) — the control room, copied from the interior ticketed space travel uses. The pilot goes below to here, because this is where the helm is.
+- **`pcshipdeck`** (`pat01`, 9x10) — the open room, copied from the interior ticketed airship travel uses. Passengers board here and ride here.
+- Both carry the hatch (`cabin_hatch`) and the helm (`shipcontrol`) in their own `.git`, opposite each other across the arrival waypoint. The runtime `SpaceDeckSpawnControl` is now only a backstop for a ship area that has no helm in it.
+- Both use one arrival waypoint tag, `WP_pcship`, so nothing that puts a PC down has to know which half it is looking at.
+- The cabin points at its deck (`FlightDeck`) and the deck back at its cabin (`FlightCabinOf`); both carry `FlightOwner`. `FlightCabinOf()` takes either half and answers with the cabin, which is what every helm and hatch question resolves through. The clone pair is destroyed together, and only once neither half holds a PC.
+
+#### The helm is also the door
+The helm placeable opens for **everyone aboard**, not just the owner. A passenger sees one row — *Walk through to the cabin/deck* — and that is the only way between the ship's two rooms. The course list is still owner-only, or a passenger's once `SpaceOwnerIsDown`.
+- **The chart belongs to the ship, not the reader.** `SpaceDeckPage` reads the visit record off the owner, not off whoever is standing at the helm; a passenger has usually never flown a ship of their own and would otherwise face a blank chart.
+- **Home is always on the emergency chart.** A pilot who died before charting anything would otherwise strand the whole party. The world is the first system's `Start` planet (Arland), read from the module rather than hardcoded.
 
 #### Getting out of the cabin
 First in-game test: going below worked, and nothing brought the pilot back. Three separate reasons, all fixed.

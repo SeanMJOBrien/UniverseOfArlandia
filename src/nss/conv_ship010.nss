@@ -23,8 +23,5 @@ void main()
 
     SpaceFlyStop(oPC);
     SetLocalString(oCabin, "SpaceFrom", GetLocalString(GetArea(oPC), "Area"));
-    object oWP = FlightWaypointIn(oCabin, "WP_cabin_star");
-    location lTo = GetIsObjectValid(oWP) ? GetLocation(oWP) : GetLocation(GetFirstObjectInArea(oCabin));
-    AssignCommand(oPC, ClearAllActions(TRUE));
-    AssignCommand(oPC, ActionJumpToLocation(lTo));
+    FlightMoveTo(oPC, oCabin);
 }

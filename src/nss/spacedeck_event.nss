@@ -12,10 +12,23 @@ void main()
     if (sEvent != "click") { return; }
 
     string sElem = NuiGetEventElement();
+    object oCtrl = GetLocalObject(oPC, SPACENAV_CTRL);
+    object oHere = GetArea(oCtrl);
+
+    // Through to the ship's other room. Open to everyone aboard: a passenger has
+    // no other way between the deck and the cabin.
+    if (sElem == "x_move")
+    {
+        object oThere = FlightOtherHalf(oHere);
+        if (!GetIsObjectValid(oThere)) { return; }
+        NuiDestroy(oPC, nTok);
+        FlightMoveTo(oPC, oThere);
+        return;
+    }
+
     if (GetStringLeft(sElem, 2) != "d_") { return; }
 
-    object oCtrl = GetLocalObject(oPC, SPACENAV_CTRL);
-    object oCabin = GetArea(oCtrl);
+    object oCabin = FlightCabinOf(oHere);
     if (!SpaceDeckMayUse(oPC, oCabin)) { return; }
 
     int n = StringToInt(GetStringRight(sElem, GetStringLength(sElem) - 2));

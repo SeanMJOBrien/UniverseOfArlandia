@@ -303,10 +303,7 @@ void SpaceRecoverOwner(object oOwner, object oCabin)
     if ((!GetIsObjectValid(oOwner)) || (!GetIsObjectValid(oCabin))) { return; }
     if (GetArea(oOwner) == oCabin) { return; }
     SpaceFlyStop(oOwner);
-    object oWP = FlightWaypointIn(oCabin, "WP_cabin_star");
-    location lTo = GetIsObjectValid(oWP) ? GetLocation(oWP) : GetLocation(GetFirstObjectInArea(oCabin));
-    AssignCommand(oOwner, ClearAllActions(TRUE));
-    AssignCommand(oOwner, ActionJumpToLocation(lTo));
+    FlightMoveTo(oOwner, oCabin);
 }
 
 // Land everyone aboard on the destination body. Uses the ordinary travel
@@ -316,6 +313,32 @@ void SpaceRecoverOwner(object oOwner, object oCabin)
 // Forward declaration - the halfway and interrupt paths below announce to the
 // cabin, which is defined further down with the rest of the trip machinery.
 void SpaceTripSay(object oCabin, string sMsg);
+
+// Put every PC in one of the ship's areas down on sBody's home tile.
+void SpaceLandArea(object oArea, string sBody)
+{
+    if (!GetIsObjectValid(oArea)) { return; }
+    object oPC = GetFirstObjectInArea(oArea);
+    while (GetIsObjectValid(oPC))
+    {
+        // The step has to be taken before the jump: once a PC leaves the area,
+        // GetNextObjectInArea has lost its place in it.
+        object oNext = GetNextObjectInArea(oArea);
+        if (GetIsPC(oPC))
+        {
+            FloatingTextStringOnCreature("You arrive at " + sBody + ".", oPC, FALSE);
+            SetLocalString(oPC, "PlanetDest", sBody);
+            SetLocalString(oPC, "AreaDest", "0_0");
+            SetLocalFloat(oPC, "fX", 120.0);
+            SetLocalFloat(oPC, "fY", 100.0);
+            SetLocalFloat(oPC, "fFacing", DIRECTION_NORTH);
+            DeleteLocalObject(oPC, FLIGHT_CABIN);
+            AssignCommand(oPC, ClearAllActions(TRUE));
+            ExecuteScript("transitions", oPC);
+        }
+        oPC = oNext;
+    }
+}
 
 void SpaceTripArrive(object oCabin, string sBody, int iTrip)
 {
@@ -348,37 +371,28 @@ void SpaceTripArrive(object oCabin, string sBody, int iTrip)
         return;
     }
 
-    object oPC = GetFirstObjectInArea(oCabin);
-    while (GetIsObjectValid(oPC))
-    {
-        object oNext = GetNextObjectInArea(oCabin);
-        if (GetIsPC(oPC))
-        {
-            FloatingTextStringOnCreature("You arrive at " + sBody + ".", oPC, FALSE);
-            SetLocalString(oPC, "PlanetDest", sBody);
-            SetLocalString(oPC, "AreaDest", "0_0");
-            SetLocalFloat(oPC, "fX", 120.0);
-            SetLocalFloat(oPC, "fY", 100.0);
-            SetLocalFloat(oPC, "fFacing", DIRECTION_NORTH);
-            DeleteLocalObject(oPC, FLIGHT_CABIN);
-            AssignCommand(oPC, ClearAllActions(TRUE));
-            ExecuteScript("transitions", oPC);
-        }
-        oPC = oNext;
-    }
+    SpaceLandArea(oCabin, sBody);
+    SpaceLandArea(GetLocalObject(oCabin, FLIGHT_DECK), sBody);
     DeleteLocalString(oCabin, SPACENAV_TRIPTO);
     DeleteLocalInt(oCabin, SPACENAV_TRIPEND);
 }
 
-void SpaceTripSay(object oCabin, string sMsg)
+void SpaceDeckSayArea(object oArea, string sMsg)
 {
-    if (!GetIsObjectValid(oCabin)) { return; }
-    object oPC = GetFirstObjectInArea(oCabin);
+    if (!GetIsObjectValid(oArea)) { return; }
+    object oPC = GetFirstObjectInArea(oArea);
     while (GetIsObjectValid(oPC))
     {
         if (GetIsPC(oPC)) { FloatingTextStringOnCreature(sMsg, oPC, FALSE); }
-        oPC = GetNextObjectInArea(oCabin);
+        oPC = GetNextObjectInArea(oArea);
     }
+}
+
+// Everyone aboard hears it, in the cabin and on the deck alike.
+void SpaceTripSay(object oCabin, string sMsg)
+{
+    SpaceDeckSayArea(oCabin, sMsg);
+    SpaceDeckSayArea(GetLocalObject(oCabin, FLIGHT_DECK), sMsg);
 }
 
 // Seconds since the module started, from the game clock. Only differences
@@ -501,22 +515,25 @@ int SpaceTripInterrupt(object oPC, object oCabin)
     return TRUE;
 }
 
-// May oPC take the helm of this cabin's ship? Only its owner, and only while
-// the ship still knows where it is - either a course in progress, or a
-// remembered space tile to drop back into.
-int SpaceMayTakeHelm(object oPC, object oCabin)
+// May oPC take the helm of this ship? Only its owner, and only while the ship
+// still knows where it is - either a course in progress, or a remembered space
+// tile to drop back into. Takes either half of the ship: the deck's hatch asks
+// this the same way the cabin's does.
+int SpaceMayTakeHelm(object oPC, object oShipArea)
 {
+    object oCabin = FlightCabinOf(oShipArea);
     if (GetLocalObject(oCabin, FLIGHT_OWNER) != oPC) { return FALSE; }
     if (GetLocalInt(oCabin, SPACENAV_TRIPEND) == 1) { return TRUE; }
     return (GetLocalString(oCabin, "SpaceFrom") != "");
 }
 
 // Put the ship's owner back at the helm, out in the space tile the ship is in.
-// Both ways out of the cabin land here: the ship item's "Return to the helm"
-// and the hatch, which for the owner means taking the helm rather than climbing
-// up to a pilot who is standing in the cabin with them.
-int SpaceReturnToHelm(object oPC, object oCabin)
+// Both ways out land here: the ship item's "Return to the helm" and the hatch,
+// which for the owner means taking the helm rather than climbing up to a pilot
+// who is standing aboard with them. Takes either half of the ship.
+int SpaceReturnToHelm(object oPC, object oShipArea)
 {
+    object oCabin = FlightCabinOf(oShipArea);
     if (GetLocalObject(oCabin, FLIGHT_OWNER) != oPC) { return FALSE; }
 
     // Under way: taking the helm breaks off the course and drops the ship
@@ -551,6 +568,16 @@ int SpaceReturnToHelm(object oPC, object oCabin)
     return TRUE;
 }
 
+// The world anyone stranded aboard needs to reach: the starting planet of the
+// first system, which _galaxy.nss records at boot. Named rather than hardcoded
+// as "Arland" so a galaxy that starts somewhere else still works.
+string SpaceNavHomeWorld()
+{
+    object oModule = GetModule();
+    string sHome = GetLocalString(oModule, GetLocalString(oModule, "System1") + "Start");
+    return (sHome == "") ? "Arland" : sHome;
+}
+
 // ---------------------------------------------------------------------------
 // The destination window
 // ---------------------------------------------------------------------------
@@ -558,14 +585,43 @@ int SpaceReturnToHelm(object oPC, object oCabin)
 json SpaceDeckPage(object oPC)
 {
     object oCtrl = GetLocalObject(oPC, SPACENAV_CTRL);
-    object oCabin = GetArea(oCtrl);
+    object oHere = GetArea(oCtrl);
+    object oCabin = FlightCabinOf(oHere);
     object oOwner = GetLocalObject(oCabin, FLIGHT_OWNER);
     string sFrom = GetLocalString(GetArea(oOwner), "Area");
     if (sFrom == "") { sFrom = GetLocalString(oCabin, "SpaceFrom"); }
 
+    // The chart belongs to the ship, which is to say to its owner. A passenger
+    // at the emergency helm has usually never flown a ship of their own, so
+    // reading their record would leave them with a blank chart and no way off.
+    object oChart = GetIsObjectValid(oOwner) ? oOwner : oPC;
+    // And home is always on it: the emergency helm exists so that a party whose
+    // pilot is dead can get somewhere, and an owner who died before charting
+    // anything would otherwise strand everyone aboard.
+    int iCourse = SpaceDeckMayUse(oPC, oCabin);
+    int iEmergency = (oPC != oOwner);
+    string sHome = SpaceNavHomeWorld();
+
     json jList = JsonArray();
-    string sHead = (oPC == oOwner) ? "Set a course" : "Emergency helm - the owner is down";
+    string sHead = iEmergency ? "Emergency helm - the owner is down" : "Set a course";
+    if (!iCourse) { sHead = "The pilot has the helm"; }
     jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiLabel(JsonString(sHead), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 420.0), 30.0));
+
+    // The way between the ship's two rooms, offered to everyone aboard - this
+    // is the only way a passenger moves between the deck and the cabin.
+    object oThere = FlightOtherHalf(oHere);
+    if (GetIsObjectValid(oThere))
+    {
+        json jMove = JsonArray();
+        string sWhere = (GetStringLeft(GetTag(oThere), 11) == "pcshipcabin") ? "the cabin" : "the deck";
+        jMove = JsonArrayInsert(jMove, NuiHeight(NuiWidth(NuiLabel(JsonString("Walk through to " + sWhere + "."), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 300.0), 30.0));
+        jMove = JsonArrayInsert(jMove, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Go")), "x_move"), 120.0), 30.0));
+        jList = JsonArrayInsert(jList, NuiRow(jMove));
+    }
+
+    // A passenger with the pilot alive and at the helm gets the doorway and
+    // nothing else: the course is not theirs to set.
+    if (!iCourse) { return NuiCol(jList); }
 
     object oModule = GetModule();
     int iTot = SpaceNavBodyCount(oModule);
@@ -580,7 +636,7 @@ json SpaceDeckPage(object oPC)
         // Planets only. Moons are reached by flying there yourself, from the
         // nearest planet or straight through the space tiles.
         if (GetStringLeft(SpaceNavBodyType(sRec), 1) != "p") { continue; }
-        if (!SpaceNavHasSeen(oPC, sPlace)) { continue; }   // own-ship visits only
+        if ((!SpaceNavHasSeen(oChart, sPlace)) && (!(iEmergency && (sName == sHome)))) { continue; }
         if ((sFrom != "") && (sPlace == sFrom)) { continue; }  // already here
 
         string sLabel = sName;
@@ -600,35 +656,33 @@ json SpaceDeckPage(object oPC)
     return NuiCol(jList);
 }
 
+// Anyone aboard may open this: for a passenger it is the door between the deck
+// and the cabin, and the page itself withholds the course list from them while
+// the pilot is alive to set one.
 void SpaceDeckOpen(object oPC, object oCtrl)
 {
-    object oCabin = GetArea(oCtrl);
-    if (!SpaceDeckMayUse(oPC, oCabin))
-    {
-        FloatingTextStringOnCreature("Only the ship's owner may set a course.", oPC, FALSE);
-        return;
-    }
     SetLocalObject(oPC, SPACENAV_CTRL, oCtrl);
     json jWin = NuiWindow(SpaceDeckPage(oPC), JsonString("Navigation"), NuiRect(-1.0, -1.0, 460.0, 420.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
     NuiCreate(oPC, jWin, SPACENAV_WINDOW, SPACENAV_EVENT);
 }
 
-// Put the helm on the far side of the cabin from the hatch, so the two are not
-// clustered together. Mirrored through the cabin's own arrival waypoint.
-void SpaceDeckSpawnControl(object oCabin)
+// Backstop for a ship area that has no helm in its own .git - one edited in the
+// toolset before the helm was added to it, say. Placed on the far side of the
+// room from the hatch, mirrored through the arrival waypoint, which is where
+// both PC-ship areas carry theirs.
+void SpaceDeckSpawnControl(object oShipArea)
 {
-    if (!GetIsObjectValid(oCabin)) { return; }
-    if (GetIsObjectValid(GetObjectInAreaByTag(oCabin, "shipcontrol"))) { return; }
+    if (!GetIsObjectValid(oShipArea)) { return; }
+    if (GetIsObjectValid(GetObjectInAreaByTag(oShipArea, "shipcontrol"))) { return; }
 
-    object oHatch = GetObjectInAreaByTag(oCabin, "cabin_hatch");
-    object oWP = FlightWaypointIn(oCabin, "WP_cabin_star");
-    if (!GetIsObjectValid(oWP)) { oWP = FlightWaypointIn(oCabin, "WP_cabin_air"); }
+    object oHatch = GetObjectInAreaByTag(oShipArea, "cabin_hatch");
+    object oWP = FlightWaypointIn(oShipArea, FlightArrivalWP(oShipArea));
     if ((!GetIsObjectValid(oHatch)) || (!GetIsObjectValid(oWP))) { return; }
 
     vector vH = GetPosition(oHatch);
     vector vC = GetPosition(oWP);
     vector vTo = Vector((vC.x * 2.0) - vH.x, (vC.y * 2.0) - vH.y, vC.z);
     object oCtrl = CreateObject(OBJECT_TYPE_PLACEABLE, "pla_shipctrl",
-                                Location(oCabin, vTo, GetFacing(oHatch) + 180.0));
+                                Location(oShipArea, vTo, GetFacing(oHatch) + 180.0));
     SetLocalInt(oCtrl, "DontSave", 1);
 }
