@@ -34,6 +34,20 @@ const string SPACENAV_SEEN     = "SpaceSeen_";      // goldbag int, one per visi
 const string SPACENAV_FLY_TO   = "SpaceFlyTo";      // PC string: destination coordinate
 const string SPACENAV_FLY_NAME = "SpaceFlyName";    // PC string: destination display name
 
+// The pad this character last lifted off from, written at takeoff
+// (planet_take_off.nss) and kept on the goldbag, which travels with the
+// character file. A ship coming back to its launch planet sets down on this
+// exact spot rather than arriving in orbit and landing through the menu.
+const string SPACENAV_PAD_BODY = "SpaceLaunchBody";  // goldbag string: planet name
+const string SPACENAV_PAD_AREA = "SpaceLaunchArea";  // goldbag string: tile coordinate
+const string SPACENAV_PAD_X    = "SpaceLaunchX";     // goldbag floats: where on that tile
+const string SPACENAV_PAD_Y    = "SpaceLaunchY";
+const string SPACENAV_PAD_F    = "SpaceLaunchF";
+
+// Custom token for the launch-planet reply, whose text names the planet and so
+// cannot be written into the dialog (see cond_ship012.nss).
+const int SPACENAV_PAD_TOKEN   = 10670;
+
 // NWScript has no "find by tag inside THIS area" call, and module-wide
 // GetObjectByTag would return whichever cabin clone it saw first - fatal here,
 // since every cabin carries the same internal tags.
@@ -67,6 +81,93 @@ int SpaceNavHasSeen(object oPC, string sCoord)
     object oBag = GetItemPossessedBy(oPC, "goldbag");
     if (!GetIsObjectValid(oBag)) { return FALSE; }
     return (GetLocalInt(oBag, SPACENAV_SEEN + sCoord) == 1);
+}
+
+// ---------------------------------------------------------------------------
+// The launch pad
+// ---------------------------------------------------------------------------
+
+// Remember where this character lifted off from. Called from planet_take_off
+// as the ship leaves the ground, so the spot recorded is the one they are
+// standing on at that moment.
+void SpaceNavRecordPad(object oPC, string sBody, string sArea)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if ((!GetIsObjectValid(oBag)) || (sBody == "") || (sArea == "")) { return; }
+    vector vPad = GetPosition(oPC);
+    SetLocalString(oBag, SPACENAV_PAD_BODY, sBody);
+    SetLocalString(oBag, SPACENAV_PAD_AREA, sArea);
+    SetLocalFloat(oBag, SPACENAV_PAD_X, vPad.x);
+    SetLocalFloat(oBag, SPACENAV_PAD_Y, vPad.y);
+    SetLocalFloat(oBag, SPACENAV_PAD_F, GetFacing(oPC));
+}
+
+// The planet this character last lifted off from, or "" if they never have.
+string SpaceNavPadBody(object oPC)
+{
+    object oBag = GetItemPossessedBy(oPC, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return ""; }
+    return GetLocalString(oBag, SPACENAV_PAD_BODY);
+}
+
+// Is sBody the planet this character's pad is on? The test every arrival makes:
+// coming back to the launch planet sets down on the pad, anywhere else arrives
+// in orbit and lands through the existing menu.
+int SpaceNavPadIs(object oPC, string sBody)
+{
+    if (sBody == "") { return FALSE; }
+    return (SpaceNavPadBody(oPC) == sBody);
+}
+
+// Put oPC down on the pad recorded by oPad's character - the whole party lands
+// on the pilot's spot, so they arrive together where the ship left from.
+void SpaceNavPadLand(object oPC, object oPad)
+{
+    object oBag = GetItemPossessedBy(oPad, "goldbag");
+    if (!GetIsObjectValid(oBag)) { return; }
+    string sBody = GetLocalString(oBag, SPACENAV_PAD_BODY);
+    string sArea = GetLocalString(oBag, SPACENAV_PAD_AREA);
+    if ((sBody == "") || (sArea == "")) { return; }
+
+    SetLocalString(oPC, "PlanetDest", sBody);
+    SetLocalString(oPC, "AreaDest", sArea);
+    SetLocalFloat(oPC, "fX", GetLocalFloat(oBag, SPACENAV_PAD_X));
+    SetLocalFloat(oPC, "fY", GetLocalFloat(oBag, SPACENAV_PAD_Y));
+    SetLocalFloat(oPC, "fFacing", GetLocalFloat(oBag, SPACENAV_PAD_F));
+    AssignCommand(oPC, ClearAllActions(TRUE));
+    ExecuteScript("transitions", oPC);
+}
+
+void SpaceNavPadLandArea(object oArea, object oPad)
+{
+    if (!GetIsObjectValid(oArea)) { return; }
+    object oPC = GetFirstObjectInArea(oArea);
+    while (GetIsObjectValid(oPC))
+    {
+        // Step before the jump: once a PC leaves the area, GetNextObjectInArea
+        // has lost its place in it.
+        object oNext = GetNextObjectInArea(oArea);
+        if (GetIsPC(oPC))
+        {
+            DeleteLocalObject(oPC, FLIGHT_CABIN);
+            SpaceNavPadLand(oPC, oPad);
+        }
+        oPC = oNext;
+    }
+}
+
+// Set the whole ship down on its owner's pad - the pilot, and everyone riding
+// the cabin or the deck. They arrive together, on the spot the ship left from.
+void SpaceNavPadLandAll(object oOwner)
+{
+    object oCabin = FlightOwnerCabin(oOwner, 2);
+    if (GetIsObjectValid(oCabin))
+    {
+        SpaceNavPadLandArea(GetLocalObject(oCabin, FLIGHT_DECK), oOwner);
+        SpaceNavPadLandArea(oCabin, oOwner);
+        AssignCommand(GetModule(), DelayCommand(6.0, FlightDestroyCabinIfEmpty(oCabin)));
+    }
+    SpaceNavPadLand(oOwner, oOwner);
 }
 
 // ---------------------------------------------------------------------------
@@ -211,17 +312,28 @@ void SpaceFlyStep(object oPC)
     string sDir = SpaceNavHeading(sHere, sTo);
     if (sDir == "")
     {
-        // Arrived in the destination tile. Head for the planet itself; the
-        // existing landing option takes over within 60m of it.
+        string sBody = GetLocalString(oPC, SPACENAV_FLY_NAME);
         DeleteLocalString(oPC, SPACENAV_FLY_TO);
-        // Planet tiles use their own "space_<type>_" template, which carries the
-        // orb placeable (transitions.nss:106/165). Plain space tiles have none.
+
+        // Home again: the ship knows its own pad on this planet and sets down
+        // on it, party and all, rather than making them land by hand.
+        if (SpaceNavPadIs(oPC, sBody))
+        {
+            FloatingTextStringOnCreature("You set down where you left from on " + sBody + ".", oPC, FALSE);
+            SpaceNavPadLandAll(oPC);
+            return;
+        }
+
+        // Anywhere else: head for the planet itself; the existing landing
+        // option takes over within 60m of it. Planet tiles use their own
+        // "space_<type>_" template, which carries the orb placeable
+        // (transitions.nss:106/165). Plain space tiles have none.
         object oPlanet = GetNearestObjectByTag("pla_orb", oPC);
         if (GetIsObjectValid(oPlanet))
         {
             AssignCommand(oPC, ActionMoveToObject(oPlanet, TRUE, 8.0));
         }
-        FloatingTextStringOnCreature("You arrive at " + GetLocalString(oPC, SPACENAV_FLY_NAME) + ".", oPC, FALSE);
+        FloatingTextStringOnCreature("You arrive at " + sBody + ".", oPC, FALSE);
         return;
     }
 
@@ -350,6 +462,19 @@ void SpaceTripArrive(object oCabin, string sBody, int iTrip)
 
     object oOwner = GetLocalObject(oCabin, FLIGHT_OWNER);
     string sPlace = SpaceNavPlaceOf(sBody);
+
+    // The ship's own launch planet: it sets down on the pad it left from, party
+    // and all, whether or not the pilot is in a state to fly. This is the whole
+    // point of the option - a party whose pilot is dead gets back to the ground
+    // they started on, not to a strange tile.
+    if (SpaceNavPadIs(oOwner, sBody))
+    {
+        SpaceTripSay(oCabin, "The ship sets down where it left from on " + sBody + ".");
+        SpaceNavPadLandAll(oOwner);
+        DeleteLocalString(oCabin, SPACENAV_TRIPTO);
+        DeleteLocalInt(oCabin, SPACENAV_TRIPEND);
+        return;
+    }
 
     // Owner alive and conscious: the ship arrives at the helm, in the
     // destination's space tile, and they land in their own time through the
@@ -595,17 +720,19 @@ json SpaceDeckPage(object oPC)
     // at the emergency helm has usually never flown a ship of their own, so
     // reading their record would leave them with a blank chart and no way off.
     object oChart = GetIsObjectValid(oOwner) ? oOwner : oPC;
-    // And home is always on it: the emergency helm exists so that a party whose
-    // pilot is dead can get somewhere, and an owner who died before charting
-    // anything would otherwise strand everyone aboard.
+    // Two destinations are always on the chart, whether or not the ship has
+    // been charted at all: the safe world, and the pad this ship lifted off
+    // from. Between them a party whose pilot is dead always has somewhere to
+    // go, which is what the emergency helm is for.
     int iCourse = SpaceDeckMayUse(oPC, oCabin);
     int iEmergency = (oPC != oOwner);
     string sHome = SpaceNavHomeWorld();
+    string sPad = SpaceNavPadBody(oChart);
 
     json jList = JsonArray();
     string sHead = iEmergency ? "Emergency helm - the owner is down" : "Set a course";
     if (!iCourse) { sHead = "The pilot has the helm"; }
-    jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiLabel(JsonString(sHead), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 420.0), 30.0));
+    jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiLabel(JsonString(sHead), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 500.0), 30.0));
 
     // The way between the ship's two rooms, offered to everyone aboard - this
     // is the only way a passenger moves between the deck and the cabin.
@@ -614,7 +741,7 @@ json SpaceDeckPage(object oPC)
     {
         json jMove = JsonArray();
         string sWhere = (GetStringLeft(GetTag(oThere), 11) == "pcshipcabin") ? "the cabin" : "the deck";
-        jMove = JsonArrayInsert(jMove, NuiHeight(NuiWidth(NuiLabel(JsonString("Walk through to " + sWhere + "."), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 300.0), 30.0));
+        jMove = JsonArrayInsert(jMove, NuiHeight(NuiWidth(NuiLabel(JsonString("Walk through to " + sWhere + "."), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 380.0), 30.0));
         jMove = JsonArrayInsert(jMove, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Go")), "x_move"), 120.0), 30.0));
         jList = JsonArrayInsert(jList, NuiRow(jMove));
     }
@@ -636,14 +763,20 @@ json SpaceDeckPage(object oPC)
         // Planets only. Moons are reached by flying there yourself, from the
         // nearest planet or straight through the space tiles.
         if (GetStringLeft(SpaceNavBodyType(sRec), 1) != "p") { continue; }
-        if ((!SpaceNavHasSeen(oChart, sPlace)) && (!(iEmergency && (sName == sHome)))) { continue; }
+        int iSafe = (sName == sHome);
+        int iPad = (sName == sPad);
+        if ((!SpaceNavHasSeen(oChart, sPlace)) && (!iSafe) && (!iPad)) { continue; }
         if ((sFrom != "") && (sPlace == sFrom)) { continue; }  // already here
 
+        // The two standing offers say what they are, so nobody has to remember
+        // which world is which when the pilot is lying on the deck.
         string sLabel = sName;
+        if (iPad)       { sLabel = sLabel + " - where you launched from"; }
+        else if (iSafe) { sLabel = sLabel + " - safe world"; }
         if (sFrom != "") { sLabel = sLabel + "  (" + SpaceNavTimeText(SpaceNavSeconds(sFrom, sPlace)) + ")"; }
 
         json jRow = JsonArray();
-        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiLabel(JsonString(sLabel), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 300.0), 30.0));
+        jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiLabel(JsonString(sLabel), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 380.0), 30.0));
         jRow = JsonArrayInsert(jRow, NuiHeight(NuiWidth(NuiId(NuiButton(JsonString("Set course")), "d_" + IntToString(n)), 120.0), 30.0));
         jList = JsonArrayInsert(jList, NuiRow(jRow));
         iShown++;
@@ -651,7 +784,7 @@ json SpaceDeckPage(object oPC)
 
     if (iShown == 0)
     {
-        jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiText(JsonString("This ship has been nowhere yet. Fly to a world yourself and its space lane is charted from then on."), FALSE, NUI_SCROLLBARS_NONE), 420.0), 60.0));
+        jList = JsonArrayInsert(jList, NuiHeight(NuiWidth(NuiText(JsonString("This ship has been nowhere yet. Fly to a world yourself and its space lane is charted from then on."), FALSE, NUI_SCROLLBARS_NONE), 500.0), 60.0));
     }
     return NuiCol(jList);
 }
@@ -662,7 +795,7 @@ json SpaceDeckPage(object oPC)
 void SpaceDeckOpen(object oPC, object oCtrl)
 {
     SetLocalObject(oPC, SPACENAV_CTRL, oCtrl);
-    json jWin = NuiWindow(SpaceDeckPage(oPC), JsonString("Navigation"), NuiRect(-1.0, -1.0, 460.0, 420.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
+    json jWin = NuiWindow(SpaceDeckPage(oPC), JsonString("Navigation"), NuiRect(-1.0, -1.0, 540.0, 420.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
     NuiCreate(oPC, jWin, SPACENAV_WINDOW, SPACENAV_EVENT);
 }
 

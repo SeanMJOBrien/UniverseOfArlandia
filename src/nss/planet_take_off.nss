@@ -1,5 +1,5 @@
 #include "_module"
-#include "inc_flight"
+#include "_spacenav"   // SpaceNavRecordPad - includes inc_flight itself
 void main()
 {
 object oModule = GetModule();
@@ -46,6 +46,10 @@ SetLocalFloat(oPC,"fFacing",DIRECTION_SOUTH);
 
 if(GetLocalInt(oGoldbag,"OrigApp")==0){SetLocalInt(oGoldbag,"OrigApp",GetAppearanceType(oPC)+1);}
 //SetLocalObject(oPC,"DestroyIt",oGem);
+
+// Remember the pad, before the transition moves the PC off it. A ship coming
+// back to this planet sets down on this exact spot (see _spacenav.nss).
+SpaceNavRecordPad(oPC,sPlanet,GetLocalString(oArea,"Area"));
 
 ExecuteScript("transitions",oPC);
 // Bring nearby party PCs along in a cloned cabin (see inc_flight.nss).

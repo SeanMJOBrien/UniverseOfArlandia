@@ -854,6 +854,19 @@ Four replies appended to `ship.dlg.json` — append-only, so no existing reply i
 - **Go below to the cabin** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones the cabin/deck pair for a pilot flying alone. The pilot lands in the cabin, where the helm is.
 - **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to. The cabin's hatch offers the same thing as **Take the helm**.
 
+#### Two standing destinations
+Every helm offers two courses whether or not the ship has charted anything, so a party is never without somewhere to go:
+- **The safe world** — the first system's `Start` planet (Arland), read from the module rather than hardcoded. Arrives in orbit and lands through the existing menu, as any charted world does.
+- **Where you launched from** — the planet this character last lifted off from. Arriving there sets the ship down **on the pad itself**, party and all, skipping the landing menu.
+
+`planet_take_off.nss` writes the pad to the goldbag as the ship leaves the ground: planet, tile coordinate, and the pilot's exact position and facing. The goldbag travels with the character file, so the record is per character, like the visit chart.
+
+Both arrival paths ask the same question, `SpaceNavPadIs(oOwner, sBody)` — no separate flag rides along with the trip:
+- **Manual flight** (`SpaceFlyStep`) — on reaching the destination tile, a pad match lands everyone instead of moving the ship toward the `pla_orb`.
+- **Deck travel** (`SpaceTripArrive`) — a pad match lands everyone *before* the alive/down branch, so a party whose pilot is dead still gets back to the ground they started on rather than to the planet's `0_0`.
+
+The ship item carries the pair as two replies: **Fly to Arland** (`cond_ship008`) and **Fly back to \<planet\>** (`cond_ship012`/`conv_ship012`), whose text names the planet through custom token 10670 — the condition script sets it before the reply is drawn, since the dialog text is fixed and the planet is not. The helm window labels the same two rows "- safe world" and "- where you launched from".
+
 #### A PC ship is two areas of its own
 `pcshipcabin` and `pcshipdeck` are new module areas, built for PC ship travel and nothing else, so they can be opened and decorated in the toolset without touching anything ticketed travel uses. They are cloned per flight, as the old cabin was.
 - **`pcshipcabin`** (`tin01`, 3x5) — the control room, copied from the interior ticketed space travel uses. The pilot goes below to here, because this is where the helm is.
@@ -865,7 +878,7 @@ Four replies appended to `ship.dlg.json` — append-only, so no existing reply i
 #### The helm is also the door
 The helm placeable opens for **everyone aboard**, not just the owner. A passenger sees one row — *Walk through to the cabin/deck* — and that is the only way between the ship's two rooms. The course list is still owner-only, or a passenger's once `SpaceOwnerIsDown`.
 - **The chart belongs to the ship, not the reader.** `SpaceDeckPage` reads the visit record off the owner, not off whoever is standing at the helm; a passenger has usually never flown a ship of their own and would otherwise face a blank chart.
-- **Home is always on the emergency chart.** A pilot who died before charting anything would otherwise strand the whole party. The world is the first system's `Start` planet (Arland), read from the module rather than hardcoded.
+- **Two destinations are always on the chart.** The safe world and the launch pad, charted or not — see "Two standing destinations" above. A pilot who died before charting anything would otherwise strand the whole party.
 
 #### Getting out of the cabin
 First in-game test: going below worked, and nothing brought the pilot back. Three separate reasons, all fixed.

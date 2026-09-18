@@ -153,6 +153,21 @@
        "__struct_id": 0,
        "Active": {
         "type": "resref",
+        "value": "cond_ship012"
+       },
+       "Index": {
+        "type": "dword",
+        "value": 24
+       },
+       "IsChild": {
+        "type": "byte",
+        "value": 0
+       }
+      },
+      {
+       "__struct_id": 0,
+       "Active": {
+        "type": "resref",
         "value": "cond_ship009"
        },
        "Index": {
@@ -539,7 +554,7 @@
  },
  "NumWords": {
   "type": "dword",
-  "value": 44
+  "value": 52
  },
  "PreventZoomIn": {
   "type": "byte",
@@ -1801,6 +1816,47 @@
      "type": "cexolocstring",
      "value": {
       "0": "Return to the helm."
+     }
+    }
+   },
+   {
+    "__struct_id": 0,
+    "Animation": {
+     "type": "dword",
+     "value": 0
+    },
+    "AnimLoop": {
+     "type": "byte",
+     "value": 1
+    },
+    "Comment": {
+     "type": "cexostring",
+     "value": ""
+    },
+    "Delay": {
+     "type": "dword",
+     "value": 4294967295
+    },
+    "EntriesList": {
+     "type": "list",
+     "value": []
+    },
+    "Quest": {
+     "type": "cexostring",
+     "value": ""
+    },
+    "Script": {
+     "type": "resref",
+     "value": "conv_ship012"
+    },
+    "Sound": {
+     "type": "resref",
+     "value": ""
+    },
+    "Text": {
+     "type": "cexolocstring",
+     "value": {
+      "0": "Fly back to <CUSTOM10670>, where you launched from."
      }
     }
    }
