@@ -33,15 +33,33 @@ tile.
 
 ## In-game: `.w` chat commands
 
-Type these in normal chat. They only work for a DM or DM-possessed
-character; everyone else's chat is unaffected, and DM commands are never
-broadcast to the channel. All coordinates use the `X_Y` form above.
+Type these in normal chat. Apart from `.web`, they only work for a DM or
+DM-possessed character; everyone else's chat is unaffected, and commands are
+never broadcast to the channel. All coordinates use the `X_Y` form above.
 
-| Command | Effect |
-|---|---|
-| `.wjump <X_Y>` | Teleport to a coordinate on your current planet. |
-| `.warea <tagprefix\|01-23> [X_Y]` | Replace a tile with a hand-built area, or a plain terrain type. Defaults to your current tile if `X_Y` is omitted. |
-| `.wcluster [X_Y]` | Open the cluster editor (see next section). |
+| Command | Who | Effect |
+|---|---|---|
+| `.web` | Any player | Show the player their public CD key and a fresh 6-digit code for registering on the website. |
+| `.wjump <X_Y>` | DM | Teleport to a coordinate on your current planet. |
+| `.warea <tagprefix\|01-23> [X_Y]` | DM | Replace a tile with a hand-built area, or a plain terrain type. Defaults to your current tile if `X_Y` is omitted. |
+| `.wcluster [X_Y]` | DM | Open the cluster editor (see next section). |
+
+### `.web` — website registration codes
+
+Players type `.web` to get their 8-character public CD key plus a one-time
+code, then enter both on the site's Register page to pick a password. The code
+lives in `pwdata` as `WebCode_<cdkey>`, expires after 30 minutes, and is
+deleted once used; `.web` always issues a fresh one.
+
+The website map then shows that player only the tiles their characters have
+walked onto. Tiles are recorded per character as `WMap_<Planet>_X<X>` rows and
+unioned across every character on the CD key. The DM view is unaffected — a DM
+logged in through the site's DM area still sees the whole map — and the
+`ShowAreas` / `ShowInterests` flags still reveal everything to everyone when a
+DM turns them on.
+
+To reset a player's website password, delete their row from the `web_players`
+table; they can then register again with a fresh `.web` code.
 
 ### `.warea` — placing a single hand-built area
 

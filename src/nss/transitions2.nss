@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "area_pop_inc"
+#include "inc_conflict"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,14 @@ object oDoor3 = GetLocalObject(oArea,"Door3");
 int iLevel2 = StringToInt(GetStringRight(GetName(OBJECT_SELF),1));
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
-string sSpaceDung;if(GetStringLeft(GetTag(oHang),13)=="pla_spacedung"){sSpaceDung = GetStringRight(GetTag(oHang),1);}
+// A space dungeon can be entered two ways: by clicking the entrance itself
+// (its OnClick is this script), or - the original behaviour - by clicking a
+// placeable standing next to one. The direct case has to be checked first,
+// because GetNearestObject excludes OBJECT_SELF, so an entrance would never
+// find itself.
+string sSpaceDung;
+     if(GetStringLeft(sTag,13)=="pla_spacedung")          {sSpaceDung = GetStringRight(sTag,1);}
+else if(GetStringLeft(GetTag(oHang),13)=="pla_spacedung") {sSpaceDung = GetStringRight(GetTag(oHang),1);}
 //
 object oTargetArea;string sTargetArea;string sAreaNumber;string sNewArea;int iCheck;int i;float fF = DIRECTION_NORTH;
 string sCheckStore;string sCheckChest;string sCheckDungeon;string sCheckDomain;string sCheckSpace;object oStore;object oChest;string sLeft;string sRight;
@@ -256,6 +264,9 @@ FloatingTextStringOnCreature("*no area available*",oPC);
 ////////////////////////////////////////////////////////////////////////////////
 else if((sTag=="exit")||(sTag=="door_exit"))
  {
+// Leaving a conflict clears the flag the cabin hatch checks, so followers can
+// climb up to the pilot again once the fight is behind them.
+if(GetLocalInt(oArea,CONFLICT_IS_AREA)==1){DeleteLocalInt(oPC,CONFLICT_ACTIVE);}
 fX = GetLocalFloat(oArea,"fXExit");
 fY = GetLocalFloat(oArea,"fYExit");
 fF = DIRECTION_SOUTH;
@@ -426,6 +437,46 @@ FloatingTextStringOnCreature("*no area available*",oPC);
 else if(sTag=="Ruins_Int")
  {
 AssignCommand(oPC,ActionJumpToObject(GetNearestObject(OBJECT_TYPE_WAYPOINT,oPC)));
+ }
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Conflict (TASK-30) - a red light shaft in a ship-travel area. Drops the pilot
+// into a battle cloned from this tile's own terrain template, and brings their
+// cabin passengers along. Shared instance, keyed by origin coordinate + the
+// shaft's own position, exactly like the tent/dungeon entries above - everyone
+// who clicks the same shaft joins the same live fight.
+////////////////////////////////////////////////////////////////////////////////
+else if(sTag=="conflict")
+ {
+string sConflictKey = sPlanet+"_"+sArea+"&"+sX+sY+"&Conflict";
+oTargetArea = GetLocalObject(oModule,sConflictKey);
+
+if(!GetIsObjectValid(oTargetArea))
+  {
+oTargetArea = ConflictCloneFor(oArea);
+if(!GetIsObjectValid(oTargetArea)){FloatingTextStringOnCreature("*no area available*",oPC);return;}
+SetLocalObject(oModule,sConflictKey,oTargetArea);
+ConflictSetReturn(oTargetArea,oArea,OBJECT_SELF,sPlanet,sArea);
+ConflictSpawnExit(oTargetArea);
+// Composition hook - deliberately empty for now. conflict_pop reads
+// "ConflictTier" off the area and spawns the two opposing groups (stock
+// Hostile vs Defender, which fight each other for free). Tiers are still to
+// be designed, so today this stamps nothing and the clone is a bare arena.
+SetLocalInt(oTargetArea,"ConflictTier",GetLocalInt(OBJECT_SELF,"ConflictTier"));
+ExecuteScript("conflict_pop",oTargetArea);
+  }
+
+vector vArrive = ConflictArrivalPoint(oTargetArea);
+location lConflict = Location(oTargetArea,vArrive,DIRECTION_NORTH);
+SetLocalString(oPC,"PlayerAreaTo",GetTag(oTargetArea));
+SetLocalInt(oPC,CONFLICT_ACTIVE,1);
+ConflictJump(oPC,lConflict);
+// Hybrid model: passengers riding this pilot's flight cabin come too. Ordinary
+// travel still leaves them in the cabin; only a conflict empties it.
+ConflictBoardCabinParty(oPC,lConflict);
  }
 ////////////////////////////////////////////////////////////////////////////////
 }

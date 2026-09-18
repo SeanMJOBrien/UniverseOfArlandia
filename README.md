@@ -5,6 +5,8 @@ The Module: (Universe of Arlandia by TheRack)
 Check out the currently live website at http://qlippoth.dyndns.org
 (click right sidebar for maps of other worlds (which I haven't explored yet, so might not be much to see)
 - Web map of explored areas of one world: http://qlippoth.dyndns.org/galaxy.php?planet=Arland
+  (the map now shows each player only the areas they have discovered — type `.web`
+  in game for a registration code, then register with your public CD key)
 - Hak files required for Linux server (ALL lowercase! You can also use these for the client side):
      http://45.62.217.211/uoa/UOAlowercaseHaks4Linux.7z
 

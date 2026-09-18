@@ -1,16 +1,21 @@
-// mod_chat - Module OnPlayerChat handler: DM world-builder ".w" commands.
+// mod_chat - Module OnPlayerChat handler: player ".web" command and DM
+// world-builder ".w" commands.
 // ---
-// Only reacts to DM / DM-possessed speakers whose message starts with ".w";
-// everyone else's chat passes through untouched. Recognized commands are
-// suppressed from broadcast and dispatched:
+// Only reacts to messages starting with ".w"; everything else passes through
+// untouched. Recognized commands are suppressed from broadcast and dispatched:
+//   .web                      (any player) issue a one-time website
+//                             registration code for this CD key
 //   .wjump <X_Y>              jump to a coordinate on the current planet
 //   .warea <tagprefix> [X_Y]  set a tile's code to a hand-built area prefix
 //                             (or a 2-digit terrain code), persisted
 //   .wcluster [X_Y]           open the cluster editor NUI (dmb_nui_inc)
+// Every command except .web is DM-only.
 // Coordinates use the world's "m = negative" form, e.g. m3_5.
 
 #include "dmb_inc"
 #include "dmb_nui_inc"
+#include "_webmap"
+#include "_unitrent"
 
 // Command target: a validated planet + coordinate.
 struct DmbTarget
@@ -31,7 +36,7 @@ string DmbTrim(string sText)
 
 void DmbChatUsage(object oPC)
 {
-    SendMessageToPC(oPC, "World-builder commands: .wjump <X_Y> | .warea <tagprefix> [X_Y] | .wcluster [X_Y]  (coordinates use m for negative, e.g. m3_5)");
+    SendMessageToPC(oPC, "World-builder commands: .wjump <X_Y> | .warea <tagprefix> [X_Y] | .wcluster [X_Y] | .wunits <count> [sizes]  (coordinates use m for negative, e.g. m3_5)");
 }
 
 // Resolve the command's target coordinate: the explicit argument, or the
@@ -177,12 +182,115 @@ void DmbCmdCluster(object oPC, string sArgs)
     DmbClusterNuiOpen(oPC, t.sPlanet, t.sCoord);
 }
 
+// .web - issue this player a one-time code for registering on the website.
+// The code is written to pwdata (WebCode_<cdkey>); register.php accepts it for
+// a short window, proving the person on the site is the person holding the key.
+void WebCmdCode(object oPC)
+{
+    string sCDKey = WebMapKey(oPC);
+    if (sCDKey == "")
+    {
+        SendMessageToPC(oPC, "No public CD key found for you - website registration needs a multiplayer CD key.");
+        return;
+    }
+
+    string sCode = WebMapIssueCode(oPC);
+    SendMessageToPC(oPC, "Website registration - CD key: " + sCDKey + "   code: " + sCode);
+    SendMessageToPC(oPC, "Enter both on the site's Register page within 30 minutes to pick your password. The code stops working once used, and .web issues a fresh one.");
+}
+
+
+// .wunits <count> [sizes] - configure the nearest multi-unit rental door.
+// sizes is an optional comma list, one entry per unit: 1 small, 2 medium,
+// 3 large. Missing or short lists default the remainder to small.
+//   .wunits 6 1,1,1,1,3,1     six units, the fifth large
+//   .wunits 4                 four small units
+//   .wunits 0                 clear the configuration
+//
+// Saved to the database, not to the door: a local variable set in-game would
+// not survive a restart. A door configured in the toolset still works - its
+// own "Units"/"Unit<n>" locals are used whenever no database row exists.
+void DmbCmdUnits(object oPC, string sArgs)
+{
+    object oDoor = GetNearestObjectByTag("unitdoor", oPC);
+    if (!GetIsObjectValid(oDoor))
+    {
+        SendMessageToPC(oPC, "No rental door (tag 'unitdoor') found nearby.");
+        return;
+    }
+    if (GetDistanceBetween(oPC, oDoor) > 10.0)
+    {
+        SendMessageToPC(oPC, "Stand closer to the rental door you want to configure.");
+        return;
+    }
+    if (sArgs == "")
+    {
+        SendMessageToPC(oPC, "Usage: .wunits <count> [sizes]  e.g. .wunits 6 1,1,1,1,3,1");
+        return;
+    }
+
+    string sCount = sArgs;
+    string sSizes = "";
+    int iSpace = FindSubString(sArgs, " ");
+    if (iSpace != -1)
+    {
+        sCount = GetStringLeft(sArgs, iSpace);
+        sSizes = DmbTrim(GetStringRight(sArgs, GetStringLength(sArgs) - iSpace - 1));
+    }
+
+    int iCount = StringToInt(sCount);
+    if (iCount < 0) { iCount = 0; }
+    if (iCount > UNITRENT_MAX)
+    {
+        SendMessageToPC(oPC, "At most " + IntToString(UNITRENT_MAX) + " units per door.");
+        return;
+    }
+
+    if (iCount == 0)
+    {
+        UnitSetConfig(oDoor, 0, "");
+        SendMessageToPC(oPC, "Rental door cleared - it now offers no units.");
+        return;
+    }
+
+    // Pad the size list out to the unit count so every unit has an explicit
+    // entry, rather than relying on the reader's default.
+    string sFull = "";
+    string sRest = sSizes + ",";
+    int n;
+    for (n = 1; n <= iCount; n++)
+    {
+        int iSize = 1;
+        int iComma = FindSubString(sRest, ",");
+        if (iComma > 0)
+        {
+            iSize = StringToInt(GetStringLeft(sRest, iComma));
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iComma - 1);
+        }
+        if ((iSize < 1) || (iSize > 3)) { iSize = 1; }
+        if (sFull != "") { sFull = sFull + ","; }
+        sFull = sFull + IntToString(iSize);
+    }
+
+    UnitSetConfig(oDoor, iCount, sFull);
+    SendMessageToPC(oPC, "Rental door set: " + IntToString(iCount) + " unit(s), sizes " + sFull + " (1 small, 2 medium, 3 large).");
+}
+
 void main()
 {
     object oPC = GetPCChatSpeaker();
     string sMsg = GetPCChatMessage();
 
     if (GetStringLeft(sMsg, 2) != ".w") return;
+
+    // .web is the one command open to ordinary players.
+    if (DmbTrim(sMsg) == ".web")
+    {
+        SetPCChatMessage("");
+        WebCmdCode(oPC);
+        return;
+    }
+
     if ((!GetIsDM(oPC)) && (!GetIsDMPossessed(oPC))) return;
 
     SetPCChatMessage(""); // never broadcast DM commands
@@ -200,5 +308,6 @@ void main()
     if (sVerb == ".wjump")         DmbCmdJump(oPC, sArgs);
     else if (sVerb == ".warea")    DmbCmdArea(oPC, sArgs);
     else if (sVerb == ".wcluster") DmbCmdCluster(oPC, sArgs);
+    else if (sVerb == ".wunits")   DmbCmdUnits(oPC, sArgs);
     else                           DmbChatUsage(oPC);
 }

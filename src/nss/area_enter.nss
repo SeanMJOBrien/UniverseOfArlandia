@@ -2,9 +2,12 @@
 #include "_module"
 #include "zep_inc_phenos"
 #include "_string_utils"
+#include "_webmap"
 #include "dmb_inc"
 #include "area_pop_inc"
 #include "inc_persist"
+#include "_shipname"
+#include "_spacenav"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +45,20 @@ if((GetIsObjectValid(oPC))&&((GetIsPC(oPC))||(GetIsDMPossessed(oPC))||(GetIsDM(o
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetIsDM(oPC)){sDM = "1";}else{sDM = "0";}SetPersistentString(oModule,"Player"+IntToString(GetLocalInt(oModule,sName)),sPCName+"&1&"+sName+"&2&"+sPlanet+"&3&"+sArea+"&4&"+sDM+"&5&");
+////////////////////////////////////////////////////////////////////////////////
+// Website per-player map: index this character under its public CD key (the
+// site logs players in with that key), and record the tile they are standing
+// on. transitions.nss covers normal travel; this catches the tile a player
+// logs in on, which no transition ever fires for.
+if(WebMapKey(oPC)!="")
+ {
+WebMapRegisterChar(oPC);
+if((sPlanet!="")&&(FindSubString(sArea,"_")!=-1))
+  {
+struct AreaCoord cWebTile = ParseAreaCoord(sArea);
+WebMapDiscover(oPC,sPlanet,cWebTile.X,cWebTile.Y);
+  }
+ }
 ////////////////////////////////////////////////////////////////////////////////
 // Persist last known location for this character (DM lookup tool, never deleted)
 vector vPCPos = GetPosition(oPC);
@@ -139,6 +156,32 @@ if(iCheck==1){oHenchs = GetHenchman(oPC);while(GetIsObjectValid(oHenchs)){Remove
 else{if((GetStringLeft(sTag,5)!="ocean")&&(GetStringLeft(sTag,6)!="clouds")&&(GetStringLeft(sTag,5)!="space")&&(GetLocalInt(oGoldbag,"OrigApp")!=0)&&(GetAppearanceType(oPC)!=GetLocalInt(oGoldbag,"OrigApp")-1)){SetCreatureAppearanceType(oPC,GetLocalInt(oGoldbag,"OrigApp")-1);SetFootstepType(FOOTSTEP_TYPE_DEFAULT,oPC);DeleteLocalInt(oPC,"HenchAction");ExecuteScript("henchs",oPC);effect eEffects = GetFirstEffect(oPC);while(GetIsEffectValid(eEffects)){if((GetEffectType(eEffects)==EFFECT_TYPE_HASTE)||(GetEffectType(eEffects)==EFFECT_TYPE_AC_INCREASE)){RemoveEffect(oPC,eEffects);}eEffects = GetNextEffect(oPC);}}
      if(GetLocalInt(oGoldbag,"NewPheno")!=0){SetPhenoType(GetLocalInt(oGoldbag,"NewPheno"),oPC);SetFootstepType(GetLocalInt(oGoldbag,"FootStep"),oPC);if(GetLocalInt(oPC,"Mounted")!=1){SetLocalInt(oPC,"HenchAction",10);ExecuteScript("henchs",oPC);}}
      if((GetPhenoType(oPC)>4)&&(GetIsAreaInterior(OBJECT_SELF))){SetLocalInt(oPC,"HenchAction",9);ExecuteScript("henchs",oPC);}}
+// A named ship replaces the pilot's own name for as long as they are wearing
+// the ship model set just above (see _shipname.nss). Keyed off the area tag,
+// not iCheck - that flag is also set for underwater and for airship/starship
+// interiors, none of which put the PC in a ship model.
+ShipApplyNameForArea(oPC,sTag);
+// Personal starship navigation (TASK-41). Arriving in a space tile at all is
+// proof of personal flight - ticketed starships put passengers in the
+// starship interior areas and never in a space tile - so this is where a
+// character's own "I have been here" record is written. Kept on the goldbag,
+// which travels with the character file, so it is genuinely per-character.
+// A freshly cloned flight cabin gets its navigation helm the first time
+// anyone walks in. inc_flight.nss only flags it, to avoid a circular include.
+if(GetLocalInt(OBJECT_SELF,"NeedHelm")==1){DeleteLocalInt(OBJECT_SELF,"NeedHelm");SpaceDeckSpawnControl(OBJECT_SELF);}
+if(GetStringLeft(sTag,5)=="space")
+ {
+SpaceNavMarkSeen(oPC,GetLocalString(OBJECT_SELF,"Area"));
+// Keep the pilot's deck told where the ship has got to, on every tile rather
+// than only when they open the dialog to go below: a pilot who is knocked out
+// never opens a dialog, and that is exactly the case where a passenger has to
+// plot the course from the deck.
+object oOwnCabin = FlightOwnerCabin(oPC,2);
+if(GetIsObjectValid(oOwnCabin)){SetLocalString(oOwnCabin,"SpaceFrom",GetLocalString(OBJECT_SELF,"Area"));}
+// A flight in progress continues from here: issue the next leg toward the
+// destination. Deferred so it lands after the arrival jump settles.
+if(GetLocalString(oPC,SPACENAV_FLY_TO)!=""){AssignCommand(oPC,DelayCommand(1.5,SpaceFlyStep(oPC)));}
+ }
      if((GetStringLeft(sTag,3)=="gaz")&&(GetLocalInt(oPC,"Flying")!=1)){SetLocalInt(oPC,"Flying",1);zep_Fly(oPC);SetFootstepType(FOOTSTEP_TYPE_NONE,oPC);ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectMovementSpeedIncrease(50),oPC);}else if((GetStringLeft(sTag,3)!="gaz")&&(GetLocalInt(oPC,"Flying")==1)){DeleteLocalInt(oPC,"Flying");zep_Fly_Land(oPC);SetFootstepType(FOOTSTEP_TYPE_DEFAULT,oPC);while(GetIsEffectValid(eEffects)){if(GetEffectType(eEffects)==EFFECT_TYPE_MOVEMENT_SPEED_INCREASE){     RemoveEffect(oPC,eEffects);}eEffects = GetNextEffect(oPC);}}
 ////////////////////////////////////////////////////////////////////////////////
 // Sewers int

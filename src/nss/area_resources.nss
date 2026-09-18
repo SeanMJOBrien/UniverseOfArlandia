@@ -20,7 +20,7 @@ string sTag = GetTag(OBJECT_SELF);
 int iAreaX = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;
 int iAreaY = GetAreaSize(AREA_HEIGHT,OBJECT_SELF)*10;
 float fZ = 0.0;if(GetStringLeft(GetTag(OBJECT_SELF),8)=="tropical"){fZ = 1.0;}else if((GetStringLeft(GetTag(OBJECT_SELF),6)=="ground")||(GetStringLeft(GetTag(OBJECT_SELF),11)=="ruralcastle")){fZ = 5.0;}
-int iRandom1;int iRandom2;string sBP;string sBP2;object oNew;object oCre;int iPlant;int iTree;int iRock;string sPla;int iPlanetResNbr;float fAX;float fAY;float fX;float fY;float fF;int iRandom;location lLoc;int iNum;int iNum1;int iNum2;int iNum3;int iCheck;int i;
+int iRandom1;int iRandom2;string sBP;string sBP2;object oNew;object oCre;int iPlant;int iTree;int iRock;string sPla;int iPlanetResNbr;float fAX;float fAY;float fX;float fY;float fF;float fJitZ;int iRandom;location lLoc;int iNum;int iNum1;int iNum2;int iNum3;int iCheck;int i;
 // Resource mountain
 if(iMountain==1){iPlanetResNbr = Random(21)+20;}
 // Domain extractor & field
@@ -66,7 +66,25 @@ while(i>0)
   {
 fAX = IntToFloat(Random(iAreaX));
 fAY = IntToFloat(Random(iAreaY));
-if(((fAX<fX-10.0)||(fAX>fX+10.0))&&((fAY<fY-10.0)||(fAY>fY+10.0))){i--;iRandom = Random(100)+1;if(GetStringLeft(GetTag(OBJECT_SELF),6)=="space0"){if(iRandom==1){sBP = "pla_spacedung001";}else if(iRandom==2){sBP = "pla_spacedung002";}}if(iRandom<12){sBP = "pla_asteroid";}else{sBP = "asteroid00"+IntToString(Random(3)+1);}oNew = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,Location(OBJECT_SELF,Vector(fAX,fAY,fZ),IntToFloat(Random(360))));}
+if(((fAX<fX-10.0)||(fAX>fX+10.0))&&((fAY<fY-10.0)||(fAY>fY+10.0))){i--;iRandom = Random(100)+1;
+// One chain, so an earlier match is not overwritten. It used to be two separate
+// ifs: rolls 1 and 2 assigned a dungeon entrance and the next line, "iRandom<12",
+// immediately replaced it with pla_asteroid - so neither entrance could ever
+// spawn, and the d_towerb1_/d_spaceship1_ dungeons behind them were unreachable.
+// The mineable band starts above the dungeon rolls rather than at 1, so mineable
+// density is unchanged and the two percentage points come out of decorative.
+     if(iRandom<=iSpaceDungeonPct)                       {sBP = "pla_spacedung001";}
+else if(iRandom<=iSpaceDungeonPct*2)                     {sBP = "pla_spacedung002";}
+else if(iRandom<=(iSpaceDungeonPct*2)+iSpaceMineablePct) {sBP = "pla_asteroid";}
+else                                                     {sBP = "asteroid00"+IntToString(Random(3)+1);}
+// Decorative asteroids get a random Z offset so the field reads as layered
+// depth instead of one flat plane. Scoped to asteroid001-003 on purpose:
+// pla_asteroid is a mineable resource whose click hull has to stay on the
+// model, and pla_spacedung001/002 are dungeon entrances that need a
+// predictable height. Real Z, not a visual transform, so it round-trips
+// through area_save.nss/area_recall.nss for free.
+fJitZ = 0.0;if(GetStringLeft(sBP,10)=="asteroid00"){fJitZ = IntToFloat(Random(iAsteroidJitterZ*2+1)-iAsteroidJitterZ)/10.0;}
+oNew = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,Location(OBJECT_SELF,Vector(fAX,fAY,fZ+fJitZ),IntToFloat(Random(360))));}
 
 if(iNum!=0){iRandom1 = iNum;}else{iRandom1 = Random(11)+1;}
      if((iRandom1>=1)&&(iRandom1<=1)){sBP = "cr_lavafusion";}

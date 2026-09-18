@@ -17,6 +17,11 @@ else if(iChoice==6){lLoc = Location(oArea,Vector(vLoc.x-0.8,vLoc.y-0.8,vLoc.z),4
 else if(iChoice==7){lLoc = Location(oArea,Vector(vLoc.x-1.0,vLoc.y+0.0,vLoc.z),0.0);}
 else if(iChoice==8){lLoc = Location(oArea,Vector(vLoc.x-0.8,vLoc.y+0.8,vLoc.z),315.0);}
 
-CreateObject(OBJECT_TYPE_PLACEABLE,GetStringRight(sTag,GetStringLength(sTag)-1),lLoc);
+// Marked so a rental unit's interior can snapshot and rebuild its furniture
+// across a restart (see _unitrent.nss) - a CreateArea() interior does not
+// survive one, and area_save.nss cannot help because it keys on the Planet/Area
+// coordinate locals those interiors deliberately do not carry.
+object oPlaced = CreateObject(OBJECT_TYPE_PLACEABLE,GetStringRight(sTag,GetStringLength(sTag)-1),lLoc);
+SetLocalInt(oPlaced,"Furniture",1);
 DestroyObject(oFurniture);
 }

@@ -1,0 +1,140 @@
+/* Terminal Glow — same layout & palette as the live site, HUD-readout typography */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #FFF;
+    font-family: "Consolas", "SFMono-Regular", "Courier New", monospace;
+}
+a { color: #FFF; text-decoration: none; }
+a:hover { color: #00FF00; }
+
+.layout-table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    background-image: url('../../app/assets/UOA_BG.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.header-cell { text-align: center; height: 60px; }
+.nav-cell {
+    width: 12%;
+    vertical-align: top;
+    text-align: left;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+.main-content-cell { width: 76%; vertical-align: top; }
+.footer-cell { text-align: center; height: 5%; }
+
+.page-title {
+    font-size: 2.4em;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #82AAFF;
+    text-shadow: 0 0 8px rgba(130, 170, 255, 0.8), 0 0 18px rgba(130, 170, 255, 0.4);
+    margin: 0.5em 0 0.1em;
+}
+.page-title::after {
+    content: "_";
+    animation: uoa-blink 1.1s step-end infinite;
+}
+@keyframes uoa-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+.page-subtitle {
+    font-size: 1em;
+    font-weight: bold;
+    color: #82AAFF;
+    text-shadow: 0 0 6px rgba(130, 170, 255, 0.5);
+    margin-bottom: 1em;
+}
+
+.section-title {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: #66CCFF;
+    text-decoration: none;
+    text-shadow: 0 0 6px rgba(102, 204, 255, 0.55);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+.section-title::before { content: "[ "; opacity: 0.7; }
+.section-title::after { content: " ]"; opacity: 0.7; }
+
+.nav-links { font-size: 0.85em; color: #b9b9c8; font-weight: bold; }
+.nav-links a {
+    color: #b9b9c8;
+    line-height: 1.7;
+    display: inline-block;
+    position: relative;
+}
+.nav-links a::before { content: "> "; color: #66CCFF; }
+.nav-links a:hover {
+    color: #00FF00;
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.85);
+}
+.nav-links a:hover::before { color: #00FF00; }
+
+.info-text { font-size: 0.75em; font-weight: bold; }
+.ip-address { color: #00E600; text-shadow: 0 0 6px rgba(0, 230, 0, 0.7); }
+.status-mock p { margin: 0.3em 0; }
+
+.galaxy-link {
+    font-size: 0.85em;
+    color: #00FFFF;
+    font-weight: bold;
+    text-decoration: none;
+    text-shadow: 0 0 6px rgba(0, 255, 255, 0.6);
+}
+.galaxy-link::before { content: "// "; opacity: 0.7; }
+.planet-link { font-weight: bold; padding-left: 1em; }
+.planet-link::before { content: "- "; color: #66CCFF; }
+
+.footer-text { font-size: 0.75em; font-weight: bold; letter-spacing: 0.03em; }
+
+.status-iframe, .content-iframe {
+    width: 100%;
+    margin: 1px 0;
+    box-sizing: border-box;
+    border: 1px solid #66CCFF;
+    box-shadow: 0 0 10px rgba(102, 204, 255, 0.35), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+.status-iframe { height: 90px; }
+.content-iframe { height: 100%; border: 1px solid #66CCFF; }
+
+.dm-area input[type="password"] {
+    width: 8em;
+    font-size: 0.85em;
+    font-family: inherit;
+    background: #000;
+    border: 1px solid #66CCFF;
+    color: #00FF00;
+    padding: 0.2em 0.4em;
+}
+.dm-area-title { color: #66CCFF; }
+
+/* -- News page (loaded in the content iframe) -- */
+.news-page { padding: 1.2em 1.5em; }
+.news-heading::before { content: "[ "; }
+.news-heading::after { content: " ]"; }
+.news-item { margin-bottom: 1.5em; border-left: 2px solid rgba(102, 204, 255, 0.4); padding-left: 0.8em; }
+.news-date { font-size: 0.75em; color: #66CCFF; margin: 0 0 0.2em; }
+.news-title {
+    font-size: 1.05em;
+    color: #82AAFF;
+    text-shadow: 0 0 5px rgba(130, 170, 255, 0.5);
+    margin: 0 0 0.35em;
+}
+.news-text { font-size: 0.85em; line-height: 1.5; margin: 0 0 0.4em; }
+.news-byline { font-size: 0.75em; color: #b9b9c8; }
+.news-byline::before { content: "# "; color: #66CCFF; }

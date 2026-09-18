@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "nwnx_sql"
+#include "nwnx_events"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -56,6 +57,10 @@ SetMaxHenchmen(iMaxHenchs);
 // here. Actively-hired henches use a separate, per-PC campaign namespace
 // (see henchs.nss) and are untouched by this.
 DestroyCampaignDatabase("AdvAreaSnap");
+////////////////////////////////////////////////////////////////////////////////
+// Corpse gold auto-loot. Creatures have no OnUsed event, so clicking a body is
+// only visible through NWNX - see loot_gold.nss.
+NWNX_Events_SubscribeEvent("NWNX_ON_OBJECT_USE_BEFORE","loot_gold");
 ////////////////////////////////////////////////////////////////////////////////
 // Sounds
 ExecuteScript("sound_ini",oModule);

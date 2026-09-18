@@ -11,6 +11,7 @@
             <file>tests/SqlFunctionsTest.php</file>
             <file>tests/DatabaseFunctionsTest.php</file>
             <file>tests/LoggingTest.php</file>
+            <file>tests/PlayerAuthTest.php</file>
         </testsuite>
         <testsuite name="Web / HTML Smoke Tests">
             <file>tests/HtmlStructureTest.php</file>

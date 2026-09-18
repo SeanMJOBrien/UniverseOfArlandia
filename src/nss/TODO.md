@@ -474,3 +474,447 @@ Each task below is self-contained. Fields:
 - **files**: `src/nss/tile_util.nss` (existing), likely `src/nss/spawngrp_save.nss`/`spawngrp_load.nss` or a new `dmb_*`/`mod_chat.nss` DM command if/when a consumer is chosen.
 - **verify**: not yet planned - depends on which consumer is picked.
 - **verify**: board a follower, take off; while the pilot is still aloft, use the hatch and choose "drop back to where you boarded" — confirm the follower lands back where they boarded (not at the pilot), and "climb up to the pilot" still works. Confirm the cabin clone is destroyed once empty via either path.
+
+---
+
+### TASK-26: Free-form ship flight paths (random entry/exit, PC-designated landing)
+- **status**: done — code written and compiles clean (586 scripts, zero errors); NOT yet confirmed in-game.
+- **action**: Generalise TASK-15's fixed-longitude arrival into a reusable flight-path library, so a ship can enter from any of the four area edges, land at an arbitrary point (e.g. wherever a PC used a hailing item), and depart over a different edge.
+- **files**:
+  - `src/nss/inc_shiparrive.nss` — rewritten around one primitive, `ShipFlyLeg(oShip, vLand, vFrom, vTo, fDuration, nLerp, fRotFrom, fRotTo)`. Everything is a client-side visual offset from the hull's real position (its landing spot); nothing moves server-side. New helpers: `ShipEdgePoint` (a point beyond a given edge, axis-aligned with the landing spot), `ShipEdgeApproachFacing`, `ShipPickEdge` (random edge, optionally excluding the arrival edge), `ShipArriveFromEdge` / `ShipDepartToEdge` (EASE_OUT in / EASE_IN out), `ShipDockRotationToward` (which 90° dock rotation puts the boarding ramp on the PC's side), and `ShipPieceAt` (one rope/ramp piece, offset+facing rotated together). `EaseShipHullIn`/`EaseShipHullOut` are kept as the fixed-longitude entry points transports.nss's scheduled arrivals still use, now implemented on top of `ShipFlyLeg`.
+  - `src/nss/inc_shiparrive.nss` — `SpawnShipRopes`/`SpawnShipLadder` take a new trailing `iRotation90` (default 0 = original hardcoded layout), routing every offset through `_string_utils.nss`'s `RotateOffset90`/`RotateFacing90`. Without this, a ship landing at a PC-chosen facing puts its boarding ramp on the wrong side — the offsets are authored in world axes for a hull docked at facing 180.
+  - `src/nss/area_pop_inc.nss:57` — added a `GetLocalInt(oPlaceable,"NoStatic")!=1` term to the static-marking condition. `NWNX_Object_SetPlaceableIsStatic` bakes a placeable into client-side area geometry, where it won't follow a visual transform; that function marks *every* non-useable placeable and re-scans on every poll tick, so an animating hull needs a permanent opt-out rather than a one-time undo.
+  - `src/nss/transports.nss:159,171,200` — `SetLocalInt(oPla,"NoStatic",1)` alongside the existing `DontSave` on all three ship-spawn branches. Line 200's flourish ship explicitly calls `SetUseableFlag(oPla,FALSE)`, so it was definitely being marked static mid-flight.
+- **constraint**: Flights are single-axis by design (a leg shares one coordinate between start and end). `ShipEdgePoint` preserves that for all four edges rather than allowing true point-to-point diagonals — a diagonal cuts across the middle of the area and is far more likely to clip through scenery, which is why TASK-15 chose a fixed longitude in the first place. Randomising the *edge* rather than the *point* keeps the guarantee.
+- **unverified**: (a) `OBJECT_VISUAL_TRANSFORM_ROTATE_Z` is assumed to take degrees, not radians — the translation half is proven by TASK-15, the rotation half is new; check before trusting a non-zero rotation. (b) `ShipDockRotationToward`'s index→compass mapping is derived from the rope/ramp offsets, not confirmed in-game (same caveat TASK-17 carried for domain rotation). (c) What a player entering an area mid-flight sees — `nwscript.nss:12027` doesn't say whether an in-progress lerp is replayed on object load for a late joiner.
+- **not built**: the hailing item itself. The library supports it (`ShipPickEdge` → `ShipArriveFromEdge` → hold → `ShipDepartToEdge` over a different edge, landing at `GetItemActivatedTargetLocation()`), but no `.uti` or `mod_activate.nss` branch exists yet.
+- **verify**: trigger a scheduled airship/starship arrival and confirm the descent still looks exactly as it did before this refactor (the `EaseShipHullIn` path must be behaviour-identical). Then, with a test caller, confirm a ship arrives from a random edge, its ropes/ramp land on the correct side for a non-zero `iRotation90`, and it departs over a different edge than it arrived from.
+
+---
+
+### TASK-27: Space asteroid Z jitter
+- **status**: done — compiles clean; NOT yet confirmed in-game.
+- **action**: Decorative space asteroids sat on one flat Z plane. They now get a random ±3.0m Z offset so a field reads as layered depth.
+- **files**: `src/nss/area_resources.nss:69` (jitter applied to the `CreateObject` vector), `src/nss/_module.nss` (`iAsteroidJitterZ = 30`, decimetres).
+- **pattern**: real Z at creation, not a visual transform — so the click hull follows the model and the offset round-trips through `area_save.nss:50` / `area_recall.nss:61` for free. Scoped to `asteroid001-003` only: `pla_asteroid` is a mineable resource whose click hull must stay on the model, and `pla_spacedung001/002` are dungeon entrances needing a predictable height.
+- **constraint**: `area_resources.nss` runs under `area_recall.nss`'s `iReady!=1` gate — once per coordinate per server boot. Module locals hold the exact float Z within a session, and die on restart, so heights are stable while the server is up and re-roll on each restart. That was the requirement; no persistence work needed.
+- **verify**: enter a `space0*` area and confirm asteroids sit at visibly varied heights; leave and re-enter and confirm the heights do NOT change; restart the server and confirm they do. Watch specifically for the −3.0 end putting asteroids below the walkable plane in a way that reads badly — if so, bias the range upward (`Random(41)/10.0` for 0…+4) rather than adding clamping.
+
+---
+
+### TASK-28: Spawn-group DM tool items had no blueprints
+- **status**: done — blueprints created and round-trip through `nwn_gff`; NOT yet tested in-game.
+- **action**: `spawngrp_save.nss`/`spawngrp_load.nss` and their `mod_activate.nss:54-55` dispatch branches were written and deployed, but no `spawngrab` or `spawnstamp` item existed anywhere — not in `src/uti/`, not in the live `UOA.mod`. The engine was unreachable. Both blueprints now exist, cloned from `dmtool.uti.json` (same Unique Power activation property).
+- **files**: `src/uti/spawngrab.uti.json`, `src/uti/spawnstamp.uti.json` (new).
+- **constraint**: the group name and level still come from `GrpName`/`GrpLevel` *locals on the item itself* (`mod_activate.nss:54`), which a DM has to set with the variable editor — there is no UI for it. Worth a `.w` chat command or a NUI panel later if this sees real use.
+- **known limits of the engine these items drive**: (a) `spawngrp_load.nss:55-56` always stamps at the **area centre**, not where the DM stands. (b) `spawngrp_load.nss:68` flags every stamped object `Camp`=1, hooking it into camp despawn/clear — wrong for a permanent station, right for a clearable mission target. (c) `spawngrp_save.nss:65` stores only `dX/dY/facing/type`, no Z, and `spawngrp_load.nss:57` recomputes Z from the area tag prefix (0.0 for space) — fine for default-Z layouts, but a group whose design depends on stacked heights will flatten. (d) Auto-stamping via the camp roll never fires in space: `area_creatures.nss:887` excludes the `space` tag prefix. Manual stamping is unaffected by (d).
+- **verify**: give a DM both items, set `GrpName` on `spawngrab`, decorate a staging area, activate it and confirm the "Spawn group '<name>' saved: N object(s)" message. Then activate `spawnstamp` in an empty area and confirm the layout rebuilds at the area centre.
+
+---
+
+### TASK-29: Space dungeon entrances could never spawn
+- **status**: fixed and deployed. Not yet confirmed in-game.
+- **the bug**: `area_resources.nss`'s space loop assigned `pla_spacedung001` on a roll of 1 and `pla_spacedung002` on a roll of 2, then ran a SEPARATE `if(iRandom<12){sBP="pla_asteroid";}` that overwrote both, because 1 and 2 are below 12. Neither entrance ever reached `CreateObject`, so the `d_towerb1_` and `d_spaceship1_` dungeons behind them — which exist in `src/are/` with working transition code in `transitions2.nss:122-123` — were unreachable in the entire game.
+- **second bug, found while fixing the first**: spawning them would not have been enough. Both blueprints had `Useable=0` and `Static=1`, and NOTHING in a space area is wired to `transitions2` — a check of every `.utp` shows only `entry`-tagged placeables, doors and the new conflict shafts route to it. So the entrances would have appeared as unclickable scenery. `transitions2.nss`'s `sSpaceDung` branch was dead code alongside them.
+- **fix**: the roll is now one `else if` chain, so an earlier match survives. The entrances are `Useable=1`, `Static=0`, `OnClick=transitions2` (useable also keeps `area_pop_inc.nss:57` from marking them static). `transitions2.nss` now checks the clicked object's OWN tag for a `pla_spacedung` prefix before falling back to the original nearest-placeable check — `GetNearestObject` excludes `OBJECT_SELF`, so an entrance could never have found itself.
+- **rates**: dungeon entrances take 1% each (`iSpaceDungeonPct`), mineable asteroids keep exactly 11% (`iSpaceMineablePct`), decorative absorbs the difference and drops from 89% to 87%. Mineable density is unchanged by design. With 20-59 objects per tile, expect ~0.79 entrances per space tile, and roughly 54% of tiles holding at least one.
+- **persistence: deliberately none**. Placement is re-rolled once per coordinate per server boot, like the rest of `area_resources.nss`, so entrances move between restarts. This differs from planet interests, which `_galaxy.nss:1243` writes to `pwdata` once and keeps forever. Chosen knowingly — a space dungeon found today may be gone after the next reboot.
+- **verify**: see §5.6-5.8 of `docs/QA_TEST_SPEC_2026-09.md`.
+
+---
+
+### TASK-30: "Join the conflict" placeable — click to pull the party into a cloned battle area
+- **status**: plumbing implemented and compiling clean; NOT tested in-game. Composition deliberately unbuilt (see TASK-32).
+- **action**: A red light-shaft placeable standing in a ship-travel area (space / clouds / ocean). Clicking it drops the pilot into a battle area cloned from that tile's own terrain, bringing their flight-cabin passengers along. Ground areas are explicitly OUT of scope — ordinary ground battles keep working exactly as they do today, since players can already walk into and out of them.
+
+#### The one rule that made this small
+`transitions.nss:143-147` builds every exterior tile as `CopyArea()` of a `<type>000` template, and a clone keeps its source's tag forever — so from inside a live tile, `GetTag(oArea)` **is** its own template tag. One lookup therefore yields blank space in `space000`, blank sky in `clouds000` and blank sea in `ocean000`, with no per-environment branching. It must read the `AreaTemplate_` cache rather than `GetObjectByTag`, or a live clone can be copied instead of the master (the TASK-22 bug that `area_tmpl_boot.nss` exists to prevent).
+
+#### Hybrid model (agreed)
+The cabin (`inc_flight.nss`) still carries followers for ordinary travel — the pilot hops between tiles constantly, and a detached clone is the only thing that survives that cheaply. Only a conflict moves them out of it, which is one bounded transition instead of dragging passengers through every hop.
+
+#### Files (all new/changed this session)
+- `src/nss/inc_conflict.nss` (new) — `ConflictTemplateFor`, `ConflictCloneFor`, `ConflictArrivalPoint`, `ConflictSpawnExit`, `ConflictSetReturn`, `ConflictJump`, `ConflictBoardCabinParty`.
+- `src/nss/conflict_pop.nss` (new) — composition hook. Runs on the fresh clone, reads `ConflictTier`, and deliberately spawns nothing yet; its header carries the agreed faction rules for whoever fills it in.
+- `src/nss/transitions2.nss` — new `sTag=="conflict"` branch, and a `ConflictActive` clear in the existing `exit` branch. Instance is shared, keyed `<planet>_<area>&<x><y>&Conflict` on the module, matching the tent/dungeon key shape directly above it.
+- `src/utp/pla_conflict.utp.json` (new) — tag `conflict`, appearance 826 (Lightshaft Red), `OnClick=transitions2`, Useable=1/Static=0 (a static placeable cannot be clicked at all — `area_pop_inc.nss:57`).
+- `src/utp/conflict_exit.utp.json` (new) — tag `exit`, appearance 828 (Lightshaft Green). Tagged `exit` on purpose so `transitions2.nss`'s existing exit branch handles the return verbatim, including its fallback to `transitions.nss` when the origin tile was destroyed while we were inside — the normal case for a lone pilot, whose tile empties the moment they leave.
+- `src/nss/inc_flight.nss` — `FlightHatchJoinOwner` now refuses while the owner has `ConflictActive`, so a lone follower can't side-door into a live fight.
+- `src/nss/area_save.nss:11` — conflict clones exempted from the destroy-when-empty pass, beside the existing `IsClusterMember` exemption, so a retreating party finds the same fight on return.
+
+#### Settled decisions
+- Entry is **clicker-only** everywhere; the cabin party is the one exception, and they come as a group.
+- Victory = every creature hostile to the PC dead. Surviving Defenders don't block it.
+- Players leave via the exit shaft when ready, not on an auto-return.
+- Factions are stock **Hostile vs Defender** — two Hostile groups would be allies and just stand there, and `src/fac/repute.fac.json` has only the 5 stock factions. Consequence: the party always has an ally side. `SetIsTemporaryEnemy(oPC, oCreature)` is the per-PC escape hatch when a Defender group needs to be hostile too.
+
+#### Still to do
+- **Composition** (TASK-32) — `conflict_pop.nss` is an empty hook today.
+- **Placement** — nothing creates a conflict placeable yet. Needs the random roll (beside `area_creatures.nss`'s camp roll, with a persistent record written at roll time — `area_creatures.nss` records nothing about camps today, the gap TASK-14 found) and a DM placement branch in `mod_activate.nss`.
+- **Resolution** — nothing yet detects "all hostiles dead", marks the record resolved, or tears the instance down.
+- **verify**: place a `conflict` shaft in a space tile, click it as a pilot with a party aboard the cabin, confirm everyone lands in a blank clone of the same terrain type, confirm the cabin self-destroys, confirm the exit shaft returns everyone to the shaft's position even after the origin tile was torn down, and confirm the cabin hatch refuses while the pilot is inside.
+
+---
+
+### TASK-31: Ship decks, ghost-follow passengers, and pilot death
+- **status**: designed, not implemented. This is the full model TASK-30's hybrid is a stepping stone toward; both are wanted.
+- **action**: Give a ship owner's flight a real interior and a real answer to the pilot dying.
+
+#### Design
+- The ship owner is currently the only permitted pilot. Every other party member is moved to a **cloned ship deck**, mirroring the ticketed transport areas (`airship001/002`, `starship001/002`).
+- The deck has a **doorway to a ship interior**, so passengers can be above on deck or below in the cabin — again as ticketed transport does.
+- While in a ship-travel area (clouds / space / sea), non-pilot party members are **invisible, cutscene-ghosted, and cutscene-forced to follow the pilot**.
+- Passengers can **toggle** between that follow-the-pilot observer mode and being back on the deck, so watching the flight is a choice rather than a state they're stuck in.
+- **If the pilot dies**, move them — bleeding, not dead — aboard the ship deck so the party can stabilise them. Afterwards the pilot can either return to the same space location and fly on, or use a **ship control** to fly to a chosen destination like ticketed travel, with the same interruptible flight delay.
+- Safe fallback destination is **Arland `0_0`** — the `citya` start tile named "Arlandia" (`_galaxy.nss:1221`). Parallels the existing `DOMAIN_REFRESH_AWAY_PLANET`/`_AREA` constants in `_string_utils.nss`.
+
+#### Engine facts established while designing this (do not re-derive)
+- **There is no cutscene invisibility.** NWScript offers `EffectCutsceneGhost` (creature-collision passthrough only — not invisibility, and not through walls), `EffectCutsceneParalyze`, `EffectCutsceneImmobilize`, `EffectCutsceneDominated`. For hiding there is only `EffectInvisibility(INVISIBILITY_TYPE_NORMAL|DARKNESS|IMPROVED)`, which is real spell invisibility: concealment, breaks on attack, defeated by See Invisibility / True Seeing.
+- **The clean hiding tool is `NWNX_Visibility_SetVisibilityOverride`** (per-observer, no spell mechanics). `src/nss/nwnx_visibility.nss` is present but **the plugin is not loaded**: `~/uoa/config/nwserver.env` sets `NWNX_CORE_SKIP_ALL=yes` and has no `NWNX_VISIBILITY_SKIP=no` line. One line plus a container restart.
+- **`SetCutsceneMode(oPC, TRUE)` also makes the player plot/unkillable**, restoring the prior plot flag on exit (`nwscript.nss:10754`). Useful for passengers; must be off before they can fight.
+- **`ActionForceFollowObject` on a PC breaks the moment the player touches a movement key** — input clears the action queue. Follow is not actually forced without cutscene mode.
+- **Force-follow does not survive an area transition.** `transitions.nss` moves ONE PC via `PlanetDest`/`AreaDest` locals; a following passenger is left in the old tile, which `area_exit.nss` then destroys 0.3s later. Since a flight is a chain of tile hops, ghost-follow needs explicit party movement on every hop — precisely the cost the detached cabin avoids. Budget for this; it is the main work in this task.
+- **`area_enter.nss:151` swaps appearance to 338 for ANY PC entering a space area** (clouds→342, ocean→339), stashing the real one in `OrigApp` on the goldbag. So passengers standing in the pilot's area become ships too; invisibility is what hides that.
+- **Two pre-existing bugs this task should fix**: `FlightHatchJoinOwner` checks only `GetIsObjectValid(oOwner)`, which is TRUE for a corpse — so a follower using the hatch after the pilot dies is teleported onto the body, in space. And once the pilot presses respawn, `mod_respawn.nss` jumps them to `WP_Death`, so the hatch dumps followers onto the Death plane. Both disappear once death moves the pilot to the deck instead.
+- The current cabin is a **single** area (`cabin_air000` / `cabin_star000`); the deck/interior split does not exist yet and has to be built.
+
+#### Files (anticipated)
+- `src/nss/inc_flight.nss` — deck/interior split, ghost-follow mode and its toggle, per-hop passenger movement, pilot-death handling.
+- New deck + interior area templates, modelled on `airship001`/`starship001`.
+- New ship-control placeable and its destination dialog, modelled on the ticketed-travel conversation (`conv_trans006.nss` and friends).
+- `~/uoa/config/nwserver.env` — `NWNX_VISIBILITY_SKIP=no` (outside the repo).
+- **verify**: not yet planned.
+
+---
+
+### TASK-32: Conflict composition and tiers
+- **status**: deferred by design; TASK-30 ships an empty `conflict_pop.nss` hook waiting on this.
+- **action**: Decide what actually spawns in a conflict, per tier and per environment. Space "requires more systems" and is expected to differ substantially from clouds/sea.
+- **constraint**: stock Hostile vs Defender only (see TASK-30) unless custom factions are added to `src/fac/repute.fac.json`, which is a build-time change — NWScript cannot create a faction at runtime.
+- **verify**: not yet planned.
+
+---
+
+### TASK-33: GetName(oPC) is used as a database key in 96 places
+- **status**: found while building ship naming (TASK-34); blocks that feature's rename half. Not started.
+- **action**: Convert every `GetName(oPC)` that is used as a KEY (not as display text) to `GetName(oPC, TRUE)`, which returns the character's true name regardless of any active rename override. The two calls are identical while no override exists, so the conversion is safe to land ahead of the feature that needs it.
+- **why it matters**: nothing can ever rename a PC until this is done. Renaming changes what `GetName(oPC)` returns — this is true of base `SetName()` AND of `NWNX_Rename_SetPCNameOverride`, whose own header directs you to `GetName(oPC, TRUE)` for the true name. Any renamed player silently starts reading and writing different rows.
+- **worst offenders found so far**:
+  - `area_exit.nss:19` — gates the whole area-save path on `GetLocalInt(oModule, GetName(oPC))`. A renamed player's areas stop saving, with no error.
+  - `area_exit.nss:28` / `transitions2.nss` — the `GetName(oPC)+"Loc"` pending-arrival location, written on transition and read on exit. Rename between the two and it resolves to nothing.
+  - `cond_domain004/005/018/019.nss` — domain ownership is a string compare of `GetName(oPC)` against the domain's `Master`. A renamed owner stops owning their domain.
+  - `challenges.nss` (4 sites), `cond_challeng002/007.nss`, `conv_challeng001.nss` — per-player challenge progress keys.
+  - `clones.nss:54`, `cond_hench008.nss` — henchman `Master` strings.
+- **constraint**: display uses (`FloatingTextStringOnCreature`, `SendMessageToPC`, `SetCustomToken`, `SpeakString`, log lines) must be left alone — those SHOULD show the override once one exists. Only key uses convert.
+- **verify**: with `iShipNameRename` still 0, confirm no behaviour changes at all (the two calls are equivalent). Then flip it to 1, fly a named ship, and confirm area saves, domain ownership and challenge progress all still work for the renamed pilot.
+
+---
+
+### TASK-34: Player-named ships
+- **status**: naming, storage and the rename window are implemented and compile clean; the rename-the-pilot half is gated OFF behind `iShipNameRename` pending TASK-33. Not tested in-game.
+- **action**: Let a player name each ship they own, and have that name stand in for the pilot's own while they are wearing the ship model.
+- **files**:
+  - `src/nss/_shipname.nss` (new) — area↔tool mapping, name storage, the NUI page/open/commit, and `ShipApplyNameForArea`.
+  - `src/nss/shipname_event.nss` (new) — the window's event handler.
+  - `src/nss/mod_activate.nss` — a ship tool used in its own element still opens the flight dialog exactly as before; used anywhere else it opens the rename window instead. That split is deliberate: `cond_ship001.nss` and friends gate every flight reply on the matching area, so outside it the dialog had nothing to offer, and renaming a ship is not something to do while steering it.
+  - `src/nss/area_enter.nss` — `ShipApplyNameForArea` called beside the appearance swap, keyed off the area tag rather than the swap's own `iCheck` (that flag is also set for underwater and for airship/starship interiors, none of which put the PC in a ship model).
+  - `src/nss/_module.nss` — `iShipNameRename` (default 0).
+- **pattern**: the name lives as a local string on the tool item itself, so it travels with the character file and needs no pwdata row. `SetName(oObject,"")` reverts to the original name, so the real character name never has to be stashed.
+- **verify**: use a ship tool on land — the window should open, prefilled with any existing name, and Save/Clear should both report back. Use the same tool at sea/in the sky/in space and the flight dialog should appear exactly as it does today. After TASK-33, flip `iShipNameRename` and confirm the name swaps in and out with the ship model.
+
+---
+
+### TASK-35: Shared domains — per-structure access grants from the domain sign
+- **status**: storage, semantics and lifecycle implemented and wired; the dialog that exposes it is specified below but NOT built. Asks (2) and (3) still open.
+- **action**: A domain owner grants another character the use of individual structures in their domain, managed from **the domain's own sign** — not a bank NPC. Both characters are naturally present, since granting happens at the sign.
+
+#### Permission model
+- Granularity is **per slot** (a domain has 10, `domains.nss:99`). Slot 0 is the domain-wide grant: one write instead of ten.
+- A grant confers USE — collect an extractor's output, hire at a caserne, rent and decorate a house. It **never** confers building or destroying, in this or any domain.
+- Grants **reset when the slot changes**. A grant is permission to use one specific structure, so it must not survive that structure being replaced. Wired at all three lifecycle points: build (`conv_domain003.nss`, `iChoice1==1`), destroy-slot (`conv_domain005.nss`), destroy-domain (`conv_domain003.nss`, `iChoice2==2`, which clears slot 0 as well). Rebuilding a slot as a different structure therefore starts with a clean list.
+- Any two characters on the same **account** short-circuit the two-party requirement — `DomainSameAccount` compares public CD keys, so a player can approve their own alt alone.
+
+#### What is built
+`src/nss/_domainuser.nss` — `DomainAddUser` / `DomainRemoveUser` / `DomainRemoveUserAll` / `DomainIsGrantedSlot` / `DomainIsApprovedName` (slot grant OR domain-wide), `DomainClearSlot` and `DomainClearAllGrants` for the lifecycle resets, `DomainCanUse` and the one-call `DomainCanUseHere` (reads planet/area/slot/master straight off a sign or structure flag), `DomainCanBuild` (owner or DM only, kept a separate function so no call site can blur the split), `DomainSameAccount`, and `DomainAreaOf`. Storage is one pwdata row per (domain, slot): `<planet>&<area>&DomainUsers&<slot>`, holding an &-wrapped name list so `Al` never matches `Alice`.
+
+#### What remains: the dialog work
+The signs already carry everything needed — `domains.nss` gives each structure a `zep_sign0XX` placeable with `Master`, `Slot` and `Structure` locals and a readable name ("Airship", "Casern"), and `domaincontrol` / `structureflag` both open the `domain` conversation (`OnUsed = domain_used`).
+
+1. **Granting UI** on the domain sign, behind the owner-only `cond_domain004`: list the PCs in the area (the module's usual fixed-replies-plus-`SetCustomToken` pattern, as `cond_choice0..26` do), then list the domain's built slots to pick which structure to grant, plus a domain-wide option and a revoke path (`DomainRemoveUser` / `DomainRemoveUserAll` exist for it).
+2. **Per-reply conditions** in `src/dlg/domain.dlg.json`. `cond_domain005.nss` currently gates the ENTIRE structureflag menu on `Master == GetName(oPC)` — build, destroy, rotate, rent, production and caserne all sit behind that one condition, so it cannot simply be relaxed. Replies must be split:
+   - **Stay on `cond_domain005`** (owner only): build, destroy, and the TASK-17 rotation submenu.
+   - **Move to a new `cond_domainuser.nss` calling `DomainCanUseHere`**:
+     - Production collection — the six structures `conv_domain006.nss:77` routes to `domain_content.nss`: Extractor (5), Factory (6), Farm (7), Field (8), House (11), Sawmill (21).
+     - Caserne soldier hiring (3) — `conv_domain007.nss:26` lists tiers and prices, `conv_domain008.nss:41` creates the `hench000` soldier.
+     - Rent — the replies gated today by `cond_domain018` (slot unrented) / `cond_domain019` (caller is the renter).
+   Dialog edits must round-trip through `nwn_gff` before being trusted, and the struct array is append-only — add replies rather than renumbering.
+
+#### Ask (2) — DONE, and it needed gating rather than opening
+Claim-a-room-and-furnish-it turned out to be fully built already, and completely ungated. The rent menu (`domain.dlg.json` `EntryList[0]`, "Structure menu :") is its OWN root entry reached from `StartingList[6]` via `cond_domain020` — NOT nested under the `cond_domain005` structureflag menu — and `cond_domain020` used to return TRUE for any player at any House flag in any domain. So every player on the server could already rent any house anywhere.
+
+The chain that already works: rent (`conv_domain008.nss:480` writes the renter's name to `<planet>&<area>&Domain&<slot>`) → enter (`transitions2.nss` Structure 11 sets the claimed interior's `Master` to the RENTER) → furnish (`mod_unacquire.nss:36` accepts an `ofurniture*` item in an area named "Home"/"House" when `GetName(oPC)` matches that `Master`; `h_house_001` is indeed named "House").
+
+`cond_domain020.nss` now requires `DomainCanUseHere` — so granting a character the House slot IS designating that house for them — with the sitting tenant always let through, whether or not they hold a grant, so revoking a grant (or this change landing on a live server) never strands someone with no way to pay rent or move out. Because the rent menu is its own root entry, this needed no dialog edit at all.
+
+**Behaviour change on a live server**: players who could previously rent any house anywhere now need a grant. Existing tenants are unaffected.
+
+**Gap found**: furniture does NOT survive a server restart. `conv_furnitur003.nss` creates the placeable with no `Persistent` flag, so `area_save.nss:48` routes it to the module-local path — it survives the interior emptying and refilling within a session, and is lost on reboot. Setting `Persistent`=1 on placed furniture (and confirming the DB path's float truncation at `area_save.nss:65` doesn't matter at furniture scale) would fix it. This matters for ask (3), which asks for ship quarters "furnished and saved the same way".
+
+#### Constraints and open questions
+- Names as identifiers inherit TASK-33's fragility. If domain ownership moves to a stable id, these lists must move in the same change.
+- Ship decks do not exist yet (TASK-31), so ask (3) stays blocked.
+- **open**: which structure groups beyond production/caserne/rent an approved user should reach — Services (Guild, Hall, Inn, Mission Office, School, Shop, Tavern, Temple), Transport (Airship, Starship) and Adventure (Amusement Place, Dungeon, Tower) are all undecided. Also whether a grant holder may rent more than one property, and how many grants a domain may issue.
+- **verify**: with two characters in one area, grant one the use of a single Extractor slot from the domain sign; confirm they can collect its output, cannot collect from an ungranted slot, and never see build or destroy. Rebuild that slot as something else and confirm the grant is gone. Repeat with two characters on one account, alone.
+
+---
+
+### TASK-36: Rent expiry — clock and auto-release done
+- **status**: implemented and deployed. Not yet confirmed in-game.
+
+#### Done: a shared, restart-proof expiry clock
+Rent used to live ONLY on the tenant's goldbag, as a tick count decremented against `GetLocalInt(oModule,"Counter")`. Two problems: nobody but the tenant could read it — not the owner, not a would-be renter, not the door — and that heartbeat counter is a module local reset on every reboot, which `mod_heartbeat.nss:30` schedules routinely, so rent silently stretched at every restart.
+
+Tenancies now carry an absolute expiry DAY in pwdata (`<planet>&<area>&Domain&<slot>Until`), read off the game calendar, which `mod_heartbeat.nss:30` saves and `mod_load.nss:37-42` restores. `DomainGameDay`, `DomainRentUntil`, `DomainRentExtend`, `DomainRentClear`, `DomainRentDaysLeft`, `DomainRentExpired` in `_domainuser.nss`; term length `iDomainRentDays` (30). Tenancies predating the clock are seeded with a full term on first read rather than treated as instantly overdue.
+
+#### Done: auto-release on expiry
+`DomainReleaseIfExpired` clears an overdue tenancy and its expiry, returning the slot to the market. Called from `cond_domain020.nss` (the rent-menu gate, so an expired slot presents itself as vacant) and `cond_domain018.nss` (the rent reply itself). Evaluated wherever a slot is looked at rather than on a timer: a tenant who stops paying may never return, so expiry cannot be detected from their own actions, and there is no index of rented slots to sweep. The owner and would-be renters are exactly the people who care whether a slot has come free.
+
+**The escrow that once blocked this is no longer needed.** TASK-37 moved player storage out of houses and onto the account, so releasing a tenancy cannot cost anyone their belongings. The tenant's own back-pointer is not cleared at release — their goldbag is unreachable from these scripts — but `DomainHasRental` verifies against the record and heals itself, so their one-home slot frees the next time they try to rent.
+
+#### Known limits
+- A tenant gets no warning before losing a house.
+- Release only happens when someone looks at the slot; a domain nobody visits keeps its expired tenants until it is next visited.
+- Placed furniture in a domain house still does not survive a restart (module-local save path). Rental units solved this with their own snapshot (TASK-38); domain houses could use the same treatment.
+- **verify**: rent a house, set its `Until` back in the database, then have another character open the House flag — the slot should show as available to rent. Confirm the previous tenant can then rent elsewhere.
+
+---
+
+### TASK-36b: House contents do not survive a restart (superseded in part)
+#### Blocker: house contents already do not survive a restart
+Escrowing a tenant's belongings assumes those belongings persist in the first place. They do not:
+- `chestplay_close.nss` saves player-chest contents with `SetLocalString(oModule,...)` and has **zero** persistent writes — module locals, wiped on reboot.
+- Placed furniture (`conv_furnitur003.nss`) is created with no `Persistent` flag, so `area_save.nss:48` routes it to the same module-local path.
+- House interiors are pooled static areas claimed through `transitions2.nss`; the claim mapping is a module local too.
+
+So on every scheduled reboot, everything inside every rented house already vanishes. Auto-release with escrow would frequently capture nothing, and — worse — releasing a tenancy WITHOUT working escrow lets the next tenant walk into whatever the previous one left. Auto-release is therefore strictly worse than the status quo until this is fixed, which is why only the clock shipped.
+
+#### Order of work
+1. **Make house contents persistent.** Player chests and placed furniture need the pwdata/campaign path rather than module locals. `StoreCampaignObject` is the module's existing tool for whole objects with gear intact (`area_save.nss:68`, `spawngrp_save.nss:64`); note `mod_load.nss:59` wipes the `AdvAreaSnap` namespace at boot, so escrow must use a different one. Decide on a per-house item cap first — `iDomainContainer` (10) is the existing precedent for container limits.
+2. **Auto-release on expiry.** Evaluate `DomainRentExpired` wherever the slot is looked at — `domain_content.nss`, `cond_domain018`, `cond_domain020`, `conv_domain014` — since the tenant may never return. Release clears the tenancy, the expiry and the tenant's back-pointer (`DomainClearRented`; the marker already self-heals).
+3. **Escrow on release.** Sweep the interior: loose items, container contents, and furniture converted back to its `o`-prefixed item form the way `conv_furnitur002.nss` already packs it. Key by character name, sanitised as `spawngrp_save.nss`'s `SG_Clean` does.
+4. **Retrieval.** At a bank (a branch in `shop.dlg.json`, which already hosts the bank), and on renting a new house — dumped into chests there.
+- **open**: per-house item cap; what happens to escrow if the character is deleted; whether the owner should be able to evict before expiry (`DomainCanBuild` would gate it).
+- **verify**: rent a house, let the term lapse across a reboot, and confirm the day count shown is unchanged by the restart. Then, once escrow exists, confirm the house frees up, the belongings survive, and both retrieval paths return them.
+
+---
+
+### TASK-37: Player chest storage made persistent and per-account
+- **status**: implemented and deployed. Not yet tested in-game.
+- **problem**: UOA's four house chests (`chestplayer1-4`) wrote their contents to MODULE LOCALS (`chestplay_open/close.nss`, zero persistent writes), and `mod_heartbeat.nss:30` reboots the server on a timer — so players were silently losing everything they stored, every reboot.
+- **model**, taken from The Frozen North (`~/tfndev`, `pc_storage_distu.nss` / `storage_onuse.nss`): storage belongs to the ACCOUNT (public CD key), not to a house. The chest in the world is only a portal — using it opens the player's own storage object via `NWNX_Player_ForcePlaceableInventoryWindow` (plugin confirmed enabled). The whole object is saved as ONE campaign entry per (account, slot) on `OnInvDisturbed`, contents intact.
+- **why per-account rather than per-house**: it dissolves the escrow problem in TASK-36 entirely. Losing a house — evicted, demolished, rent lapsed — can no longer cost anyone their belongings, and renting somewhere new means the chests are already stocked, which is exactly what the "dump it into chests at the new lodgings" requirement asked for.
+- **no item cap, deliberately**: TFN imposes none, and none is needed. Because one campaign entry holds a whole chest, row count is bounded by players x slots regardless of how many items are inside — unlike a per-item scheme, which is what made a cap look necessary earlier.
+- **files**: `src/nss/_pcstorage.nss` (new), `src/nss/pcstore_distu.nss` (new), `src/nss/chestplay_used.nss` (rewritten as a portal), `src/utp/chestplayer.utp.json` (`OnInvDisturbed` = `pcstore_distu`), `src/nss/_module.nss` (`iPCStorageChests` = 4).
+- **unchanged**: the four slots and their house-level gating (1 at level 1, 2 at level 4, 3 and 4 at level 5) and the Master check, which for a rented house is the RENTER.
+- **migration**: the first time an owner opens a chest, anything still in the old per-house container is moved into their account store and saved. Those contents were doomed at the next reboot anyway; this just avoids losing them sooner.
+- **campaign namespace** is `PCStorage`, deliberately NOT `AdvAreaSnap` — `mod_load.nss:59` destroys that one at every boot.
+- **do NOT delete `chestplay_open.nss` / `chestplay_close.nss`** — checked, and they are not dead weight. A second blueprint, `deskplayer.utp.json` (tag `deskplayer0`), shares their `OnOpen`/`OnClosed` but has NO `OnUsed`, so desks never pass through the new portal and still depend entirely on the old module-local path. That is what the `sTag=="3"||sTag=="4"` branch is for: desk instances, saved lossily (resref + stack size only, items destroyed) versus the full `_A_`…`_M_` record every other tag gets. Desks therefore still lose their contents on reboot — a separate fix, same shape as this one.
+- **item cap**: `iPCStorageMaxItems` (40) is enforced in `pcstore_distu.nss`, counting item STACKS not units. NWN has no per-container cap of its own — capacity is a slot grid and `baseitems.2da` gives each item type an `InvSlotWidth`/`Height` footprint — so a definite limit has to be imposed in script. It also bounds the save cost: every add or removal re-serialises the entire chest.
+- **storage location**: `StoreCampaignObject` does NOT write to MySQL. It writes a local SQLite file under `~/uoa/server/database/` (`pcstorage.sqlite3`, alongside the existing `advareasnap.sqlite3`). Only `aps_include`'s pwdata/pwobjdata go to MySQL via NWNX_SQL. So chest contents are invisible to the website and are NOT covered by a MySQL dump — they need the `database/` directory backed up separately.
+- **verify**: store items in a house chest, reboot the server, and confirm they are still there. Confirm a second character on the SAME account sees the same contents, and one on a different account does not. Rent a different house and confirm the chests carry over. Confirm chests 2-4 stay locked below the required house level.
+
+---
+
+### TASK-38: Multi-unit rental doors (apartment buildings)
+- **status**: home area templates ported, cleaned and committed. The feature itself is NOT built, and deploying the templates is blocked — see below.
+- **action**: Mark a door as a multi-unit rental. Using it opens a dialog listing every unit: the character renting it, or `VACANT: <size>`. Selecting a vacant unit offers to rent it. Example:
+  ```
+  1. Bruno Beltrix
+  2. Vadil Tourn
+  3. Amber Rose
+  4. Gradle
+  5. VACANT: Large unit
+  6. VACANT: Small unit
+  ```
+
+#### Agreed design
+- Doors live in **hand-built areas**, configured by a DM with **variables on the door placeable** (the pattern `spawngrab`'s `GrpName` already uses).
+- **Size changes both price and interior.** Three tiers ported from tfndev: `slum` (small), `norm` (medium), `rich` (large).
+- The **one-home-per-character cap applies**, shared with domain house rentals — `iDomainOneRental` and the existing `DomainMayRent` self-healing back-pointer carry over unchanged.
+
+#### Done: home area templates ported from tfndev
+12 templates — 3 tiers x 4 door facings — converted from `~/tfndev` binary GFF into `src/are`, `src/git`, `src/gic`. TFN names them `_home<tier>_<facing>` and instantiates them with `CreateArea()`, one real area per home, which sidesteps UOA's pooled-interior limit entirely (only 2 instances each of `h_house_`/`h_home1-3_` exist, so pooling caps concurrent house occupancy at 2 server-wide).
+
+Sizes: slum 2x2, norm 4x2, rich 3x5 with three floors and internal level-to-level doors.
+
+Cleanup applied on the way in:
+- Tilesets `tni01`/`tni02` verified present in UOA (4 and 14 existing areas use them), so the templates will load.
+- TFN's `storage1-6` / `gold_storage1-3` placeables replaced with UOA's `chestplayer`, tagged `chestplayer1..N` and capped at the 4 slots `chestplay_used.nss` supports; surplus containers dropped rather than left pointing at absent blueprints.
+- `door_wood003` and `x3_door_wood001` (used by no UOA area) swapped for `x3_door_wood003`, which 8 UOA areas already use. `nw_door_fancy` (173 uses) and `nw_door_jeweled` (130) were left alone.
+- A `Level` variable baked into each template's VarTable — slum 1, norm 4, rich 5 — so `chestplay_used.nss`'s existing level gating opens the right number of chests with no extra code.
+- All 36 files round-trip through `nwn_gff`; no TFN-only blueprint references remain.
+
+#### BLOCKER: the deploy script will not ship new areas
+`~/uoa/build_deploy.sh` sets `SKIP_GFF_DIRS="ifo are git gic"` and never overlays those from `src/`. Its own header explains why: those GFFs drift between the repo and the live `.mod`, and a blanket overlay would silently revert live-only area state. The sanctioned procedure it names for such changes is to extract the live GFF, patch the single field, and convert back.
+
+Two things are needed and both fall inside that skip:
+1. The 36 new `.are`/`.git`/`.gic` resources have to reach the `.mod`. Confirmed absent after a normal deploy (`nwn_erf -t` finds zero `_home*` resources).
+2. Each template needs an entry in the live `module.ifo`'s `Mod_Area_list`. TFN lists all 12 of its own, so `CreateArea()` requires it.
+
+**Adding is safe in a way overwriting is not** — a resource that does not yet exist in the `.mod` cannot revert anything. So the options are to relax the guard to permit new-only additions, or do a one-off manual extract/patch/repack. Either is a deliberate change to live-server deployment and wants an explicit decision, not a silent workaround.
+
+#### Built
+- `src/nss/_unitrent.nss` — data model and window. Per-unit tenancy keyed on the AREA TAG plus the door's integer position (`<areaTag>&Unit&<x>_<y>&<n>`), NOT on Planet/Area: those belong to the coordinate travel system and are empty in the hand-built areas these doors are for. Rent runs on the same absolute game-day clock as domain houses.
+- `src/nss/unitrent_event.nss`, `src/nss/unit_used.nss`, `src/utp/pla_unitdoor.utp.json` (tag `unitdoor`).
+- `_module.nss` — `iUnitRentSmall` 250 / `iUnitRentMedium` 500 / `iUnitRentLarge` 1000 per term.
+- `_domainuser.nss` — the one-home cap now covers both kinds. A `RentedKind` flag on the goldbag says whether the back-pointer describes a domain slot or a rental unit; units store their whole pwdata key, so verification needs no knowledge of `_unitrent.nss` and the include stays one-directional. Both self-heal.
+
+**Built as NUI, not a dialog.** NWN dialog replies are fixed, so a dialog would have capped the unit count at however many reply slots were pre-made and needed `SetCustomToken` juggling per row. The window has no such limit (`UNITRENT_MAX` 12 is only a sanity bound) and reuses the pattern already proven by the ship-rename window.
+
+**DM setup:** place `pla_unitdoor`, set `Units` = count, and `Unit<n>` = 1 small / 2 medium / 3 large. Anything unset reads as small, so a door with only `Units` set works rather than breaking.
+
+**Interiors** are instanced per unit with `CreateArea()` under a deterministic tag, so the same unit resolves to the same tag after a reboot. `CreateArea` areas do not survive a restart — the shell is recreated on next entry, its loose contents are not. Player storage is account-scoped (TASK-37) and unaffected; furniture is not, the same known gap as everywhere else.
+
+#### Interior wiring, and the way out
+`UnitWireInterior` runs on a freshly instanced interior and does two things:
+- Links the internal staircase doors to each other with `SetTransitionTarget` (`level1_to_level2` <-> `level2_to_level1`, and the same for 2<->3). Norm has two floors and rich three; unlinked, their upper floors are unreachable.
+- Turns the front door into the way out, by retagging `interior_door` to `door_exit` and pointing its `OnClick` at `transitions2`. That script's existing exit branch then reads the `AreaExit`/`AreaExitObj`/`fXExit`/`fYExit` locals the instancer set, so no new exit code was needed and no floating exit marker had to be planted indoors.
+
+A local `GetObjectInAreaByTag` was needed for this: NWScript has no "find by tag inside THIS area" call, and module-wide `GetObjectByTag` would return whichever instance it saw first — fatal here, because every unit interior carries the same internal door tags.
+
+#### Tenant actions
+A tenant's own row now shows days remaining and carries **Enter / Pay / Leave**. Paying extends from the later of today and the current expiry, so paying early adds a term instead of discarding the remainder. Leaving clears the tenancy and the one-home back-pointer, freeing both the unit and the character's home slot.
+
+#### Expiry, re-letting, and furniture
+- **Expiry sweep.** `UnitSweepExpired` releases every overdue unit at a door, and runs whenever the list is opened. A tenant who stops paying may simply never return, so expiry cannot be detected from the tenant's own actions — and whoever opens the door is exactly the person who cares whether something has come free.
+- **Re-letting keeps the right furniture.** The interior shell and its furniture record survive a release, so a tenant who re-rents their own unit finds it as they left it. `UnitRentTake` wipes the record only when the unit actually changes hands, comparing against a `Last` tenant name, so an incoming tenant never inherits someone else's decorating.
+- **Furniture now persists.** A unit interior is a `CreateArea()` instance and does not survive a restart, and `area_save.nss` cannot help because it keys on the Planet/Area coordinate locals these interiors deliberately do not carry. So `conv_furnitur003.nss` marks every placed piece `Furniture`=1, `area_exit.nss` snapshots a unit interior's pieces to pwdata when its last occupant leaves, and the instancer rebuilds them on next entry.
+- **Containers needed no work.** The chests in these templates are `chestplayer` portals to account storage (TASK-37) and hold nothing locally, so they come back full regardless of the interior being rebuilt.
+
+#### DM configuration: `.wunits`
+`.wunits <count> [sizes]` configures the nearest `unitdoor` within 10m. Sizes is a comma list, one entry per unit — 1 small, 2 medium, 3 large — padded out to the count so every unit gets an explicit entry:
+```
+.wunits 6 1,1,1,1,3,1     six units, the fifth large
+.wunits 4                 four small units
+.wunits 0                 clear the door
+```
+**Saved to the database, not to the door.** A local variable set in-game does not survive a restart, so pwdata is the authority (`<areaTag>&Unit&<x>_<y>&Cfg`, stored `"<count>&<size1>,<size2>,..."`). A door configured in the toolset still works: its own `Units`/`Unit<n>` locals are the fallback whenever no database row exists.
+
+#### Still to build
+- **No expiry warning.** A tenant gets no notice before losing a unit; the sweep simply releases it. A message on entry when the term is nearly up would be kinder.
+- **The sweep only covers doors someone opens.** A building nobody visits keeps its expired tenants until it is next looked at. That is deliberate — there is no index of doors to walk — but it means "released" really means "released the next time anyone looks".
+- **Domain houses still have no expiry action** (TASK-36). Units now do; the two should probably behave the same way.
+- **verify**: not yet planned.
+
+---
+
+### TASK-39: Owner-occupied housing is deliberately unlimited (design note, no work)
+- **status**: decided. Recorded so it is not "fixed" later by someone reading the one-rental cap and assuming it was meant to apply everywhere.
+- **decision**: `iDomainOneRental` limits **rented** homes only. Domains, and the Personal Houses a player builds in them, are **not** limited and are not meant to be.
+- **why it looks like a gap**: a player with five domains can have five Personal Houses they enter, furnish and store in, and still rent an apartment on top — four or six "homes" while `DomainMayRent` reports them as having one. That is intended.
+- **the distinction in code**: `transitions2.nss` overrides the interior's `Master` to the RENTER for structure 11 (House) only; structure 14 (Personal House) keeps the domain owner. `conv_domain014.nss:15` forces `iRent = 1` for structure 14, so a Personal House door never needs rent. `StartingList` evaluates `cond_domain005` (owner) before `cond_domain020` (rent menu), so an owner can never become their own tenant.
+- **if it ever does need limiting**: the check belongs in the build path (`conv_domain003.nss`, `iChoice1==1`), refusing a second Personal House across all of that character's domains. That needs an index of domains by owner, which does not exist — records are keyed by coordinate, so "all domains owned by X" currently means scanning every tile.
+
+---
+
+### TASK-40: A hand-patched .mod must be patched at the BUILD BASE, not the deployed copy
+- **status**: learned the hard way; recorded so it is not repeated.
+- **what happened**: the frozen000 tile-rotation fix (`d8c423b`) was applied by extracting the LIVE module at `~/uoa/server/modules/UOA.mod`, replacing one `.are`, and repacking over the live file. It worked, and was verified live. The very next `build_deploy.sh` run silently reverted it.
+- **why**: `build_deploy.sh:115` sets `BASE_MOD="$REPO_MOD"` — `<repo>/.build/modules/UOA.mod` — and only falls back to the live module if that file is missing. Every build extracts the BASE, overlays scripts and safe GFF categories, repacks, and copies the result over the live module. A change made only to the live copy is therefore discarded by the next build, without any warning, because `src/are` is in `SKIP_GFF_DIRS` and never re-applied either.
+- **the rule**: any hand-patched resource in a `SKIP_GFF_DIRS` category (`ifo`, `are`, `git`, `gic`) must be written into `<repo>/.build/modules/UOA.mod`. Patching the live module alone lasts exactly until the next deploy. Patching both is fine; patching only the base is sufficient, since the next build propagates it.
+- **how it was fixed**: extracted `.build/modules/UOA.mod`, replaced `frozen000.are` from `src/`, repacked in place, then ran a normal deploy and confirmed the corrected orientations survived it.
+- **worth automating**: a `--update-areas` flag that overlays `src/are|git|gic` files whose live copy is byte-identical to the previous src version would make this safe and routine. Identical-means-no-drift is exactly the condition that makes an overwrite lossless, and it is checkable.
+
+---
+
+### TASK-41: Personal starship navigation
+- **status**: built and compiling (603 scripts). In-game testing reached the cabin and found the way back blocked — see "Getting out of the cabin" below, now fixed. Manual flight and deck travel are still untested end to end.
+- **agreed design**: two travel modes, the pilot chooses.
+  - **Manual flight** — the pilot IS the ship (appearance 338) and flies for real, tile by tile: walk into the `newtransition` edge trigger facing the destination, let the existing transition carry them across, re-issue on arrival. The pilot interrupts by moving, which clears the action queue so the next leg is never issued. On reaching the destination tile the ship heads for the `pla_orb` placeable and the existing landing option takes over.
+  - **Deck travel** — the pilot returns to the cabin and the party waits out a timed passage at `iStarshipSec` (60s) per area crossed, with start / halfway / arrival messages, exactly as ticketed starships work. Everyone lands together.
+- **dead pilot**: the ship is the owner's body, so a corpse cannot be given a move order. Resolved by moving a downed owner INTO the cabin (`SpaceRecoverOwner`), which removes the ship from space entirely and turns the trip into deck travel. A passenger may then use the helm — `SpaceOwnerIsDown` covers dead, at or below 0 HP, and logged out.
+
+#### Built
+- `src/nss/_spacenav.nss` — visit tracking, galaxy lookup, distance/time, manual-flight stepping, deck travel, and the destination window.
+- `src/nss/spacedeck_event.nss`, `src/nss/shipctrl_used.nss`, `src/utp/pla_shipctrl.utp.json` (tag `shipcontrol`).
+- `src/nss/area_enter.nss` — records the visit, continues a flight in progress, and creates the helm on a cabin's first entry.
+- `src/nss/inc_flight.nss` — flags a fresh cabin `NeedHelm`; the helm itself is created from `area_enter` to keep the include order one-directional.
+
+#### Decisions worth remembering
+- **Visits are recorded on the goldbag**, not in pwdata keyed by character name. The goldbag travels with the character file, so this is genuinely per-character and sidesteps TASK-33's name-as-key fragility. Consequence: **every character starts with an empty chart**, including existing ones.
+- **Arriving in a space tile at all is proof of personal flight.** Ticketed starships put passengers in the `starship001` interior areas and never in a space tile, so no extra flag is needed to tell the two apart.
+- **Distance is Manhattan, not diagonal** — space tiles carry only North/East/South/West triggers, so a ship can never move diagonally.
+- **The helm is created at runtime**, mirrored through the cabin's arrival waypoint so it sits opposite the hatch. The cabin templates are `.are`/`.git` files, which `build_deploy.sh` never syncs, so a runtime placement is the only one that can deploy.
+- **Trip timers are anchored to the module**, which never dies — a cabin clone or a PC can go away mid-trip, and TASK-17 established that destroying the object a `DelayCommand` was scheduled from cancels it silently.
+
+#### Ship item options (built)
+Four replies appended to `ship.dlg.json` — append-only, so no existing reply index moved, and Abort stays last:
+- **Fly to Arland** (`cond_ship008`/`conv_ship008`) — in space, not already under way, not already there.
+- **Break off course** (`cond_ship009`/`conv_ship009`) — only while flying. Clearing the flag is the reliable stop: walking away only cancels the current leg and the flight would resume at the next tile boundary.
+- **Go below to the cabin** (`cond_ship010`/`conv_ship010`) — records the ship's coordinate on the cabin so courses can still be plotted once the pilot has left space, and clones the cabin/deck pair for a pilot flying alone. The pilot lands in the cabin, where the helm is.
+- **Return to the helm** (`cond_ship011`/`conv_ship011`) — owner only. If a trip is under way this breaks it off and drops the ship wherever it has got to. The cabin's hatch offers the same thing as **Take the helm**.
+
+#### Two standing destinations
+Every helm offers two courses whether or not the ship has charted anything, so a party is never without somewhere to go:
+- **The safe world** — the first system's `Start` planet (Arland), read from the module rather than hardcoded. Arrives in orbit and lands through the existing menu, as any charted world does.
+- **Where you launched from** — the planet this character last lifted off from. Arriving there sets the ship down **on the pad itself**, party and all, skipping the landing menu.
+
+`planet_take_off.nss` writes the pad to the goldbag as the ship leaves the ground: planet, tile coordinate, and the pilot's exact position and facing. The goldbag travels with the character file, so the record is per character, like the visit chart.
+
+Both arrival paths ask the same question, `SpaceNavPadIs(oOwner, sBody)` — no separate flag rides along with the trip:
+- **Manual flight** (`SpaceFlyStep`) — on reaching the destination tile, a pad match lands everyone instead of moving the ship toward the `pla_orb`.
+- **Deck travel** (`SpaceTripArrive`) — a pad match lands everyone *before* the alive/down branch, so a party whose pilot is dead still gets back to the ground they started on rather than to the planet's `0_0`.
+
+The ship item carries the pair as two replies: **Fly to Arland** (`cond_ship008`) and **Fly back to \<planet\>** (`cond_ship012`/`conv_ship012`), whose text names the planet through custom token 10670 — the condition script sets it before the reply is drawn, since the dialog text is fixed and the planet is not. The helm window labels the same two rows "- safe world" and "- where you launched from".
+
+#### A PC ship is two areas of its own
+`pcshipcabin` and `pcshipdeck` are new module areas, built for PC ship travel and nothing else, so they can be opened and decorated in the toolset without touching anything ticketed travel uses. They are cloned per flight, as the old cabin was.
+- **`pcshipcabin`** (`tin01`, 3x5) — the control room, copied from the interior ticketed space travel uses. The pilot goes below to here, because this is where the helm is.
+- **`pcshipdeck`** (`pat01`, 9x10) — the open room, copied from the interior ticketed airship travel uses. Passengers board here and ride here.
+- Both carry the hatch (`cabin_hatch`) and the helm (`shipcontrol`) in their own `.git`, opposite each other across the arrival waypoint. The runtime `SpaceDeckSpawnControl` is now only a backstop for a ship area that has no helm in it.
+- Both use one arrival waypoint tag, `WP_pcship`, so nothing that puts a PC down has to know which half it is looking at.
+- The cabin points at its deck (`FlightDeck`) and the deck back at its cabin (`FlightCabinOf`); both carry `FlightOwner`. `FlightCabinOf()` takes either half and answers with the cabin, which is what every helm and hatch question resolves through. The clone pair is destroyed together, and only once neither half holds a PC.
+
+#### The helm is also the door
+The helm placeable opens for **everyone aboard**, not just the owner. A passenger sees one row — *Walk through to the cabin/deck* — and that is the only way between the ship's two rooms. The course list is still owner-only, or a passenger's once `SpaceOwnerIsDown`.
+- **The chart belongs to the ship, not the reader.** `SpaceDeckPage` reads the visit record off the owner, not off whoever is standing at the helm; a passenger has usually never flown a ship of their own and would otherwise face a blank chart.
+- **Two destinations are always on the chart.** The safe world and the launch pad, charted or not — see "Two standing destinations" above. A pilot who died before charting anything would otherwise strand the whole party.
+
+#### Getting out of the cabin
+First in-game test: going below worked, and nothing brought the pilot back. Three separate reasons, all fixed.
+- **The ship dialog could not be opened in the cabin at all.** `mod_activate.nss` only starts it when `ShipToolForArea(<area tag>)` matches the tool, and a cabin is tagged `cabin_star000`, so using the tool down there opened the rename window instead and "Return to the helm" was unreachable. The cabin is now a fourth case in that check rather than an entry in `ShipToolForArea`, which also drives the ship-name rename — in the cabin the PC is themselves again, not the ship model.
+- **The hatch was a no-op for the pilot.** `cabin_join` jumps the user to the cabin's `FLIGHT_OWNER`, which for the owner is themselves, and `cabin_disemb` jumps to `FLIGHT_BOARD_LOC`, which a pilot never has — they took the ship up rather than boarding it. The hatch now offers the owner **Take the helm** (`cond_cabin_helm`/`cabin_helm`) and hides the two passenger options (`cond_cabin_join`, `cond_cabin_drop`).
+- **A pilot with a party went below to the wrong deck.** `FlightBoardParty` recorded the cabin on the cabin only, so the pilot could not find it and `conv_ship010` cloned a second one. The pairing is now made in one place (`FlightSetOwnerCabin`), with the pilot's half kept per ship kind so an airship cabin never answers for a starship.
+
+Both ways out share `SpaceReturnToHelm`, and both conditions share `SpaceMayTakeHelm`. Leaving an empty cabin behind destroys the clone on the same 6-second delay the hatch uses.
+
+#### Interrupting a trip
+`SpaceTripInterrupt` drops the ship back into space at roughly how far it travelled. Two mechanics: a **trip generation counter** on the cabin, since NWScript cannot cancel a `DelayCommand` — every scheduled step carries the trip number it belongs to and does nothing once that number moves on — and `SpaceNavPartWay`, which walks the Manhattan route (all of the X leg, then the Y leg) by the elapsed fraction and rounds to a whole tile.
+
+#### Settled behaviour
+- **Destinations are planets only.** Moons are reached by flying there yourself, from the nearest planet or through the space tiles.
+- **Arrival depends on the pilot.** Conscious owner: the ship arrives at the helm in the destination's SPACE tile and lands through the existing landing menu, which keeps the landing-site choice (`conv_ship005`'s `LandPlaceDest`) intact. Downed owner: nobody can fly, so the party puts down at the planet's `0_0`.
+- **Travel is free**, for the owner and every passenger.
+- **The cabin's `SpaceFrom` is stamped on every space-tile entry**, not just at dialog time — a dying pilot never opens a dialog, and that is exactly the case that would otherwise lose the coordinate.
+
+#### Still to build
+- **Combat does not interrupt a flight** — see TASK-42.
+- **verify**: not yet planned.
+
+---
+
+### TASK-42: Should combat interrupt a ship in flight?
+- **status**: deliberately deferred. No interruption for now.
+- **question**: a ship under manual flight keeps walking toward its edge trigger while hostiles engage it, and a deck trip keeps counting down. Space pirates (`mn_spacepirat001`) exist, so this is reachable.
+- **options**: stop a manual flight when the pilot is attacked; suspend a deck trip and resume when combat ends; or leave it, treating flight as committed and making pirates a hazard of travelling.
+- **verify**: not yet planned.
+
+---
+
+### TASK-43: DM tool to place and save a rental door
+- **status**: requested, not started.
+- **action**: give a DM a way to place a multi-unit rental door (`pla_unitdoor`) and configure it in one step, rather than placing it from the palette and then typing `.wunits`.
+- **what exists**: the door blueprint is in the palette as of `87736b3`, and `.wunits <count> [sizes]` configures the nearest one within 10m, writing to pwdata so it survives a restart (TASK-38). So the pieces work; what is missing is a single tool that does both.
+- **the part that needs care**: a DM-placed placeable does NOT survive a server restart on its own. `.wunits` persists the door's CONFIGURATION but nothing persists the door itself, so after a reboot the configuration row remains and the door it describes is gone. A save mechanism has to record the door's position, facing and area so `mod_load.nss` or the area's population pass can recreate it — the same problem `dmb_clucre_save.nss` solves for DM-landed cluster creatures, and worth copying rather than reinventing.
+- **suggested shape**: a `.wdoor <count> [sizes]` command that creates the door at the DM's feet, configures it, and writes a persistent record; plus a boot-time pass that recreates every recorded door.
+- **verify**: place a door with the tool, restart the server, and confirm both the door and its unit list come back.

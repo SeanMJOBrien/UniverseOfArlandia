@@ -1,4 +1,5 @@
 #include "_module"
+#include "_domainuser"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -12,7 +13,9 @@ int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
 //
 int iOpen = GetLocalInt(oModule,sPlanet+"&"+sArea+"&Open&"+IntToString(iSlot));
-int iRent = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot));if(iStructure==14){iRent = 1;}
+// The door reads the shared expiry clock (_domainuser.nss), not the tenant's
+// own tick count - which the owner could never see, and which reset on reboot.
+int iRent = DomainRentDaysLeft(sPlanet,sArea,iSlot);if(iStructure==14){iRent = 1;}
 ////////////////////////////////////////////////////////////////////////////////
 if(iOpen==0)
  {

@@ -61,6 +61,16 @@ if((iCampSize==3)&&(iLevel<3)){iCampSize = 2;}
 // reach the plot-giver to turn the mission in.
 int iCampClearedBoot = GetLocalInt(oModule,sPlanet+"&"+sArea+"&CampClearedBoot");
 if(iCampClearedBoot==1){iCampSize = 0;}
+// A camp only gets ONE roll per coordinate per server boot, whether or not
+// it was ever cleared. CampClearedBoot above only covers the "killed it"
+// case; leaving before finishing (or the tile's CopyArea clone tearing down
+// and recreating mid-fight, same trigger as the comment above) hits this
+// same population pass again with CampClearedBoot still 0, and without this
+// flag it would roll an entirely new camp - often a different creature
+// family - stacked on top of whatever area_recall.nss just restored from the
+// save. Set the moment a camp is actually created, further down.
+int iCampBuiltBoot = GetLocalInt(oModule,sPlanet+"&"+sArea+"&CampBuiltBoot");
+if(iCampBuiltBoot==1){iCampSize = 0;}
 int iCampCreated;
 //
 int iAreaX = GetAreaSize(AREA_WIDTH,OBJECT_SELF)*10;
@@ -874,7 +884,7 @@ if(GetStringLeft(GetTag(OBJECT_SELF),5)=="river"){lLoc = Location(OBJECT_SELF,Ve
 // ForcedCamp assignment: any camp created here wipes CampCleared at the tail
 // of this script, so letting a random one land on an already-cleared tile
 // would erase the flag just as surely as rebuilding the assigned camp would.
-if((iNoCamp==0)&&(iCampClearedBoot==0)&&(!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),6)!="clouds")&&(GetStringLeft(GetTag(OBJECT_SELF),3)!="gaz")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")){if(iCampSize==1){iRandom1 = 1;}else if(iCampSize==2){iRandom1 = 6;}else if(iCampSize==3){iRandom1 = 9;}else{iRandom1 = Random(45)+1;}
+if((iNoCamp==0)&&(iCampClearedBoot==0)&&(iCampBuiltBoot==0)&&(!GetIsAreaInterior(OBJECT_SELF))&&(GetStringLeft(GetTag(OBJECT_SELF),6)!="clouds")&&(GetStringLeft(GetTag(OBJECT_SELF),3)!="gaz")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="space")&&(GetStringLeft(GetTag(OBJECT_SELF),7)!="airship")){if(iCampSize==1){iRandom1 = 1;}else if(iCampSize==2){iRandom1 = 6;}else if(iCampSize==3){iRandom1 = 9;}else{iRandom1 = Random(45)+1;}
 ////////////////////////////////////////////////////////////////////////////////
 // Data-driven camps: on an auto camp (iCampSize==0), if any DM-authored spawn
 // groups exist and the roll hits, try to stamp a random level-eligible group
@@ -1066,7 +1076,7 @@ SetLocalInt(OBJECT_SELF,"DungeonRespawn",4);ExecuteScript("dungeons",OBJECT_SELF
 // Lets the plot-giver camp-clear mission (TASK-14/15) tell "never visited
 // yet" apart from "visited and cleared" without needing this area's live
 // object to still be loaded.
-}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampCleared","");}
+}if(iCampCreated==1){SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampSpawned","1");SetPersistentString(oModule,sPlanet+"&"+sArea+"&CampCleared","");SetLocalInt(oModule,sPlanet+"&"+sArea+"&CampBuiltBoot",1);}
 // A forced camp (missions.nss's ForcedCamp assignment) that produced nothing
 // means the plot-giver is pointing a player at a camp that doesn't exist and
 // can never be turned in - log it loudly rather than failing silently, which

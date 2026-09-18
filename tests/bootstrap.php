@@ -22,6 +22,10 @@ require_once WWW_DIR . '/sql.php';
 // Include the logging helper.
 require_once WWW_DIR . '/logging.php';
 
+// Include the player-account / map-discovery helpers. Only its pure functions
+// are unit tested; the DB-backed ones are exercised by the Playwright suite.
+require_once WWW_DIR . '/player_auth.php';
+
 // -----------------------------------------------------------------------
 // Pure functions extracted from database-mysql.php.
 // We cannot include that file directly because it does:

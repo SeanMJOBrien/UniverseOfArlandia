@@ -1,14 +1,16 @@
 #include "aps_include"
 #include "_module"
 #include "_string_utils"
+#include "nwnx_item"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
 object oPC = OBJECT_SELF;
 object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
-object oObject;object oNew;string sBP;int iValue;int iWear;int iWearTot;int iFix;int i;int j;
+object oObject;object oNew;string sBP;int iValue;int iWear;int iWearTot;int iFix;int i;int j;int bInCombat;int bApplyWear;int iIdleTicks;
 ////////////////////////////////////////////////////////////////////////////////
-if(GetIsInCombat(oPC)){i = 10;}else{i = 1;}
+bInCombat = GetIsInCombat(oPC);
+if(bInCombat){i = 10;}else{i = 1;}
 
 while(j<12)
  {
@@ -41,14 +43,40 @@ else{SetWearName(oObject,iTorchWear);}
 // Others
 else if((GetStringLeft(GetTag(oObject),4)!="tool")&&(GetTag(oObject)!="racialproperties"))
   {
+// Combat wear is unchanged: full rate (i=10, halved for Quality items) every
+// tick, for every slot including armor. Out of combat, only worn armor (the
+// CHEST slot, j==5) still wears at all - everything else takes none - and
+// even armor only takes a tick once every iWearIdleArmorTicks heartbeats
+// (~iWearIdleArmorMinutes real minutes) instead of every ~5-second tick.
+// Tracked with the item's own idle-tick counter so the rate doesn't depend
+// on exactly how often wear.nss happens to run.
+bApplyWear = bInCombat;
+if((!bInCombat)&&(j==5))
+   {
+   iIdleTicks = GetLocalInt(oObject,"WearIdleTicks")+1;
+   if(iIdleTicks>=iWearIdleArmorTicks){bApplyWear = TRUE;iIdleTicks = 0;}
+   SetLocalInt(oObject,"WearIdleTicks",iIdleTicks);
+   }
+if(bApplyWear)
+   {
 if(FindSubString(GetName(oObject),"(Quality")!=-1){SetLocalInt(oObject,"Wear",GetLocalInt(oObject,"Wear")+(i/2));}else{SetLocalInt(oObject,"Wear",GetLocalInt(oObject,"Wear")+i);}
+   }
 iValue = GetGoldPieceValue(oObject);if(iValue<iCatA){iWearTot = iWearA;iFix = iFixA;}else if(iValue<iCatB){iWearTot = iWearB;iFix = iFixB;}else if(iValue<iCatC){iWearTot = iWearC;iFix = iFixC;}else if(iValue<iCatD){iWearTot = iWearD;iFix = iFixD;}else{iWearTot = iWearE;iFix = iFixE;}if(GetTag(oObject)=="NW_IT_TORCH001"){iWearTot = iTorch*12;}iWear = GetLocalInt(oObject,"Wear");iWear = 100-(iWear*100/(576*iWearTot));
 SetLocalInt(oObject,"Wear%",iWear);
 SetLocalInt(oObject,"Fix",iValue*iFix/100);
 
-if(GetLocalInt(oObject,"Wear")>=(iWear*576))
+// iWear is the % of condition remaining (100 = new). Was previously compared
+// against the raw tick counter instead of this threshold directly, which
+// made the real break point drift with iWearTot - a category-E item (the
+// most valuable tier) snapped with ~72% of its condition still showing,
+// long before iWearE's 256 days were actually up.
+if(iWear<=iWearBreakThreshold)
    {
-oNew = CreateItemOnObject(sBP,oPC);SetName(oNew,"Broken "+GetName(oObject));SetLocalInt(oNew,"Fix",iValue*iFix/100);SetLocalInt(oNew,"Wear%",100);SetLocalString(oNew,"Master",GetResRef(oObject));SetLocalString(oNew,"Var",GetLocalString(oObject,"Var"));SetLocalString(oNew,"Bonus",GetLocalString(oObject,"Bonus"));SetPlotFlag(oObject,FALSE);DestroyObject(oObject);FloatingTextStringOnCreature("item broken",oPC);
+// Preserve the item's exact model/parts/colors (not just its base blueprint
+// look) so a repair can put it back exactly as it was, not reset to the
+// blueprint's default appearance - see conv_repair001.nss.
+string sAppearance = NWNX_Item_GetEntireItemAppearance(oObject);
+oNew = CreateItemOnObject(sBP,oPC);SetName(oNew,"Broken "+GetName(oObject));SetLocalInt(oNew,"Fix",iValue*iFix/100);SetLocalInt(oNew,"Wear%",100);SetLocalString(oNew,"Master",GetResRef(oObject));SetLocalString(oNew,"Var",GetLocalString(oObject,"Var"));SetLocalString(oNew,"Bonus",GetLocalString(oObject,"Bonus"));SetLocalString(oNew,"Appearance",sAppearance);SetPlotFlag(oObject,FALSE);DestroyObject(oObject);FloatingTextStringOnCreature("item broken",oPC);
 // First
 int a = 22;int b;if(GetLocalInt(oGoldbag,"Uoabook"+IntToString(a))!=1){SetLocalInt(oGoldbag,"Uoabook"+IntToString(a),1);while(b<iUOAreferences){b++;SetLocalInt(oPC,"ChoiceDone"+IntToString(b),1);}DeleteLocalInt(oPC,"ChoiceDone"+IntToString(a));DelayCommand(2.0,AssignCommand(oPC,ActionStartConversation(oPC,"uoa",TRUE,FALSE)));}
    }
