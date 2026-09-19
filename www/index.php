@@ -235,7 +235,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                     <h2 class="section-title dm-area-title">DM area :</h2>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                     <input type="password" name="login" value="">
-                    <noscript><input type="submit" value="connect"></noscript>
+                    <input type="submit" value="connect">
                 </form>
                 <?php else: ?>
                 <h2 class="section-title dm-area-title">DM area :</h2>

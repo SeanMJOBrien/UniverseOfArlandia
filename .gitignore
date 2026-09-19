@@ -27,4 +27,8 @@ www/planetCreator.php
 # Archives, DB dumps and credentials must never be committed
 *.7z
 *.sql
+!docker/mysql-init/*.sql
 docker/*.htpasswd
+
+# Editor state, not project source
+.vscode/
