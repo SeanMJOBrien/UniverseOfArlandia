@@ -59,50 +59,66 @@ Setting up the private, non-broadcasting local instance on Sean's Mac
    not a dump/credential), and applied it to the live DB by hand.
    Committed (`f491eca`).
 
-## Open: map shows no explored areas despite live gameplay
+## Resolved: map showed no explored areas (2026-09-19, Linux box)
 
 Symptom: after logging in as a registered player (CD key `UP7M73CG`),
-the site shows zero discovered tiles, even though the character has
-genuinely played (`pwdata` has live `WMap_Arland_X0` / `WMap_Arland_X1`
-rows, written correctly by NWNX during this session).
+the site showed zero discovered tiles even though the characters had
+genuinely played.
 
-Root cause (suspected, not yet confirmed): `player_characters()` in
-`www/player_auth.php` needs a `WebChars_<cdkey>` row
-(`player='~', tag='uoa'`) to map a CD key to its characters; without it,
-`player_discovered_tiles()` returns nothing regardless of `WMap_` data.
+The suspected cause recorded earlier — a module `Tag` that had drifted
+away from `uoa`, orphaning every module-level `pwdata` row — turned out
+to be wrong. The confirming query against the live database returns
+exactly what the PHP side expects:
 
-`_webmap.nss`'s header comment claims module-level rows (`WebChars_`,
-`WebCode_`, and by extension `Galaxy`) are stored as `player='~',
-tag='uoa'` — but the actual write path
-(`aps_include.nss::SetPersistentString`) uses `tag=GetTag(oObject)` for
-non-PC objects, i.e. whatever the *live deployed module's* `Tag`
-property actually is, not a hardcoded string. `src/ifo/module.ifo.json`
-does say `Mod_Tag: 'uoa'`, but `build_deploy.sh` deliberately never
-syncs `module.ifo` into the deployed `.mod` (its own comments: doing so
-would revert live-only area state) — so if the live module's tag ever
-drifted from `uoa` on the old server, every module-level write since
-lands under a different `tag`, invisible to every PHP query here
-(`www/player_auth.php`, `www/index.php`) that hardcodes `tag='uoa'`.
-`WMap_` rows are unaffected because they're keyed by character name,
-not module tag.
+```
+player  tag   name                val
+~       uoa   WebChars_UP7M73CG   qlippoth&1&Therani Foehammer&2&qlippoth&1&...
+```
 
-**Plan, once confirmed** (`SELECT player, tag, name FROM pwdata WHERE
-name LIKE 'WebChars%'` against the live DB — pending):
+Every module-level row carries `tag='uoa'`, and the live NWNX log shows
+the same tag on every write. Neither `_webmap.nss` nor
+`www/player_auth.php` needed a change, and no module rebuild was
+required. Two environment faults caused the empty map instead.
 
-1. If the live module's tag differs from `uoa`: patch the *deployed*
-   `.mod`'s `module.ifo` directly (extract with `nwn_gff`, fix
-   `Mod_Tag`, repack) rather than rebuilding from `src/`, since a full
-   rebuild would need the NWScript build toolchain
-   (`nwnsc`/`nasher`/`nwn_erf`/`nwn_gff`) that isn't set up on this Mac
-   yet — `build_deploy.sh` here still has the old box's hardcoded
-   `/home/qlippoth/...` paths.
-2. Alternatively (lower-risk, no module rebuild): change the PHP side
-   to read whatever tag the module is actually using instead of a
-   hardcoded `'uoa'` literal — but that only helps future writes; any
-   `WebChars_`/`WebCode_` rows already written under the wrong tag are
-   still orphaned and would need a manual `UPDATE pwdata SET
-   tag='uoa' WHERE ...` cleanup.
-3. Either way: setting up the NWScript build toolchain on this Mac is
-   its own follow-up (see the earlier machine-portability review) and
-   becomes necessary the moment any script fix, including this one,
-   needs to ship as a rebuilt module rather than a live DB patch.
+### 1. The website read a different database than the game server writes
+
+The Linux box runs two MySQL-family servers:
+
+- host MariaDB on `3306` — the live database. `nwserver`
+  (`~/uoa/config/nwserver.env`, `NWNX_SQL_HOST=192.168.42.223`) writes
+  here, and it holds every `WebChars_` and `WMap_` row.
+- the compose `db` container, published on `3307` — a stale copy whose
+  newest row was written 2026-06-30, with no `WebChars_` or `WMap_`
+  rows at all.
+
+`universeofarlandia_web_1` had been created with `DB_HOST=db`, so the
+site read the stale container while the game wrote to MariaDB. The
+repo's `.env` already said `DB_HOST=192.168.42.223`, but the running
+container predated it.
+
+Fix: `.env` now sets `DB_HOST` and `DB_PORT` explicitly, with a comment
+tying them to `nwserver.env`, and the container was recreated to pick
+them up. `docker-compose` 1.29.2 fails on this Docker engine with
+`KeyError: 'ContainerConfig'` while merging the anonymous
+`node_modules` volume; `docker-compose up -d --renew-anon-volumes web`
+works around it. The `db` service is now unused by the site — leave it
+or remove it, but do not point the site back at it.
+
+### 2. `web_players` was missing from the live database
+
+`docker/mysql-init/*.sql` runs only when the `db` container initializes
+an empty volume, so it never touched the host MariaDB. The table was
+created there by hand from `docker/mysql-init/02-web-players.sql`.
+Any future schema file needs the same manual application.
+
+### Verification
+
+With a session holding `player_cdkey=UP7M73CG`, `galaxy.php` renders 32
+Arland tiles and 1 Galaxia tile, matching the 32 and 1 `WMap_` entries
+in the live database; an anonymous request on the same planets renders
+none and shows the login notice.
+
+One behaviour worth knowing, unchanged and intentional: the Space map
+still reveals a star system to everyone when field `&004&` of its
+`Space<X>_<Y>` row is `1`, so an anonymous visitor sees the charted
+systems while planet surfaces stay private.
