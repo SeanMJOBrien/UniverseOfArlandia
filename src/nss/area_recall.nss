@@ -26,6 +26,29 @@ int iAreaIni = GetLocalInt(OBJECT_SELF,"AreaIni");
 // it correctly starts unset on any new object regardless of how long its
 // coordinate has existed.
 int iReady = GetLocalInt(OBJECT_SELF,"ContentReady");
+// The coordinate-scoped companion to iReady, for the one population step
+// that must NOT re-run per clone: area_creatures/area_resources below.
+//
+// The two flags exist because the population triggers split into two kinds.
+// area_interests/domains/dungeons/ruins build content that is deliberately
+// never saved (DontSave=1), so it dies with its clone and has to be rebuilt
+// on the next one - iReady (object-scoped) is right for them. But
+// area_creatures/area_resources build ordinary saveable objects, which
+// area_save.nss writes into "<Planet>_<Area>_Objects<n>" on the way out and
+// the recall loop above puts back on the way in. Gating those on iReady
+// meant a fresh clone restored the saved set AND generated a whole new one
+// on top of it: a space tile's asteroid field (area_resources.nss's
+// Random(40)+20 objects, 1% each for the two pla_spacedung entrances) grew
+// by a batch, and gained new Asteroid Towers/Ship Wrecks, on every single
+// round trip through an interior.
+//
+// Module-local, not persistent, matching the lifetime of the saved-object
+// locals it guards: both are wiped by a server restart, so a coordinate
+// regenerates from scratch after a reboot and neither can outlive the
+// content it describes. Reuses the "&Ready" key area_recall.nss already
+// sets below; dungeons.nss:28 reads that same key for its own separate
+// respawn-tracking purpose and is unaffected by reading it here too.
+int iCoordReady = GetLocalInt(oModule,sPlanet+"_"+sArea+"&Ready");
 object oObjects = GetFirstObjectInArea(OBJECT_SELF);
 //
 int i = GetLocalInt(oModule,sPlanet+"&"+sArea+"&ObjectsTot");
@@ -338,7 +361,12 @@ if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(iReady!=1)){WriteTimestamped
 // Cities & town commoners
 if((GetStringLeft(GetTag(OBJECT_SELF),4)=="city")&&(GetIsDay())&&((GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="a")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="b")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="c")||(GetStringRight(GetStringLeft(GetTag(OBJECT_SELF),5),1)=="d"))){i = 0;while(i<100){i++;if(Random(2)==1){s = "commoner_female";}else{s = "commoner_male";}oNew = CreateObject(OBJECT_TYPE_CREATURE,s,Location(OBJECT_SELF,Vector(IntToFloat(Random(iAreaX)),IntToFloat(Random(iAreaY)),0.0),0.0));SetLocalInt(oNew,"DontSave",1);}}
 
-if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(GetStringLeft(sInterests,1)!="1")&&(GetStringLeft(sInterests,1)!="3")&&(GetStringLeft(sInterests,1)!="5")&&(GetStringLeft(sInterests,1)!="6")&&(GetStringLeft(sInterests,1)!="7")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(iReady!=1)&&(iSpecialArea!=1)&&(iNight==0))
+// iCoordReady, not iReady - see its declaration at the top. What these two
+// scripts create is saved by area_save.nss and restored by the recall loop
+// above, so this block must fire once per COORDINATE, not once per clone;
+// with iReady here every re-entry stacked a fresh batch on top of the
+// restored one.
+if((GetStringLeft(GetTag(OBJECT_SELF),4)!="city")&&(GetStringLeft(sInterests,1)!="1")&&(GetStringLeft(sInterests,1)!="3")&&(GetStringLeft(sInterests,1)!="5")&&(GetStringLeft(sInterests,1)!="6")&&(GetStringLeft(sInterests,1)!="7")&&(GetStringLeft(GetTag(OBJECT_SELF),5)!="ocean")&&(iCoordReady!=1)&&(iSpecialArea!=1)&&(iNight==0))
   {
 // Exteriors creatures
 if(GetStringLeft(sInterests,1)!="D"){ExecuteScript("area_creatures",OBJECT_SELF);}
