@@ -18,6 +18,7 @@
 // character, so the list and the chosen speaking language survive relogs.
 //
 // Player chat commands (handled by LangChatCommand, called from mod_chat):
+//   .lang               open the speaking window (dmfi_lang_nui)
 //   .languages          list known languages, the one in use and spare slots
 //   .speak <language>   choose the language [text] is spoken in
 //   .learn <language>   spend a spare slot (Intelligence bonus) on a language
@@ -462,4 +463,50 @@ int LangChatCommand(object oPC, string sMsg)
     else if (sVerb == ".teach" && GetIsDM(oPC))     LangCmdTeach(oPC, sArg);
     else return FALSE;
     return TRUE;
+}
+
+// --- speaking
+
+// Lore notice, rolled once per listener and language per recheck window.
+void NoticeLanguage(object oListener, object oShouter, int iLang, string sLanguageName)
+{
+    string sKey = "lang_lore_" + ObjectToString(oListener) + "_" + IntToString(iLang);
+    if (GetLocalInt(GetModule(), sKey)) return;
+    SetLocalInt(GetModule(), sKey, 1);
+    AssignCommand(GetModule(), DelayCommand(DMFI_LANG_LORE_RECHECK, DeleteLocalInt(GetModule(), sKey)));
+
+    if (iLang != 9 && d20() + GetSkillRank(SKILL_LORE, oListener) > DMFI_LANG_LORE_DC)
+        SendMessageToPC(oListener, GetName(oShouter) + " is speaking in " + sLanguageName);
+}
+
+// Speaks sSaid in iTranslate: scrambled in the speech bubble, with the original
+// text sent to every listener within 20m who knows the language.
+void LangSpeak(object oShouter, int iTranslate, string sSaid)
+{
+    if (!iTranslate || sSaid == "") return;
+
+    string sLanguageName = LangName(iTranslate);
+    if (sLanguageName == "") sLanguageName = GetLocalString(oShouter, DMFI_LANG_VAR_SPEAKING_NAME);
+
+    if (iTranslate == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
+        sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
+    AssignCommand(oShouter, SpeakString(TranslateCommonToLanguage(iTranslate, sSaid)));
+
+    location lShouter = GetLocation(oShouter);
+    object oEavesdrop = GetFirstObjectInShape(SHAPE_SPHERE, 20.0f, lShouter, FALSE, OBJECT_TYPE_CREATURE);
+    while (GetIsObjectValid(oEavesdrop))
+    {
+        int bListener = GetIsPC(oEavesdrop) || GetIsDM(oEavesdrop) || GetIsDMPossessed(oEavesdrop);
+        // Walls and closed doors block comprehension; DMs hear everything.
+        if (bListener && oEavesdrop != oShouter && !GetIsDM(oEavesdrop) && !GetIsDMPossessed(oEavesdrop))
+            bListener = LineOfSightObject(oShouter, oEavesdrop);
+        if (bListener)
+        {
+            if (GetKnowsLanguage(oEavesdrop, iTranslate))
+                SendMessageToPC(oEavesdrop, GetName(oShouter) + " says in " + sLanguageName + ": " + sSaid);
+            else
+                NoticeLanguage(oEavesdrop, oShouter, iTranslate, sLanguageName);
+        }
+        oEavesdrop = GetNextObjectInShape(SHAPE_SPHERE, 20.0f, lShouter, FALSE, OBJECT_TYPE_CREATURE);
+    }
 }

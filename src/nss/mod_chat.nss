@@ -1,7 +1,8 @@
 // mod_chat - Module OnPlayerChat handler: player ".web" command and DM
 // world-builder ".w" commands.
 // ---
-// Language commands (.languages/.speak/.learn/.teach, see dmfi_lang_inc) are
+// Language commands (.lang window, .languages/.speak/.learn/.teach, see
+// dmfi_lang_inc and dmfi_lang_nui) are
 // handled first. Otherwise it only reacts to messages starting with ".w";
 // everything else passes through untouched. Recognized commands are
 // suppressed from broadcast and dispatched:
@@ -18,7 +19,7 @@
 #include "dmb_nui_inc"
 #include "_webmap"
 #include "_unitrent"
-#include "dmfi_lang_inc"
+#include "dmfi_lang_nui"
 
 // Command target: a validated planet + coordinate.
 struct DmbTarget
@@ -285,10 +286,20 @@ void main()
     string sMsg = GetPCChatMessage();
 
     // Language commands (.languages, .speak, .learn, .teach) are open to everyone.
-    if (GetStringLeft(sMsg, 1) == "." && LangChatCommand(oPC, DmbTrim(sMsg)))
+    if (GetStringLeft(sMsg, 1) == ".")
     {
-        SetPCChatMessage("");
-        return;
+        string sLangMsg = DmbTrim(sMsg);
+        if (GetStringLowerCase(sLangMsg) == ".lang")
+        {
+            SetPCChatMessage("");
+            LangNuiOpen(oPC);
+            return;
+        }
+        if (LangChatCommand(oPC, sLangMsg))
+        {
+            SetPCChatMessage("");
+            return;
+        }
     }
 
     if (GetStringLeft(sMsg, 2) != ".w") return;
