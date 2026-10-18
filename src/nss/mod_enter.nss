@@ -155,5 +155,7 @@ DeleteLocalObject(oPC,"DestroyIt");
 if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers);SetPersistentInt(oModule,"Players",iPlayers);}
 // Last login (real-world Unix timestamp, requires the NWNX_Time plugin)
 SetPersistentInt(oModule,"LastLogin_"+sName,NWNX_Time_GetTimeStamp());
+// Language hint: [text] speaks in your language, .languages lists the options
+DelayCommand(15.0,SendMessageToPC(oPC,"Tip: type [your words] in chat to speak in your racial language. .languages shows the languages you know; .speak and .learn change them."));
 ////////////////////////////////////////////////////////////////////////////////
 }
