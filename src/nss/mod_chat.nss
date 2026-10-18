@@ -302,6 +302,9 @@ void main()
         }
     }
 
+    // Talk mode: ordinary talk and whispers come out in the chosen language.
+    if (LangHandleTalk(oPC)) return;
+
     if (GetStringLeft(sMsg, 2) != ".w") return;
 
     // .web is the one command open to ordinary players.

@@ -16,7 +16,10 @@ const string LANGNUI_BIND_SELECTED = "langsel";
 const string LANGNUI_BIND_TEXT = "langtext";
 const string LANGNUI_BIND_LOG = "langlog";
 const string LANGNUI_VAR_LOG = "langnui_log";
+const string LANGNUI_BIND_STATUS = "langstatus";
 const string LANGNUI_SPEAK = "speak";
+const string LANGNUI_TALK_ON = "talkon";
+const string LANGNUI_TALK_OFF = "talkoff";
 const string LANGNUI_VAR_COUNT = "langnui_count";
 const string LANGNUI_VAR_ID = "langnui_id_";
 const int LANGNUI_MAX_LENGTH = 400;
@@ -51,7 +54,21 @@ json LangNuiLayout(json jEntries)
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)), 32.0));
     jCol = JsonArrayInsert(jCol, NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), 34.0));
+    jCol = JsonArrayInsert(jCol, NuiHeight(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
+    json jRow = JsonArray();
+    jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Talk in this language")), LANGNUI_TALK_ON));
+    jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Talk normally")), LANGNUI_TALK_OFF));
+    jCol = JsonArrayInsert(jCol, NuiHeight(NuiRow(jRow), 34.0));
     return NuiCol(jCol);
+}
+
+// Status line under the Speak button: how ordinary talk currently comes out.
+void LangNuiShowStatus(object oPC, int nToken)
+{
+    string sStatus = "Your normal talk is in the common tongue";
+    if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK))
+        sStatus = "Your normal talk is in " + LangName(GetSpokenLanguage(oPC));
+    NuiSetBind(oPC, nToken, LANGNUI_BIND_STATUS, JsonString(sStatus));
 }
 
 void LangNuiOpen(object oPC)
@@ -81,11 +98,12 @@ void LangNuiOpen(object oPC)
     if (nOld) NuiDestroy(oPC, nOld);
 
     json jWin = NuiWindow(LangNuiLayout(jEntries), JsonString("Speak in a language"),
-        NuiRect(-1.0, -1.0, 380.0, 430.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
+        NuiRect(-1.0, -1.0, 380.0, 500.0), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE), JsonBool(FALSE), JsonBool(TRUE));
     int nToken = NuiCreate(oPC, jWin, DMFI_LANG_NUI_WINDOW, LANGNUI_EVENT);
     NuiSetBind(oPC, nToken, LANGNUI_BIND_SELECTED, JsonInt(nSelected));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_LOG, JsonString(""));
+    LangNuiShowStatus(oPC, nToken);
 }
 
 // Add one understood line to the window's log (called by lang_nui_append).
@@ -125,4 +143,20 @@ void LangNuiSubmit(object oPC, int nToken)
     }
     LangSpeak(oPC, iLang, sText);
     NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
+}
+
+// "Talk in this language" / "Talk normally" buttons.
+void LangNuiSetTalk(object oPC, int nToken, int bOn)
+{
+    if (!bOn)
+    {
+        DeleteLocalInt(oPC, DMFI_LANG_VAR_TALK);
+        LangNuiShowStatus(oPC, nToken);
+        return;
+    }
+    int iLang = LangNuiLanguageAt(oPC, JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SELECTED)));
+    if (!iLang || !GetKnowsLanguage(oPC, iLang)) return;
+    SetSpokenLanguage(oPC, iLang);
+    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
+    LangNuiShowStatus(oPC, nToken);
 }

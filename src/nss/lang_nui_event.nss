@@ -15,6 +15,10 @@ void main()
         LangNuiForget(oPC);
         return;
     }
-    if (sEvent == "click" && NuiGetEventElement() == LANGNUI_SPEAK)
-        LangNuiSubmit(oPC, nToken);
+    if (sEvent != "click") return;
+
+    string sElement = NuiGetEventElement();
+    if (sElement == LANGNUI_SPEAK)         LangNuiSubmit(oPC, nToken);
+    else if (sElement == LANGNUI_TALK_ON)  LangNuiSetTalk(oPC, nToken, TRUE);
+    else if (sElement == LANGNUI_TALK_OFF) LangNuiSetTalk(oPC, nToken, FALSE);
 }
