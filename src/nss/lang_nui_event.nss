@@ -7,7 +7,7 @@ void main()
 {
     object oPC = NuiGetEventPlayer();
     int nToken = NuiGetEventWindow();
-    if (NuiGetWindowId(oPC, nToken) != LANGNUI_WINDOW) return;
+    if (NuiGetWindowId(oPC, nToken) != DMFI_LANG_NUI_WINDOW) return;
 
     string sEvent = NuiGetEventType();
     if (sEvent == "close")

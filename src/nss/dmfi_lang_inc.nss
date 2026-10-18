@@ -28,6 +28,10 @@
 const string DMFI_LANG_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const int DMFI_LANG_ENTRY_WIDTH = 4;
 
+// Id of the .lang window (dmfi_lang_nui); LangSpeak feeds its log when open.
+const string DMFI_LANG_NUI_WINDOW = "langspeak";
+const string DMFI_LANG_VAR_NUI_LINE = "langnui_line";
+
 const string DMFI_LANG_VAR_KNOWN = "lang_known";
 const string DMFI_LANG_VAR_SLOTS_USED = "lang_slotsused";
 const string DMFI_LANG_VAR_SPEAKING = "hls_MyLanguage";
@@ -503,7 +507,16 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid)
         if (bListener)
         {
             if (GetKnowsLanguage(oEavesdrop, iTranslate))
-                SendMessageToPC(oEavesdrop, GetName(oShouter) + " says in " + sLanguageName + ": " + sSaid);
+            {
+                string sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + sSaid;
+                SendMessageToPC(oEavesdrop, sLine);
+                // Also show it in the .lang window, if that is open.
+                if (NuiFindWindow(oEavesdrop, DMFI_LANG_NUI_WINDOW))
+                {
+                    SetLocalString(oEavesdrop, DMFI_LANG_VAR_NUI_LINE, sLine);
+                    ExecuteScript("lang_nui_append", oEavesdrop);
+                }
+            }
             else
                 NoticeLanguage(oEavesdrop, oShouter, iTranslate, sLanguageName);
         }
