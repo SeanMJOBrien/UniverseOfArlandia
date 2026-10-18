@@ -8,6 +8,7 @@
 #include "inc_persist"
 #include "_shipname"
 #include "_spacenav"
+#include "lang_demo_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +43,8 @@ object oHenchs;string sMission;string sMissPlanet;string sMissArea;int iNumber;s
 ////////////////////////////////////////////////////////////////////////////////
 // PCs
 if((GetIsObjectValid(oPC))&&((GetIsPC(oPC))||(GetIsDMPossessed(oPC))||(GetIsDM(oPC)))){
+// Language demo: a Goblin-speaking goblin beside the plot giver
+if(GetIsPC(oPC)){LangDemoSpawn(oPC);}
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetIsDM(oPC)){sDM = "1";}else{sDM = "0";}SetPersistentString(oModule,"Player"+IntToString(GetLocalInt(oModule,sName)),sPCName+"&1&"+sName+"&2&"+sPlanet+"&3&"+sArea+"&4&"+sDM+"&5&");
