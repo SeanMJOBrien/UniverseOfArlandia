@@ -48,12 +48,13 @@ const string DMFI_LANG_VAR_SLOTS_USED = "lang_slotsused";
 const string DMFI_LANG_VAR_SPEAKING = "hls_MyLanguage";
 const string DMFI_LANG_VAR_SPEAKING_NAME = "hls_MyLanguageName";
 
-// Fluency: 1 basic .. 5 fluent. Native languages (race, class, widget) are 5.
+// Fluency: 1 basic .. 6 fluent. Native languages (race, class, widget) are 6.
+// Fluent speakers read the plain text; levels 1-5 catch part of it.
 // A learned language starts at DMFI_LANG_LEARN_LEVEL and grows with exposure.
-const int DMFI_LANG_NATIVE_LEVEL = 5;
-const int DMFI_LANG_LEARN_LEVEL = 3;
+const int DMFI_LANG_NATIVE_LEVEL = 6;
+const int DMFI_LANG_LEARN_LEVEL = 1;
 // Percent of the words a listener catches, per fluency level.
-const int DMFI_LANG_CHANCE_PER_LEVEL = 20;
+const int DMFI_LANG_CHANCE_PER_LEVEL = 16;
 // Lines heard to leave level n: n * n * this.
 const int DMFI_LANG_EXP_UNIT = 20;
 // A listener earns at most one exposure point per language in this window.

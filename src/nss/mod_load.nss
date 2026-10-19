@@ -1,3 +1,4 @@
+#include "dmfi_lang_nwnx"
 #include "aps_include"
 #include "nwnx_sql"
 #include "nwnx_events"
@@ -61,6 +62,8 @@ DestroyCampaignDatabase("AdvAreaSnap");
 // Corpse gold auto-loot. Creatures have no OnUsed event, so clicking a body is
 // only visible through NWNX - see loot_gold.nss.
 NWNX_Events_SubscribeEvent("NWNX_ON_OBJECT_USE_BEFORE","loot_gold");
+// Language chat: per-listener speech bubbles (needs NWNX_CHAT_SKIP=no)
+LangNwnxInit();
 ////////////////////////////////////////////////////////////////////////////////
 // Sounds
 ExecuteScript("sound_ini",oModule);

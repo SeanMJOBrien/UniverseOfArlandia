@@ -111,6 +111,9 @@ else if(GetStringLeft(sItemTag,4)=="tal_"){SetLocalInt(oPC,"TalentAction",1);Exe
 // Tents
 else if((GetStringLeft(sItemTag,4)=="tent")&&(sAreaName!="Sky")&&(sAreaName!="Space")&&(sAreaName!="Underwater")){if(oTarget==OBJECT_INVALID){if(GetDistanceBetweenLocations(GetLocation(oPC),lTarget)>3.0){FloatingTextStringOnCreature("Too far to install the tent",oPC,FALSE);}else{FloatingTextStringOnCreature("Installing the tent",oPC,FALSE);oNew = CreateObject(OBJECT_TYPE_PLACEABLE,"pla_tent00"+GetStringRight(sItemTag,1),lTarget);SetLocalInt(oNew,"Wear",GetLocalInt(oItem,"Wear"));DestroyObject(oItem);}}}
 ////////////////////////////////////////////////////////////////////////////////
+// Language books
+else if(GetStringLeft(sItemTag,10)=="lang_book_"){SetLocalObject(oPC,"ItemActivated",oItem);ExecuteScript("lang_book_use",oPC);}
+////////////////////////////////////////////////////////////////////////////////
 // UOA Book
 else if(sItemTag=="uoabook"){int i;while(i<iUOAreferences){i++;SetLocalInt(oPC,"ChoiceDone"+IntToString(i),1);}AssignCommand(oPC,ActionStartConversation(oPC,"uoa",TRUE,FALSE));}
 ////////////////////////////////////////////////////////////////////////////////

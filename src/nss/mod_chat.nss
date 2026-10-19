@@ -20,6 +20,7 @@
 #include "_webmap"
 #include "_unitrent"
 #include "dmfi_lang_nui"
+#include "dmfi_lang_nwnx"
 
 // Command target: a validated planet + coordinate.
 struct DmbTarget
@@ -303,7 +304,7 @@ void main()
     }
 
     // Talk mode: ordinary talk and whispers come out in the chosen language.
-    if (LangHandleTalk(oPC)) return;
+    if (!LangNwnxActive() && LangHandleTalk(oPC)) return;
 
     if (GetStringLeft(sMsg, 2) != ".w") return;
 
