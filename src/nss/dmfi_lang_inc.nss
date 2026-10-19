@@ -18,7 +18,7 @@
 // with the character, so the list, the chosen speaking language and the talk
 // mode survive relogs.
 //
-// Fluency runs 1-5. Native languages are 5 and listeners get the full text;
+// Fluency runs 1-6. Native languages are 6 and listeners get the full text;
 // a partial speaker catches only part of it, and improves by listening.
 //
 // With talk mode on (.speak <language>), LangHandleTalk, called from
@@ -31,7 +31,7 @@
 //   .speak <language>   choose the language [text] is spoken in
 //   .learn              hint only: languages are learned from books (dmfi_lang_book)
 // DM only:
-//   .teach <language> [1-5]  give the DMFI target a language at a fluency level, no slot needed
+//   .teach <language> [1-6]  give the DMFI target a language at a fluency level, no slot needed
 
 const string DMFI_LANG_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const int DMFI_LANG_ENTRY_WIDTH = 4;
@@ -509,7 +509,7 @@ void LangCmdTeach(object oDM, string sArg)
     object oTarget = GetLocalObject(oDM, "dmfi_univ_target");
     if (!GetIsObjectValid(oTarget)) oTarget = GetLocalObject(oDM, "dmfi_VoiceTarget");
 
-    // "<language> [level 1-5]"
+    // "<language> [level 1-6]"
     int iLevel = DMFI_LANG_NATIVE_LEVEL;
     int iSpace = FindSubString(sArg, " ");
     string sName = sArg;
@@ -523,7 +523,7 @@ void LangCmdTeach(object oDM, string sArg)
     int iLang = LangFromName(sName);
     if (!GetIsObjectValid(oTarget) || !iLang)
     {
-        SendMessageToPC(oDM, ".teach <language> [level 1-5] gives the language to your current DMFI target (default level 5).");
+        SendMessageToPC(oDM, ".teach <language> [level 1-6] gives the language to your current DMFI target (default level 6).");
         return;
     }
     LangListSet(oTarget, iLang, iLevel);

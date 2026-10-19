@@ -14,8 +14,8 @@
 // racial language, if it has one.
 //
 // What the player reads:
-//   fluent (5)    the text as written
-//   partial (1-4) a garbled version; listening improves it, as with chat
+//   fluent (6)    the text as written
+//   partial (1-5) a garbled version; listening improves it, as with chat
 //   no language   scrambled text in the NPC's language
 // Partial and unknown lines are prefixed with the language name.
 
