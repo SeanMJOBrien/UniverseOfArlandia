@@ -121,6 +121,278 @@
           "type": "dword",
           "value": 0
         }
+      },
+      {
+        "__struct_id": 0,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 0
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "Brannoc will seize the mill at dawn unless the debt is settled. Persuade, intimidate or pay him."
+                }
+              }
+            },
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 9
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "The mill is saved, and Tolliver told you the caravan turned toward the broken bridge."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Quest: The Miller's Debt"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 1
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "qd_miller"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 0,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 0
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "A goblin left a sealed letter. How much of it you can read depends on your Goblin."
+                }
+              }
+            },
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 9
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "The letter says the Red Hand took the caravan, and asks for a meeting at the broken bridge."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Quest: The Goblin Envoy's Letter"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 1
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "qd_envoy"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 0,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 0
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "Exactly one of three statements is true. Work out who took the ledger."
+                }
+              }
+            },
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 9
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "The Guard took the ledger. It records the caravan's route."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Quest: The Stolen Ledger"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 1
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "qd_ledger"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 0,
+        "Comment": {
+          "type": "cexostring",
+          "value": ""
+        },
+        "EntryList": {
+          "type": "list",
+          "value": [
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 0
+              },
+              "ID": {
+                "type": "dword",
+                "value": 1
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "Gather three leads, in any order: the miller's debt, the goblin letter and the stolen ledger."
+                }
+              }
+            },
+            {
+              "__struct_id": 0,
+              "End": {
+                "type": "word",
+                "value": 1
+              },
+              "ID": {
+                "type": "dword",
+                "value": 9
+              },
+              "Text": {
+                "type": "cexolocstring",
+                "value": {
+                  "0": "The caravan is home safe."
+                }
+              }
+            }
+          ]
+        },
+        "Name": {
+          "type": "cexolocstring",
+          "value": {
+            "0": "Quest: The Lost Caravan"
+          }
+        },
+        "Picture": {
+          "type": "word",
+          "value": 65535
+        },
+        "Priority": {
+          "type": "dword",
+          "value": 1
+        },
+        "Tag": {
+          "type": "cexostring",
+          "value": "qd_caravan"
+        },
+        "XP": {
+          "type": "dword",
+          "value": 0
+        }
       }
     ]
   }
