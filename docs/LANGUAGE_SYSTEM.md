@@ -72,7 +72,7 @@ Each use of a book reports the result and the remaining slots, for example "You 
 
 ### The bookshelf
 
-The `lang_bookshelf` placeable (`src/utp/lang_bookshelf.utp.json`) contains one copy of every book. Players may take books. The script `lang_bookshelf_fill` runs on the shelf's OnOpen and OnClosed events and adds any missing volume. The shelf has to be placed in an area in the toolset, because the build does not ship area `.git` files.
+The `lang_bookshelf` placeable (`src/utp/lang_bookshelf.utp.json`) contains one copy of every book. Players may take books. The script `lang_shelf_fill` runs on the shelf's OnOpen and OnClosed events and adds any missing volume. The shelf has to be placed in an area in the toolset, because the build does not ship area `.git` files.
 
 ### Exposure
 
@@ -185,7 +185,7 @@ The demo NPCs are Gruk the goblin (`lang_goblin`, dialog `lang_demo`) and Wren t
 |---|---|
 | `dmfi_lang_inc.nss` | tables, fluency, learned list, slots, commands, `LangSpeak`, talk mode |
 | `dmfi_lang_book.nss`, `lang_book_use.nss` | book study rules |
-| `lang_bookshelf_fill.nss` | restocks the bookshelf |
+| `lang_shelf_fill.nss` | restocks the bookshelf |
 | `dmfi_lang_nui.nss`, `lang_nui_event.nss`, `lang_nui_append.nss` | the `.lang` window |
 | `dmfi_lang_nwnx.nss`, `lang_nwnx_chat.nss` | per-listener chat with NWNX |
 | `dmfi_lang_dialog.nss`, `cond_lang_line.nss`, `cond_lang_know.nss` | language in dialogs |

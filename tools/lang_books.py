@@ -33,7 +33,7 @@ for lid, lang in LANGS.items():
         (ROOT / "src/uti" / (resref + ".uti.json")).write_text(json.dumps(item, indent=2) + "\n")
 print("wrote %d books" % (len(LANGS) * VOLUMES))
 
-# Bookshelf placeable stocked with every book (restocked at runtime by lang_bookshelf_fill.nss).
+# Bookshelf placeable stocked with every book (restocked at runtime by lang_shelf_fill.nss).
 shelf = json.loads((ROOT / "src/utp/chest001.utp.json").read_text())
 shelf["Appearance"]["value"] = 1  # Bookshelf 01
 shelf["LocName"]["value"] = {"0": "Language Bookshelf"}
@@ -48,10 +48,10 @@ shelf["Lockable"]["value"] = 0
 shelf["Locked"]["value"] = 0
 shelf["Faction"]["value"] = 1
 for slot in ("OnOpen", "OnClosed"):
-    shelf[slot]["value"] = "lang_bookshelf_fill"
+    shelf[slot]["value"] = "lang_shelf_fill"
 for slot in ("OnDeath", "OnDamaged", "OnDisarm", "OnUnlock"):
     shelf[slot]["value"] = ""
-shelf["Comment"]["value"] = "Contains one of each lang_book_* item; lang_bookshelf_fill restocks it."
+shelf["Comment"]["value"] = "Contains one of each lang_book_* item; lang_shelf_fill restocks it."
 items = []
 index = 0
 for lid in LANGS:

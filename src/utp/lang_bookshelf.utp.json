@@ -22,7 +22,7 @@
   },
   "Comment": {
     "type": "cexostring",
-    "value": "Contains one of each lang_book_* item; lang_bookshelf_fill restocks it."
+    "value": "Contains one of each lang_book_* item; lang_shelf_fill restocks it."
   },
   "Conversation": {
     "type": "resref",
@@ -94,7 +94,7 @@
   },
   "OnClosed": {
     "type": "resref",
-    "value": "lang_bookshelf_fill"
+    "value": "lang_shelf_fill"
   },
   "OnDamaged": {
     "type": "resref",
@@ -126,7 +126,7 @@
   },
   "OnOpen": {
     "type": "resref",
-    "value": "lang_bookshelf_fill"
+    "value": "lang_shelf_fill"
   },
   "OnSpellCastAt": {
     "type": "resref",
