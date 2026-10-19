@@ -13,10 +13,19 @@ const string DMFI_LANG_NWNX_FLAG = "lang_nwnx";
 const string DMFI_LANG_NWNX_SCRIPT = "lang_nwnx_chat";
 
 // Called once from mod_load.
+// The Chat plugin answers a hearing-distance query with a positive number
+// when it is loaded; an unloaded plugin returns 0.0. Only a working plugin
+// switches the module over, so the NWScript talk mode stays in use otherwise.
 void LangNwnxInit()
 {
+    if (NWNX_Chat_GetChatHearingDistance() <= 0.0)
+    {
+        WriteTimestampedLogEntry("Language system: NWNX Chat not loaded, using the NWScript talk mode.");
+        return;
+    }
     NWNX_Chat_RegisterChatScript(DMFI_LANG_NWNX_SCRIPT);
     SetLocalInt(GetModule(), DMFI_LANG_NWNX_FLAG, TRUE);
+    WriteTimestampedLogEntry("Language system: NWNX Chat active.");
 }
 
 int LangNwnxActive()
