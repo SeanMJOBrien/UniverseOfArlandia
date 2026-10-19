@@ -29,7 +29,7 @@
 //   .speak <language>   also makes ordinary talk come out in it (.speak off stops)
 //   .languages          list known languages, the one in use and spare slots
 //   .speak <language>   choose the language [text] is spoken in
-//   .learn <language>   spend a spare slot (Intelligence bonus) on a language
+//   .learn              hint only: languages are learned from books (dmfi_lang_book)
 // DM only:
 //   .teach <language> [1-5]  give the DMFI target a language at a fluency level, no slot needed
 
@@ -465,8 +465,8 @@ void LangCmdList(object oPC)
     string sTalk = "your normal talk is in the common tongue";
     if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK)) sTalk = "your normal talk and whispers come out in " + sCurrent;
     SendMessageToPC(oPC, "You speak: " + LangKnownSummary(oPC));
-    SendMessageToPC(oPC, "Chosen language: " + sCurrent + "; " + sTalk + ". Spare language slots: " + IntToString(LangSlotsFree(oPC)));
-    SendMessageToPC(oPC, ".lang opens the speaking window. .speak <language> makes your normal talk come out in it, .speak off stops, .learn <language> uses a slot. [text] and [dwarven: text] still work.");
+    SendMessageToPC(oPC, "Chosen language: " + sCurrent + "; " + sTalk + ". New languages you can still start: " + IntToString(LangSlotsFree(oPC)) + " of " + IntToString(LangSlotsTotal(oPC)));
+    SendMessageToPC(oPC, ".lang opens the speaking window. .speak <language> makes your normal talk come out in it, .speak off stops. Languages are learned from books. [text] and [dwarven: text] still work.");
 }
 
 void LangCmdSpeak(object oPC, string sArg)
@@ -498,27 +498,10 @@ void LangCmdSpeak(object oPC, string sArg)
     SendMessageToPC(oPC, "Your normal talk and whispers now come out in " + LangName(iLang) + ". .speak off stops. This is remembered between sessions.");
 }
 
+// Languages are learned only from books; the command stays so old tips do not error.
 void LangCmdLearn(object oPC, string sArg)
 {
-    int iLang = LangFromName(sArg);
-    if (!iLang || !LangIsLearnable(iLang))
-    {
-        SendMessageToPC(oPC, "Learnable languages: Elven, Gnome, Halfling, Dwarven, Orc, Goblin, Draconic, Celestial, Abyssal, Infernal, Drow. Spare slots: " + IntToString(LangSlotsFree(oPC)));
-        return;
-    }
-    if (GetKnowsLanguage(oPC, iLang))
-    {
-        SendMessageToPC(oPC, "You already speak " + LangName(iLang) + ".");
-        return;
-    }
-    if (LangSlotsFree(oPC) < 1)
-    {
-        SendMessageToPC(oPC, "You have no spare language slots (one per point of Intelligence modifier).");
-        return;
-    }
-    LangListSet(oPC, iLang, DMFI_LANG_LEARN_LEVEL);
-    SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED) + 1);
-    SendMessageToPC(oPC, "You have learned " + LangName(iLang) + ". It cannot be unlearned.");
+    SendMessageToPC(oPC, "Languages are learned from books, not by command. Find a bookshelf and study a primer by activating it. New languages you can still start: " + IntToString(LangSlotsFree(oPC)));
 }
 
 void LangCmdTeach(object oDM, string sArg)
@@ -548,7 +531,7 @@ void LangCmdTeach(object oDM, string sArg)
     SendMessageToPC(oTarget, "You have learned " + LangName(iLang) + " (level " + IntToString(iLevel) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ").");
 }
 
-// Handles .languages, .speak, .learn and .teach. Returns TRUE if the message
+// Handles .languages, .speak, .learn (hint) and .teach. Returns TRUE if the message
 // was a language command (the caller should then suppress it).
 int LangChatCommand(object oPC, string sMsg)
 {

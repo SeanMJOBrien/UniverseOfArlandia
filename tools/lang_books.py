@@ -32,3 +32,35 @@ for lid, lang in LANGS.items():
         item["Cost"]["value"] = GOLD[vol - 1]
         (ROOT / "src/uti" / (resref + ".uti.json")).write_text(json.dumps(item, indent=2) + "\n")
 print("wrote %d books" % (len(LANGS) * VOLUMES))
+
+# Bookshelf placeable stocked with every book (restocked at runtime by lang_bookshelf_fill.nss).
+shelf = json.loads((ROOT / "src/utp/chest001.utp.json").read_text())
+shelf["Appearance"]["value"] = 1  # Bookshelf 01
+shelf["LocName"]["value"] = {"0": "Language Bookshelf"}
+shelf["Description"]["value"] = {"0": "Primers in the tongues of the world, six volumes each. Take a volume and activate it to study."}
+shelf["Tag"]["value"] = "lang_bookshelf"
+shelf["TemplateResRef"]["value"] = "lang_bookshelf"
+shelf["Plot"]["value"] = 1
+shelf["Static"]["value"] = 0
+shelf["Useable"]["value"] = 1
+shelf["HasInventory"]["value"] = 1
+shelf["Lockable"]["value"] = 0
+shelf["Locked"]["value"] = 0
+shelf["Faction"]["value"] = 1
+for slot in ("OnOpen", "OnClosed"):
+    shelf[slot]["value"] = "lang_bookshelf_fill"
+for slot in ("OnDeath", "OnDamaged", "OnDisarm", "OnUnlock"):
+    shelf[slot]["value"] = ""
+shelf["Comment"]["value"] = "Contains one of each lang_book_* item; lang_bookshelf_fill restocks it."
+items = []
+index = 0
+for lid in LANGS:
+    for vol in range(1, VOLUMES + 1):
+        items.append({"__struct_id": index,
+                      "InventoryRes": {"type": "resref", "value": "lang_book_%d_%d" % (lid, vol)},
+                      "Repos_PosX": {"type": "word", "value": index % 8},
+                      "Repos_PosY": {"type": "word", "value": index // 8}})
+        index += 1
+shelf["ItemList"] = {"type": "list", "value": items}
+(ROOT / "src/utp/lang_bookshelf.utp.json").write_text(json.dumps(shelf, indent=2) + "\n")
+print("wrote lang_bookshelf with %d books" % len(items))

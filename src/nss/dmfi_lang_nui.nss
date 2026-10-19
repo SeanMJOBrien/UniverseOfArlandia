@@ -68,6 +68,7 @@ void LangNuiShowStatus(object oPC, int nToken)
     string sStatus = "Your normal talk is in the common tongue";
     if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK))
         sStatus = "Your normal talk is in " + LangName(GetSpokenLanguage(oPC));
+    sStatus += ". New languages you can start: " + IntToString(LangSlotsFree(oPC));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_STATUS, JsonString(sStatus));
 }
 
@@ -89,7 +90,7 @@ void LangNuiOpen(object oPC)
     }
     if (nCount == 0)
     {
-        SendMessageToPC(oPC, "You do not know any languages yet. Try .learn <language>.");
+        SendMessageToPC(oPC, "You do not know any languages yet. Languages are learned from books.");
         return;
     }
     SetLocalInt(oPC, LANGNUI_VAR_COUNT, nCount);
