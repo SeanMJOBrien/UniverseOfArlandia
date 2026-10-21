@@ -18,6 +18,8 @@
 //   partial (1-5) a garbled version; listening improves it, as with chat
 //   no language   scrambled text in the NPC's language
 // Partial and unknown lines are prefixed with the language name.
+// <race> in a line becomes the NPC's race. A sign language (Drow) is shown as a
+// description of the signing instead (see the sign languages in dmfi_lang_inc).
 
 #include "dmfi_lang_inc"
 
@@ -35,8 +37,10 @@ int LangNpcLanguage(object oNPC)
 // sText as oPC reads it when oNPC says it.
 string LangDialogText(object oPC, object oNPC, string sText)
 {
+    sText = LangExpandVars(sText, oNPC);
     int iLang = LangNpcLanguage(oNPC);
     if (!iLang) return sText;
+    if (LangIsSign(iLang)) return LangSignLine(oNPC, oPC, iLang, sText);
 
     int iFluency = LangFluency(oPC, iLang);
     if (iFluency >= DMFI_LANG_NATIVE_LEVEL) return sText;

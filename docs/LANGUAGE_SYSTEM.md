@@ -28,7 +28,7 @@ The scrambled text is produced by substituting letters according to a fixed tabl
 | 99 | Leetspeak | no (DM voice command) |
 | 101 and up | rotating ciphers | no (DM voice command) |
 
-Languages 1 to 13 except 9 use a substitution table. `LangTable` in `dmfi_lang_inc.nss` holds one table per language: 52 slots of 4 characters, one slot for each letter in `a-zA-Z`, padded with spaces. A letter without an entry maps to itself. Thieves' Cant (`ProcessCant`) and the rotating ciphers (`ProcessCustom`) use their own code. A Thieves' Cant message is cut at 25 characters.
+Drow is signed rather than spoken (see "Drow sign language"). Languages 1 to 13 except 9 use a substitution table. `LangTable` in `dmfi_lang_inc.nss` holds one table per language: 52 slots of 4 characters, one slot for each letter in `a-zA-Z`, padded with spaces. A letter without an entry maps to itself. Thieves' Cant (`ProcessCant`) and the rotating ciphers (`ProcessCustom`) use their own code. A Thieves' Cant message is cut at 25 characters.
 
 ## Who knows a language
 
@@ -116,6 +116,27 @@ Talk mode ignores shouts, party and DM chat, emotes (`*...*`), messages that beg
 | Whisper | 3 m |
 
 A listener who is a player character needs line of sight to the speaker. A DM or DM-possessed creature hears every line in range.
+
+## Drow sign language
+
+Drow (id 13) is a sign language. The signer says nothing aloud, so there is no speech bubble and no scrambled text. Each viewer reads a description instead, according to their Drow fluency:
+
+| Viewer | Text |
+|---|---|
+| Fluent (6) | The `<race>` signs, `<full text>` |
+| Partial (1-5) | The `<race>` does not speak, but uses sign, you can only make out: `<known words>`. |
+| No Drow | The `<race>` does not speak, but moves their hands and fingers in rapid patterns. |
+| The signer | You sign, `<full text>` |
+
+For a partial viewer, each word of the message is kept with a probability of 16% x fluency level. Punctuation is removed and lost words are left out without a mark, so only understood words appear, for example "danger challenge water". If no word is kept, the viewer reads "The `<race>` does not speak, but uses sign; you cannot make out any of it." Partial viewers gain exposure by watching.
+
+`<race>` is the signer's race: Dwarf, Elf, Gnome, Halfling, Half-elf, Half-orc, Man, Goblin, Orc, Lizardfolk, Dragon, or Drow for a character with the subrace "drow". Any other race reads as "Creature". `LangRaceName` in `dmfi_lang_inc.nss` holds the list.
+
+The same text rules apply in chat (typed `[text]`, the window, talk mode, NWNX) and in NPC dialog. The sign lines are also written to the `.lang` window log. An NPC signs when its local int `npc_language` is 13.
+
+## Dialog variables
+
+A dialog author can write `<race>` in any line of an NPC that uses `cond_lang_line`. The script replaces it with the NPC's race before the line is shown, in every language. For example, "The `<race>` looks you over." reads "The Dwarf looks you over." when the NPC is a dwarf.
 
 ## What the listener sees
 

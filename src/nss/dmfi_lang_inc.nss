@@ -610,6 +610,121 @@ string LangGarble(string sText, int iFluency)
     return sOut;
 }
 
+// --- sign languages
+// Drow is a sign language: nothing is spoken, so there is no speech bubble and
+// no scrambled text. Each viewer reads a description of the signing instead:
+//   fluent   The <race> signs, <the full text>
+//   partial  The <race> does not speak, but uses sign, you can only make out: <known words>.
+//   none     The <race> does not speak, but moves their hands and fingers in rapid patterns.
+// <race> is replaced with the signer's race (see LangRaceName).
+
+const int DMFI_LANG_SIGN_DROW = 13;
+const string DMFI_LANG_RACE_TAG = "<race>";
+const string DMFI_LANG_SIGN_FLUENT = "The <race> signs, ";
+const string DMFI_LANG_SIGN_PARTIAL = "The <race> does not speak, but uses sign, you can only make out: ";
+const string DMFI_LANG_SIGN_NONE = "The <race> does not speak, but moves their hands and fingers in rapid patterns.";
+const string DMFI_LANG_SIGN_NOTHING = "The <race> does not speak, but uses sign; you cannot make out any of it.";
+
+int LangIsSign(int iLang)
+{
+    return iLang == DMFI_LANG_SIGN_DROW;
+}
+
+// The race as it reads in a description: "Elf", "Man", "Dwarf", ...
+string LangRaceName(object oCreature)
+{
+    if (GetStringLowerCase(GetSubRace(oCreature)) == "drow") return "Drow";
+    switch (GetRacialType(oCreature))
+    {
+        case RACIAL_TYPE_DWARF: return "Dwarf";
+        case RACIAL_TYPE_ELF: return "Elf";
+        case RACIAL_TYPE_GNOME: return "Gnome";
+        case RACIAL_TYPE_HALFLING: return "Halfling";
+        case RACIAL_TYPE_HALFELF: return "Half-elf";
+        case RACIAL_TYPE_HALFORC: return "Half-orc";
+        case RACIAL_TYPE_HUMAN: return "Man";
+        case RACIAL_TYPE_HUMANOID_GOBLINOID: return "Goblin";
+        case RACIAL_TYPE_HUMANOID_ORC: return "Orc";
+        case RACIAL_TYPE_HUMANOID_REPTILIAN: return "Lizardfolk";
+        case RACIAL_TYPE_HUMANOID_MONSTROUS: return "Creature";
+        case RACIAL_TYPE_DRAGON: return "Dragon";
+    }
+    return "Creature";
+}
+
+// Replaces every <race> in sText with the race of oSpeaker. Dialog authors can
+// write <race> in any NPC line.
+string LangExpandVars(string sText, object oSpeaker)
+{
+    string sRace = LangRaceName(oSpeaker);
+    string sOut = "";
+    int iPos = FindSubString(sText, DMFI_LANG_RACE_TAG);
+    while (iPos != -1)
+    {
+        sOut += GetStringLeft(sText, iPos) + sRace;
+        sText = GetStringRight(sText, GetStringLength(sText) - iPos - GetStringLength(DMFI_LANG_RACE_TAG));
+        iPos = FindSubString(sText, DMFI_LANG_RACE_TAG);
+    }
+    return sOut + sText;
+}
+
+// The words of sText a signer of this fluency gets across: each word is kept
+// with a chance of fluency * DMFI_LANG_CHANCE_PER_LEVEL percent, punctuation
+// removed. Lost words leave no trace.
+string LangSignWords(string sText, int iFluency)
+{
+    string sOut = "";
+    string sRest = sText;
+    while (sRest != "")
+    {
+        int iSpace = FindSubString(sRest, " ");
+        string sWord = sRest;
+        if (iSpace == -1)
+            sRest = "";
+        else
+        {
+            sWord = GetStringLeft(sRest, iSpace);
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iSpace - 1);
+        }
+        string sClean = "";
+        int i;
+        for (i = 0; i < GetStringLength(sWord); i++)
+        {
+            string sChar = GetSubString(sWord, i, 1);
+            if (FindSubString(".,;:!?\"()", sChar) == -1) sClean += sChar;
+        }
+        if (sClean == "") continue;
+        if (Random(100) < iFluency * DMFI_LANG_CHANCE_PER_LEVEL)
+        {
+            if (sOut != "") sOut += " ";
+            sOut += sClean;
+        }
+    }
+    return sOut;
+}
+
+// What oViewer reads when oSigner signs sSaid in a sign language. The signer
+// sees "You sign, ...". A viewer with a partial grasp improves by watching.
+string LangSignLine(object oSigner, object oViewer, int iLang, string sSaid)
+{
+    if (oViewer == oSigner) return "You sign, " + sSaid;
+
+    int iFluency = LangFluency(oViewer, iLang);
+    string sLine;
+    if (iFluency >= DMFI_LANG_NATIVE_LEVEL)
+        sLine = DMFI_LANG_SIGN_FLUENT + sSaid;
+    else if (iFluency > 0)
+    {
+        LangGainExposure(oViewer, iLang);
+        string sWords = LangSignWords(sSaid, iFluency);
+        if (sWords == "") sLine = DMFI_LANG_SIGN_NOTHING;
+        else sLine = DMFI_LANG_SIGN_PARTIAL + sWords + ".";
+    }
+    else
+        sLine = DMFI_LANG_SIGN_NONE;
+    return LangExpandVars(sLine, oSigner);
+}
+
 // Delivers sSaid, spoken in iTranslate, to everyone within fRange metres:
 //   fluent listeners   the original text
 //   partial listeners  a garbled version, and they slowly improve
@@ -626,7 +741,8 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
 
     if (iTranslate == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
         sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
-    if (bBubble)
+    int bSign = LangIsSign(iTranslate);
+    if (bBubble && !bSign)
         AssignCommand(oShouter, SpeakString(LangScramble(iTranslate, sSaid)));
 
     location lShouter = GetLocation(oShouter);
@@ -641,7 +757,9 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
         {
             int iFluency = LangFluency(oEavesdrop, iTranslate);
             string sLine = "";
-            if (iFluency >= DMFI_LANG_NATIVE_LEVEL || oEavesdrop == oShouter)
+            if (bSign)
+                sLine = LangSignLine(oShouter, oEavesdrop, iTranslate, sSaid);
+            else if (iFluency >= DMFI_LANG_NATIVE_LEVEL || oEavesdrop == oShouter)
                 sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + sSaid;
             else if (iFluency > 0)
             {
@@ -691,7 +809,9 @@ int LangHandleTalk(object oPC)
     string sScrambled = LangScramble(iLang, sMsg);
     if (sScrambled == "") return FALSE;
 
-    SetPCChatMessage(sScrambled);
+    // A sign language has no spoken line; LangSpeak sends the descriptions.
+    if (LangIsSign(iLang)) SetPCChatMessage("");
+    else SetPCChatMessage(sScrambled);
     LangSpeak(oPC, iLang, sMsg, fRange, FALSE);
     return TRUE;
 }

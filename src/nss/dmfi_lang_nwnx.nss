@@ -58,7 +58,9 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
         {
             int iFluency = LangFluency(oListener, iLang);
             string sLine;
-            if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
+            if (LangIsSign(iLang))
+                sLine = LangSignLine(oSpeaker, oListener, iLang, sSaid);
+            else if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
                 sLine = sTag + sSaid;
             else if (iFluency > 0)
             {
@@ -71,7 +73,8 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
                 NoticeLanguage(oListener, oSpeaker, iLang, sName);
             }
             NWNX_Chat_SendMessage(iChannel, sLine, oSpeaker, oListener);
-            LangNwnxLog(oListener, GetName(oSpeaker) + " says in " + sName + ": " + sLine);
+            if (LangIsSign(iLang)) LangNwnxLog(oListener, sLine);
+            else LangNwnxLog(oListener, GetName(oSpeaker) + " says in " + sName + ": " + sLine);
         }
         oListener = GetNextObjectInShape(SHAPE_SPHERE, fRange, lSpeaker, FALSE, OBJECT_TYPE_CREATURE);
     }
