@@ -292,44 +292,63 @@ string TranslateCommonToLanguage(int iLang, string sText)
 
 // --- who knows what
 
-int GetDefaultRacialLanguage(object oPC, int iRename)
+// Race ids added by the Tethyr racialtypes.2da.
+const int DMFI_RACE_DRIDER = 50;
+const int DMFI_RACE_BROWNIE = 53;
+
+// TRUE if oCreature knows iLang without learning it, from its race, subrace,
+// alignment or class levels. These languages are fluent and use no slot.
+//   Elven      elf, half-elf, drow, drider, fey
+//   Gnome, Halfling, Dwarven   the matching race
+//   Orc        orc, half-orc
+//   Goblin     goblinoids: goblin, hobgoblin, bugbear, gnoll
+//   Draconic   dragons and reptilians: kobold, lizardfolk, troglodyte
+//   Animal     any Ranger or Druid level
+//   Thieves' Cant   any Rogue level
+//   Celestial / Infernal / Abyssal   outsiders that are good / lawful evil / chaotic evil
+//   Drow       subrace "drow", drider
+int LangInnate(object oCreature, int iLang)
 {
-    switch(GetRacialType(oPC))
+    int iRace = GetRacialType(oCreature);
+    int bDrow = GetStringLowerCase(GetSubRace(oCreature)) == "drow" || iRace == DMFI_RACE_DRIDER;
+    int bOutsider = iRace == RACIAL_TYPE_OUTSIDER;
+    int iGoodEvil = GetAlignmentGoodEvil(oCreature);
+    int iLawChaos = GetAlignmentLawChaos(oCreature);
+
+    switch (iLang)
     {
-        case RACIAL_TYPE_DWARF: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Dwarven"); return 4; break;
-        case RACIAL_TYPE_ELF:
-        case RACIAL_TYPE_HALFELF: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Elven"); return 1; break;
-        case RACIAL_TYPE_GNOME: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Gnome"); return 2; break;
-        case RACIAL_TYPE_HALFLING: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Halfling"); return 3; break;
-        case RACIAL_TYPE_HUMANOID_ORC:
-        case RACIAL_TYPE_HALFORC: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Orc"); return 5; break;
-        case RACIAL_TYPE_HUMANOID_GOBLINOID: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Goblin"); return 6; break;
-        case RACIAL_TYPE_HUMANOID_REPTILIAN:
-        case RACIAL_TYPE_DRAGON: if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Draconic"); return 7; break;
-        default: if (GetLevelByClass(CLASS_TYPE_RANGER, oPC) || GetLevelByClass(CLASS_TYPE_DRUID, oPC))
-                 {
-                    if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Animal");
-                    return 8;
-                 }
-                 if (GetLevelByClass(CLASS_TYPE_ROGUE, oPC))
-                 {
-                    if (iRename) SetLocalString(oPC, "hls_MyLanguageName", "Thieves' Cant");
-                    return 9;
-                 }
-                 break;
+        case 1: return iRace == RACIAL_TYPE_ELF || iRace == RACIAL_TYPE_HALFELF || iRace == RACIAL_TYPE_FEY
+                    || iRace == DMFI_RACE_BROWNIE || bDrow;
+        case 2: return iRace == RACIAL_TYPE_GNOME;
+        case 3: return iRace == RACIAL_TYPE_HALFLING;
+        case 4: return iRace == RACIAL_TYPE_DWARF;
+        case 5: return iRace == RACIAL_TYPE_HUMANOID_ORC || iRace == RACIAL_TYPE_HALFORC;
+        case 6: return iRace == RACIAL_TYPE_HUMANOID_GOBLINOID;
+        case 7: return iRace == RACIAL_TYPE_DRAGON || iRace == RACIAL_TYPE_HUMANOID_REPTILIAN;
+        case 8: return GetLevelByClass(CLASS_TYPE_RANGER, oCreature) > 0 || GetLevelByClass(CLASS_TYPE_DRUID, oCreature) > 0;
+        case 9: return GetLevelByClass(CLASS_TYPE_ROGUE, oCreature) > 0;
+        case 10: return bOutsider && iGoodEvil == ALIGNMENT_GOOD;
+        case 11: return bOutsider && iGoodEvil == ALIGNMENT_EVIL && iLawChaos == ALIGNMENT_CHAOTIC;
+        case 12: return bOutsider && iGoodEvil == ALIGNMENT_EVIL && iLawChaos == ALIGNMENT_LAWFUL;
+        case 13: return bDrow;
     }
-    return 0;
+    return FALSE;
 }
 
-int GetDefaultClassLanguage(object oPC)
+// The language a creature speaks by default: the first one it knows
+// innately (race before class). 0 if none. With iRename, also records the
+// language name on the creature for the voice widget.
+int GetDefaultRacialLanguage(object oPC, int iRename)
 {
-    if (GetLevelByClass(CLASS_TYPE_RANGER, oPC) || GetLevelByClass(CLASS_TYPE_DRUID, oPC))
-        return 8;
-    if (GetLevelByClass(CLASS_TYPE_ROGUE, oPC))
-        return 9;
-    if ((GetSubRace(oPC)=="drow") ||(GetSubRace(oPC)=="DROW")||(GetSubRace(oPC)=="Drow"))
-        return 13;
-
+    int iLang;
+    for (iLang = 1; iLang <= 13; iLang++)
+    {
+        if (LangInnate(oPC, iLang))
+        {
+            if (iRename) SetLocalString(oPC, "hls_MyLanguageName", LangName(iLang));
+            return iLang;
+        }
+    }
     return 0;
 }
 
@@ -374,8 +393,7 @@ int LangFluency(object oPC, int iLang)
     if (GetIsDM(oPC) || GetIsDMPossessed(oPC)) return DMFI_LANG_NATIVE_LEVEL;
     if (GetIsObjectValid(GetItemPossessedBy(oPC, "hlslang_" + IntToString(iLang))) ||
         GetIsObjectValid(GetItemPossessedBy(oPC, "babelfish")) ||
-        iLang == GetDefaultRacialLanguage(oPC, 0) ||
-        iLang == GetDefaultClassLanguage(oPC))
+        LangInnate(oPC, iLang))
         return DMFI_LANG_NATIVE_LEVEL;
     return LangListLevel(oPC, iLang);
 }

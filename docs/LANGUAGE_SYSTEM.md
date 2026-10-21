@@ -32,12 +32,27 @@ Drow is signed rather than spoken (see "Drow sign language"). Languages 1 to 13 
 
 ## Who knows a language
 
-`LangFluency(oPC, iLang)` returns the fluency. It returns 6 when any of these is true:
+`LangFluency(oPC, iLang)` returns the fluency. It returns 6 when the character is a DM or DM-possessed, carries a `hlslang_<id>` widget or a `babelfish` item, or knows the language innately (`LangInnate`). Innate languages use no slot and do not depend on Intelligence. A creature has every innate language that applies, so a drow rogue knows Elven, Drow and Thieves' Cant.
 
-- The character is a DM or DM-possessed.
-- The character carries a `hlslang_<id>` widget or a `babelfish` item.
-- The language is the racial default (`GetDefaultRacialLanguage`): Elf and Half-elf Elven, Gnome, Halfling, Dwarf, Orc and Half-orc Orc, Goblinoid Goblin, Reptilian and Dragon Draconic.
-- The language is the class or subrace default (`GetDefaultClassLanguage`): Ranger and Druid Animal, Rogue Thieves' Cant, subrace "drow" Drow.
+| Language | Innate for |
+|---|---|
+| Elven | Elf, Half-elf, subrace "drow", Drider, Fey (including Brownie) |
+| Gnome | Gnome |
+| Halfling | Halfling |
+| Dwarven | Dwarf (including duergar) |
+| Orc | Orc, Half-orc |
+| Goblin | Goblinoids: goblin, hobgoblin, bugbear, gnoll |
+| Draconic | Dragon, Reptilian: kobold, lizardfolk, troglodyte |
+| Animal | any Ranger or Druid level |
+| Thieves' Cant | any Rogue level |
+| Celestial | Outsider with a good alignment |
+| Infernal | Outsider with a lawful evil alignment |
+| Abyssal | Outsider with a chaotic evil alignment |
+| Drow | subrace "drow", Drider |
+
+Humans have no innate language. Other racial types (animals, beasts, constructs, undead, oozes, giants, aberrations, magical beasts, monstrous humanoids, elementals, vermin, plants) have none either.
+
+The default speaking language of a creature is the first innate language in id order, so a drow speaks Elven by default and can switch to Drow with `.speak drow`. An NPC speaks its default language unless `npc_language` is set.
 
 Otherwise the level comes from the character's learned-language list. The list is a local string `lang_known` on the character, for example `,4:3,10:2,` for Dwarven at 3 and Celestial at 2. An older entry without a level (`,4,`) counts as 6.
 
