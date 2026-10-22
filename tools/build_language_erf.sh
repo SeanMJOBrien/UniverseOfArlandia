@@ -33,12 +33,32 @@ conv "$REPO/src/utp/lang_bookshelf.utp.json" lang_bookshelf.utp
 conv "$REPO/src/utc/lang_goblin.utc.json" lang_goblin.utc
 conv "$REPO/src/dlg/lang_demo.dlg.json" lang_demo.dlg
 
+# --- palettes: the module palettes cut down to the language entries only
+python3 - "$REPO" "$WORK" <<'PY'
+import json, sys, pathlib
+repo, work = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+for kind in ("item", "placeable", "creature"):
+    d = json.loads((repo / "src/itp" / f"{kind}palcus.itp.json").read_text())
+    def keep(lst):
+        out = []
+        for s in lst:
+            if "LIST" in s:
+                s["LIST"]["value"] = keep(s["LIST"]["value"])
+                if s["LIST"]["value"]: out.append(s)
+            elif s.get("RESREF", {}).get("value", "").startswith("lang_") and s["RESREF"]["value"] != "lang_demo":
+                out.append(s)
+        return out
+    d["MAIN"]["value"] = keep(d["MAIN"]["value"])
+    (work / f"{kind}palcus.itp.json").write_text(json.dumps(d))
+PY
+for k in item placeable creature; do conv "$WORK/${k}palcus.itp.json" "${k}palcus.itp"; done
+
 # --- readme, then the ERF
 cp "$PKG/README.txt" "$WORK/stage/lang_readme.txt"
 rm -f "$WORK"/stage/*.json
 ERF="$OUT/uoa_language_system_nwscript.erf"
 rm -f "$ERF"
-(cd "$WORK/stage" && "$TOOLS/neverwinter/nwn_erf" -c -f "$ERF" -e ERF *.nss *.ncs *.uti *.utp *.utc *.dlg lang_readme.txt)
+(cd "$WORK/stage" && "$TOOLS/neverwinter/nwn_erf" -c -f "$ERF" -e ERF *.nss *.ncs *.uti *.utp *.utc *.dlg *.itp lang_readme.txt)
 python3 "$PKG/make_manual.py" "$OUT/uoa_language_system_manual.html"
 echo "Built $ERF ($(ls "$WORK/stage" | wc -l) resources)"
 rm -rf "$WORK"

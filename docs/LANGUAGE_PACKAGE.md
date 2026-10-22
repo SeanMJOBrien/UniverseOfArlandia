@@ -6,8 +6,9 @@ The package is an ERF, `uoa_language_system_nwscript.erf`, built by `tools/build
 
 1. In the toolset choose File, Import, ERF, and import everything in the package.
 2. Open Module Properties, Events, and set the scripts below. If the module already has a script for an event, call that script's logic from the package script instead.
-3. Place the `lang_bookshelf` placeable somewhere players can reach it, and optionally the `lang_goblin` creature (Gruk) for testing.
-4. Build the module. All scripts in the package are compiled and their sources are included.
+3. The books, the bookshelf and Gruk are listed in the palettes under Special, Custom 5. The package carries `itempalcus`, `placeablepalcus` and `creaturepalcus`, which hold only those entries; importing them replaces a module's existing custom palettes, so in a module that already has custom palette entries, import without the three `.itp` files and add the entries by hand.
+4. Place the `lang_bookshelf` placeable somewhere players can reach it, and optionally the `lang_goblin` creature (Gruk) for testing.
+5. Build the module. All scripts in the package are compiled and their sources are included.
 
 | Module event | Script | Required |
 |---|---|---|

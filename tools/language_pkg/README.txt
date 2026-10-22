@@ -12,7 +12,7 @@ MODULE EVENTS (Module Properties > Events)
   If the module already has scripts for these events, call their logic from yours
   (each is a few lines).
 
-OBJECTS
+OBJECTS (listed in the palettes under Special > Custom 5)
   lang_bookshelf     placeable; open it to get every book, it restocks on open and close
   lang_book_<id>_<n> 66 books, volumes 1-6 of Elven (1), Gnome (2), Halfling (3), Dwarven (4),
                      Orc (5), Goblin (6), Draconic (7), Celestial (10), Abyssal (11),
