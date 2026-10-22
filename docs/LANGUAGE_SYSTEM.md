@@ -145,7 +145,7 @@ Drow (id 13) is a sign language. The signer says nothing aloud, so there is no s
 | No Drow | The `<race>` does not speak, but moves their hands and fingers in rapid patterns. |
 | The signer | You sign, `<full text>` |
 
-For a partial viewer, each word of the message is kept with a probability of 16% x fluency level. Punctuation is removed and lost words are left out without a mark, so only understood words appear, for example "danger challenge water". If no word is kept, the viewer reads "The `<race>` does not speak, but uses sign; you cannot make out any of it." Partial viewers gain exposure by watching.
+For a partial viewer, each word is either known or not, decided by the same fixed rule as ordinary speech (see Garbling). A word's result never changes for that character. Punctuation is removed and lost words are left out without a mark, so only understood words appear, for example "danger challenge water". If no word is kept, the viewer reads "The `<race>` does not speak, but uses sign; you cannot make out any of it." Partial viewers gain exposure by watching.
 
 `<race>` is the signer's race: Dwarf, Elf, Gnome, Halfling, Half-elf, Half-orc, Man, Goblin, Orc, Lizardfolk, Dragon, or Drow for a character with the subrace "drow". Any other race reads as "Creature". `LangRaceName` in `dmfi_lang_inc.nss` holds the list.
 
@@ -166,7 +166,16 @@ A dialog author can write `<race>` in any line of an NPC that uses `cond_lang_li
 | Partial (1-5) | `<name> says in <Language> (you catch only part): <garbled>` | as above |
 | No knowledge | nothing, apart from a possible Lore notice | scrambled |
 
-Garbling keeps each word with a probability of 16% x fluency level. Runs of lost words become one `...`.
+Garbling is fixed per word, not random. Each character has a saved seed (local int `lang_seed`, created on first use). A character of fluency f knows a word of a language when a hash of (seed, language, word) falls below 16 x f percent. The word is compared without punctuation and case. Consequences:
+
+- The same word is always readable or always masked for that character, in every sentence and conversation, so repeating a dialog branch shows the same words.
+- Raising fluency only adds words: every word known at level 2 is still known at level 3.
+- Two characters know different words of the same language, and the same character knows different words in different languages.
+- Fluency 6 knows every word and fluency 0 none.
+
+A masked word appears as the language's scrambled form of that word, which is also always the same (for example a Goblin word looks the same every time). Setting `DMFI_LANG_SHOW_FOREIGN` to FALSE shows runs of masked words as one `...` instead.
+
+The speaker is masked the same way. A character who types a sentence in a language they only partly know says only the words they know; the other words come out as the scrambled form for everyone, including fluent listeners, and the speaker sees the line the way it will be heard. NPCs and DMs speak fully.
 
 A listener with no knowledge may see "`<name> is speaking in <Language>`" when `d20 + Lore rank` is above 20. The check runs at most once per 60 seconds per listener and language, and never for Thieves' Cant.
 

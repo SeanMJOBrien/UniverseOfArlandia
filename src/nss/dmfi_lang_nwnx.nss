@@ -46,6 +46,10 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
     string sName = LangName(iLang);
     string sTag = "[" + sName + "] ";
     string sScrambled = LangScramble(iLang, sSaid);
+    // What the speaker manages of the language: a player's own fluency, full for NPCs and DMs.
+    int iSpeakerFluency = DMFI_LANG_NATIVE_LEVEL;
+    if (GetIsPC(oSpeaker) && !GetIsDM(oSpeaker) && !GetIsDMPossessed(oSpeaker))
+        iSpeakerFluency = LangFluency(oSpeaker, iLang);
 
     location lSpeaker = GetLocation(oSpeaker);
     object oListener = GetFirstObjectInShape(SHAPE_SPHERE, fRange, lSpeaker, FALSE, OBJECT_TYPE_CREATURE);
@@ -61,10 +65,10 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
             if (LangIsSign(iLang))
                 sLine = LangSignLine(oSpeaker, oListener, iLang, sSaid);
             else if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
-                sLine = sTag + sSaid;
+                sLine = sTag + LangGarble(sSaid, iFluency, iLang, oListener, oSpeaker, iSpeakerFluency);
             else if (iFluency > 0)
             {
-                sLine = sTag + LangGarble(sSaid, iFluency);
+                sLine = sTag + LangGarble(sSaid, iFluency, iLang, oListener, oSpeaker, iSpeakerFluency);
                 LangGainExposure(oListener, iLang);
             }
             else

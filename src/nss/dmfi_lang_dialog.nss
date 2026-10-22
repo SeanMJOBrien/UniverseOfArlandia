@@ -52,7 +52,7 @@ string LangDialogText(object oPC, object oNPC, string sText)
     if (iFluency > 0)
     {
         LangGainExposure(oPC, iLang);
-        return sPrefix + LangGarble(sText, iFluency);
+        return sPrefix + LangGarble(sText, iFluency, iLang, oPC);
     }
     string sScrambled = LangScramble(iLang, sText);
     if (sScrambled == "") return sText;

@@ -57,6 +57,12 @@ const int DMFI_LANG_NATIVE_LEVEL = 6;
 const int DMFI_LANG_LEARN_LEVEL = 1;
 // Percent of the words a listener catches, per fluency level.
 const int DMFI_LANG_CHANCE_PER_LEVEL = 16;
+// Words a listener does not know: TRUE shows them in the foreign language (the
+// same scrambled word every time), FALSE hides runs of them as "...".
+const int DMFI_LANG_SHOW_FOREIGN = TRUE;
+// Per-character seed (saved with the character) that decides which words it knows.
+const string DMFI_LANG_VAR_SEED = "lang_seed";
+const string DMFI_LANG_WORD_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789'-";
 // Lines heard to leave level n: n * n * this.
 const int DMFI_LANG_EXP_UNIT = 20;
 // A listener earns at most one exposure point per language in this window.
@@ -594,10 +600,58 @@ string LangScramble(int iLang, string sSaid)
     return TranslateCommonToLanguage(iLang, sSaid);
 }
 
-// What a listener of partial fluency catches: each word survives with a
-// chance of fluency * DMFI_LANG_CHANCE_PER_LEVEL percent; runs of lost words
-// become a single "...".
-string LangGarble(string sText, int iFluency)
+// --- which words a character knows
+// A character of fluency f knows a given word of a language when a hash of
+// (the character's seed, the language, the word) falls below f * 16 percent.
+// The result depends only on those three things, so the same word is always
+// readable or always masked for that character, in every sentence and every
+// conversation, and the set of known words only grows as fluency rises.
+
+int LangSeed(object oPC)
+{
+    int iSeed = GetLocalInt(oPC, DMFI_LANG_VAR_SEED);
+    if (iSeed == 0 && GetIsPC(oPC))
+    {
+        iSeed = Random(900000) + 1;
+        SetLocalInt(oPC, DMFI_LANG_VAR_SEED, iSeed);
+    }
+    return iSeed;
+}
+
+// sWord without punctuation, lower case; "" when no letters or digits remain.
+string LangWordCore(string sWord)
+{
+    string sCore = "";
+    sWord = GetStringLowerCase(sWord);
+    int i;
+    for (i = 0; i < GetStringLength(sWord); i++)
+    {
+        string sChar = GetSubString(sWord, i, 1);
+        if (FindSubString(DMFI_LANG_WORD_CHARS, sChar) != -1) sCore += sChar;
+    }
+    return sCore;
+}
+
+int LangKnowsWord(object oPC, int iLang, string sWord, int iFluency)
+{
+    if (iFluency >= DMFI_LANG_NATIVE_LEVEL) return TRUE;
+    string sCore = LangWordCore(sWord);
+    if (sCore == "") return TRUE;       // punctuation or a number: nothing to hide
+    if (iFluency <= 0) return FALSE;
+
+    int iHash = (LangSeed(oPC) % 100000) + iLang * 7919;
+    int i;
+    for (i = 0; i < GetStringLength(sCore); i++)
+        iHash = (iHash * 31 + FindSubString(DMFI_LANG_WORD_CHARS, GetSubString(sCore, i, 1)) + 1) % 1000003;
+    return (iHash % 100) < iFluency * DMFI_LANG_CHANCE_PER_LEVEL;
+}
+
+// sText as oListener (of iFluency in iLang) reads or hears it. Words the
+// listener does not know are replaced by the language's scrambled form, or by
+// "..." (DMFI_LANG_SHOW_FOREIGN). When oSpeaker is given, words the speaker
+// does not know (iSpeakerFluency) are mangled for everyone, so a learner's own
+// sentences come out as halting as they sound to themselves.
+string LangGarble(string sText, int iFluency, int iLang, object oListener, object oSpeaker = OBJECT_INVALID, int iSpeakerFluency = 6)
 {
     string sOut = "";
     int bLastLost = FALSE;
@@ -614,18 +668,19 @@ string LangGarble(string sText, int iFluency)
             sRest = GetStringRight(sRest, GetStringLength(sRest) - iSpace - 1);
         }
         if (sWord == "") continue;
-        if (Random(100) < iFluency * DMFI_LANG_CHANCE_PER_LEVEL)
+
+        int bSpeakerKnows = !GetIsObjectValid(oSpeaker) || LangKnowsWord(oSpeaker, iLang, sWord, iSpeakerFluency);
+        int bKnown = bSpeakerKnows && LangKnowsWord(oListener, iLang, sWord, iFluency);
+        string sShown = sWord;
+        if (!bKnown)
         {
-            if (sOut != "") sOut += " ";
-            sOut += sWord;
-            bLastLost = FALSE;
+            if (DMFI_LANG_SHOW_FOREIGN) sShown = LangScramble(iLang, sWord);
+            else if (bLastLost) continue;
+            else sShown = "...";
         }
-        else if (!bLastLost)
-        {
-            if (sOut != "") sOut += " ";
-            sOut += "...";
-            bLastLost = TRUE;
-        }
+        if (sOut != "") sOut += " ";
+        sOut += sShown;
+        bLastLost = !bKnown;
     }
     return sOut;
 }
@@ -688,10 +743,9 @@ string LangExpandVars(string sText, object oSpeaker)
     return sOut + sText;
 }
 
-// The words of sText a signer of this fluency gets across: each word is kept
-// with a chance of fluency * DMFI_LANG_CHANCE_PER_LEVEL percent, punctuation
-// removed. Lost words leave no trace.
-string LangSignWords(string sText, int iFluency)
+// The words of sText the viewer can make out: the words the viewer knows
+// (LangKnowsWord), punctuation removed. Words not known leave no trace.
+string LangSignWords(string sText, int iFluency, int iLang, object oViewer)
 {
     string sOut = "";
     string sRest = sText;
@@ -714,7 +768,7 @@ string LangSignWords(string sText, int iFluency)
             if (FindSubString(".,;:!?\"()", sChar) == -1) sClean += sChar;
         }
         if (sClean == "") continue;
-        if (Random(100) < iFluency * DMFI_LANG_CHANCE_PER_LEVEL)
+        if (LangKnowsWord(oViewer, iLang, sClean, iFluency))
         {
             if (sOut != "") sOut += " ";
             sOut += sClean;
@@ -736,7 +790,7 @@ string LangSignLine(object oSigner, object oViewer, int iLang, string sSaid)
     else if (iFluency > 0)
     {
         LangGainExposure(oViewer, iLang);
-        string sWords = LangSignWords(sSaid, iFluency);
+        string sWords = LangSignWords(sSaid, iFluency, iLang, oViewer);
         if (sWords == "") sLine = DMFI_LANG_SIGN_NOTHING;
         else sLine = DMFI_LANG_SIGN_PARTIAL + sWords + ".";
     }
@@ -765,6 +819,11 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
     if (bBubble && !bSign)
         AssignCommand(oShouter, SpeakString(LangScramble(iTranslate, sSaid)));
 
+    // What the speaker manages of the language: a player's own fluency, full for NPCs and DMs.
+    int iSpeakerFluency = DMFI_LANG_NATIVE_LEVEL;
+    if (GetIsPC(oShouter) && !GetIsDM(oShouter) && !GetIsDMPossessed(oShouter))
+        iSpeakerFluency = LangFluency(oShouter, iTranslate);
+
     location lShouter = GetLocation(oShouter);
     object oEavesdrop = GetFirstObjectInShape(SHAPE_SPHERE, fRange, lShouter, FALSE, OBJECT_TYPE_CREATURE);
     while (GetIsObjectValid(oEavesdrop))
@@ -779,11 +838,13 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
             string sLine = "";
             if (bSign)
                 sLine = LangSignLine(oShouter, oEavesdrop, iTranslate, sSaid);
-            else if (iFluency >= DMFI_LANG_NATIVE_LEVEL || oEavesdrop == oShouter)
-                sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + sSaid;
+            else if (oEavesdrop == oShouter)
+                sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
+            else if (iFluency >= DMFI_LANG_NATIVE_LEVEL)
+                sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
             else if (iFluency > 0)
             {
-                sLine = GetName(oShouter) + " says in " + sLanguageName + " (you catch only part): " + LangGarble(sSaid, iFluency);
+                sLine = GetName(oShouter) + " says in " + sLanguageName + " (you catch only part): " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
                 LangGainExposure(oEavesdrop, iTranslate);
             }
             else
