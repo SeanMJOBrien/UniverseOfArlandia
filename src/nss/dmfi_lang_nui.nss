@@ -55,16 +55,27 @@ int LangNuiLanguageAt(object oPC, int nIndex)
     return GetLocalInt(oPC, LANGNUI_VAR_ID + IntToString(nIndex));
 }
 
+// A row holding only jElement: an element alone in a row takes the row's
+// whole width, so the field fills the window and follows it when resized.
+// fHeight 0.0 leaves the height flexible.
+json LangNuiFull(json jElement, float fHeight)
+{
+    if (fHeight > 0.0) jElement = NuiHeight(jElement, fHeight);
+    json jOut = NuiRow(JsonArrayInsert(JsonArray(), jElement));
+    if (fHeight > 0.0) jOut = NuiHeight(jOut, fHeight);
+    return jOut;
+}
+
 json LangNuiLayout(json jEntries)
 {
     json jCol = JsonArray();
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0));
-    jCol = JsonArrayInsert(jCol, NuiVisible(NuiHeight(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0), NuiBind(LANGNUI_BIND_LOGVIS)));
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiLabel(JsonString("Speak in:"), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)), 32.0));
-    jCol = JsonArrayInsert(jCol, NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE));
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), 34.0));
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0));
+    jCol = JsonArrayInsert(jCol, NuiVisible(LangNuiFull(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0), NuiBind(LANGNUI_BIND_LOGVIS)));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiLabel(JsonString("Speak in:"), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)), 32.0));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE), 0.0));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), 34.0));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
     return NuiCol(jCol);
 }
 
