@@ -13853,6 +13853,732 @@
                       "type": "resref",
                       "value": "hlslang_9"
                     }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Celestial, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_10_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Abyssal, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_11_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Infernal, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_12_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Drow, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_13_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Elven, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_1_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gnome, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_2_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Halfling, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_3_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Dwarven, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_4_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Orc, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_5_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Goblin, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_6_6"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 1: First Words"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_1"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 2: Common Phrases"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_2"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 3: Grammar"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_3"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 4: Conversation"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_4"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 5: Idiom and Dialect"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_5"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Draconic, Volume 6: Mastery"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_book_7_6"
+                    }
                   }
                 ]
               },

@@ -28420,7 +28420,7 @@
                     "__struct_id": 0,
                     "NAME": {
                       "type": "cexostring",
-                      "value": "<cÿÿÿ><cÿÿ ><cÿ ÿ><c ÿÿ><cÿ  ><c ÿ ><c  ÿ><cÿÿÿ>Color Tag Generator"
+                      "value": "<c\u00ff\u00ff\u00ff><c\u00ff\u00ff ><c\u00ff \u00ff><c \u00ff\u00ff><c\u00ff  ><c \u00ff ><c  \u00ff><c\u00ff\u00ff\u00ff>Color Tag Generator"
                     },
                     "RESREF": {
                       "type": "resref",
@@ -28469,6 +28469,17 @@
                     "RESREF": {
                       "type": "resref",
                       "value": "dmfi_rest003"
+                    }
+                  },
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Language Bookshelf"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_bookshelf"
                     }
                   }
                 ]

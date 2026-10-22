@@ -39580,6 +39580,22 @@
               "STRREF": {
                 "type": "dword",
                 "value": 6692
+              },
+              "LIST": {
+                "type": "list",
+                "value": [
+                  {
+                    "__struct_id": 0,
+                    "NAME": {
+                      "type": "cexostring",
+                      "value": "Gruk the Goblin"
+                    },
+                    "RESREF": {
+                      "type": "resref",
+                      "value": "lang_goblin"
+                    }
+                  }
+                ]
               }
             }
           ]

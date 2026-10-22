@@ -55,15 +55,16 @@ int LangNuiLanguageAt(object oPC, int nIndex)
     return GetLocalInt(oPC, LANGNUI_VAR_ID + IntToString(nIndex));
 }
 
-// A row holding only jElement: an element alone in a row takes the row's
-// whole width, so the field fills the window and follows it when resized.
-// fHeight 0.0 leaves the height flexible. Only the row gets the height: the
-// row has padding, so an element of the same fixed height cannot fit inside it.
+// jElement in a group with no border. A group does not advise its parent of a
+// size, so it stretches to the full width of the column and follows the window
+// when it is resized, while a bare element keeps its natural width and sits at
+// the left. fHeight 0.0 leaves the height flexible. The height goes on the
+// group only: the element inside simply fills it.
 json LangNuiFull(json jElement, float fHeight)
 {
-    json jOut = NuiRow(JsonArrayInsert(JsonArray(), jElement));
-    if (fHeight > 0.0) jOut = NuiHeight(jOut, fHeight);
-    return jOut;
+    json jGroup = NuiGroup(jElement, FALSE, NUI_SCROLLBARS_NONE);
+    if (fHeight > 0.0) jGroup = NuiHeight(jGroup, fHeight);
+    return jGroup;
 }
 
 json LangNuiLayout(json jEntries)

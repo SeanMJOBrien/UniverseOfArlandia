@@ -64,3 +64,6 @@ for lid in LANGS:
 shelf["ItemList"] = {"type": "list", "value": items}
 (ROOT / "src/utp/lang_bookshelf.utp.json").write_text(json.dumps(shelf, indent=2) + "\n")
 print("wrote lang_bookshelf with %d books" % len(items))
+
+import subprocess, sys
+subprocess.run([sys.executable, str(ROOT / "tools/language_palette.py")], check=True)
