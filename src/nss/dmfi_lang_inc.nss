@@ -648,9 +648,9 @@ int LangKnowsWord(object oPC, int iLang, string sWord, int iFluency)
 
 // sText as oListener (of iFluency in iLang) reads or hears it. Words the
 // listener does not know are replaced by the language's scrambled form, or by
-// "..." (DMFI_LANG_SHOW_FOREIGN). When oSpeaker is given, words the speaker
-// does not know (iSpeakerFluency) are mangled for everyone, so a learner's own
-// sentences come out as halting as they sound to themselves.
+// "..." (DMFI_LANG_SHOW_FOREIGN). When oSpeaker is given, each word the speaker
+// does not know (iSpeakerFluency) becomes its own "..." for everyone, so a
+// learner's sentences read as halting speech with gaps.
 string LangGarble(string sText, int iFluency, int iLang, object oListener, object oSpeaker = OBJECT_INVALID, int iSpeakerFluency = 6)
 {
     string sOut = "";
@@ -669,8 +669,17 @@ string LangGarble(string sText, int iFluency, int iLang, object oListener, objec
         }
         if (sWord == "") continue;
 
+        // A word the speaker does not know is not said at all: one "..." per
+        // word, for every listener, like a learner searching for the word.
         int bSpeakerKnows = !GetIsObjectValid(oSpeaker) || LangKnowsWord(oSpeaker, iLang, sWord, iSpeakerFluency);
-        int bKnown = bSpeakerKnows && LangKnowsWord(oListener, iLang, sWord, iFluency);
+        if (!bSpeakerKnows)
+        {
+            if (sOut != "") sOut += " ";
+            sOut += "...";
+            bLastLost = FALSE;
+            continue;
+        }
+        int bKnown = LangKnowsWord(oListener, iLang, sWord, iFluency);
         string sShown = sWord;
         if (!bKnown)
         {
