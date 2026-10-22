@@ -31,6 +31,9 @@ const string LANGNUI_VAR_COUNT = "langnui_count";
 const string LANGNUI_VAR_ID = "langnui_id_";
 // Pull-down value for ordinary (common) speech.
 const int LANGNUI_COMMON = -1;
+// Widths of the label and Speak button in the bottom row.
+const float LANGNUI_LABEL_WIDTH = 70.0;
+const float LANGNUI_BUTTON_WIDTH = 90.0;
 const int LANGNUI_MAX_LENGTH = 400;
 // Oldest log lines are dropped beyond this many characters.
 const int LANGNUI_LOG_MAX_CHARS = 2000;
@@ -72,11 +75,15 @@ json LangNuiLayout(json jEntries)
     json jCol = JsonArray();
     jCol = JsonArrayInsert(jCol, LangNuiFull(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0));
     jCol = JsonArrayInsert(jCol, NuiVisible(LangNuiFull(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0), NuiBind(LANGNUI_BIND_LOGVIS)));
-    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiLabel(JsonString("Speak in:"), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
-    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)), 32.0));
     jCol = JsonArrayInsert(jCol, LangNuiFull(NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE), 0.0));
-    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), 34.0));
     jCol = JsonArrayInsert(jCol, LangNuiFull(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
+
+    // Bottom row: "Speak in:", the language pull-down (takes the spare width), Speak.
+    json jRow = JsonArray();
+    jRow = JsonArrayInsert(jRow, NuiWidth(NuiLabel(JsonString("Speak in:"), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), LANGNUI_LABEL_WIDTH));
+    jRow = JsonArrayInsert(jRow, NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)));
+    jRow = JsonArrayInsert(jRow, NuiWidth(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), LANGNUI_BUTTON_WIDTH));
+    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiRow(jRow), 40.0));
     return NuiCol(jCol);
 }
 
