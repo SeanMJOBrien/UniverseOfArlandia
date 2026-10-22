@@ -108,11 +108,11 @@ E("E_MILL_FAIL", "Brannoc shakes his head. 'Rules are rules.' You may try anothe
 R("R_MILL_RETRY", "Try something else.", to=[link("E_MILL_APPROACH")])
 E("E_MILL_OK_PERSUADE", "Brannoc sighs and crosses out the debt. 'Fair enough. Tell Tolliver he has until harvest.' "
                         "Grateful, Tolliver tells you the caravan turned off toward the broken bridge.",
-  act("complete", "miller", xp=150, gold=50), to=[link("R_BACK")])
+  act("complete", "miller", gold=50), to=[link("R_BACK")])
 E("E_MILL_OK_INTIM", "Brannoc pales and stamps the debt paid. 'No need for that.' Tolliver tells you, shaking, that the caravan turned toward the broken bridge.",
-  act("complete", "miller", xp=150, gold=50), to=[link("R_BACK")])
+  act("complete", "miller", gold=50), to=[link("R_BACK")])
 E("E_MILL_OK_BRIBE", "Brannoc counts the coins twice and lets the mill be. Tolliver, relieved, tells you the caravan turned toward the broken bridge.",
-  act("complete", "miller", xp=100, gold=0), to=[link("R_BACK")])
+  act("complete", "miller", gold=0), to=[link("R_BACK")])
 
 # --- quest 2: language (envoy)
 G = "goblin"
@@ -126,7 +126,7 @@ R("R_ENV_ACCEPT", "Show me the letter.", act("stage", "envoy", value=1),
   to=[link("E_ENV_6", lang(G, 6)), link("E_ENV_3", lang(G, 3)), link("E_ENV_1", lang(G, 1)), link("E_ENV_0")])
 E("E_ENV_6", "You read it as a native. 'To the keepers of the road hall: the Red Hand took your caravan, not us. We trade fairly. "
              "Meet Skritt at dusk by the broken bridge and bring no steel.' Wren nods. 'Then the goblins are witnesses, not thieves.'",
-  act("complete", "envoy", xp=200, gold=0), to=[link("R_BACK")])
+  act("complete", "envoy", gold=0), to=[link("R_BACK")])
 E("E_ENV_3", "You follow most of it: '...caravan... not us... Red... bridge...' Enough to doubt the goblins, not enough to be sure. "
              "You may piece the rest together, or study more Goblin and read it again.",
   act("setflag", "envoy", name="gist"), to=[link("R_GIST", cond("noflag", "envoy", name="tried_gist")), link("R_BACK")])
@@ -139,7 +139,7 @@ E("E_ENV_0", "The glyphs mean nothing to you. Learn Goblin from a book, or try t
 R("R_DECIPHER", "[Lore, DC 25] Decipher it by comparing glyphs.", act("roll", "envoy", skill="lore", dc=25, name="decipher"),
   to=[link("E_ENV_GUESS_OK", cond("flag", "envoy", name="ok_decipher")), link("E_ENV_GUESS_FAIL")])
 E("E_ENV_GUESS_OK", "It comes together: the Red Hand took the caravan and the goblins want to meet by the broken bridge. You are unsure of every word, but the sense holds.",
-  act("complete", "envoy", xp=100, gold=0), to=[link("R_BACK")])
+  act("complete", "envoy", gold=0), to=[link("R_BACK")])
 E("E_ENV_GUESS_FAIL", "You tell Wren it reads like a war threat. She frowns. 'That does not sound right.' You are not sure either. A better grasp of Goblin would settle it.",
   act("setflag", "envoy", name="misread"), to=[link("R_BACK")])
 
@@ -166,13 +166,13 @@ E("E_LED_HINT", "Assume each suspect did it and count how many of the three stat
 R("R_LED_AGAIN", "Let me think again.", to=[link("E_LED_Q")])
 E("E_LED_OK", "The Guard it is: with the Guard guilty, only the Scribe's 'The Cook is lying' is true. The Guard confesses and returns the ledger, "
               "which records the caravan's secret route.",
-  act("complete", "ledger", xp=200, gold=75), to=[link("R_BACK")])
+  act("complete", "ledger", gold=75), to=[link("R_BACK")])
 
 # --- finale: all three leads
 R("R_FINALE", "[Report] I hold all three leads.", to=[link("E_FINALE")])
 E("E_FINALE", "Tolliver's road, Skritt's letter and the ledger's route all point to the broken bridge. You ride out at dusk, "
               "meet the goblins, and drive off the Red Hand. The caravan returns with its goods intact.",
-  act("complete", "caravan", xp=500, gold=250), to=[link("R_BACK")])
+  act("complete", "caravan", gold=250), to=[link("R_BACK")])
 
 STARTS = [link("E_NEW", cond("stage_eq", "caravan", value=0))] + HUB
 

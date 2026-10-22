@@ -5,7 +5,7 @@
 //   attempt                       count a wrong answer
 //   roll      skill, dc, name     d20 + skill vs DC; sets tried/ok/fail_<name>
 //   pay       gold, name          take gold; sets tried_ and ok_<name>
-//   complete  xp, gold            finish the quest once, add a caravan lead
+//   complete  gold            finish the quest once, add a caravan lead
 //   reset                         forget all quest-dialog progress (testing)
 #include "qd_inc"
 
@@ -28,6 +28,6 @@ void main()
         QdSetFlag(oPC, sQuest, "tried_" + sName);
         QdSetFlag(oPC, sQuest, "ok_" + sName);
     }
-    else if (sOp == "complete") QdComplete(oPC, sQuest, StringToInt(GetScriptParam("xp")), StringToInt(GetScriptParam("gold")));
+    else if (sOp == "complete") QdComplete(oPC, sQuest, 0, StringToInt(GetScriptParam("gold")));
     else if (sOp == "reset") QdReset(oPC);
 }

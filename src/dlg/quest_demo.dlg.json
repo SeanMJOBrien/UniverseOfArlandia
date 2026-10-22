@@ -2674,17 +2674,6 @@
               "__struct_id": 0,
               "Key": {
                 "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "150"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
                 "value": "gold"
               },
               "Value": {
@@ -2784,17 +2773,6 @@
               "__struct_id": 0,
               "Key": {
                 "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "150"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
                 "value": "gold"
               },
               "Value": {
@@ -2888,17 +2866,6 @@
               "Value": {
                 "type": "cexostring",
                 "value": "miller"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "100"
               }
             },
             {
@@ -3074,17 +3041,6 @@
               "Value": {
                 "type": "cexostring",
                 "value": "envoy"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "200"
               }
             },
             {
@@ -3564,17 +3520,6 @@
               "Value": {
                 "type": "cexostring",
                 "value": "envoy"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "100"
               }
             },
             {
@@ -4296,17 +4241,6 @@
               "__struct_id": 0,
               "Key": {
                 "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "200"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
                 "value": "gold"
               },
               "Value": {
@@ -4400,17 +4334,6 @@
               "Value": {
                 "type": "cexostring",
                 "value": "caravan"
-              }
-            },
-            {
-              "__struct_id": 0,
-              "Key": {
-                "type": "cexostring",
-                "value": "xp"
-              },
-              "Value": {
-                "type": "cexostring",
-                "value": "500"
               }
             },
             {

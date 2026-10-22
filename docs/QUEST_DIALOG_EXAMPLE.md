@@ -8,7 +8,7 @@ Wren spawns beside the first plot giver in an area a player enters (`QuestDemoSp
 | Script | Role | Parameters |
 |---|---|---|
 | `cond_qd` | link condition | `quest`, `op` (`stage_eq`, `stage_lt`, `stage_ge`, `flag`, `noflag`, `gold`, `attempts_ge`, `leads_eq`, `leads_ge`, `finale_ready`), `value`, `name`, `not` |
-| `act_qd` | node action | `op` (`stage`, `setflag`, `attempt`, `roll`, `pay`, `complete`, `reset`), `quest`, `skill`, `dc`, `name`, `gold`, `xp` |
+| `act_qd` | node action | `op` (`stage`, `setflag`, `attempt`, `roll`, `pay`, `complete`, `reset`), `quest`, `skill`, `dc`, `name`, `gold` |
 | `cond_lang_know` | language gate | `language`, `level` (1-6), `not` |
 | `qd_inc` | shared state helpers | |
 
@@ -30,7 +30,7 @@ Branches at the toll gate:
 - Intimidate (DC 18), one try.
 - Pay 80 gold (shown only if the player has it).
 - A failed roll leads to "Try something else", so a failure closes one approach and leaves the others open.
-Every success completes the quest (XP, gold, a caravan lead). The roll message shows the d20, skill rank and DC.
+Every success completes the quest (gold, if any, and a caravan lead; there is no XP, since this is only a demo). The roll message shows the d20, skill rank and DC.
 Pattern shown: skill checks on a reply action, result flags (`ok_*`, `fail_*`, `tried_*`) that gate the next node and hide used options.
 
 ## 2. The Goblin Envoy's Letter (language)
