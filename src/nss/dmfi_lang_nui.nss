@@ -1,9 +1,14 @@
 // dmfi_lang_nui - "Speak in a language" window (.lang).
 // ---
-// A single pull-down lists the languages the character knows, below it a text
-// box, and Speak sends the line through LangSpeak exactly as a typed [text]
-// would: scrambled in the speech bubble, original text for listeners who know
-// the language. Events are handled by lang_nui_event.
+// A single pull-down lists the languages the character knows. Choosing one
+// makes it the language the character speaks in (no widget item needed). Below
+// it a text box and Speak send the line through LangSpeak exactly as a typed
+// [text] would: scrambled in the speech bubble, original text for listeners
+// who know the language. Translations of what is said nearby are logged at the
+// top; the "Show translations" check box turns that log off. The choice is
+// saved on the character (local int lang_nui_off, like the other language
+// variables) and the window itself is optional: .lang opens it, nothing else
+// requires it. Events are handled by lang_nui_event.
 //
 // The combo entries carry their list position as value; the position maps back
 // to a language id through PC locals set when the window opens.
@@ -17,6 +22,8 @@ const string LANGNUI_BIND_TEXT = "langtext";
 const string LANGNUI_BIND_LOG = "langlog";
 const string LANGNUI_VAR_LOG = "langnui_log";
 const string LANGNUI_BIND_STATUS = "langstatus";
+const string LANGNUI_BIND_SHOW = "langshow";
+const string LANGNUI_BIND_LOGVIS = "langlogvis";
 const string LANGNUI_SPEAK = "speak";
 const string LANGNUI_TALK_ON = "talkon";
 const string LANGNUI_TALK_OFF = "talkoff";
@@ -49,7 +56,8 @@ int LangNuiLanguageAt(object oPC, int nIndex)
 json LangNuiLayout(json jEntries)
 {
     json jCol = JsonArray();
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0));
+    jCol = JsonArrayInsert(jCol, NuiHeight(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0));
+    jCol = JsonArrayInsert(jCol, NuiVisible(NuiHeight(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0), NuiBind(LANGNUI_BIND_LOGVIS)));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiLabel(JsonString("Speak in:"), JsonInt(NUI_HALIGN_LEFT), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiCombo(jEntries, NuiBind(LANGNUI_BIND_SELECTED)), 32.0));
     jCol = JsonArrayInsert(jCol, NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE));
@@ -104,6 +112,11 @@ void LangNuiOpen(object oPC)
     NuiSetBind(oPC, nToken, LANGNUI_BIND_SELECTED, JsonInt(nSelected));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_LOG, JsonString(""));
+    int bShow = !GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF);
+    NuiSetBind(oPC, nToken, LANGNUI_BIND_SHOW, JsonBool(bShow));
+    NuiSetBind(oPC, nToken, LANGNUI_BIND_LOGVIS, JsonBool(bShow));
+    NuiSetBindWatch(oPC, nToken, LANGNUI_BIND_SELECTED, TRUE);
+    NuiSetBindWatch(oPC, nToken, LANGNUI_BIND_SHOW, TRUE);
     LangNuiShowStatus(oPC, nToken);
 }
 
@@ -111,7 +124,7 @@ void LangNuiOpen(object oPC)
 void LangNuiAppend(object oPC, string sLine)
 {
     int nToken = NuiFindWindow(oPC, DMFI_LANG_NUI_WINDOW);
-    if (!nToken) return;
+    if (!nToken || GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF)) return;
 
     string sLog = GetLocalString(oPC, LANGNUI_VAR_LOG);
     if (sLog != "") sLog += "\n";
@@ -160,4 +173,23 @@ void LangNuiSetTalk(object oPC, int nToken, int bOn)
     SetSpokenLanguage(oPC, iLang);
     SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
     LangNuiShowStatus(oPC, nToken);
+}
+
+// The pull-down changed: the chosen language becomes the one the character speaks.
+void LangNuiChooseLanguage(object oPC, int nToken)
+{
+    int iLang = LangNuiLanguageAt(oPC, JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SELECTED)));
+    if (!iLang || !GetKnowsLanguage(oPC, iLang)) return;
+    SetSpokenLanguage(oPC, iLang);
+    SendMessageToPC(oPC, "You now speak " + LangName(iLang) + ".");
+    LangNuiShowStatus(oPC, nToken);
+}
+
+// The "Show translations" check box: saved on the character.
+void LangNuiToggleTranslations(object oPC, int nToken)
+{
+    int bShow = JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SHOW));
+    if (bShow) DeleteLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF);
+    else SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, 1);
+    NuiSetBind(oPC, nToken, LANGNUI_BIND_LOGVIS, JsonBool(bShow));
 }

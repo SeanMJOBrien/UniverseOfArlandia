@@ -64,6 +64,7 @@ Local variables on a player character are saved in the character file. The follo
 | `lang_slotsused` | language slots in use |
 | `hls_MyLanguage`, `hls_MyLanguageName` | the language chosen for speaking |
 | `lang_talk` | talk mode on or off |
+| `lang_nui_off` | set when translations in the `.lang` window are turned off |
 | `lang_exp_<id>` | exposure points toward the next level |
 
 ## Learning a language
@@ -109,13 +110,14 @@ A message in square brackets, optionally with a `lang:` prefix, is spoken in the
 
 `.lang` opens a window (`dmfi_lang_nui.nss`) containing:
 
-- a pull-down of the languages the character knows,
+- a pull-down of the languages the character knows; choosing one makes it the language the character speaks, so no widget item is needed,
+- a "Show translations in this window" check box (on by default; the choice is saved on the character as local int `lang_nui_off`, and the log is hidden and no longer fed when it is off),
 - a text box and a Speak button,
-- a log of lines the character understands,
+- a log of lines the character understands (nearby speech and the character's own lines),
 - a status line with the current talk mode and the number of new languages the character can still start,
 - two buttons: "Talk in this language" and "Talk normally".
 
-Speak sends the text the same way a typed `[text]` does. Events go to `lang_nui_event`. Lines are added to the log by `lang_nui_append`, which `LangSpeak` runs with `ExecuteScript` so that the core include does not depend on the window code.
+The window is optional: nothing opens it automatically and every feature also works from chat. Typing in the text box and pressing Speak sends the text the same way a typed `[text]` does. Events go to `lang_nui_event`. Lines are added to the log by `lang_nui_append`, which `LangSpeak` runs with `ExecuteScript` so that the core include does not depend on the window code.
 
 ### Talk mode
 

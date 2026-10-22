@@ -15,9 +15,15 @@ void main()
         LangNuiForget(oPC);
         return;
     }
+    string sElement = NuiGetEventElement();
+    if (sEvent == "watch")
+    {
+        if (sElement == LANGNUI_BIND_SELECTED)  LangNuiChooseLanguage(oPC, nToken);
+        else if (sElement == LANGNUI_BIND_SHOW) LangNuiToggleTranslations(oPC, nToken);
+        return;
+    }
     if (sEvent != "click") return;
 
-    string sElement = NuiGetEventElement();
     if (sElement == LANGNUI_SPEAK)         LangNuiSubmit(oPC, nToken);
     else if (sElement == LANGNUI_TALK_ON)  LangNuiSetTalk(oPC, nToken, TRUE);
     else if (sElement == LANGNUI_TALK_OFF) LangNuiSetTalk(oPC, nToken, FALSE);

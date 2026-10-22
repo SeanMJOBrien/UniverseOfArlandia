@@ -41,6 +41,8 @@ const string DMFI_LANG_NUI_WINDOW = "langspeak";
 const string DMFI_LANG_VAR_NUI_LINE = "langnui_line";
 
 const string DMFI_LANG_VAR_TALK = "lang_talk";
+// Set (saved with the character) when the player turned off translations in the .lang window.
+const string DMFI_LANG_VAR_NUI_OFF = "lang_nui_off";
 const string DMFI_LANG_VAR_EXP = "lang_exp_";
 
 const string DMFI_LANG_VAR_KNOWN = "lang_known";
@@ -790,8 +792,8 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
             if (sLine != "")
             {
                 SendMessageToPC(oEavesdrop, sLine);
-                // Also show it in the .lang window, if that is open.
-                if (NuiFindWindow(oEavesdrop, DMFI_LANG_NUI_WINDOW))
+                // Also show it in the .lang window, if that is open and the player has not turned it off.
+                if (!GetLocalInt(oEavesdrop, DMFI_LANG_VAR_NUI_OFF) && NuiFindWindow(oEavesdrop, DMFI_LANG_NUI_WINDOW))
                 {
                     SetLocalString(oEavesdrop, DMFI_LANG_VAR_NUI_LINE, sLine);
                     ExecuteScript("lang_nui_append", oEavesdrop);
