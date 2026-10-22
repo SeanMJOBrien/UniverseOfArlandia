@@ -765,6 +765,47 @@ string LangGarble(string sText, int iFluency, int iLang, object oListener, objec
     return sOut;
 }
 
+// What a speaker manages of a language: a player's own fluency, full for NPCs and DMs.
+int LangSpeakerFluency(object oSpeaker, int iLang)
+{
+    if (GetIsPC(oSpeaker) && !GetIsDM(oSpeaker) && !GetIsDMPossessed(oSpeaker))
+        return LangFluency(oSpeaker, iLang);
+    return DMFI_LANG_NATIVE_LEVEL;
+}
+
+// The line as it is spoken aloud (speech bubble and chat line): the language's
+// scrambled form for each word the speaker knows, and "..." for each word the
+// speaker does not, so a learner sounds like they are struggling to speak.
+string LangSpoken(int iLang, string sSaid, object oSpeaker)
+{
+    int iFluency = LangSpeakerFluency(oSpeaker, iLang);
+    // Emotes (*...*) span words, so a line containing one is scrambled whole.
+    if (iFluency >= DMFI_LANG_NATIVE_LEVEL || FindSubString(sSaid, "*") != -1)
+        return LangScramble(iLang, sSaid);
+
+    if (iLang == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
+        sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
+    string sOut = "";
+    string sRest = sSaid;
+    while (sRest != "")
+    {
+        int iSpace = FindSubString(sRest, " ");
+        string sWord = sRest;
+        if (iSpace == -1)
+            sRest = "";
+        else
+        {
+            sWord = GetStringLeft(sRest, iSpace);
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iSpace - 1);
+        }
+        if (sWord == "") continue;
+        if (sOut != "") sOut += " ";
+        if (LangKnowsWord(oSpeaker, iLang, sWord, iFluency)) sOut += TranslateCommonToLanguage(iLang, sWord);
+        else sOut += "...";
+    }
+    return sOut;
+}
+
 // --- sign languages
 // Drow is a sign language: nothing is spoken, so there is no speech bubble and
 // no scrambled text. Each viewer reads a description of the signing instead:
@@ -897,12 +938,9 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
         sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
     int bSign = LangIsSign(iTranslate);
     if (bBubble && !bSign)
-        AssignCommand(oShouter, SpeakString(LangScramble(iTranslate, sSaid)));
+        AssignCommand(oShouter, SpeakString(LangSpoken(iTranslate, sSaid, oShouter)));
 
-    // What the speaker manages of the language: a player's own fluency, full for NPCs and DMs.
-    int iSpeakerFluency = DMFI_LANG_NATIVE_LEVEL;
-    if (GetIsPC(oShouter) && !GetIsDM(oShouter) && !GetIsDMPossessed(oShouter))
-        iSpeakerFluency = LangFluency(oShouter, iTranslate);
+    int iSpeakerFluency = LangSpeakerFluency(oShouter, iTranslate);
 
     location lShouter = GetLocation(oShouter);
     object oEavesdrop = GetFirstObjectInShape(SHAPE_SPHERE, fRange, lShouter, FALSE, OBJECT_TYPE_CREATURE);
@@ -967,7 +1005,7 @@ int LangHandleTalk(object oPC)
     int iLang = GetSpokenLanguage(oPC);
     if (!iLang || !GetKnowsLanguage(oPC, iLang)) return FALSE;
 
-    string sScrambled = LangScramble(iLang, sMsg);
+    string sScrambled = LangSpoken(iLang, sMsg, oPC);
     if (sScrambled == "") return FALSE;
 
     // A sign language has no spoken line; LangSpeak sends the descriptions.

@@ -176,7 +176,7 @@ Garbling is fixed per word, not random. Each character has a saved seed (local i
 
 A masked word appears as the language's scrambled form of that word, which is also always the same (for example a Goblin word looks the same every time). Setting `DMFI_LANG_SHOW_FOREIGN` to FALSE shows runs of masked words as one `...` instead.
 
-The speaker is masked the same way. A character who types a sentence in a language they only partly know says only the words they know; each word they do not know is replaced by its own `...` for everyone, including fluent listeners, so the sentence reads as a learner searching for words ("the ... to the ... is long"). The speaker sees the line the way it will be heard. NPCs and DMs speak fully.
+The speaker is masked the same way. A character who types a sentence in a language they only partly know says only the words they know; each word they do not know is replaced by its own `...` for everyone, including fluent listeners, so the sentence reads as a learner searching for words. The speech bubble and the speaker's chat line follow the same rule: each word the speaker knows appears in the language's scrambled form and each word they do not know appears as `...` ("the ... to the ... is long"). The speaker sees the line the way it will be heard. NPCs and DMs speak fully.
 
 A listener with no knowledge may see "`<name> is speaking in <Language>`" when `d20 + Lore rank` is above 20. The check runs at most once per 60 seconds per listener and language, and never for Thieves' Cant.
 
