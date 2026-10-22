@@ -393,61 +393,84 @@ string LangListWithout(string sKnown, int iLang)
 // files in the server's database folder, no NWNX needed). LangLoad restores it
 // when the player enters; every change calls LangSave or LangSaveExp.
 
+// Campaign database name. Each account (public CD key) gets its own file,
+// <CD key>.sqlite3, with its characters' rows told apart by account and
+// character name; DMFI_LANG_DB is the older shared file, read once to migrate.
 const string DMFI_LANG_DB = "dmfi_lang";
 const string DMFI_LANG_VAR_LOADED = "lang_loaded";
 const string DMFI_LANG_DB_MARK = "saved";
+
+string LangDb(object oPC)
+{
+    string sKey = GetPCPublicCDKey(oPC);
+    if (sKey == "") return DMFI_LANG_DB;
+    return sKey;
+}
 
 void LangSaveExp(object oPC, int iLang)
 {
     if (!GetIsPC(oPC)) return;
     string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
-    SetCampaignInt(DMFI_LANG_DB, sVar, GetLocalInt(oPC, sVar), oPC);
+    SetCampaignInt(LangDb(oPC), sVar, GetLocalInt(oPC, sVar), oPC);
 }
 
 // Writes the whole language state of oPC.
 void LangSave(object oPC)
 {
     if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
-    SetCampaignString(DMFI_LANG_DB, DMFI_LANG_VAR_KNOWN, GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), oPC);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SEED, GetLocalInt(oPC, DMFI_LANG_VAR_SEED), oPC);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED), oPC);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SPEAKING, GetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING), oPC);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_TALK, GetLocalInt(oPC, DMFI_LANG_VAR_TALK), oPC);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_NUI_OFF, GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF), oPC);
+    string sDb = LangDb(oPC);
+    SetCampaignString(sDb, DMFI_LANG_VAR_KNOWN, GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), oPC);
+    SetCampaignInt(sDb, DMFI_LANG_VAR_SEED, GetLocalInt(oPC, DMFI_LANG_VAR_SEED), oPC);
+    SetCampaignInt(sDb, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED), oPC);
+    SetCampaignInt(sDb, DMFI_LANG_VAR_SPEAKING, GetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING), oPC);
+    SetCampaignInt(sDb, DMFI_LANG_VAR_TALK, GetLocalInt(oPC, DMFI_LANG_VAR_TALK), oPC);
+    SetCampaignInt(sDb, DMFI_LANG_VAR_NUI_OFF, GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF), oPC);
     int iLang;
     for (iLang = 1; iLang <= 13; iLang++) LangSaveExp(oPC, iLang);
-    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, 1, oPC);
+    SetCampaignInt(sDb, DMFI_LANG_DB_MARK, 1, oPC);
 }
 
-// Restores the language state when a player enters (once per session). A
-// character with nothing stored yet keeps what it has and has it saved.
-void LangLoad(object oPC)
+// Copies the language state stored in campaign database sDb onto oPC.
+void LangRestore(object oPC, string sDb)
 {
-    if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
-    if (GetLocalInt(oPC, DMFI_LANG_VAR_LOADED)) return;
-    SetLocalInt(oPC, DMFI_LANG_VAR_LOADED, 1);
-    if (!GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, oPC))
-    {
-        LangSave(oPC);
-        return;
-    }
-    SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, GetCampaignString(DMFI_LANG_DB, DMFI_LANG_VAR_KNOWN, oPC));
-    SetLocalInt(oPC, DMFI_LANG_VAR_SEED, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SEED, oPC));
-    SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SLOTS_USED, oPC));
-    int iSpeaking = GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SPEAKING, oPC);
+    SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, GetCampaignString(sDb, DMFI_LANG_VAR_KNOWN, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_SEED, GetCampaignInt(sDb, DMFI_LANG_VAR_SEED, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetCampaignInt(sDb, DMFI_LANG_VAR_SLOTS_USED, oPC));
+    int iSpeaking = GetCampaignInt(sDb, DMFI_LANG_VAR_SPEAKING, oPC);
     if (iSpeaking)
     {
         SetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING, iSpeaking);
         SetLocalString(oPC, DMFI_LANG_VAR_SPEAKING_NAME, LangName(iSpeaking));
     }
-    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_TALK, oPC));
-    SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_NUI_OFF, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, GetCampaignInt(sDb, DMFI_LANG_VAR_TALK, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, GetCampaignInt(sDb, DMFI_LANG_VAR_NUI_OFF, oPC));
     int iLang;
     for (iLang = 1; iLang <= 13; iLang++)
     {
-        int iExp = GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_EXP + IntToString(iLang), oPC);
+        int iExp = GetCampaignInt(sDb, DMFI_LANG_VAR_EXP + IntToString(iLang), oPC);
         if (iExp) SetLocalInt(oPC, DMFI_LANG_VAR_EXP + IntToString(iLang), iExp);
     }
+}
+
+// Restores the language state when a player enters (once per session). A
+// character with nothing stored keeps what it has and has it saved; one found
+// only in the older shared database is moved to its account database.
+void LangLoad(object oPC)
+{
+    if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
+    if (GetLocalInt(oPC, DMFI_LANG_VAR_LOADED)) return;
+    SetLocalInt(oPC, DMFI_LANG_VAR_LOADED, 1);
+
+    string sDb = LangDb(oPC);
+    if (GetCampaignInt(sDb, DMFI_LANG_DB_MARK, oPC))
+        LangRestore(oPC, sDb);
+    else if (sDb != DMFI_LANG_DB && GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, oPC))
+    {
+        LangRestore(oPC, DMFI_LANG_DB);
+        LangSave(oPC);
+    }
+    else
+        LangSave(oPC);
 }
 
 void LangListSet(object oPC, int iLang, int iLevel)
