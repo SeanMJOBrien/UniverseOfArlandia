@@ -110,12 +110,11 @@ A message in square brackets, optionally with a `lang:` prefix, is spoken in the
 
 `.lang` opens a window (`dmfi_lang_nui.nss`) containing:
 
-- a pull-down of the languages the character knows; choosing one makes it the language the character speaks, so no widget item is needed,
+- a pull-down with Common first, then the languages the character knows; choosing a language makes it the language the character speaks (talk mode on) for chat and for Speak, and choosing Common turns talk mode off, so no widget item is needed,
 - a "Show translations in this window" check box (on by default; the choice is saved on the character as local int `lang_nui_off`, and the log is hidden and no longer fed when it is off),
 - a text box and a Speak button,
 - a log of lines the character understands (nearby speech and the character's own lines),
-- a status line with the current talk mode and the number of new languages the character can still start,
-- two buttons: "Talk in this language" and "Talk normally".
+- a status line with the number of new languages the character can still start.
 
 The window is optional: nothing opens it automatically and every feature also works from chat. Typing in the text box and pressing Speak sends the text the same way a typed `[text]` does. Events go to `lang_nui_event`. Lines are added to the log by `lang_nui_append`, which `LangSpeak` runs with `ExecuteScript` so that the core include does not depend on the window code.
 

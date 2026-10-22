@@ -1,7 +1,9 @@
 // dmfi_lang_nui - "Speak in a language" window (.lang).
 // ---
-// A single pull-down lists the languages the character knows. Choosing one
-// makes it the language the character speaks in (no widget item needed). Below
+// A single pull-down lists Common and the languages the character knows.
+// Choosing a language makes it the language the character speaks in, for chat
+// and for the Speak button (no widget item needed); choosing Common returns to
+// ordinary speech. Below
 // it a text box and Speak send the line through LangSpeak exactly as a typed
 // [text] would: scrambled in the speech bubble, original text for listeners
 // who know the language. Translations of what is said nearby are logged at the
@@ -25,10 +27,10 @@ const string LANGNUI_BIND_STATUS = "langstatus";
 const string LANGNUI_BIND_SHOW = "langshow";
 const string LANGNUI_BIND_LOGVIS = "langlogvis";
 const string LANGNUI_SPEAK = "speak";
-const string LANGNUI_TALK_ON = "talkon";
-const string LANGNUI_TALK_OFF = "talkoff";
 const string LANGNUI_VAR_COUNT = "langnui_count";
 const string LANGNUI_VAR_ID = "langnui_id_";
+// Pull-down value for ordinary (common) speech.
+const int LANGNUI_COMMON = -1;
 const int LANGNUI_MAX_LENGTH = 400;
 // Oldest log lines are dropped beyond this many characters.
 const int LANGNUI_LOG_MAX_CHARS = 2000;
@@ -46,7 +48,7 @@ void LangNuiForget(object oPC)
     DeleteLocalString(oPC, LANGNUI_VAR_LOG);
 }
 
-// Language id behind pull-down position nIndex, or 0.
+// Language id behind pull-down position nIndex, LANGNUI_COMMON for Common, or 0.
 int LangNuiLanguageAt(object oPC, int nIndex)
 {
     if (nIndex < 0 || nIndex >= GetLocalInt(oPC, LANGNUI_VAR_COUNT)) return 0;
@@ -63,20 +65,13 @@ json LangNuiLayout(json jEntries)
     jCol = JsonArrayInsert(jCol, NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiId(NuiButton(JsonString("Speak")), LANGNUI_SPEAK), 34.0));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
-    json jRow = JsonArray();
-    jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Talk in this language")), LANGNUI_TALK_ON));
-    jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Talk normally")), LANGNUI_TALK_OFF));
-    jCol = JsonArrayInsert(jCol, NuiHeight(NuiRow(jRow), 34.0));
     return NuiCol(jCol);
 }
 
-// Status line under the Speak button: how ordinary talk currently comes out.
+// Status line under the Speak button: how many new languages can still be started.
 void LangNuiShowStatus(object oPC, int nToken)
 {
-    string sStatus = "Your normal talk is in the common tongue";
-    if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK))
-        sStatus = "Your normal talk is in " + LangName(GetSpokenLanguage(oPC));
-    sStatus += ". New languages you can start: " + IntToString(LangSlotsFree(oPC));
+    string sStatus = "New languages you can start: " + IntToString(LangSlotsFree(oPC));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_STATUS, JsonString(sStatus));
 }
 
@@ -86,7 +81,11 @@ void LangNuiOpen(object oPC)
     json jEntries = JsonArray();
     int nCount = 0;
     int nSelected = 0;
-    int iCurrent = GetSpokenLanguage(oPC);
+    int iCurrent = LANGNUI_COMMON;
+    if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK)) iCurrent = GetSpokenLanguage(oPC);
+    jEntries = JsonArrayInsert(jEntries, NuiComboEntry("Common", nCount));
+    SetLocalInt(oPC, LANGNUI_VAR_ID + IntToString(nCount), LANGNUI_COMMON);
+    nCount++;
     int iLang;
     for (iLang = 1; iLang <= LANGNUI_LAST_LANGUAGE; iLang++)
     {
@@ -95,11 +94,6 @@ void LangNuiOpen(object oPC)
         SetLocalInt(oPC, LANGNUI_VAR_ID + IntToString(nCount), iLang);
         if (iLang == iCurrent) nSelected = nCount;
         nCount++;
-    }
-    if (nCount == 0)
-    {
-        SendMessageToPC(oPC, "You do not know any languages yet. Languages are learned from books.");
-        return;
     }
     SetLocalInt(oPC, LANGNUI_VAR_COUNT, nCount);
 
@@ -149,6 +143,12 @@ void LangNuiSubmit(object oPC, int nToken)
     string sText = JsonGetString(NuiGetBind(oPC, nToken, LANGNUI_BIND_TEXT));
     if (!iLang || sText == "") return;
 
+    if (iLang == LANGNUI_COMMON)
+    {
+        AssignCommand(oPC, SpeakString(sText));
+        NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
+        return;
+    }
     // The list was built when the window opened; re-check in case it changed.
     if (!GetKnowsLanguage(oPC, iLang))
     {
@@ -159,30 +159,21 @@ void LangNuiSubmit(object oPC, int nToken)
     NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
 }
 
-// "Talk in this language" / "Talk normally" buttons.
-void LangNuiSetTalk(object oPC, int nToken, int bOn)
-{
-    if (!bOn)
-    {
-        DeleteLocalInt(oPC, DMFI_LANG_VAR_TALK);
-        LangNuiShowStatus(oPC, nToken);
-        return;
-    }
-    int iLang = LangNuiLanguageAt(oPC, JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SELECTED)));
-    if (!iLang || !GetKnowsLanguage(oPC, iLang)) return;
-    SetSpokenLanguage(oPC, iLang);
-    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
-    LangNuiShowStatus(oPC, nToken);
-}
-
-// The pull-down changed: the chosen language becomes the one the character speaks.
+// The pull-down changed: the chosen language becomes the one the character
+// speaks (talk mode on); Common turns talk mode off.
 void LangNuiChooseLanguage(object oPC, int nToken)
 {
     int iLang = LangNuiLanguageAt(oPC, JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SELECTED)));
+    if (iLang == LANGNUI_COMMON)
+    {
+        DeleteLocalInt(oPC, DMFI_LANG_VAR_TALK);
+        SendMessageToPC(oPC, "You now speak Common.");
+        return;
+    }
     if (!iLang || !GetKnowsLanguage(oPC, iLang)) return;
     SetSpokenLanguage(oPC, iLang);
+    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
     SendMessageToPC(oPC, "You now speak " + LangName(iLang) + ".");
-    LangNuiShowStatus(oPC, nToken);
 }
 
 // The "Show translations" check box: saved on the character.
