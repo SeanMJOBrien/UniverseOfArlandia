@@ -186,12 +186,14 @@ void LangNuiChooseLanguage(object oPC, int nToken)
     if (iLang == LANGNUI_COMMON)
     {
         DeleteLocalInt(oPC, DMFI_LANG_VAR_TALK);
+        LangSave(oPC);
         SendMessageToPC(oPC, "You now speak Common.");
         return;
     }
     if (!iLang || !GetKnowsLanguage(oPC, iLang)) return;
     SetSpokenLanguage(oPC, iLang);
     SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
+    LangSave(oPC);
     SendMessageToPC(oPC, "You now speak " + LangName(iLang) + ".");
 }
 
@@ -201,5 +203,6 @@ void LangNuiToggleTranslations(object oPC, int nToken)
     int bShow = JsonGetInt(NuiGetBind(oPC, nToken, LANGNUI_BIND_SHOW));
     if (bShow) DeleteLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF);
     else SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, 1);
+    LangSave(oPC);
     NuiSetBind(oPC, nToken, LANGNUI_BIND_LOGVIS, JsonBool(bShow));
 }

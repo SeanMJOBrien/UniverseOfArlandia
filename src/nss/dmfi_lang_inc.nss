@@ -387,11 +387,75 @@ string LangListWithout(string sKnown, int iLang)
     return GetStringLeft(sKnown, iPos + 1) + GetStringRight(sAfter, GetStringLength(sAfter) - iEnd - 1);
 }
 
+// --- persistence
+// Local variables on a player are lost when the player logs out, so the
+// language state is also written to the campaign database (character-specific
+// files in the server's database folder, no NWNX needed). LangLoad restores it
+// when the player enters; every change calls LangSave or LangSaveExp.
+
+const string DMFI_LANG_DB = "dmfi_lang";
+const string DMFI_LANG_VAR_LOADED = "lang_loaded";
+const string DMFI_LANG_DB_MARK = "saved";
+
+void LangSaveExp(object oPC, int iLang)
+{
+    if (!GetIsPC(oPC)) return;
+    string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
+    SetCampaignInt(DMFI_LANG_DB, sVar, GetLocalInt(oPC, sVar), oPC);
+}
+
+// Writes the whole language state of oPC.
+void LangSave(object oPC)
+{
+    if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
+    SetCampaignString(DMFI_LANG_DB, DMFI_LANG_VAR_KNOWN, GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), oPC);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SEED, GetLocalInt(oPC, DMFI_LANG_VAR_SEED), oPC);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED), oPC);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SPEAKING, GetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING), oPC);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_TALK, GetLocalInt(oPC, DMFI_LANG_VAR_TALK), oPC);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_NUI_OFF, GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF), oPC);
+    int iLang;
+    for (iLang = 1; iLang <= 13; iLang++) LangSaveExp(oPC, iLang);
+    SetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, 1, oPC);
+}
+
+// Restores the language state when a player enters (once per session). A
+// character with nothing stored yet keeps what it has and has it saved.
+void LangLoad(object oPC)
+{
+    if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
+    if (GetLocalInt(oPC, DMFI_LANG_VAR_LOADED)) return;
+    SetLocalInt(oPC, DMFI_LANG_VAR_LOADED, 1);
+    if (!GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, oPC))
+    {
+        LangSave(oPC);
+        return;
+    }
+    SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, GetCampaignString(DMFI_LANG_DB, DMFI_LANG_VAR_KNOWN, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_SEED, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SEED, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SLOTS_USED, oPC));
+    int iSpeaking = GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_SPEAKING, oPC);
+    if (iSpeaking)
+    {
+        SetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING, iSpeaking);
+        SetLocalString(oPC, DMFI_LANG_VAR_SPEAKING_NAME, LangName(iSpeaking));
+    }
+    SetLocalInt(oPC, DMFI_LANG_VAR_TALK, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_TALK, oPC));
+    SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_NUI_OFF, oPC));
+    int iLang;
+    for (iLang = 1; iLang <= 13; iLang++)
+    {
+        int iExp = GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_VAR_EXP + IntToString(iLang), oPC);
+        if (iExp) SetLocalInt(oPC, DMFI_LANG_VAR_EXP + IntToString(iLang), iExp);
+    }
+}
+
 void LangListSet(object oPC, int iLang, int iLevel)
 {
     string sKnown = LangListWithout(GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), iLang);
     if (sKnown == "") sKnown = ",";
     SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, sKnown + IntToString(iLang) + ":" + IntToString(iLevel) + ",");
+    LangSave(oPC);
 }
 
 // 0 = does not know it .. 5 = fluent.
@@ -427,12 +491,15 @@ void LangGainExposure(object oListener, int iLang)
     int iExp = GetLocalInt(oListener, sVar) + 1;
     if (iExp >= iLevel * iLevel * DMFI_LANG_EXP_UNIT)
     {
-        LangListSet(oListener, iLang, iLevel + 1);
         DeleteLocalInt(oListener, sVar);
+        LangListSet(oListener, iLang, iLevel + 1);
         SendMessageToPC(oListener, "Your grasp of " + LangName(iLang) + " has improved to " + IntToString(iLevel + 1) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ".");
     }
     else
+    {
         SetLocalInt(oListener, sVar, iExp);
+        LangSaveExp(oListener, iLang);
+    }
 }
 
 // The language [text] is spoken in: the chosen one, else the racial default.
@@ -447,6 +514,7 @@ void SetSpokenLanguage(object oPC, int iLang)
 {
     SetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING, iLang);
     SetLocalString(oPC, DMFI_LANG_VAR_SPEAKING_NAME, LangName(iLang));
+    LangSave(oPC);
 }
 
 // One extra language per point of base Intelligence modifier.
@@ -505,6 +573,7 @@ void LangCmdSpeak(object oPC, string sArg)
     if (sArg == "off" || sArg == "normal" || sArg == "common" || sArg == "none")
     {
         DeleteLocalInt(oPC, DMFI_LANG_VAR_TALK);
+        LangSave(oPC);
         SendMessageToPC(oPC, "Your normal talk is back to the common tongue. [text] still speaks your chosen language.");
         return;
     }
@@ -521,6 +590,7 @@ void LangCmdSpeak(object oPC, string sArg)
     }
     SetSpokenLanguage(oPC, iLang);
     SetLocalInt(oPC, DMFI_LANG_VAR_TALK, 1);
+    LangSave(oPC);
     SendMessageToPC(oPC, "Your normal talk and whispers now come out in " + LangName(iLang) + ". .speak off stops. This is remembered between sessions.");
 }
 
@@ -614,6 +684,7 @@ int LangSeed(object oPC)
     {
         iSeed = Random(900000) + 1;
         SetLocalInt(oPC, DMFI_LANG_VAR_SEED, iSeed);
+        LangSave(oPC);
     }
     return iSeed;
 }

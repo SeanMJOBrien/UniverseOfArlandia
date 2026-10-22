@@ -71,6 +71,7 @@ void LangBookUse(object oPC, object oBook)
     }
     LangListSet(oPC, iLang, iVolume);
     DeleteLocalInt(oPC, DMFI_LANG_VAR_EXP + IntToString(iLang));
+    LangSaveExp(oPC, iLang);
 
     string sMsg = "You study " + sName + ", volume " + IntToString(iVolume) + " of " + IntToString(DMFI_LANG_BOOK_VOLUMES) + ".";
     if (iVolume >= DMFI_LANG_NATIVE_LEVEL)

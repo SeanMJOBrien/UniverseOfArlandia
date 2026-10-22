@@ -56,7 +56,7 @@ The default speaking language of a creature is the first innate language in id o
 
 Otherwise the level comes from the character's learned-language list. The list is a local string `lang_known` on the character, for example `,4:3,10:2,` for Dwarven at 3 and Celestial at 2. An older entry without a level (`,4,`) counts as 6.
 
-Local variables on a player character are saved in the character file. The following survive logout:
+Local variables on a player character are lost at logout and do not reach the character file. The language state therefore lives in local variables during a session and is also written to the campaign database (name `dmfi_lang`, character-specific files in the server's `database` folder; no NWNX needed). Every change saves it (`LangSave`, and `LangSaveExp` for exposure points), and `LangLoad` restores it when the player enters, once per session. A character with nothing stored keeps what it has and has it stored. These variables are saved and restored:
 
 | Variable | Content |
 |---|---|
@@ -66,6 +66,7 @@ Local variables on a player character are saved in the character file. The follo
 | `lang_talk` | talk mode on or off |
 | `lang_nui_off` | set when translations in the `.lang` window are turned off |
 | `lang_exp_<id>` | exposure points toward the next level |
+| `lang_seed` | the seed that decides which words the character knows |
 
 ## Learning a language
 
