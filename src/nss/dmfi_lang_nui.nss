@@ -57,10 +57,10 @@ int LangNuiLanguageAt(object oPC, int nIndex)
 
 // A row holding only jElement: an element alone in a row takes the row's
 // whole width, so the field fills the window and follows it when resized.
-// fHeight 0.0 leaves the height flexible.
+// fHeight 0.0 leaves the height flexible. Only the row gets the height: the
+// row has padding, so an element of the same fixed height cannot fit inside it.
 json LangNuiFull(json jElement, float fHeight)
 {
-    if (fHeight > 0.0) jElement = NuiHeight(jElement, fHeight);
     json jOut = NuiRow(JsonArrayInsert(JsonArray(), jElement));
     if (fHeight > 0.0) jOut = NuiHeight(jOut, fHeight);
     return jOut;
