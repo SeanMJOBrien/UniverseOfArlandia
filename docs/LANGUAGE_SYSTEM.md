@@ -83,7 +83,7 @@ Each learnable language has six volumes, item tag and resref `lang_book_<languag
 
 ### Language slots
 
-A character may start a new language only while a slot is free. The slot total is the base Intelligence modifier (`(Intelligence - 10) / 2`, minimum 0, ability bonuses from items and spells are not counted). Volume 1 of a new language uses one slot. Volumes 2 to 6 of that language use none. Native languages never use slots.
+A character may start a new language only while a slot is free, unless `lang_slots_ignore` is on, which removes the limit for every source. The slot total is the base Intelligence modifier (`(Intelligence - 10) / 2`, minimum 0, ability bonuses from items and spells are not counted). Volume 1 of a new language uses one slot. Volumes 2 to 6 of that language use none. Native languages never use slots.
 
 Each use of a book reports the result and the remaining slots, for example "You study Goblin, volume 1 of 6. Volume 2 is next. You can start 2 more languages." A character with no free slot is told how many languages they know of the total allowed.
 
@@ -93,7 +93,41 @@ The `lang_bookshelf` placeable (`src/utp/lang_bookshelf.utp.json`) contains one 
 
 ### Exposure
 
-A character with a partial level (1 to 5) improves by listening. Each line heard in that language earns one exposure point, at most one per 30 seconds per language. A character at level n advances after n x n x 20 points. Reading a book sets the level directly and clears the stored exposure.
+Advancement by listening is off by default. When it is on, a character with a partial level (1 to 5) improves by listening: each line heard in that language earns one exposure point, at most one per 30 seconds per language, and a character at level n advances after n x n x 20 points. Reading a book sets the level directly and clears the stored exposure. Points are earned from player speech, from NPC dialog lines and from signing.
+
+PC-only mode (`lang_exp_pc_only`) stops NPCs from being a source, so a character cannot level a language by talking to NPCs. Points then come only from other player characters (and DMs, or creatures a DM controls). Two exceptions keep NPC practice available where a module wants it:
+
+- An NPC with the local int `lang_trainer` = 1 gives points in its own language through its dialog lines, like a player would, including the 30-second limit. Its language is `npc_language`, or its racial language.
+- The dialog action `act_lang_exp` gives points directly. Parameters: `language` (default: the NPC's own language) and `points` (default 1). It ignores PC-only mode and the cooldown, so the dialog decides how often it can happen. Use it, for example, on the reply after a character buys a dwarf a drink. It gives nothing while advancement is off, and nothing for a language the character does not know at level 1 to 5.
+
+### Settings
+
+All settings are in `dmfi_lang_cfg.nss`, each with an explicit value and a module variable of the same purpose that overrides it without a rebuild (toolset: Module Properties, Variables; or `SetLocalInt` on the module). For on/off settings, the variable is 1 for on, 2 for off, and 0 or unset for the value in the file. For numbers, a value above 0 overrides and 0 or unset keeps the file value. A change applies to the next event.
+
+| Module variable | Type | Default | Effect |
+|---|---|---|---|
+| `lang_exp_on` | on/off | off | master switch for all advancement by listening, trainers and `act_lang_exp` included. Books, tutoring and `.teach` work either way. |
+| `lang_exp_pc_only` | on/off | off | points only from player characters and trainer NPCs |
+| `lang_exp_unit` | number | 20 | points to leave level n: n x n x this value |
+| `lang_exp_cooldown` | number | 30 | seconds between points per listener and language |
+| `lang_slots_ignore` | on/off | off | removes the Intelligence limit on starting new languages for every source (books, tutors) |
+| `lang_nwnx_on` | on/off | on | use the NWNX Chat plugin when it is loaded; off forces the NWScript behavior |
+| `lang_nwnx_log` | on/off | off | with the plugin, also feed the `.lang` window log |
+| `lang_tutor_on` | on/off | off | enables `.tutor` |
+| `lang_tutor_cooldown` | number | 3600 | seconds before the same learner can take another lesson in the same language |
+| `lang_tutor_range` | number | 5 | metres between teacher and learner |
+
+Points already stored are kept when a setting changes. If the unit is lowered, a character advances at the next point earned. The tutoring cooldown is kept in memory and resets when the server restarts.
+
+### Tutoring by player characters
+
+With `lang_tutor_on`, a character who speaks a language can teach it to another player character. The teacher types `.tutor`, which opens a window with a list of player characters within range, a list of the teacher's own languages (books languages only), and an Offer lesson button. The learner gets a window with Accept and Decline. Only then does the lesson happen:
+
+- The learner rises one level in that language, never above the teacher's own level.
+- A new language takes a slot, unless `lang_slots_ignore` is on. A learner without a free slot cannot be taught a new language.
+- A learner already at the teacher's level, or fluent, cannot be taught.
+- The learner has to wait `lang_tutor_cooldown` before another lesson in the same language.
+- Everything is checked again when the learner accepts, so a learner who has walked away gets nothing.
 
 ### DM teaching
 
@@ -176,7 +210,7 @@ Garbling is fixed per word, not random. Each character has a saved seed (local i
 
 A masked word appears as the language's scrambled form of that word, which is also always the same (for example a Goblin word looks the same every time). Setting `DMFI_LANG_SHOW_FOREIGN` to FALSE shows runs of masked words as one `...` instead.
 
-The speaker is masked the same way. A character who types a sentence in a language they only partly know says only the words they know; each word they do not know is replaced by its own `...` for everyone, including fluent listeners, so the sentence reads as a learner searching for words. The speech bubble and the speaker's chat line follow the same rule: each word the speaker knows appears in the language's scrambled form and each word they do not know appears as `...` ("the ... to the ... is long"). The speaker sees the line the way it will be heard. NPCs and DMs speak fully.
+The speaker is masked the same way. A character who types a sentence in a language they only partly know says only the words they know; the words they do not know are replaced by `...` for everyone, including fluent listeners, so the sentence reads as a learner searching for words. A run of unknown words becomes a single `...`, never two in a row. The speech bubble and the speaker's chat line follow the same rule: each word the speaker knows appears in the language's scrambled form and each run of words they do not know appears as one `...`. Said by a speaker who knows only "water", "cool" and "footing", "The water runs deep and cool, beware your footing here." reads "The water ... cool, ... footing ..." (before scrambling). The speaker sees the line the way it will be heard. NPCs and DMs speak fully.
 
 A listener with no knowledge may see "`<name> is speaking in <Language>`" when `d20 + Lore rank` is above 20. The check runs at most once per 60 seconds per listener and language, and never for Thieves' Cant.
 
@@ -188,15 +222,24 @@ The speech bubble can show only one text. `LangSpeak` makes the speaker say the 
 
 ### With NWNX Chat
 
-When the NWNX Chat plugin is enabled, the module registers `lang_nwnx_chat` at load (`LangNwnxInit`, called from `mod_load`). For a player in talk mode, `dmfi_lang_nwnx.nss` cancels the original chat message (`NWNX_Chat_SkipMessage`) and sends one chat line per listener with `NWNX_Chat_SendMessage`. Each line is labelled `[Language]` and contains:
+When the NWNX Chat plugin is loaded, `LangNwnxInit` (called from `mod_load`) detects it, registers `lang_nwnx_chat` and sets a module flag. Speech then reaches each listener as a real chat line from the speaker, so the speech bubble over the speaker's head and the chat log both show what that listener understands. Every path uses the same masking rules as the NWScript path:
 
-- the original text for the speaker and for fluent listeners,
-- the garbled text for partial listeners,
-- the scrambled text for everyone else.
+| Source | What happens with the plugin |
+|---|---|
+| Typed talk or whisper in talk mode | the chat hook cancels the original (`NWNX_Chat_SkipMessage`) and sends one line per listener |
+| `.lang` Speak button, typed `[text]`, DM voice | `LangSpeak` sets the line on the speaker and runs `lang_nwnx_say`, which sends one line per listener (talk channel, whisper channel at 3 m or less) |
+| NPC speech by script | `LangNpcSay(oNPC, text, language)` (`dmfi_lang_dialog`) goes through `LangSpeak`, so it follows the same path |
+| Sign languages (Drow) | unchanged: description lines, no bubble |
+| Thieves' Cant | unchanged: one gesture, cut at 25 characters |
+| NPC dialog windows | unchanged: custom tokens (`cond_lang_line`) |
 
-Because these are real chat lines from the speaker, the speech bubble above the speaker's head shows what that listener understands. The window log receives a matching line. When NWNX is not active (`LangNwnxActive` is false), `mod_chat` uses the talk mode described above.
+Each line is labelled `[Language]` and contains: the speaker's line as it will be heard for the speaker, the speaker's words for fluent listeners, the garbled text for partial listeners and the scrambled text for everyone else. Exposure follows the rules in "Exposure", with the speaker as the source.
 
-Setup: add `NWNX_CHAT_SKIP=no` to `config/nwserver.env`. The Chat plugin has not been tested on this server.
+Because the translations already arrive as bubbles and chat lines, the `.lang` window hides its translation log and check box while the plugin is in use. `lang_nwnx_log` = 1 puts the log back.
+
+Falling back: the plugin path is used only if it is loaded and `lang_nwnx_on` is not off. If the plugin is missing, fails to load, or is switched off, `LangNwnxActive()` is false and everything uses the NWScript behavior described above. The package has no NWNX code and never takes the plugin path.
+
+Setup: add `NWNX_CHAT_SKIP=no` to `config/nwserver.env`. The module log says "Language system: NWNX Chat active." at load. The plugin path has not been tested in game; see `docs/LANGUAGE_NWNX_PLAN.md` for the checks.
 
 ## Chat commands
 
@@ -208,6 +251,7 @@ Setup: add `NWNX_CHAT_SKIP=no` to `config/nwserver.env`. The Chat plugin has not
 | `.speak off` | everyone | talk mode off |
 | `.learn` | everyone | prints a hint that languages come from books |
 | `.teach <language> [1-6]` | DM | give the DMFI target a language, no slot needed |
+| `.tutor` | everyone, when `lang_tutor_on` | open the tutoring window |
 
 `mod_chat` processes these. The same handler also runs the `.w` builder commands.
 
@@ -234,23 +278,24 @@ The demo NPCs are Gruk the goblin (`lang_goblin`, dialog `lang_demo`) and Wren t
 | `dmfi_lang_inc.nss` | tables, fluency, learned list, slots, commands, `LangSpeak`, talk mode |
 | `dmfi_lang_book.nss`, `lang_book_use.nss` | book study rules |
 | `lang_shelf_fill.nss` | restocks the bookshelf |
+| `dmfi_lang_cfg.nss` | settings and their readers |
 | `dmfi_lang_nui.nss`, `lang_nui_event.nss`, `lang_nui_append.nss` | the `.lang` window |
-| `dmfi_lang_nwnx.nss`, `lang_nwnx_chat.nss` | per-listener chat with NWNX |
+| `dmfi_lang_teach.nss`, `lang_teach_event.nss` | the `.tutor` windows |
+| `act_lang_exp.nss` | dialog action: gives language experience |
+| `dmfi_lang_nwnx.nss`, `lang_nwnx_chat.nss`, `lang_nwnx_say.nss` | per-listener chat with NWNX |
 | `dmfi_lang_dialog.nss`, `cond_lang_line.nss`, `cond_lang_know.nss` | language in dialogs |
 | `dmfi_voice_exe.nss` | typed `[text]` and DM voice commands |
 | `mod_chat.nss`, `mod_enter.nss`, `mod_activate.nss`, `mod_load.nss` | module event hooks |
 
 ## Tuning constants
 
-All are in `dmfi_lang_inc.nss` or `dmfi_lang_book.nss`.
+These are in `dmfi_lang_inc.nss` or `dmfi_lang_book.nss`. The exposure, slot and tutoring settings are in `dmfi_lang_cfg.nss` (see "Settings").
 
 | Constant | Value | Meaning |
 |---|---|---|
 | `DMFI_LANG_NATIVE_LEVEL` | 6 | fluent level |
 | `DMFI_LANG_LEARN_LEVEL` | 1 | level of a newly started language |
 | `DMFI_LANG_CHANCE_PER_LEVEL` | 16 | percent of words caught per level |
-| `DMFI_LANG_EXP_UNIT` | 20 | exposure scale (n x n x this) |
-| `DMFI_LANG_EXP_COOLDOWN` | 30.0 | seconds between exposure points |
 | `DMFI_LANG_RANGE_TALK` | 20.0 | talk range in metres |
 | `DMFI_LANG_RANGE_WHISPER` | 3.0 | whisper range in metres |
 | `DMFI_LANG_LORE_DC` | 20 | Lore check to notice a language |

@@ -33,6 +33,8 @@
 // DM only:
 //   .teach <language> [1-6]  give the DMFI target a language at a fluency level, no slot needed
 
+#include "dmfi_lang_cfg"
+
 const string DMFI_LANG_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const int DMFI_LANG_ENTRY_WIDTH = 4;
 
@@ -41,6 +43,12 @@ const string DMFI_LANG_NUI_WINDOW = "langspeak";
 const string DMFI_LANG_VAR_NUI_LINE = "langnui_line";
 
 const string DMFI_LANG_VAR_TALK = "lang_talk";
+// Module flag set by LangNwnxInit (dmfi_lang_nwnx) when the NWNX Chat plugin is loaded.
+const string DMFI_LANG_NWNX_FLAG = "lang_nwnx";
+// Locals LangSpeak sets on the speaker for lang_nwnx_say.
+const string DMFI_LANG_VAR_DLV_LANG = "lang_dlv_lang";
+const string DMFI_LANG_VAR_DLV_TEXT = "lang_dlv_text";
+const string DMFI_LANG_VAR_DLV_RANGE = "lang_dlv_range";
 // Set (saved with the character) when the player turned off translations in the .lang window.
 const string DMFI_LANG_VAR_NUI_OFF = "lang_nui_off";
 const string DMFI_LANG_VAR_EXP = "lang_exp_";
@@ -62,11 +70,9 @@ const int DMFI_LANG_CHANCE_PER_LEVEL = 16;
 const int DMFI_LANG_SHOW_FOREIGN = TRUE;
 // Per-character seed (saved with the character) that decides which words it knows.
 const string DMFI_LANG_VAR_SEED = "lang_seed";
+// Local int on an NPC: 1 = it gives exposure in its language even with the PC-only setting on.
+const string DMFI_LANG_TRAINER_VAR = "lang_trainer";
 const string DMFI_LANG_WORD_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789'-";
-// Lines heard to leave level n: n * n * this.
-const int DMFI_LANG_EXP_UNIT = 20;
-// A listener earns at most one exposure point per language in this window.
-const float DMFI_LANG_EXP_COOLDOWN = 30.0;
 // Hearing range in metres, by chat volume.
 const float DMFI_LANG_RANGE_TALK = 20.0;
 const float DMFI_LANG_RANGE_WHISPER = 3.0;
@@ -499,30 +505,58 @@ int GetKnowsLanguage(object oPC, int iLang)
 }
 
 // Listening to a language you partly know slowly improves it.
-void LangGainExposure(object oListener, int iLang)
+// True if oSource may teach oListener by being heard: another player character
+// (a DM, or a creature a DM controls, counts as a person) or an NPC marked as a
+// trainer. Ordinary NPCs do not, when the PC-only setting is on.
+int LangExposureSourceOk(object oListener, object oSource)
+{
+    if (!LangCfgExpPcOnly()) return TRUE;
+    if (!GetIsObjectValid(oSource) || oSource == oListener) return FALSE;
+    if (GetIsPC(oSource) || GetIsDMPossessed(oSource)) return TRUE;
+    return GetLocalInt(oSource, DMFI_LANG_TRAINER_VAR) == 1;
+}
+
+// Adds iPoints exposure points and applies any level gained. No checks.
+void LangAddExposure(object oListener, int iLang, int iPoints = 1)
 {
     int iLevel = LangListLevel(oListener, iLang);
     if (iLevel < 1 || iLevel >= DMFI_LANG_NATIVE_LEVEL) return;
     if (LangFluency(oListener, iLang) >= DMFI_LANG_NATIVE_LEVEL) return; // native by other means
 
+    string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
+    int iExp = GetLocalInt(oListener, sVar) + iPoints;
+    int iUnit = LangCfgExpUnit();
+    int bGained = FALSE;
+    while (iLevel < DMFI_LANG_NATIVE_LEVEL && iExp >= iLevel * iLevel * iUnit)
+    {
+        iExp -= iLevel * iLevel * iUnit;
+        iLevel++;
+        bGained = TRUE;
+    }
+    if (bGained)
+    {
+        LangListSet(oListener, iLang, iLevel);
+        SendMessageToPC(oListener, "Your grasp of " + LangName(iLang) + " has improved to " + IntToString(iLevel) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ".");
+    }
+    if (iLevel >= DMFI_LANG_NATIVE_LEVEL || iExp <= 0) DeleteLocalInt(oListener, sVar);
+    else SetLocalInt(oListener, sVar, iExp);
+    LangSaveExp(oListener, iLang);
+}
+
+// A line in iLang was heard from oSource: one point, at most once per cooldown
+// per listener and language, if advancement is on and the source counts.
+void LangGainExposure(object oListener, int iLang, object oSource = OBJECT_INVALID)
+{
+    if (!LangCfgExpEnabled()) return;
+    if (!LangExposureSourceOk(oListener, oSource)) return;
+    int iLevel = LangListLevel(oListener, iLang);
+    if (iLevel < 1 || iLevel >= DMFI_LANG_NATIVE_LEVEL) return;
+
     string sCooldown = "lang_expcd_" + ObjectToString(oListener) + "_" + IntToString(iLang);
     if (GetLocalInt(GetModule(), sCooldown)) return;
     SetLocalInt(GetModule(), sCooldown, 1);
-    AssignCommand(GetModule(), DelayCommand(DMFI_LANG_EXP_COOLDOWN, DeleteLocalInt(GetModule(), sCooldown)));
-
-    string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
-    int iExp = GetLocalInt(oListener, sVar) + 1;
-    if (iExp >= iLevel * iLevel * DMFI_LANG_EXP_UNIT)
-    {
-        DeleteLocalInt(oListener, sVar);
-        LangListSet(oListener, iLang, iLevel + 1);
-        SendMessageToPC(oListener, "Your grasp of " + LangName(iLang) + " has improved to " + IntToString(iLevel + 1) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ".");
-    }
-    else
-    {
-        SetLocalInt(oListener, sVar, iExp);
-        LangSaveExp(oListener, iLang);
-    }
+    AssignCommand(GetModule(), DelayCommand(IntToFloat(LangCfgExpCooldown()), DeleteLocalInt(GetModule(), sCooldown)));
+    LangAddExposure(oListener, iLang, 1);
 }
 
 // The language [text] is spoken in: the chosen one, else the racial default.
@@ -550,9 +584,26 @@ int LangSlotsTotal(object oPC)
 
 int LangSlotsFree(object oPC)
 {
+    if (LangCfgSlotsIgnore()) return 99;
     int iFree = LangSlotsTotal(oPC) - GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED);
     if (iFree < 0) iFree = 0;
     return iFree;
+}
+
+// Takes a slot for a new language. FALSE (nothing taken) if none is free.
+int LangTakeSlot(object oPC)
+{
+    if (LangCfgSlotsIgnore()) return TRUE;
+    if (LangSlotsFree(oPC) < 1) return FALSE;
+    SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED) + 1);
+    return TRUE;
+}
+
+// "3 of 3" style text for messages; "no limit" when slots are ignored.
+string LangSlotsText(object oPC)
+{
+    if (LangCfgSlotsIgnore()) return "no limit";
+    return IntToString(LangSlotsFree(oPC)) + " of " + IntToString(LangSlotsTotal(oPC));
 }
 
 // --- chat commands
@@ -582,7 +633,7 @@ void LangCmdList(object oPC)
     string sTalk = "your normal talk is in the common tongue";
     if (GetLocalInt(oPC, DMFI_LANG_VAR_TALK)) sTalk = "your normal talk and whispers come out in " + sCurrent;
     SendMessageToPC(oPC, "You speak: " + LangKnownSummary(oPC));
-    SendMessageToPC(oPC, "Chosen language: " + sCurrent + "; " + sTalk + ". New languages you can still start: " + IntToString(LangSlotsFree(oPC)) + " of " + IntToString(LangSlotsTotal(oPC)));
+    SendMessageToPC(oPC, "Chosen language: " + sCurrent + "; " + sTalk + ". New languages you can still start: " + LangSlotsText(oPC));
     SendMessageToPC(oPC, ".lang opens the speaking window. .speak <language> makes your normal talk come out in it, .speak off stops. Languages are learned from books. [text] and [dwarven: text] still work.");
 }
 
@@ -620,7 +671,7 @@ void LangCmdSpeak(object oPC, string sArg)
 // Languages are learned only from books; the command stays so old tips do not error.
 void LangCmdLearn(object oPC, string sArg)
 {
-    SendMessageToPC(oPC, "Languages are learned from books, not by command. Find a bookshelf and study a primer by activating it. New languages you can still start: " + IntToString(LangSlotsFree(oPC)));
+    SendMessageToPC(oPC, "Languages are learned from books, not by command. Find a bookshelf and study a primer by activating it. New languages you can still start: " + LangSlotsText(oPC));
 }
 
 void LangCmdTeach(object oDM, string sArg)
@@ -742,13 +793,14 @@ int LangKnowsWord(object oPC, int iLang, string sWord, int iFluency)
 
 // sText as oListener (of iFluency in iLang) reads or hears it. Words the
 // listener does not know are replaced by the language's scrambled form, or by
-// "..." (DMFI_LANG_SHOW_FOREIGN). When oSpeaker is given, each word the speaker
-// does not know (iSpeakerFluency) becomes its own "..." for everyone, so a
-// learner's sentences read as halting speech with gaps.
+// "..." (DMFI_LANG_SHOW_FOREIGN). When oSpeaker is given, the words the speaker
+// does not know (iSpeakerFluency) are left out for everyone, so a learner's
+// sentences read as halting speech with gaps. A run of missing words is shown
+// as a single "...", never two in a row.
 string LangGarble(string sText, int iFluency, int iLang, object oListener, object oSpeaker = OBJECT_INVALID, int iSpeakerFluency = 6)
 {
     string sOut = "";
-    int bLastLost = FALSE;
+    int bLastDots = FALSE;
     string sRest = sText;
     while (sRest != "")
     {
@@ -763,27 +815,20 @@ string LangGarble(string sText, int iFluency, int iLang, object oListener, objec
         }
         if (sWord == "") continue;
 
-        // A word the speaker does not know is not said at all: one "..." per
-        // word, for every listener, like a learner searching for the word.
+        // A word the speaker does not know is not said at all, for every
+        // listener, like a learner searching for the word. A run of them is one "...".
         int bSpeakerKnows = !GetIsObjectValid(oSpeaker) || LangKnowsWord(oSpeaker, iLang, sWord, iSpeakerFluency);
-        if (!bSpeakerKnows)
-        {
-            if (sOut != "") sOut += " ";
-            sOut += "...";
-            bLastLost = FALSE;
-            continue;
-        }
-        int bKnown = LangKnowsWord(oListener, iLang, sWord, iFluency);
+        int bKnown = bSpeakerKnows && LangKnowsWord(oListener, iLang, sWord, iFluency);
         string sShown = sWord;
-        if (!bKnown)
-        {
-            if (DMFI_LANG_SHOW_FOREIGN) sShown = LangScramble(iLang, sWord);
-            else if (bLastLost) continue;
-            else sShown = "...";
-        }
+        if (!bSpeakerKnows || (!bKnown && !DMFI_LANG_SHOW_FOREIGN))
+            sShown = "...";
+        else if (!bKnown)
+            sShown = LangScramble(iLang, sWord);
+        int bDots = (sShown == "...");
+        if (bDots && bLastDots) continue;
         if (sOut != "") sOut += " ";
         sOut += sShown;
-        bLastLost = !bKnown;
+        bLastDots = bDots;
     }
     return sOut;
 }
@@ -809,6 +854,7 @@ string LangSpoken(int iLang, string sSaid, object oSpeaker)
     if (iLang == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
         sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
     string sOut = "";
+    int bLastDots = FALSE;
     string sRest = sSaid;
     while (sRest != "")
     {
@@ -822,9 +868,12 @@ string LangSpoken(int iLang, string sSaid, object oSpeaker)
             sRest = GetStringRight(sRest, GetStringLength(sRest) - iSpace - 1);
         }
         if (sWord == "") continue;
+        int bKnows = LangKnowsWord(oSpeaker, iLang, sWord, iFluency);
+        if (!bKnows && bLastDots) continue;
         if (sOut != "") sOut += " ";
-        if (LangKnowsWord(oSpeaker, iLang, sWord, iFluency)) sOut += TranslateCommonToLanguage(iLang, sWord);
+        if (bKnows) sOut += TranslateCommonToLanguage(iLang, sWord);
         else sOut += "...";
+        bLastDots = !bKnows;
     }
     return sOut;
 }
@@ -933,7 +982,7 @@ string LangSignLine(object oSigner, object oViewer, int iLang, string sSaid)
         sLine = DMFI_LANG_SIGN_FLUENT + sSaid;
     else if (iFluency > 0)
     {
-        LangGainExposure(oViewer, iLang);
+        LangGainExposure(oViewer, iLang, oSigner);
         string sWords = LangSignWords(sSaid, iFluency, iLang, oViewer);
         if (sWords == "") sLine = DMFI_LANG_SIGN_NOTHING;
         else sLine = DMFI_LANG_SIGN_PARTIAL + sWords + ".";
@@ -941,6 +990,21 @@ string LangSignLine(object oSigner, object oViewer, int iLang, string sSaid)
     else
         sLine = DMFI_LANG_SIGN_NONE;
     return LangExpandVars(sLine, oSigner);
+}
+
+// True when speech goes out as per-listener chat lines (NWNX Chat loaded and
+// not turned off). Otherwise the NWScript behavior applies.
+int LangNwnxActive()
+{
+    return GetLocalInt(GetModule(), DMFI_LANG_NWNX_FLAG) && LangCfgNwnxEnabled();
+}
+
+// True if translations should also be written to the .lang window log of oPC.
+int LangLogWanted(object oPC)
+{
+    if (GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF)) return FALSE;
+    if (LangNwnxActive() && !LangCfgNwnxWindowLog()) return FALSE;
+    return TRUE;
 }
 
 // Delivers sSaid, spoken in iTranslate, to everyone within fRange metres:
@@ -960,6 +1024,16 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
     if (iTranslate == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
         sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
     int bSign = LangIsSign(iTranslate);
+    // NWNX Chat: one bubble and chat line per listener (lang_nwnx_say). The
+    // OnPlayerChat path (bBubble FALSE) is handled by the chat hook instead.
+    if (bBubble && !bSign && LangNwnxActive())
+    {
+        SetLocalInt(oShouter, DMFI_LANG_VAR_DLV_LANG, iTranslate);
+        SetLocalString(oShouter, DMFI_LANG_VAR_DLV_TEXT, sSaid);
+        SetLocalFloat(oShouter, DMFI_LANG_VAR_DLV_RANGE, fRange);
+        ExecuteScript("lang_nwnx_say", oShouter);
+        return;
+    }
     if (bBubble && !bSign)
         AssignCommand(oShouter, SpeakString(LangSpoken(iTranslate, sSaid, oShouter)));
 
@@ -986,7 +1060,7 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
             else if (iFluency > 0)
             {
                 sLine = GetName(oShouter) + " says in " + sLanguageName + " (you catch only part): " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
-                LangGainExposure(oEavesdrop, iTranslate);
+                LangGainExposure(oEavesdrop, iTranslate, oShouter);
             }
             else
                 NoticeLanguage(oEavesdrop, oShouter, iTranslate, sLanguageName);
@@ -995,7 +1069,7 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
             {
                 SendMessageToPC(oEavesdrop, sLine);
                 // Also show it in the .lang window, if that is open and the player has not turned it off.
-                if (!GetLocalInt(oEavesdrop, DMFI_LANG_VAR_NUI_OFF) && NuiFindWindow(oEavesdrop, DMFI_LANG_NUI_WINDOW))
+                if (LangLogWanted(oEavesdrop) && NuiFindWindow(oEavesdrop, DMFI_LANG_NUI_WINDOW))
                 {
                     SetLocalString(oEavesdrop, DMFI_LANG_VAR_NUI_LINE, sLine);
                     ExecuteScript("lang_nui_append", oEavesdrop);

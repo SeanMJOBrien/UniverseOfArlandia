@@ -11,8 +11,8 @@ WORK="$(mktemp -d)"
 OUT="$REPO/export"
 mkdir -p "$OUT" "$WORK/stage" "$WORK/shims"
 
-SCRIPTS_INC="dmfi_lang_inc dmfi_lang_book dmfi_lang_dialog dmfi_lang_nui"
-SCRIPTS_RUN="lang_nui_event lang_nui_append lang_shelf_fill cond_lang_line cond_lang_know act_lang_npc"
+SCRIPTS_INC="dmfi_lang_cfg dmfi_lang_inc dmfi_lang_teach dmfi_lang_book dmfi_lang_dialog dmfi_lang_nui"
+SCRIPTS_RUN="lang_nui_event lang_teach_event act_lang_exp lang_nui_append lang_shelf_fill cond_lang_line cond_lang_know act_lang_npc"
 PKG_RUN="lang_on_chat lang_on_enter lang_on_act"
 
 # --- scripts

@@ -62,12 +62,11 @@ void LangBookUse(object oPC, object oBook)
     // Only a new language (volume 1) takes a slot; later volumes are free.
     if (iLevel == 0)
     {
-        if (LangSlotsFree(oPC) < 1)
+        if (!LangTakeSlot(oPC))
         {
             SendMessageToPC(oPC, "You have no spare language slots (you know " + IntToString(LangSlotsTotal(oPC)) + " of " + IntToString(LangSlotsTotal(oPC)) + "). Only a higher Intelligence modifier makes room for another language.");
             return;
         }
-        SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED) + 1);
     }
     LangListSet(oPC, iLang, iVolume);
     DeleteLocalInt(oPC, DMFI_LANG_VAR_EXP + IntToString(iLang));
@@ -78,7 +77,12 @@ void LangBookUse(object oPC, object oBook)
         sMsg += " You are now fluent.";
     else
         sMsg += " Volume " + IntToString(iVolume + 1) + " is next.";
-    int iFree = LangSlotsFree(oPC);
-    sMsg += " You can start " + IntToString(iFree) + " more language" + (iFree == 1 ? "" : "s") + ".";
+    if (LangCfgSlotsIgnore())
+        sMsg += " You can start any number of languages.";
+    else
+    {
+        int iFree = LangSlotsFree(oPC);
+        sMsg += " You can start " + IntToString(iFree) + " more language" + (iFree == 1 ? "" : "s") + ".";
+    }
     SendMessageToPC(oPC, sMsg);
 }

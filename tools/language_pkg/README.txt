@@ -21,8 +21,14 @@ OBJECTS (listed in the palettes under Special > Custom 5)
 
 PLAYERS
   .lang  opens the window    .speak <language|off>    .languages    .learn <language>
+  .tutor teach a nearby player a language (off by default; lang_tutor_on)
 DMs
   .teach <language> [1-6] on the player's target (see the manual)
+
+SETTINGS
+  dmfi_lang_cfg lists every setting with an explicit value (advancement by listening, PC-only
+  mode, language slots, tutoring). Module variables of the same names override it; see the manual.
+  act_lang_exp is a dialog action that gives language experience from an NPC.
 
 Animal (8) and Thieves' Cant (9) are class languages given automatically; they have no books.
 The full manual is uoa_language_system_manual.html.

@@ -51,7 +51,7 @@ string LangDialogText(object oPC, object oNPC, string sText)
 
     if (iFluency > 0)
     {
-        LangGainExposure(oPC, iLang);
+        LangGainExposure(oPC, iLang, oNPC);
         return sPrefix + LangGarble(sText, iFluency, iLang, oPC);
     }
     string sScrambled = LangScramble(iLang, sText);
@@ -73,4 +73,20 @@ int LangDialogLine(object oPC, object oNPC)
     if (nToken > 0 && sText != "")
         LangDialogToken(oPC, oNPC, nToken, sText);
     return TRUE;
+}
+
+// An NPC says sText in iLang (default: its own language, see LangNpcLanguage).
+// Listeners get a bubble and chat line per listener with the NWNX Chat plugin;
+// without it, a scrambled bubble and a translation message. With no language
+// the NPC just speaks. For ambient and scripted lines outside dialog windows.
+void LangNpcSay(object oNPC, string sText, int iLang = 0)
+{
+    if (!iLang) iLang = LangNpcLanguage(oNPC);
+    sText = LangExpandVars(sText, oNPC);
+    if (!iLang)
+    {
+        AssignCommand(oNPC, SpeakString(sText));
+        return;
+    }
+    LangSpeak(oNPC, iLang, sText);
 }

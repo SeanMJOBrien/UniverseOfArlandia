@@ -1,6 +1,7 @@
 // lang_on_chat - module OnPlayerChat handler for the language system.
 // Set it as the module's OnPlayerChat script, or call its logic from an existing one.
 #include "dmfi_lang_nui"
+#include "dmfi_lang_teach"
 
 void main()
 {
@@ -15,6 +16,12 @@ void main()
         {
             SetPCChatMessage("");
             LangNuiOpen(oPC);
+            return;
+        }
+        if (sCmd == ".tutor")
+        {
+            SetPCChatMessage("");
+            LangTutorOpen(oPC);
             return;
         }
         if (LangChatCommand(oPC, sMsg))

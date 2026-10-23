@@ -16,6 +16,8 @@ The package is an ERF, `uoa_language_system_nwscript.erf`, built by `tools/build
 | OnActivateItem | `lang_on_act` | yes: the language books |
 | OnClientEnter | `lang_on_enter` | no: a login tip |
 
+Settings: advancement by listening, PC-only mode, the language slot limit and tutoring are set in `dmfi_lang_cfg` (explicit values; edit and rebuild) or by module variables (Module Properties, Variables) that override the file. See "Settings" in the manual. Advancement and tutoring are off by default. The `.tutor` command is handled by `lang_on_chat`.
+
 ## What the package contains
 
 | Resource | Purpose |
@@ -23,7 +25,10 @@ The package is an ERF, `uoa_language_system_nwscript.erf`, built by `tools/build
 | `dmfi_lang_inc` | core library: tables, fluency, garbling, speech, commands |
 | `dmfi_lang_book` | book logic, six volumes per language |
 | `dmfi_lang_dialog`, `cond_lang_line`, `cond_lang_know`, `act_lang_npc` | language-aware NPC dialog |
+| `dmfi_lang_cfg` | settings |
 | `dmfi_lang_nui`, `lang_nui_event`, `lang_nui_append` | the `.lang` window |
+| `dmfi_lang_teach`, `lang_teach_event` | the `.tutor` windows |
+| `act_lang_exp` | dialog action: gives language experience |
 | `lang_shelf_fill` | restocks the bookshelf on open and close |
 | `lang_on_chat`, `lang_on_act`, `lang_on_enter` | the module event scripts |
 | `lang_bookshelf` | placeable holding every book |

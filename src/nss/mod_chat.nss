@@ -20,6 +20,7 @@
 #include "_webmap"
 #include "_unitrent"
 #include "dmfi_lang_nui"
+#include "dmfi_lang_teach"
 #include "dmfi_lang_nwnx"
 
 // Command target: a validated planet + coordinate.
@@ -294,6 +295,12 @@ void main()
         {
             SetPCChatMessage("");
             LangNuiOpen(oPC);
+            return;
+        }
+        if (GetStringLowerCase(sLangMsg) == ".tutor")
+        {
+            SetPCChatMessage("");
+            LangTutorOpen(oPC);
             return;
         }
         if (LangChatCommand(oPC, sLangMsg))

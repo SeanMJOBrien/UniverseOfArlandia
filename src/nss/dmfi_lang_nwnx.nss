@@ -9,7 +9,6 @@
 #include "nwnx_chat"
 #include "dmfi_lang_inc"
 
-const string DMFI_LANG_NWNX_FLAG = "lang_nwnx";
 const string DMFI_LANG_NWNX_SCRIPT = "lang_nwnx_chat";
 
 // Called once from mod_load.
@@ -23,19 +22,19 @@ void LangNwnxInit()
         WriteTimestampedLogEntry("Language system: NWNX Chat not loaded, using the NWScript talk mode.");
         return;
     }
+    if (!LangCfgNwnxEnabled())
+    {
+        WriteTimestampedLogEntry("Language system: NWNX Chat loaded but switched off (lang_nwnx_on), using the NWScript talk mode.");
+        return;
+    }
     NWNX_Chat_RegisterChatScript(DMFI_LANG_NWNX_SCRIPT);
     SetLocalInt(GetModule(), DMFI_LANG_NWNX_FLAG, TRUE);
     WriteTimestampedLogEntry("Language system: NWNX Chat active.");
 }
 
-int LangNwnxActive()
-{
-    return GetLocalInt(GetModule(), DMFI_LANG_NWNX_FLAG);
-}
-
 void LangNwnxLog(object oListener, string sLine)
 {
-    if (!NuiFindWindow(oListener, DMFI_LANG_NUI_WINDOW)) return;
+    if (!LangLogWanted(oListener) || !NuiFindWindow(oListener, DMFI_LANG_NUI_WINDOW)) return;
     SetLocalString(oListener, DMFI_LANG_VAR_NUI_LINE, sLine);
     ExecuteScript("lang_nui_append", oListener);
 }
@@ -44,6 +43,8 @@ void LangNwnxLog(object oListener, string sLine)
 void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float fRange)
 {
     string sName = LangName(iLang);
+    if (iLang == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
+        sSaid = GetStringLeft(sSaid, DMFI_LANG_CANT_MAX_LENGTH);
     string sTag = "[" + sName + "] ";
     string sScrambled = LangSpoken(iLang, sSaid, oSpeaker);
     int iSpeakerFluency = LangSpeakerFluency(oSpeaker, iLang);
@@ -59,14 +60,12 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
         {
             int iFluency = LangFluency(oListener, iLang);
             string sLine;
-            if (LangIsSign(iLang))
-                sLine = LangSignLine(oSpeaker, oListener, iLang, sSaid);
-            else if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
+            if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
                 sLine = sTag + LangGarble(sSaid, iFluency, iLang, oListener, oSpeaker, iSpeakerFluency);
             else if (iFluency > 0)
             {
                 sLine = sTag + LangGarble(sSaid, iFluency, iLang, oListener, oSpeaker, iSpeakerFluency);
-                LangGainExposure(oListener, iLang);
+                LangGainExposure(oListener, iLang, oSpeaker);
             }
             else
             {
@@ -74,8 +73,7 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
                 NoticeLanguage(oListener, oSpeaker, iLang, sName);
             }
             NWNX_Chat_SendMessage(iChannel, sLine, oSpeaker, oListener);
-            if (LangIsSign(iLang)) LangNwnxLog(oListener, sLine);
-            else LangNwnxLog(oListener, GetName(oSpeaker) + " says in " + sName + ": " + sLine);
+            LangNwnxLog(oListener, GetName(oSpeaker) + " says in " + sName + ": " + sLine);
         }
         oListener = GetNextObjectInShape(SHAPE_SPHERE, fRange, lSpeaker, FALSE, OBJECT_TYPE_CREATURE);
     }
@@ -100,8 +98,27 @@ void LangNwnxHandleChat()
 
     int iLang = GetSpokenLanguage(oSpeaker);
     if (!iLang || !GetKnowsLanguage(oSpeaker, iLang)) return;
-    if (LangScramble(iLang, sMsg) == "") return;
+    if (!LangIsSign(iLang) && LangScramble(iLang, sMsg) == "") return;
 
     NWNX_Chat_SkipMessage();
-    LangNwnxSpeak(oSpeaker, iChannel, iLang, sMsg, fRange);
+    // A sign language has no spoken line; LangSpeak sends the descriptions.
+    if (LangIsSign(iLang)) LangSpeak(oSpeaker, iLang, sMsg, fRange, FALSE);
+    else LangNwnxSpeak(oSpeaker, iChannel, iLang, sMsg, fRange);
+}
+
+// Run on the speaker by LangSpeak (ExecuteScript lang_nwnx_say): delivers the
+// line stored in the delivery locals as per-listener chat lines.
+void LangNwnxSay(object oSpeaker)
+{
+    int iLang = GetLocalInt(oSpeaker, DMFI_LANG_VAR_DLV_LANG);
+    string sSaid = GetLocalString(oSpeaker, DMFI_LANG_VAR_DLV_TEXT);
+    float fRange = GetLocalFloat(oSpeaker, DMFI_LANG_VAR_DLV_RANGE);
+    DeleteLocalInt(oSpeaker, DMFI_LANG_VAR_DLV_LANG);
+    DeleteLocalString(oSpeaker, DMFI_LANG_VAR_DLV_TEXT);
+    DeleteLocalFloat(oSpeaker, DMFI_LANG_VAR_DLV_RANGE);
+    if (!iLang || sSaid == "") return;
+
+    int iChannel = NWNX_CHAT_CHANNEL_PLAYER_TALK;
+    if (fRange <= DMFI_LANG_RANGE_WHISPER) iChannel = NWNX_CHAT_CHANNEL_PLAYER_WHISPER;
+    LangNwnxSpeak(oSpeaker, iChannel, iLang, sSaid, fRange);
 }

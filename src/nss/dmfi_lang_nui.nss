@@ -26,6 +26,7 @@ const string LANGNUI_VAR_LOG = "langnui_log";
 const string LANGNUI_BIND_STATUS = "langstatus";
 const string LANGNUI_BIND_SHOW = "langshow";
 const string LANGNUI_BIND_LOGVIS = "langlogvis";
+const string LANGNUI_BIND_CHKVIS = "langchkvis";
 const string LANGNUI_SPEAK = "speak";
 const string LANGNUI_VAR_COUNT = "langnui_count";
 const string LANGNUI_VAR_ID = "langnui_id_";
@@ -73,7 +74,7 @@ json LangNuiFull(json jElement, float fHeight)
 json LangNuiLayout(json jEntries)
 {
     json jCol = JsonArray();
-    jCol = JsonArrayInsert(jCol, LangNuiFull(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0));
+    jCol = JsonArrayInsert(jCol, NuiVisible(LangNuiFull(NuiCheck(JsonString("Show translations in this window"), NuiBind(LANGNUI_BIND_SHOW)), 28.0), NuiBind(LANGNUI_BIND_CHKVIS)));
     jCol = JsonArrayInsert(jCol, NuiVisible(LangNuiFull(NuiText(NuiBind(LANGNUI_BIND_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0), NuiBind(LANGNUI_BIND_LOGVIS)));
     jCol = JsonArrayInsert(jCol, LangNuiFull(NuiTextEdit(JsonString("What do you say?"), NuiBind(LANGNUI_BIND_TEXT), LANGNUI_MAX_LENGTH, TRUE), 0.0));
     jCol = JsonArrayInsert(jCol, LangNuiFull(NuiLabel(NuiBind(LANGNUI_BIND_STATUS), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_MIDDLE)), 24.0));
@@ -91,6 +92,7 @@ json LangNuiLayout(json jEntries)
 void LangNuiShowStatus(object oPC, int nToken)
 {
     string sStatus = "New languages you can start: " + IntToString(LangSlotsFree(oPC));
+    if (LangCfgSlotsIgnore()) sStatus = "New languages you can start: no limit";
     NuiSetBind(oPC, nToken, LANGNUI_BIND_STATUS, JsonString(sStatus));
 }
 
@@ -125,9 +127,13 @@ void LangNuiOpen(object oPC)
     NuiSetBind(oPC, nToken, LANGNUI_BIND_SELECTED, JsonInt(nSelected));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_TEXT, JsonString(""));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_LOG, JsonString(""));
-    int bShow = !GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF);
+    // With NWNX Chat the translations arrive as bubbles and chat lines; the log
+    // and its check box are hidden unless lang_nwnx_log is on.
+    int bLogAvailable = !LangNwnxActive() || LangCfgNwnxWindowLog();
+    int bShow = !GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF) && bLogAvailable;
     NuiSetBind(oPC, nToken, LANGNUI_BIND_SHOW, JsonBool(bShow));
     NuiSetBind(oPC, nToken, LANGNUI_BIND_LOGVIS, JsonBool(bShow));
+    NuiSetBind(oPC, nToken, LANGNUI_BIND_CHKVIS, JsonBool(bLogAvailable));
     NuiSetBindWatch(oPC, nToken, LANGNUI_BIND_SELECTED, TRUE);
     NuiSetBindWatch(oPC, nToken, LANGNUI_BIND_SHOW, TRUE);
     LangNuiShowStatus(oPC, nToken);
@@ -137,7 +143,7 @@ void LangNuiOpen(object oPC)
 void LangNuiAppend(object oPC, string sLine)
 {
     int nToken = NuiFindWindow(oPC, DMFI_LANG_NUI_WINDOW);
-    if (!nToken || GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF)) return;
+    if (!nToken || !LangLogWanted(oPC)) return;
 
     string sLog = GetLocalString(oPC, LANGNUI_VAR_LOG);
     if (sLog != "") sLog += "\n";
