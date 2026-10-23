@@ -200,6 +200,26 @@ Set `NWNX_CHAT_SKIP=no` in `config/nwserver.env` and restart. This is Phase 0 of
 | K15 | Set `lang_nwnx_on` = 2 and repeat K2. | NWScript behavior: scrambled bubble and a translation message. |
 | K16 | Stop the server, remove `NWNX_CHAT_SKIP=no`, start. | Log says NWNX Chat not loaded; K2 behaves as K15. |
 
+## L. Interpreter henchman
+
+Hire or add a henchman. Give the henchman languages through the creature variable `lang_known` in the toolset (for example `,6:6,` Goblin 6 and `,4:3,` Dwarven 3) or use a race with an innate language. Set `lang_interp_on` = 1.
+
+| Id | Steps | Expected |
+|---|---|---|
+| L1 | `lang_interp_on` unset. Talk to Gruk in Goblin with a Goblin-speaking henchman nearby. | Garbled line only. The henchman says nothing. |
+| L2 | `lang_interp_on` = 1, henchman Goblin 6, Tester no Goblin. Choose Goblin on Gruk. | The dialog shows `(Goblin)` scrambled text. About half a second later the henchman says "The Goblin says: ..." with the full line. Planned replies are unchanged. |
+| L3 | Henchman Goblin 3. | "The Goblin says, as best I can tell: ..." with known words and a single `...` for each run of unknown words. Repeating the line gives the same words. |
+| L4 | Henchman with no Goblin word known in the line. | "I cannot make out a word of it." |
+| L5 | Henchman with no Goblin at all. | Silent. |
+| L6 | Tester has Goblin 6. | Silent. Tester has Goblin 3 and the henchman 3: silent (not better). Henchman 6: speaks. |
+| L7 | `lang_interp_max_level` = 3 with a Goblin 6 henchman. | Partial translation as in L3. |
+| L8 | Walk the henchman more than `lang_interp_range` away, or kill it. | Silent. |
+| L9 | Choose the same Gruk option twice within three seconds, and again later. | One translation per display; no repeat within three seconds. |
+| L10 | Choose Drow on Gruk with a Drow-speaking henchman. | "The Goblin signs: ..." |
+| L11 | Gruk's Common option. | Silent. |
+| L12 | Add the parameter `options` = "Ask for peace|Refuse" to a link. | After the translation: "Option 1 means: Ask for peace", "Option 2 means: Refuse". |
+| L13 | Check Tester's exposure after many translations (`lang_exp_on` = 1, `lang_exp_pc_only` = 1). | The henchman's lines add no points. |
+
 ## H. Regression checks
 
 | Id | Steps | Expected |

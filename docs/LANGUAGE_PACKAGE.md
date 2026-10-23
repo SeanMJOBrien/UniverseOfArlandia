@@ -16,7 +16,7 @@ The package is an ERF, `uoa_language_system_nwscript.erf`, built by `tools/build
 | OnActivateItem | `lang_on_act` | yes: the language books |
 | OnClientEnter | `lang_on_enter` | no: a login tip |
 
-Settings: advancement by listening, PC-only mode, the language slot limit and tutoring are set in `dmfi_lang_cfg` (explicit values; edit and rebuild) or by module variables (Module Properties, Variables) that override the file. See "Settings" in the manual. Advancement and tutoring are off by default. The `.tutor` command is handled by `lang_on_chat`.
+Settings: advancement by listening, PC-only mode, the language slot limit and tutoring and interpreter henchmen are set in `dmfi_lang_cfg` (explicit values; edit and rebuild) or by module variables (Module Properties, Variables) that override the file. See "Settings" in the manual. Advancement and tutoring are off by default. The `.tutor` command is handled by `lang_on_chat`.
 
 ## What the package contains
 

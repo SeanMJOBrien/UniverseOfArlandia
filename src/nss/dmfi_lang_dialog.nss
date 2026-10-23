@@ -65,13 +65,138 @@ void LangDialogToken(object oPC, object oNPC, int nToken, string sText)
     SetCustomToken(nToken, LangDialogText(oPC, oNPC, sText));
 }
 
-// The script-parameter form, used by cond_lang_line.
+// --- interpreter henchman
+// With lang_interp_on, a henchman who knows the NPC's language states what the
+// NPC says, for lines the player does not fully understand. The dialog window is
+// unchanged. The translation gives the player no exposure.
+
+const string DMFI_LANG_INTERP_KEY = "lang_interp_key";
+
+// What a henchman of iLevel understands of sText: the whole line at 6, else the
+// words it knows with "..." for each run it does not. "" if nothing.
+string LangInterpWords(object oHench, int iLang, string sText, int iLevel)
+{
+    if (iLevel >= DMFI_LANG_NATIVE_LEVEL) return sText;
+    string sOut = "";
+    int bLastDots = FALSE;
+    string sRest = sText;
+    int bAny = FALSE;
+    while (sRest != "")
+    {
+        int iSpace = FindSubString(sRest, " ");
+        string sWord = sRest;
+        if (iSpace == -1)
+            sRest = "";
+        else
+        {
+            sWord = GetStringLeft(sRest, iSpace);
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iSpace - 1);
+        }
+        if (sWord == "") continue;
+        int bKnows = LangKnowsWord(oHench, iLang, sWord, iLevel);
+        if (!bKnows && bLastDots) continue;
+        if (sOut != "") sOut += " ";
+        if (bKnows) { sOut += sWord; bAny = TRUE; }
+        else sOut += "...";
+        bLastDots = !bKnows;
+    }
+    if (!bAny) return "";
+    return sOut;
+}
+
+// The best henchman of oPC that can interpret iLang (alive, same area, in range),
+// or OBJECT_INVALID. The level it provides is its fluency, capped by lang_interp_max_level.
+object LangInterpreter(object oPC, int iLang)
+{
+    object oBest = OBJECT_INVALID;
+    int iBest = 0;
+    float fRange = IntToFloat(LangCfgInterpRange());
+    int nth;
+    for (nth = 1; nth <= 8; nth++)
+    {
+        object oHench = GetHenchman(oPC, nth);
+        if (!GetIsObjectValid(oHench)) break;
+        if (GetIsDead(oHench) || GetArea(oHench) != GetArea(oPC)) continue;
+        if (GetDistanceBetween(oHench, oPC) > fRange) continue;
+        int iLevel = LangFluency(oHench, iLang);
+        if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
+        if (iLevel > iBest)
+        {
+            iBest = iLevel;
+            oBest = oHench;
+        }
+    }
+    return oBest;
+}
+
+void LangInterpSay(object oHench, string sLine)
+{
+    AssignCommand(oHench, SpeakString(sLine));
+}
+
+// Called as a line is shown. sOptions: optional meanings of replies the player
+// cannot read, separated by "|" (script parameter "options").
+void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions)
+{
+    if (!LangCfgInterpEnabled()) return;
+    int iLang = LangNpcLanguage(oNPC);
+    if (!iLang) return;
+    int iPlayer = LangFluency(oPC, iLang);
+    if (iPlayer >= DMFI_LANG_NATIVE_LEVEL) return;
+
+    object oHench = LangInterpreter(oPC, iLang);
+    if (!GetIsObjectValid(oHench)) return;
+    int iLevel = LangFluency(oHench, iLang);
+    if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
+    if (iLevel <= iPlayer) return;
+
+    // A condition can run more than once for one display.
+    string sKey = ObjectToString(oNPC) + sText;
+    if (GetLocalString(oPC, DMFI_LANG_INTERP_KEY) == sKey) return;
+    SetLocalString(oPC, DMFI_LANG_INTERP_KEY, sKey);
+    DelayCommand(3.0, DeleteLocalString(oPC, DMFI_LANG_INTERP_KEY));
+
+    string sPlain = LangExpandVars(sText, oNPC);
+    string sWords = LangInterpWords(oHench, iLang, sPlain, iLevel);
+    string sVerb = LangIsSign(iLang) ? " signs" : " says";
+    string sLine;
+    if (sWords == "")
+        sLine = "I cannot make out a word of it.";
+    else if (iLevel >= DMFI_LANG_NATIVE_LEVEL)
+        sLine = "The " + LangRaceName(oNPC) + sVerb + ": " + sWords;
+    else
+        sLine = "The " + LangRaceName(oNPC) + sVerb + ", as best I can tell: " + sWords;
+    DelayCommand(0.5, LangInterpSay(oHench, sLine));
+
+    int nOption = 1;
+    while (sOptions != "")
+    {
+        int iBar = FindSubString(sOptions, "|");
+        string sOption = sOptions;
+        if (iBar == -1)
+            sOptions = "";
+        else
+        {
+            sOption = GetStringLeft(sOptions, iBar);
+            sOptions = GetStringRight(sOptions, GetStringLength(sOptions) - iBar - 1);
+        }
+        if (sOption == "") continue;
+        DelayCommand(0.5 + IntToFloat(nOption), LangInterpSay(oHench, "Option " + IntToString(nOption) + " means: " + sOption));
+        nOption++;
+    }
+}
+
+// The script-parameter form, used by cond_lang_line. Parameters: token, text,
+// and optionally options (meanings of foreign-language replies, separated by "|").
 int LangDialogLine(object oPC, object oNPC)
 {
     int nToken = StringToInt(GetScriptParam("token"));
     string sText = GetScriptParam("text");
     if (nToken > 0 && sText != "")
+    {
         LangDialogToken(oPC, oNPC, nToken, sText);
+        LangDialogInterpret(oPC, oNPC, sText, GetScriptParam("options"));
+    }
     return TRUE;
 }
 

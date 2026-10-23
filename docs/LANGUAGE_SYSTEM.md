@@ -113,6 +113,9 @@ All settings are in `dmfi_lang_cfg.nss`, each with an explicit value and a modul
 | `lang_slots_ignore` | on/off | off | removes the Intelligence limit on starting new languages for every source (books, tutors) |
 | `lang_nwnx_on` | on/off | on | use the NWNX Chat plugin when it is loaded; off forces the NWScript behavior |
 | `lang_nwnx_log` | on/off | off | with the plugin, also feed the `.lang` window log |
+| `lang_interp_on` | on/off | off | henchmen translate NPC dialog lines |
+| `lang_interp_max_level` | number | 6 | highest level a henchman provides |
+| `lang_interp_range` | number | 10 | metres between henchman and player |
 | `lang_tutor_on` | on/off | off | enables `.tutor` |
 | `lang_tutor_cooldown` | number | 3600 | seconds before the same learner can take another lesson in the same language |
 | `lang_tutor_range` | number | 5 | metres between teacher and learner |
@@ -266,6 +269,21 @@ A dialog node cannot change its text per player. NPC lines in a language use a c
 The NPC's language is its local int `npc_language` (a language id, or -1 for the common tongue). Without that variable, the NPC speaks its racial language, if it has one.
 
 `tools/lang_dialog.py <file.dlg.json>` converts the NPC lines in a dialog. It skips a node that already has a condition script on a link into it and reports the node. Such a node needs a hand-written call to `LangDialogToken`.
+
+### Interpreter henchman
+
+With `lang_interp_on`, a henchman who knows the NPC's language states a translation of each NPC line the player does not fully understand. The dialog window keeps the garbled line and the planned replies. The translation is spoken by the henchman (a bubble and a chat line) half a second after the line appears:
+
+- Fluent henchman: `The Dwarf says: <the whole line>`.
+- Partial henchman: `The Dwarf says, as best I can tell: <known words, ... for each run it does not know>`.
+- A henchman that knows no word of the line: `I cannot make out a word of it.`
+- A sign language reads `signs` in place of `says`. `<race>` is the NPC's race (Dwarf, Elf, ...), or "Creature".
+
+The interpreter is the henchman with the best level in the language, alive, in the same area and within `lang_interp_range` metres. Its level is capped by `lang_interp_max_level`. It speaks only if its level is higher than the player's, and not if the player is fluent. The translation gives the player no exposure. A short guard stops a condition that runs twice from repeating the line.
+
+A henchman gets its racial languages free. Other languages come from the creature's local string `lang_known` (for example `,4:6,` for Dwarven at 6), set in the toolset.
+
+For replies written in the NPC's own language, add the script parameter `options` to the `cond_lang_line` link: the meanings of the replies, separated by `|`. After the translation the henchman adds `Option 1 means: ...`, `Option 2 means: ...`.
 
 Replies and branches use `cond_lang_know` with parameters `language`, `level` (default 1) and `not=1` to invert. Listing several NPC lines in descending level order, each with a different level, gives a branch per fluency band. The first line whose condition passes is shown.
 

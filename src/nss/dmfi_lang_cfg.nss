@@ -64,6 +64,21 @@ const string LANGCFG_VAR_NWNX_ENABLED = "lang_nwnx_on";
 const int LANGCFG_NWNX_WINDOW_LOG = FALSE;
 const string LANGCFG_VAR_NWNX_WINDOW_LOG = "lang_nwnx_log";
 
+// --- Interpreter henchmen
+// A henchman who knows the language an NPC speaks states a translation of each
+// NPC dialog line the player cannot fully understand: "The Dwarf says: ...".
+// The dialog window keeps the garbled line and the planned replies.
+const int LANGCFG_INTERP_ENABLED = FALSE;
+const string LANGCFG_VAR_INTERP_ENABLED = "lang_interp_on";
+
+// Highest level a henchman provides (6 = a fluent interpreter gives the whole line).
+const int LANGCFG_INTERP_MAX_LEVEL = 6;
+const string LANGCFG_VAR_INTERP_MAX_LEVEL = "lang_interp_max_level";
+
+// Metres between the henchman and the player.
+const int LANGCFG_INTERP_RANGE = 10;
+const string LANGCFG_VAR_INTERP_RANGE = "lang_interp_range";
+
 // --- Readers
 
 int LangCfgFlag(string sVar, int bFile)
@@ -91,3 +106,6 @@ int LangCfgTutorCooldown() { return LangCfgInt(LANGCFG_VAR_TUTOR_COOLDOWN, LANGC
 int LangCfgTutorRange()    { return LangCfgInt(LANGCFG_VAR_TUTOR_RANGE, LANGCFG_TUTOR_RANGE); }
 int LangCfgNwnxEnabled()    { return LangCfgFlag(LANGCFG_VAR_NWNX_ENABLED, LANGCFG_NWNX_ENABLED); }
 int LangCfgNwnxWindowLog() { return LangCfgFlag(LANGCFG_VAR_NWNX_WINDOW_LOG, LANGCFG_NWNX_WINDOW_LOG); }
+int LangCfgInterpEnabled()  { return LangCfgFlag(LANGCFG_VAR_INTERP_ENABLED, LANGCFG_INTERP_ENABLED); }
+int LangCfgInterpMaxLevel() { return LangCfgInt(LANGCFG_VAR_INTERP_MAX_LEVEL, LANGCFG_INTERP_MAX_LEVEL); }
+int LangCfgInterpRange()    { return LangCfgInt(LANGCFG_VAR_INTERP_RANGE, LANGCFG_INTERP_RANGE); }
