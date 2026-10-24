@@ -296,6 +296,8 @@ A line can be limited to a level below fluent, for an ancient dialect, a damaged
 - A capped line gives no language experience.
 - The interpreter henchman is limited by the same cap. A henchman at level 6 reads a level-4 line at 4, so it adds nothing for a player at 4 and stays silent.
 
+A line can name its dialect with the parameter `dialect` (flag `--dialect <name>`), or the speaker can carry the local string `npc_lang_dialect`. An interpreter henchman that has studied the dialect carries the local int `lang_dialect_<name>` (1 to 6, for example `lang_dialect_old_dwarven` = 5). It then reads the line at that level in place of the cap, still held to its own fluency in the language and to `lang_interp_max_level`. A value of 6 removes the cap. Players have no such value yet: a player always reads a capped line at the cap or below.
+
 To make a readable object (a tablet, book page or scroll), give a placeable the dialog's conversation as its `OnUsed` conversation, set `npc_language` (or use the `language` parameter) and `npc_lang_cap`, and write each page as one NPC line with `Next` and `Close` replies.
 
 ### Interpreter henchman

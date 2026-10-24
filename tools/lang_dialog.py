@@ -18,6 +18,7 @@ Usage:
   tools/lang_dialog.py src/dlg/foo.dlg.json --entries 0,3   only these entries
   tools/lang_dialog.py src/dlg/foo.dlg.json --dry-run       report only
   tools/lang_dialog.py src/dlg/foo.dlg.json --maxlevel 4    read the lines at level 4 at most
+  tools/lang_dialog.py src/dlg/foo.dlg.json --dialect old_dwarven   name the dialect (henchmen who studied it read higher)
   tools/lang_dialog.py src/dlg/foo.dlg.json --language 4    give the lines a language (id)
 """
 import argparse
@@ -57,6 +58,7 @@ def main():
     ap.add_argument("--token-base", type=int, default=TOKEN_BASE)
     ap.add_argument("--maxlevel", type=int, choices=range(1, 6), help="limit the level a reader reads the lines at (1-5)")
     ap.add_argument("--language", type=int, help="language id for the lines, in place of the speaker's")
+    ap.add_argument("--dialect", help="dialect name; a henchman with lang_dialect_<name> reads the lines at that level")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -94,6 +96,8 @@ def main():
                 params = [param("token", str(token)), param("text", english)]
                 if args.maxlevel:
                     params.append(param("maxlevel", str(args.maxlevel)))
+                if args.dialect:
+                    params.append(param("dialect", args.dialect))
                 if args.language:
                     params.append(param("language", str(args.language)))
                 link["ConditionParams"] = {"type": "list", "value": params}

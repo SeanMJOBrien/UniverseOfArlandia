@@ -24,6 +24,10 @@
 // reader of that level would, with the same unknown words every time. A capped
 // line gives no exposure. The script parameter language gives the line a
 // language of its own, for a placeable or item that has no npc_language.
+// A line can name its dialect (script parameter dialect, or the local string
+// npc_lang_dialect on the speaker). An interpreter henchman that has studied the
+// dialect (local int lang_dialect_<name> = 1-6 on the henchman) reads the line at
+// that level instead of the cap, still held to its own fluency in the language.
 // <race> in a line becomes the NPC's race. A sign language (Drow) is shown as a
 // description of the signing instead (see the sign languages in dmfi_lang_inc).
 
@@ -31,6 +35,8 @@
 
 const string DMFI_LANG_NPC_VAR = "npc_language";
 const string DMFI_LANG_CAP_VAR = "npc_lang_cap";
+const string DMFI_LANG_DIALECT_VAR = "npc_lang_dialect";
+const string DMFI_LANG_STUDIED_PREFIX = "lang_dialect_";
 
 // Language id the NPC speaks, or 0 for the common tongue.
 int LangNpcLanguage(object oNPC)
@@ -58,6 +64,17 @@ int LangCapped(int iFluency, int iCap)
 {
     if (iCap > 0 && iFluency > iCap) return iCap;
     return iFluency;
+}
+
+// The cap that applies to oReader for a line in sDialect: the line's iCap, raised
+// to the level oReader has studied the dialect to. 0 means no cap.
+int LangStudiedCap(object oReader, string sDialect, int iCap)
+{
+    if (iCap <= 0 || sDialect == "") return iCap;
+    int iStudied = GetLocalInt(oReader, DMFI_LANG_STUDIED_PREFIX + sDialect);
+    if (iStudied >= DMFI_LANG_NATIVE_LEVEL) return 0;
+    if (iStudied > iCap) return iStudied;
+    return iCap;
 }
 
 // sText as oPC reads it when oNPC says it. iLang overrides the speaker's
@@ -164,7 +181,7 @@ void LangInterpSay(object oHench, string sLine)
 
 // Called as a line is shown. sOptions: optional meanings of replies the player
 // cannot read, separated by "|" (script parameter "options").
-void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions, int iLang = 0, int iLineCap = 0)
+void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions, int iLang = 0, int iLineCap = 0, string sDialect = "")
 {
     if (!LangCfgInterpEnabled()) return;
     if (!iLang) iLang = LangNpcLanguage(oNPC);
@@ -177,7 +194,7 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions,
     if (!GetIsObjectValid(oHench)) return;
     int iLevel = LangFluency(oHench, iLang);
     if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
-    iLevel = LangCapped(iLevel, iCap);
+    iLevel = LangCapped(iLevel, LangStudiedCap(oHench, sDialect, iCap));
     if (iLevel <= iPlayer) return;
 
     // A condition can run more than once for one display.
@@ -218,8 +235,9 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions,
 
 // The script-parameter form, used by cond_lang_line. Parameters: token, text,
 // and optionally options (meanings of foreign-language replies, separated by "|"),
-// maxlevel (read the line at this level at most) and language (a language id for
-// the line, in place of the speaker's).
+// maxlevel (read the line at this level at most), language (a language id for
+// the line, in place of the speaker's) and dialect (names the dialect for
+// henchmen who have studied it).
 int LangDialogLine(object oPC, object oNPC)
 {
     int nToken = StringToInt(GetScriptParam("token"));
@@ -228,8 +246,10 @@ int LangDialogLine(object oPC, object oNPC)
     {
         int iLang = StringToInt(GetScriptParam("language"));
         int iCap = StringToInt(GetScriptParam("maxlevel"));
+        string sDialect = GetScriptParam("dialect");
+        if (sDialect == "") sDialect = GetLocalString(oNPC, DMFI_LANG_DIALECT_VAR);
         LangDialogToken(oPC, oNPC, nToken, sText, iLang, iCap);
-        LangDialogInterpret(oPC, oNPC, sText, GetScriptParam("options"), iLang, iCap);
+        LangDialogInterpret(oPC, oNPC, sText, GetScriptParam("options"), iLang, iCap, sDialect);
     }
     return TRUE;
 }

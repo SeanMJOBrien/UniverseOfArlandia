@@ -248,4 +248,7 @@ Setup: a fluent Dwarven character (`.teach dwarven 6` from a DM, or six books), 
 | M5 | Set `maxlevel` 4 on the link and `npc_lang_cap` 2 on the NPC | read at level 2 (the lower one) |
 | M6 | Hire an interpreter at level 6, `lang_interp_on` | the henchman says nothing for a level-6 player (both read at 4) |
 | M7 | Same henchman, a level-1 player | the henchman translates at level 4 at most, with `...` for unknown runs |
-
+| M8 | Hire Boddyknock (`lang_dialect_old_dwarven` = 5), use the Ancient Dwarven Tablet as a level-6 Dwarven character | he states a translation with fewer `...` than you read |
+| M9 | Set his `lang_dialect_old_dwarven` to 4 (or remove it) | he stays silent |
+| M10 | Set it to 6 | he reads the whole line (up to `lang_interp_max_level`) |
+| M11 | Use the tablet as a character without Dwarven | scrambled Dwarven, no `...` collapse |

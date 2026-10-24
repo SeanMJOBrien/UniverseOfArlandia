@@ -86,6 +86,24 @@ def hire_dialog():
                node("Farewell.", [], "EntriesList")]
     return dialog(entries, replies, [link(0)])
 
+TABLET_PAGES = [
+    "Here lies Durgrim Stonehelm, who held the Deep Gate nine winters against the dark and was not moved.",
+    "Let no stranger break this stone, nor carry from it the silver hammer that rests beneath, for it was sworn to the mountain.",
+    "Whoever reads this and keeps faith, the hall of our fathers is open to you. Whoever does not, the deep will remember.",
+]
+
+def tablet_dialog():
+    """Three pages of Dwarven read at level 4 at most (dialect old_dwarven)."""
+    params = lambda page, i: {"token": 60010 + i, "text": page, "maxlevel": 4, "language": 4, "dialect": "old_dwarven"}
+    entries = [node(f"<CUSTOM{60010 + i}>", [], "RepliesList") for i in range(len(TABLET_PAGES))]
+    # entry i offers "Read on." (reply i) except the last, plus "Step back." (reply 2)
+    for i, e in enumerate(entries):
+        e["RepliesList"] = s("list", ([link(i)] if i < 2 else []) + [link(2)])
+    replies = [node("Read on.", [link(1, "cond_lang_line", params(TABLET_PAGES[1], 1))], "EntriesList"),
+               node("Read on.", [link(2, "cond_lang_line", params(TABLET_PAGES[2], 2))], "EntriesList"),
+               node("Step back.", [], "EntriesList")]
+    return dialog(entries, replies, [link(0, "cond_lang_line", params(TABLET_PAGES[0], 0))])
+
 # --- creatures -----------------------------------------------------------
 def creature(base, resref, first, last, race, appearance, convo, variables, hench=False, desc=""):
     c = copy.deepcopy(base)
@@ -124,7 +142,7 @@ def main():
         shutil.copy(f, res / f.name)
 
     # test scripts
-    for n in ("act_lang_hire", "act_lang_dismiss"):
+    for n in ("act_lang_hire", "act_lang_dismiss", "lang_tablet_use"):
         shutil.copy(ROOT / f"tools/language_test/{n}.nss", res / f"{n}.nss")
         shutil.copy(ROOT / f"tools/language_test/{n}.nss", work / f"{n}.nss")
         run(NWNSC, "-i", ".", "-i", BASE, "-b", res, f"{n}.nss", cwd=work)
@@ -136,8 +154,8 @@ def main():
     elara = creature(goblin, "lang_elara", "Elara", "the Elf", 1, 1, "lang_tester", [],
                      desc="Elf language tester. An ordinary NPC (no lang_trainer).")
     boddy = creature(goblin, "lang_boddy", "Boddyknock", "the Interpreter", 0, 0, "lang_hire",
-                     [var("lang_known", "string", ",6:6,1:3,7:6,")], hench=True,
-                     desc="Dwarf henchman. Dwarven 6 (racial), Goblin 6, Elven 3, Draconic 6 (lang_known).")
+                     [var("lang_known", "string", ",6:6,1:3,7:6,"), var("lang_dialect_old_dwarven", "int", 5)], hench=True,
+                     desc="Dwarf henchman. Dwarven 6 (racial), Goblin 6, Elven 3, Draconic 6 (lang_known). Studied old_dwarven to level 5.")
     gruk = copy.deepcopy(goblin); gruk["Equip_ItemList"] = s("list", [])
     for name, c in (("lang_thorin", thorin), ("lang_elara", elara), ("lang_boddy", boddy)):
         to_gff({"__data_type": "UTC ", **{k: v for k, v in c.items() if k != "__data_type"}}, res / f"{name}.utc")
@@ -154,6 +172,21 @@ def main():
     chest["Comment"] = s("cexostring", "Contains one of each lang_book_* item; lang_shelf_fill restocks it.")
     to_gff({"__data_type": "UTP ", **{k: v for k, v in chest.items() if k != "__data_type"}}, res / "lang_chest.utp")
 
+    tablet = copy.deepcopy(shelf)
+    tablet["Appearance"] = s("dword", 238)
+    tablet["Tag"], tablet["TemplateResRef"] = s("cexostring", "lang_tablet"), s("resref", "lang_tablet")
+    tablet["LocName"] = loc("Ancient Dwarven Tablet")
+    tablet["Description"] = loc("A weathered stone tablet cut with old Dwarven runes. Use it to read.")
+    tablet["Comment"] = s("cexostring", "Dwarven text capped at level 4 (maxlevel 4, dialect old_dwarven). Use to read.")
+    tablet["Conversation"] = s("resref", "lang_tablet")
+    tablet["OnUsed"] = s("resref", "lang_tablet_use")
+    tablet["Useable"], tablet["HasInventory"], tablet["Static"] = s("byte", 1), s("byte", 0), s("byte", 0)
+    tablet["ItemList"] = s("list", [])
+    tablet["OnClosed"] = s("resref", "")
+    tablet["OnOpen"] = s("resref", "")
+    to_gff({"__data_type": "UTP ", **{k: v for k, v in tablet.items() if k != "__data_type"}}, res / "lang_tablet.utp")
+    to_gff(tablet_dialog(), res / "lang_tablet.dlg")
+
     # the area
     git = from_gff(res / "langtest.git")
     creatures, placeables = [], []
@@ -169,6 +202,9 @@ def main():
     c = instance(chest, 15.0, 26.0, 0.0, 0, 0, 9)
     c["X"], c["Y"], c["Z"], c["Bearing"] = s("float", 15.0), s("float", 26.0), s("float", 0.0), s("float", 3.14159)
     placeables.append(c)
+    t = instance(tablet, 22.0, 26.0, 0.0, 0, 0, 9)
+    t["X"], t["Y"], t["Z"], t["Bearing"] = s("float", 22.0), s("float", 26.0), s("float", 0.0), s("float", 3.14159)
+    placeables.append(t)
     git["Creature List"] = s("list", creatures)
     git["Placeable List"] = s("list", placeables)
     to_gff(git, res / "langtest.git")

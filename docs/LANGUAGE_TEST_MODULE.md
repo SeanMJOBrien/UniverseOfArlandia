@@ -18,7 +18,8 @@ One area, "Language Test Plaza": City Exterior, 3 x 3 tiles, flat cobble. You st
 | Gruk the Goblin | west | Language menu (every language plus Common). Ordinary NPC. |
 | Thorin the Dwarf (trainer) | east | Same menu, Dwarven by default. `lang_trainer` = 1, so he gives exposure in PC-only mode. |
 | Elara the Elf | centre | Same menu, Elven by default. Ordinary NPC. |
-| Boddyknock the Interpreter | south of centre | Dwarf henchman. Say "Join me" to hire him. Dwarven 6 (racial), Goblin 6, Elven 3, Draconic 6. |
+| Ancient Dwarven Tablet | north edge, east | Three pages of Dwarven read at level 4 at most (dialect `old_dwarven`). Use it to read; "Read on." turns the page. |
+| Boddyknock the Interpreter | south of centre | Dwarf henchman. Say "Join me" to hire him. Dwarven 6 (racial), Goblin 6, Elven 3, Draconic 6. He has studied `old_dwarven` to level 5. |
 
 Gruk's own greeting and the tester menu used by Thorin and Elara are the same menu; pick a language and the NPC says a sample line in it. The line shows as your fluency allows.
 
@@ -45,6 +46,8 @@ The cases are in `docs/LANGUAGE_TEST_SPEC.md`.
 3. Type `.lang`, pick a language you know, type a sentence and press Speak. Unknown words show as a single `...`.
 4. `.languages`, `.speak <language>`, `.speak off`.
 5. Quit and start a new game with the same character: the languages come back (campaign database).
+
+5. Give yourself Dwarven 6 (six Dwarven books, or `.teach dwarven 6` as a DM). Use the tablet: you read the text at level 4, with some words as `...`. Hire Boddyknock and use it again: he states a translation at level 5 (more words than you read). Dismiss him and the translation stops. Set `lang_interp_max_level` or his `lang_dialect_old_dwarven` to 4 or less and he stays silent.
 
 ## Notes
 
