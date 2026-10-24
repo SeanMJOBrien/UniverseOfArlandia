@@ -286,6 +286,20 @@ Optional parameters on the `cond_lang_line` link (or flags of `lang_dialog.py`):
 | `maxlevel` | `--maxlevel 1-5` | the reader reads the line at this level at most |
 | `language` | `--language <id>` | the line is in this language, in place of the speaker's |
 
+### Building a line by hand in the toolset
+
+`lang_dialog.py` only automates these steps. In the conversation editor of the Enhanced Edition toolset, for each NPC line you want language-aware:
+
+1. Set the text of the NPC line to a custom token, for example `<CUSTOM60010>`. Use a different number (60000 and up) for each language-aware line in the same conversation. The toolset shows the token, not the words.
+2. Set the line's "Text Appears When" script to `cond_lang_line`. The script is stored on the link into the line, which is how the toolset does it for any line. A starting line works the same way.
+3. In the parameters of that script, add `token` = `60010` (the same number) and `text` = the full plain line as a fluent speaker reads it.
+4. Add any optional parameters in the same list: `maxlevel`, `language`, `dialect`, `options`.
+5. Write narration (`*...*`) and language switches (`{2}`) inside the `text` value. A parameter is one line, so use a separate line of dialog for a paragraph break.
+
+If the line already needs a condition script of its own, write a short script that does its own check and then returns `LangDialogLine(GetPCSpeaker(), OBJECT_SELF)` (`#include "dmfi_lang_dialog"`), and put that script on the line instead.
+
+The `npc_language` variable on the NPC (or the `language` parameter) says which language the line is in. The module needs the language package, which holds `cond_lang_line`.
+
 ### Narration inside a line
 
 Some of a line is often not speech: what the creature does, how it looks. Put that text between asterisks. Narration is shown as written to every reader in every language, while the rest of the line is speech and follows the reader's fluency.
