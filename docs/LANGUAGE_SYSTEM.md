@@ -270,6 +270,34 @@ The NPC's language is its local int `npc_language` (a language id, or -1 for the
 
 `tools/lang_dialog.py <file.dlg.json>` converts the NPC lines in a dialog. It skips a node that already has a condition script on a link into it and reports the node. Such a node needs a hand-written call to `LangDialogToken`.
 
+### Adding language to a dialog
+
+Write each NPC line once, as the full plain text a fluent speaker reads. Do not write versions per fluency level, per language or per cap. The system masks the line for each reader.
+
+1. Set the speaker's language: the local int `npc_language` on the NPC (a language id, or -1 for the common tongue). A creature without it speaks its racial language, if it has one. A placeable or item that "speaks" needs the variable too, or the `language` parameter below.
+2. Convert the lines. Run `tools/lang_dialog.py <file.dlg.json>` on the dialog (add `--entries 0,3` for some lines only). Each chosen NPC line gets the text `<CUSTOM60000>` (and up) and the condition `cond_lang_line` on every link into it, with the parameters `token` and `text`.
+3. A link that already has a condition script cannot take a second one. Call `LangDialogLine()` from that script, or `LangDialogToken(oPC, oNPC, token, text)` by hand.
+
+Optional parameters on the `cond_lang_line` link (or flags of `lang_dialog.py`):
+
+| Parameter | Flag | Effect |
+|---|---|---|
+| `options` | | meanings of foreign-language replies, separated by `\|`, spoken by the interpreter henchman |
+| `maxlevel` | `--maxlevel 1-5` | the reader reads the line at this level at most |
+| `language` | `--language <id>` | the line is in this language, in place of the speaker's |
+
+### Archaic dialects and worn texts
+
+A line can be limited to a level below fluent, for an ancient dialect, a damaged inscription or a corrupted spell text. A fluent reader then reads it as a reader of that level would: the same words are unknown every time, and the unknown runs show as one `...`.
+
+- Per line: the parameter `maxlevel` on the link, for example `maxlevel` = 4 with `language` = 4 for Dwarven at level 4 at most.
+- Per speaker: the local int `npc_lang_cap` on the NPC, placeable or item that speaks. It limits every line it speaks.
+- When both are set, the lower one applies. A reader below the cap reads at their own level.
+- A capped line gives no language experience.
+- The interpreter henchman is limited by the same cap. A henchman at level 6 reads a level-4 line at 4, so it adds nothing for a player at 4 and stays silent.
+
+To make a readable object (a tablet, book page or scroll), give a placeable the dialog's conversation as its `OnUsed` conversation, set `npc_language` (or use the `language` parameter) and `npc_lang_cap`, and write each page as one NPC line with `Next` and `Close` replies.
+
 ### Interpreter henchman
 
 With `lang_interp_on`, a henchman who knows the NPC's language states a translation of each NPC line the player does not fully understand. The dialog window keeps the garbled line and the planned replies. The translation is spoken by the henchman (a bubble and a chat line) half a second after the line appears:

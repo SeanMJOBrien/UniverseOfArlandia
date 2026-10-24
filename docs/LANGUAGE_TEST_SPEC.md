@@ -234,3 +234,18 @@ Hire or add a henchman. Give the henchman languages through the creature variabl
 ## Recording results
 
 For each case record Pass, Fail or Blocked, the build, the character, and for a failure the exact on-screen text. For cases D5, D7, D8, F2, F3 and F4, copy the scrambled lines into the notes so repeat runs can be compared.
+
+## M. Level caps (maxlevel, npc_lang_cap)
+
+Setup: a fluent Dwarven character (`.teach dwarven 6` from a DM, or six books), and a dialog line converted with `--language 4 --maxlevel 4`, or an NPC with `npc_language` 4 and `npc_lang_cap` 4.
+
+| # | Step | Expected |
+|---|---|---|
+| M1 | Read the capped line as a Dwarven level-6 character | `(Dwarven)` prefix, some words replaced by one `...` per run |
+| M2 | Read it again, and after a relog | the same words are unknown each time |
+| M3 | Read it as a level-2 character | at least as many words unknown as in M1 |
+| M4 | Read it as a level-6 character with `lang_exp_on` | no experience from the line |
+| M5 | Set `maxlevel` 4 on the link and `npc_lang_cap` 2 on the NPC | read at level 2 (the lower one) |
+| M6 | Hire an interpreter at level 6, `lang_interp_on` | the henchman says nothing for a level-6 player (both read at 4) |
+| M7 | Same henchman, a level-1 player | the henchman translates at level 4 at most, with `...` for unknown runs |
+

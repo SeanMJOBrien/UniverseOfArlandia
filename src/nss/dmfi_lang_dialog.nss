@@ -18,12 +18,19 @@
 //   partial (1-5) a garbled version; listening improves it, as with chat
 //   no language   scrambled text in the NPC's language
 // Partial and unknown lines are prefixed with the language name.
+// A line can be read at a limited level, for an archaic dialect or a worn text:
+// the script parameter maxlevel on the link, or the local int npc_lang_cap on
+// the speaker (the lower one wins). A fluent reader then reads the line as a
+// reader of that level would, with the same unknown words every time. A capped
+// line gives no exposure. The script parameter language gives the line a
+// language of its own, for a placeable or item that has no npc_language.
 // <race> in a line becomes the NPC's race. A sign language (Drow) is shown as a
 // description of the signing instead (see the sign languages in dmfi_lang_inc).
 
 #include "dmfi_lang_inc"
 
 const string DMFI_LANG_NPC_VAR = "npc_language";
+const string DMFI_LANG_CAP_VAR = "npc_lang_cap";
 
 // Language id the NPC speaks, or 0 for the common tongue.
 int LangNpcLanguage(object oNPC)
@@ -34,15 +41,36 @@ int LangNpcLanguage(object oNPC)
     return GetDefaultRacialLanguage(oNPC, 0);
 }
 
-// sText as oPC reads it when oNPC says it.
-string LangDialogText(object oPC, object oNPC, string sText)
+// The level limit for a line: the lower of the line's maxlevel and the speaker's
+// npc_lang_cap, ignoring one that is not set. 0 means no limit.
+int LangLineCap(object oNPC, int iLineCap)
+{
+    int iNpcCap = GetLocalInt(oNPC, DMFI_LANG_CAP_VAR);
+    if (iNpcCap <= 0 || iNpcCap > DMFI_LANG_NATIVE_LEVEL) iNpcCap = 0;
+    if (iLineCap <= 0 || iLineCap > DMFI_LANG_NATIVE_LEVEL) iLineCap = 0;
+    if (!iNpcCap) return iLineCap;
+    if (!iLineCap) return iNpcCap;
+    return iNpcCap < iLineCap ? iNpcCap : iLineCap;
+}
+
+// Fluency a reader reads a line at: theirs, held to the line's cap.
+int LangCapped(int iFluency, int iCap)
+{
+    if (iCap > 0 && iFluency > iCap) return iCap;
+    return iFluency;
+}
+
+// sText as oPC reads it when oNPC says it. iLang overrides the speaker's
+// language when above 0; iLineCap is the line's maxlevel (0 for none).
+string LangDialogText(object oPC, object oNPC, string sText, int iLang = 0, int iLineCap = 0)
 {
     sText = LangExpandVars(sText, oNPC);
-    int iLang = LangNpcLanguage(oNPC);
+    if (!iLang) iLang = LangNpcLanguage(oNPC);
     if (!iLang) return sText;
     if (LangIsSign(iLang)) return LangSignLine(oNPC, oPC, iLang, sText);
 
-    int iFluency = LangFluency(oPC, iLang);
+    int iCap = LangLineCap(oNPC, iLineCap);
+    int iFluency = LangCapped(LangFluency(oPC, iLang), iCap);
     if (iFluency >= DMFI_LANG_NATIVE_LEVEL) return sText;
 
     string sPrefix = "";
@@ -51,7 +79,7 @@ string LangDialogText(object oPC, object oNPC, string sText)
 
     if (iFluency > 0)
     {
-        LangGainExposure(oPC, iLang, oNPC);
+        if (!iCap) LangGainExposure(oPC, iLang, oNPC);
         return sPrefix + LangGarble(sText, iFluency, iLang, oPC);
     }
     string sScrambled = LangScramble(iLang, sText);
@@ -60,9 +88,9 @@ string LangDialogText(object oPC, object oNPC, string sText)
 }
 
 // For a hand-written condition script: sets nToken to sText as oPC reads it.
-void LangDialogToken(object oPC, object oNPC, int nToken, string sText)
+void LangDialogToken(object oPC, object oNPC, int nToken, string sText, int iLang = 0, int iLineCap = 0)
 {
-    SetCustomToken(nToken, LangDialogText(oPC, oNPC, sText));
+    SetCustomToken(nToken, LangDialogText(oPC, oNPC, sText, iLang, iLineCap));
 }
 
 // --- interpreter henchman
@@ -136,18 +164,20 @@ void LangInterpSay(object oHench, string sLine)
 
 // Called as a line is shown. sOptions: optional meanings of replies the player
 // cannot read, separated by "|" (script parameter "options").
-void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions)
+void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions, int iLang = 0, int iLineCap = 0)
 {
     if (!LangCfgInterpEnabled()) return;
-    int iLang = LangNpcLanguage(oNPC);
+    if (!iLang) iLang = LangNpcLanguage(oNPC);
     if (!iLang) return;
-    int iPlayer = LangFluency(oPC, iLang);
+    int iCap = LangLineCap(oNPC, iLineCap);
+    int iPlayer = LangCapped(LangFluency(oPC, iLang), iCap);
     if (iPlayer >= DMFI_LANG_NATIVE_LEVEL) return;
 
     object oHench = LangInterpreter(oPC, iLang);
     if (!GetIsObjectValid(oHench)) return;
     int iLevel = LangFluency(oHench, iLang);
     if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
+    iLevel = LangCapped(iLevel, iCap);
     if (iLevel <= iPlayer) return;
 
     // A condition can run more than once for one display.
@@ -187,15 +217,19 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions)
 }
 
 // The script-parameter form, used by cond_lang_line. Parameters: token, text,
-// and optionally options (meanings of foreign-language replies, separated by "|").
+// and optionally options (meanings of foreign-language replies, separated by "|"),
+// maxlevel (read the line at this level at most) and language (a language id for
+// the line, in place of the speaker's).
 int LangDialogLine(object oPC, object oNPC)
 {
     int nToken = StringToInt(GetScriptParam("token"));
     string sText = GetScriptParam("text");
     if (nToken > 0 && sText != "")
     {
-        LangDialogToken(oPC, oNPC, nToken, sText);
-        LangDialogInterpret(oPC, oNPC, sText, GetScriptParam("options"));
+        int iLang = StringToInt(GetScriptParam("language"));
+        int iCap = StringToInt(GetScriptParam("maxlevel"));
+        LangDialogToken(oPC, oNPC, nToken, sText, iLang, iCap);
+        LangDialogInterpret(oPC, oNPC, sText, GetScriptParam("options"), iLang, iCap);
     }
     return TRUE;
 }
