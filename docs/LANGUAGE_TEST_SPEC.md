@@ -265,3 +265,15 @@ Setup: Gruk's sample line is `*The <race> says,* the road to the hills ... *The 
 | N4 | Hire Boddyknock (Goblin 6), ask Gruk for Goblin | he says "The Goblin says: the road to the hills ..." with no "says" twice and no glance line |
 | N5 | Ask Gruk for Drow (sign) | the signing description, then the glance |
 
+## O. One line in every language
+
+Setup: Gruk or Thorin, reply "[All] Say one sentence in every language."
+
+| # | Step | Expected |
+|---|---|---|
+| O1 | Read the line with no languages | 13 labelled sentences (`Elven:`, `Gnome:`, ... `Drow (sign):`), each label in English, each sentence scrambled in its own language; the Drow part is a signing description |
+| O2 | Teach yourself Dwarven 6 (`.teach dwarven 6`) | the Dwarven sentence reads in full, the others stay scrambled |
+| O3 | Teach Gnome 2 | the Gnome sentence is partly `...`, other sentences unchanged |
+| O4 | Hire Boddyknock with `lang_interp_on` | he says nothing for this line |
+| O5 | With `lang_exp_on`, read the line twice within the cooldown | at most one point per language you partly know, as with any line |
+

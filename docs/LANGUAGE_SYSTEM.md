@@ -301,6 +301,18 @@ Some of a line is often not speech: what the creature does, how it looks. Put th
 - `<race>` works inside narration as everywhere. Names (`Gruk says,`) are plain text and are never masked.
 - A line without asterisks is all speech, as before. Do not use `*` as a literal asterisk in a language-aware line.
 
+### Several languages in one line
+
+`{id}` in a line switches the language of the speech after it, up to the next switch. `{0}` is plain text. The ids are in the language table (1 Elven, 2 Gnome, 3 Halfling, 4 Dwarven, 5 Orc, 6 Goblin, 7 Draconic, 8 Animal, 9 Thieves' Cant, 10 Celestial, 11 Abyssal, 12 Infernal, 13 Drow sign). Combine it with narration to label each part:
+
+`*Gnome: *{2}The little gears turn slowly. *Elven: *{1}Starlight lingers upon the leaves.`
+
+- Each part is read at the reader's fluency in that part's language. A level cap (`maxlevel`, `npc_lang_cap`) applies to every part.
+- The language before the first switch is the line's own (`language` parameter, `npc_language`, or the racial language).
+- Each part with some fluency can give exposure in its language, under the usual rules.
+- The interpreter henchman does not translate a line that has switches.
+- A `{` without a closing `}` is shown as written.
+
 ### Archaic dialects and worn texts
 
 A line can be limited to a level below fluent, for an ancient dialect, a damaged inscription or a corrupted spell text. A fluent reader then reads it as a reader of that level would: the same words are unknown every time, and the unknown runs show as one `...`.

@@ -30,6 +30,8 @@
 // that level instead of the cap, still held to its own fluency in the language.
 // Text between asterisks in a line is narration (what the creature does, not
 // says) and is always shown as written. See "narration inside a line" below.
+// {id} in a line switches the language of the speech after it, up to the next
+// switch ({0} is plain text): one line can carry several languages.
 // <race> in a line becomes the NPC's race. A sign language (Drow) is shown as a
 // description of the signing instead (see the sign languages in dmfi_lang_inc).
 
@@ -87,6 +89,8 @@ int LangStudiedCap(object oReader, string sDialect, int iCap)
 // A line without asterisks is all speech.
 
 const string DMFI_LANG_NARRATION_MARK = "*";
+const string DMFI_LANG_SWITCH_OPEN = "{";
+const string DMFI_LANG_SWITCH_CLOSE = "}";
 
 int LangHasNarration(string sText)
 {
@@ -117,28 +121,6 @@ string LangTextParts(string sText, int bNarration)
             sOut += sPart;
         }
         bInNarration = !bInNarration;
-    }
-    return sOut;
-}
-
-// sText without the asterisks, speech and narration in their order.
-string LangRemoveMarks(string sText)
-{
-    string sOut = "";
-    string sRest = sText;
-    while (sRest != "")
-    {
-        int iPos = FindSubString(sRest, DMFI_LANG_NARRATION_MARK);
-        if (iPos == -1)
-        {
-            sOut += sRest;
-            sRest = "";
-        }
-        else
-        {
-            sOut += GetStringLeft(sRest, iPos);
-            sRest = GetStringRight(sRest, GetStringLength(sRest) - iPos - 1);
-        }
     }
     return sOut;
 }
@@ -181,46 +163,77 @@ string LangReadSpeech(object oPC, object oNPC, string sSpeech, int iLang, int iF
     return sLead + sRead + sTrail;
 }
 
-// sText as oPC reads it when oNPC says it. iLang overrides the speaker's
-// language when above 0; iLineCap is the line's maxlevel (0 for none).
-string LangDialogText(object oPC, object oNPC, string sText, int iLang = 0, int iLineCap = 0)
+// One speech segment in language iLang as oPC reads it. Language 0 is plain text.
+string LangReadSegment(object oPC, object oNPC, string sSpeech, int iLang, int iCap)
 {
-    sText = LangExpandVars(sText, oNPC);
-    int bNarration = LangHasNarration(sText);
-    if (!iLang) iLang = LangNpcLanguage(oNPC);
-    if (!iLang) return LangRemoveMarks(sText);
-    if (LangIsSign(iLang))
-    {
-        if (!bNarration) return LangSignLine(oNPC, oPC, iLang, sText);
-        return LangSignLine(oNPC, oPC, iLang, LangTextParts(sText, FALSE)) + " " + LangTextParts(sText, TRUE);
-    }
-
-    int iCap = LangLineCap(oNPC, iLineCap);
+    if (iLang <= 0) return sSpeech;
+    if (LangIsSign(iLang)) return LangSignLine(oNPC, oPC, iLang, sSpeech);
     int iFluency = LangCapped(LangFluency(oPC, iLang), iCap);
-    if (!bNarration) return LangReadSpeech(oPC, oNPC, sText, iLang, iFluency, iCap, TRUE);
+    return LangReadSpeech(oPC, oNPC, sSpeech, iLang, iFluency, iCap, FALSE);
+}
 
+// A line with narration marks (*...*) or language switches ({id}): reads it part by
+// part. {id} switches the language of the speech that follows, until the next
+// switch; {0} is plain text. Narration is left as written.
+string LangDialogMarked(object oPC, object oNPC, string sText, int iLang, int iCap)
+{
     string sOut = "";
     string sRest = sText;
     int bInNarration = FALSE;
     while (sRest != "")
     {
+        int iStar = FindSubString(sRest, DMFI_LANG_NARRATION_MARK);
+        int iBrace = bInNarration ? -1 : FindSubString(sRest, DMFI_LANG_SWITCH_OPEN);
+        if (iBrace != -1 && (iStar == -1 || iBrace < iStar))
+        {
+            string sBefore = GetStringLeft(sRest, iBrace);
+            string sAfter = GetStringRight(sRest, GetStringLength(sRest) - iBrace - 1);
+            int iClose = FindSubString(sAfter, DMFI_LANG_SWITCH_CLOSE);
+            if (sBefore != "") sOut += LangReadSegment(oPC, oNPC, sBefore, iLang, iCap);
+            if (iClose == -1)
+            {
+                sOut += DMFI_LANG_SWITCH_OPEN;
+                sRest = sAfter;
+            }
+            else
+            {
+                iLang = StringToInt(GetStringLeft(sAfter, iClose));
+                sRest = GetStringRight(sAfter, GetStringLength(sAfter) - iClose - 1);
+            }
+            continue;
+        }
         string sPart = sRest;
-        int iPos = FindSubString(sRest, DMFI_LANG_NARRATION_MARK);
-        if (iPos == -1)
+        if (iStar == -1)
             sRest = "";
         else
         {
-            sPart = GetStringLeft(sRest, iPos);
-            sRest = GetStringRight(sRest, GetStringLength(sRest) - iPos - 1);
+            sPart = GetStringLeft(sRest, iStar);
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iStar - 1);
         }
         if (GetStringLength(sPart) > 0)
         {
             if (bInNarration) sOut += sPart;
-            else sOut += LangReadSpeech(oPC, oNPC, sPart, iLang, iFluency, iCap, FALSE);
+            else sOut += LangReadSegment(oPC, oNPC, sPart, iLang, iCap);
         }
         bInNarration = !bInNarration;
     }
     return sOut;
+}
+
+// sText as oPC reads it when oNPC says it. iLang overrides the speaker's
+// language when above 0; iLineCap is the line's maxlevel (0 for none).
+string LangDialogText(object oPC, object oNPC, string sText, int iLang = 0, int iLineCap = 0)
+{
+    sText = LangExpandVars(sText, oNPC);
+    if (!iLang) iLang = LangNpcLanguage(oNPC);
+    int iCap = LangLineCap(oNPC, iLineCap);
+    if (LangHasNarration(sText) || FindSubString(sText, DMFI_LANG_SWITCH_OPEN) != -1)
+        return LangDialogMarked(oPC, oNPC, sText, iLang, iCap);
+
+    if (!iLang) return sText;
+    if (LangIsSign(iLang)) return LangSignLine(oNPC, oPC, iLang, sText);
+    int iFluency = LangCapped(LangFluency(oPC, iLang), iCap);
+    return LangReadSpeech(oPC, oNPC, sText, iLang, iFluency, iCap, TRUE);
 }
 
 // For a hand-written condition script: sets nToken to sText as oPC reads it.
@@ -322,6 +335,8 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions,
     SetLocalString(oPC, DMFI_LANG_INTERP_KEY, sKey);
     DelayCommand(3.0, DeleteLocalString(oPC, DMFI_LANG_INTERP_KEY));
 
+    // A line that switches language ({id}) is not interpreted.
+    if (FindSubString(sText, DMFI_LANG_SWITCH_OPEN) != -1) return;
     // Narration is shown to the player as written; the henchman translates speech only.
     string sPlain = LangExpandVars(sText, oNPC);
     if (LangHasNarration(sPlain)) sPlain = LangTextParts(sPlain, FALSE);
