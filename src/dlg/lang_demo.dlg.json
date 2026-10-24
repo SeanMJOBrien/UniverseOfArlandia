@@ -31,7 +31,7 @@
         },
         "Comment": {
           "type": "cexostring",
-          "value": ""
+          "value": "Gruk is Gruk! Gruk talk any tongue you like. Pick one and Gruk say something, <race> friend."
         },
         "Delay": {
           "type": "dword",
@@ -313,7 +313,7 @@
         },
         "Comment": {
           "type": "cexostring",
-          "value": ""
+          "value": "*The <race> says,* the road to the hills is long, the water is cold, and a <race> should never trust a goblin with the last of the bread. Danger is near. *The <race> glances over a shoulder.*"
         },
         "Delay": {
           "type": "dword",
@@ -595,7 +595,7 @@
         },
         "Comment": {
           "type": "cexostring",
-          "value": ""
+          "value": "*Elven: *{1}Starlight lingers long upon the silver leaves.*\nGnome: *{2}The little gears turn slowly, but they turn true.*\nHalfling: *{3}A warm hearth and a full pot beat any treasure.*\nDwarven: *{4}Good stone never forgets a steady hand.*\nOrc: *{5}Strong arms break the gate before the sun is high.*\nGoblin: *{6}Shiny things go in the pocket and the pocket goes away.*\nDraconic: *{7}Fire remembers every name that was spoken to it.*\nAnimal: *{8}The wind carries fear and the grass carries blood.*\nThieves' Cant: *{9}The mark is soft, the lock is old, and the watch sleeps.*\nCelestial: *{10}Light finds the road for those who ask it kindly.*\nAbyssal: *{11}Every chain is a promise waiting to be broken.*\nInfernal: *{12}A bargain well made is a debt that never ends.*\nDrow (sign): *{13}Two shadows follow you. Do not turn."
         },
         "Delay": {
           "type": "dword",

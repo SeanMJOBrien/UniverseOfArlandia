@@ -51,8 +51,8 @@ def link(index, script="", params=None):
     if params: d["ConditionParams"] = s("list", [kv(k, v) for k, v in params.items()])
     return d
 
-def node(text, links, key, script="", params=None):
-    d = {"__struct_id": 0, "Animation": s("dword", 0), "AnimLoop": s("byte", 1), "Comment": s("cexostring", ""),
+def node(text, links, key, script="", params=None, comment=""):
+    d = {"__struct_id": 0, "Animation": s("dword", 0), "AnimLoop": s("byte", 1), "Comment": s("cexostring", comment),
          "Delay": s("dword", 4294967295), key: s("list", links), "Quest": s("cexostring", ""),
          "Script": s("resref", script), "Sound": s("resref", ""), "Text": loc(text)}
     if params: d["ActionParams"] = s("list", [kv(k, v) for k, v in params.items()])
@@ -62,9 +62,9 @@ def node(text, links, key, script="", params=None):
 # 14 every language, 15 goodbye.
 menu_links = lambda: [link(i) for i in range(len(LANGS) + 2)]
 entries = [
-    node("<CUSTOM%d>" % TOKEN_GREET, menu_links(), "RepliesList"),
-    node("<CUSTOM%d>" % TOKEN_SAY, menu_links(), "RepliesList"),
-    node("<CUSTOM%d>" % TOKEN_ALL, menu_links(), "RepliesList"),
+    node("<CUSTOM%d>" % TOKEN_GREET, menu_links(), "RepliesList", comment=GREET),
+    node("<CUSTOM%d>" % TOKEN_SAY, menu_links(), "RepliesList", comment=SAMPLE),
+    node("<CUSTOM%d>" % TOKEN_ALL, menu_links(), "RepliesList", comment=ALL),
 ]
 replies = []
 for label, arg in LANGS:

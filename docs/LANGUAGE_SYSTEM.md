@@ -290,7 +290,7 @@ Optional parameters on the `cond_lang_line` link (or flags of `lang_dialog.py`):
 
 `lang_dialog.py` only automates these steps. In the conversation editor of the Enhanced Edition toolset, for each NPC line you want language-aware:
 
-1. Set the text of the NPC line to a custom token, for example `<CUSTOM60010>`. Use a different number (60000 and up) for each language-aware line in the same conversation. The toolset shows the token, not the words.
+1. Set the text of the NPC line to a custom token, for example `<CUSTOM60010>`. Use a different number (60000 and up) for each language-aware line in the same conversation. The toolset shows the token, not the words. Text outside the token, such as `<CUSTOM60010> He nods.`, is shown to every reader as written. Copy the full plain line into the node's Comment field too, so it stays readable in the toolset (the game does not use the comment; `lang_dialog.py` fills it in).
 2. Set the line's "Text Appears When" script to `cond_lang_line`. The script is stored on the link into the line, which is how the toolset does it for any line. A starting line works the same way.
 3. In the parameters of that script, add `token` = `60010` (the same number) and `text` = the full plain line as a fluent speaker reads it.
 4. Add any optional parameters in the same list: `maxlevel`, `language`, `dialect`, `options`.

@@ -9,6 +9,9 @@ token per player: the real text for fluent speakers, a partial version for
 partial speakers, and scrambled text for everyone else, in the NPC's language
 (local int npc_language on the NPC, or its racial language).
 
+The original line is also written to the node's Comment field, so it stays readable
+in the toolset (the game does not use it).
+
 A link that already has a condition script cannot take a second one. An entry
 with any such link is skipped and reported; call LangDialogLine() from that
 condition script by hand instead (see dmfi_lang_dialog.nss).
@@ -87,6 +90,10 @@ def main():
             print(f"entry {index}: skipped, a link already has a condition script ({names})")
             continue
 
+        if not args.dry_run:
+            old = entry.get("Comment", {}).get("value", "")
+            if not old.startswith(english):
+                entry["Comment"] = {"type": "cexostring", "value": english + ("\n" + old if old else "")}
         print(f"entry {index}: <CUSTOM{token}> {english[:50]!r}")
         if not args.dry_run:
             for key in entry["Text"]["value"]:

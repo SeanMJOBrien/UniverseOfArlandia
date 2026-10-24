@@ -44,8 +44,8 @@ def link(index, script="", params=None):
         d["ConditionParams"] = s("list", [{"__struct_id": 0, "Key": s("cexostring", k), "Value": s("cexostring", str(v))} for k, v in params.items()])
     return d
 
-def node(text, links, key, script="", params=None):
-    d = {"__struct_id": 0, "Animation": s("dword", 0), "AnimLoop": s("byte", 1), "Comment": s("cexostring", ""),
+def node(text, links, key, script="", params=None, comment=""):
+    d = {"__struct_id": 0, "Animation": s("dword", 0), "AnimLoop": s("byte", 1), "Comment": s("cexostring", comment),
          "Delay": s("dword", 4294967295), key: s("list", links), "Quest": s("cexostring", ""),
          "Script": s("resref", script), "Sound": s("resref", ""), "Text": loc(text)}
     if params:
@@ -91,7 +91,7 @@ TABLET_PAGES = [
 def tablet_dialog():
     """Three pages of Dwarven read at level 4 at most (dialect old_dwarven)."""
     params = lambda page, i: {"token": 60010 + i, "text": page, "maxlevel": 4, "language": 4, "dialect": "old_dwarven"}
-    entries = [node(f"<CUSTOM{60010 + i}>", [], "RepliesList") for i in range(len(TABLET_PAGES))]
+    entries = [node(f"<CUSTOM{60010 + i}>", [], "RepliesList", comment=page) for i, page in enumerate(TABLET_PAGES)]
     # entry i offers "Read on." (reply i) except the last, plus "Step back." (reply 2)
     for i, e in enumerate(entries):
         e["RepliesList"] = s("list", ([link(i)] if i < 2 else []) + [link(2)])
