@@ -20,8 +20,8 @@ LANGS = [("Elven", "Elven"), ("Gnome", "Gnome"), ("Halfling", "Halfling"), ("Dwa
          ("Infernal", "Infernal"), ("Drow (sign)", "Drow"), ("Common", "common")]
 
 GREET = "Gruk is Gruk! Gruk talk any tongue you like. Pick one and Gruk say something, <race> friend."
-SAMPLE = ("Gruk say: the road to the hills is long, the water is cold, and a <race> should never "
-          "trust a goblin with the last of the bread. Danger is near.")
+SAMPLE = ("*The <race> says,* the road to the hills is long, the water is cold, and a <race> should never "
+          "trust a goblin with the last of the bread. Danger is near. *The <race> glances over a shoulder.*")
 
 def s(k, v): return {"type": k, "value": v}
 def loc(t): return s("cexolocstring", {"0": t})

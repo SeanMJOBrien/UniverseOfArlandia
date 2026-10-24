@@ -71,10 +71,6 @@ def tester_dialog():
         pass
     for r in src["ReplyList"]["value"]:
         if "Farewell" in r["Text"]["value"]["0"]: r["Text"]["value"]["0"] = "Farewell."
-    for st in [src["StartingList"]["value"][0]] + [l for r in src["ReplyList"]["value"] for l in r["EntriesList"]["value"]]:
-        for p in st.get("ConditionParams", s("list", []))["value"]:
-            if p["Key"]["value"] == "text":
-                p["Value"]["value"] = p["Value"]["value"].replace("Gruk say:", "I say:")
     return src
 
 def hire_dialog():

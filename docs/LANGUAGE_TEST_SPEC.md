@@ -252,3 +252,16 @@ Setup: a fluent Dwarven character (`.teach dwarven 6` from a DM, or six books), 
 | M9 | Set his `lang_dialect_old_dwarven` to 4 (or remove it) | he stays silent |
 | M10 | Set it to 6 | he reads the whole line (up to `lang_interp_max_level`) |
 | M11 | Use the tablet as a character without Dwarven | scrambled Dwarven, no `...` collapse |
+
+## N. Narration inside a line
+
+Setup: Gruk's sample line is `*The <race> says,* the road to the hills ... *The <race> glances over a shoulder.*`.
+
+| # | Step | Expected |
+|---|---|---|
+| N1 | Ask Gruk for Goblin as a Goblin-level-6 character | "The Goblin says, the road to the hills is long ... The Goblin glances over a shoulder." No asterisks shown |
+| N2 | Same with no Goblin | "The Goblin says," and the glance in plain English; the speech between is scrambled |
+| N3 | Same at Goblin level 2 | the same attribution and glance; speech partly `...`, one `...` per run |
+| N4 | Hire Boddyknock (Goblin 6), ask Gruk for Goblin | he says "The Goblin says: the road to the hills ..." with no "says" twice and no glance line |
+| N5 | Ask Gruk for Drow (sign) | the signing description, then the glance |
+

@@ -286,6 +286,21 @@ Optional parameters on the `cond_lang_line` link (or flags of `lang_dialog.py`):
 | `maxlevel` | `--maxlevel 1-5` | the reader reads the line at this level at most |
 | `language` | `--language <id>` | the line is in this language, in place of the speaker's |
 
+### Narration inside a line
+
+Some of a line is often not speech: what the creature does, how it looks. Put that text between asterisks. Narration is shown as written to every reader in every language, while the rest of the line is speech and follows the reader's fluency.
+
+- Write: `*The <race> says,* the water is cold and the footing poor. *The <race> looks around nervously.*`
+- A fluent reader sees: The Gnome says, the water is cold and the footing poor. The Gnome looks around nervously.
+- A partial reader sees: The Gnome says, the water ... cold ... footing ... The Gnome looks around nervously.
+- A reader with no Gnome sees the attribution and the narration in English and scrambled words in between.
+- Spaces next to an asterisk are kept, so write the space where you want it.
+- A line with narration gets no `(Language)` prefix, since the narration already names who speaks.
+- The interpreter henchman translates only the speech parts. If a line is all narration it says nothing.
+- A sign language shows the signing description for the speech parts, then the narration.
+- `<race>` works inside narration as everywhere. Names (`Gruk says,`) are plain text and are never masked.
+- A line without asterisks is all speech, as before. Do not use `*` as a literal asterisk in a language-aware line.
+
 ### Archaic dialects and worn texts
 
 A line can be limited to a level below fluent, for an ancient dialect, a damaged inscription or a corrupted spell text. A fluent reader then reads it as a reader of that level would: the same words are unknown every time, and the unknown runs show as one `...`.
