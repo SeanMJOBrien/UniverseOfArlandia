@@ -23,6 +23,12 @@ Usage:
   tools/lang_dialog.py src/dlg/foo.dlg.json --maxlevel 4    read the lines at level 4 at most
   tools/lang_dialog.py src/dlg/foo.dlg.json --dialect old_dwarven   name the dialect (henchmen who studied it read higher)
   tools/lang_dialog.py src/dlg/foo.dlg.json --language 4    give the lines a language (id)
+  tools/lang_dialog.py src/dlg/foo.dlg.json --check         report mismatches, change nothing
+
+--check compares each tokenised entry with the links into it: the token in the node text
+and the "token" parameter must agree on every link, every link needs the condition and a
+"text" parameter, the links to one node must carry the same text, the Comment should start
+with that text, and no token may be used by two nodes. Exit status 1 when anything is found.
 """
 import argparse
 import json
@@ -54,6 +60,53 @@ def links_to(dlg, index):
     return links
 
 
+def params_of(link):
+    return {p["Key"]["value"]: p["Value"]["value"] for p in link.get("ConditionParams", {}).get("value", [])}
+
+
+def check(dlg, name):
+    """Report mismatches between node tokens and link parameters; return the problem count."""
+    problems = []
+    seen = {}
+    entries = dlg["EntryList"]["value"]
+    for index, entry in enumerate(entries):
+        tokens = re.findall(r"<CUSTOM(\d+)>", " ".join(entry["Text"]["value"].values()))
+        links = links_to(dlg, index)
+        lang_links = [l for l in links if l["Active"]["value"] == CONDITION]
+        if not tokens:
+            if lang_links:
+                problems.append(f"entry {index}: a link has {CONDITION} but the node text has no token")
+            continue
+        if len(set(tokens)) > 1:
+            problems.append(f"entry {index}: node text holds several tokens ({', '.join(sorted(set(tokens)))})")
+        token = tokens[0]
+        if token in seen:
+            problems.append(f"entry {index}: token {token} is also used by entry {seen[token]}")
+        seen[token] = index
+        if not links:
+            problems.append(f"entry {index}: token {token} but nothing links to the node")
+        texts = set()
+        for link in links:
+            if link["Active"]["value"] != CONDITION:
+                problems.append(f"entry {index}: token {token} but a link has condition '{link['Active']['value']}', not {CONDITION}")
+                continue
+            values = params_of(link)
+            if values.get("token") != token:
+                problems.append(f"entry {index}: node token {token}, link token parameter {values.get('token')!r}")
+            if not values.get("text", "").strip():
+                problems.append(f"entry {index}: token {token}, link has no text parameter")
+            texts.add(values.get("text", ""))
+        if len(texts) > 1:
+            problems.append(f"entry {index}: links to token {token} carry different text parameters")
+        elif texts:
+            comment = entry.get("Comment", {}).get("value", "")
+            if not comment.startswith(next(iter(texts))):
+                problems.append(f"entry {index}: Comment does not start with the text parameter (warning only)")
+    for line in problems:
+        print(f"{name}: {line}")
+    return len(problems)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("dlg", help="a .dlg.json file (nwn_gff JSON)")
@@ -63,10 +116,15 @@ def main():
     ap.add_argument("--language", type=int, help="language id for the lines, in place of the speaker's")
     ap.add_argument("--dialect", help="dialect name; a henchman with lang_dialect_<name> reads the lines at that level")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--check", action="store_true", help="report token/text mismatches and exit")
     args = ap.parse_args()
 
     with open(args.dlg, encoding="utf-8") as fh:
         dlg = json.load(fh)
+    if args.check:
+        count = check(dlg, args.dlg)
+        print(f"{count} problem(s) found" if count else "no mismatches")
+        return 1 if count else 0
     entries = dlg["EntryList"]["value"]
     wanted = range(len(entries)) if not args.entries else [int(x) for x in args.entries.split(",")]
 

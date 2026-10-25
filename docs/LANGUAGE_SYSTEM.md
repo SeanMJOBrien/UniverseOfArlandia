@@ -268,7 +268,7 @@ A dialog node cannot change its text per player. NPC lines in a language use a c
 
 The NPC's language is its local int `npc_language` (a language id, or -1 for the common tongue). Without that variable, the NPC speaks its racial language, if it has one.
 
-`tools/lang_dialog.py <file.dlg.json>` converts the NPC lines in a dialog. It skips a node that already has a condition script on a link into it and reports the node. Such a node needs a hand-written call to `LangDialogToken`.
+`tools/lang_dialog.py <file.dlg.json>` converts the NPC lines in a dialog. It skips a node that already has a condition script on a link into it and reports the node. Such a node needs a hand-written call to `LangDialogToken`. `tools/lang_dialog.py <file.dlg.json> --check` changes nothing and reports lines whose node token and link `token` parameter differ, links without the condition or `text`, links to one node with different text, a Comment that does not start with the text, and a token used by two nodes. It exits with status 1 when it finds any.
 
 ### Adding language to a dialog
 
