@@ -27,4 +27,12 @@ void main()
     {
         if (GetLocalInt(GetModule(), SC_ACTIVE)) ScEndBattle(0);
     }
+    else if (sElement == SCNUI_FOLLOW)
+    {
+        AttachCamera(oPC, ScShip(1));
+    }
+    else if (sElement == SCNUI_SHORE)
+    {
+        ScReturnToShore(oPC);
+    }
 }

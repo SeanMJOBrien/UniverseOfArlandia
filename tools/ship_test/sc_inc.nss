@@ -571,6 +571,15 @@ void ScBeginRound()
     ScTick(GetLocalInt(oMod, SC_GEN), SC_PLOT_SECONDS);
 }
 
+// Camera back on the player and the player back on the shore start point.
+void ScReturnToShore(object oPC)
+{
+    AttachCamera(oPC, oPC);
+    location lShore = Location(GetArea(oPC), Vector(50.0, 6.0, 0.0), 90.0);
+    AssignCommand(oPC, ClearAllActions());
+    AssignCommand(oPC, JumpToLocation(lShore));
+}
+
 void ScEndBattle(int nResult)
 {
     object oMod = GetModule();
@@ -584,6 +593,8 @@ void ScEndBattle(int nResult)
     ScRefreshUi();
     // ships return to their moorings a few seconds later so the result can be read
     DelayCommand(6.0, ScInitAll());
+    object oPC = GetLocalObject(oMod, SC_PC);
+    if (GetIsObjectValid(oPC)) DelayCommand(6.0, AttachCamera(oPC, oPC));
 }
 
 void ScStartBattle(object oPC)
@@ -602,5 +613,6 @@ void ScStartBattle(object oPC)
     SetLocalString(oMod, SC_LOG, "");
     SetLocalObject(ScShip(1), "sc_pilot", oPC);
     ExecuteScript("sc_ui_open", oPC);
+    AttachCamera(oPC, ScShip(1));
     ScBeginRound();
 }

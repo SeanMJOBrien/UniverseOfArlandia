@@ -38,6 +38,8 @@ The ships are the base game's "Ship - Tiny" placeables. Everyone stands on the s
 | Target | The ship the guns aim at. |
 | Fire port / starboard guns | Fire that broadside if the target is in its arc and range. |
 | Ready | Ends the plotting phase now. |
+| Follow ship | Attaches the camera to the Gull (done automatically when the battle starts). |
+| Return to shore | Returns the camera to the player and moves the player to the shore start point. |
 
 ### Rules
 
@@ -78,7 +80,8 @@ These are the points most likely to need a fix, since none of the code has run i
 4. The Ship Orders window: layout, the map (drawn with NUI draw-list items), and the combo boxes. The draw list cannot be bound as a whole, so the map is a fixed list of items (sea, shore, grid, and an outline, label and target line per ship) whose points, colours and text are bound and pushed every second and after each change.
 5. Whether changing a combo or box fires a `watch` event. The handler writes the orders then and only pushes a redraw when a value changed, so a repeated event does nothing.
 6. Henchman pilot: confirm Garrick appears in the Pilot box after he joins. The box lists the party when the window opens, so join him before using the gong.
-7. Visual effects on hits use `VFX_IMP_FLAME_M` and `VFX_FNF_SMOKE_PUFF` at the squares' world positions.
+7. Camera follow: `AttachCamera` follows the ship object, which never moves (only its drawn position does), so the camera may stay at the mooring instead of gliding with the ship.
+8. Visual effects on hits use `VFX_IMP_FLAME_M` and `VFX_FNF_SMOKE_PUFF` at the squares' world positions.
 
 ## Not built yet
 

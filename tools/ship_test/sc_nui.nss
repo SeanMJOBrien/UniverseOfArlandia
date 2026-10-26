@@ -20,6 +20,8 @@ const string SCNUI_FIRE2 = "scfire2";
 const string SCNUI_TARGET = "sctarget";
 const string SCNUI_READY = "scready";
 const string SCNUI_END = "scend";
+const string SCNUI_FOLLOW = "scfollow";
+const string SCNUI_SHORE = "scshore";
 const string SCNUI_PARTY = "sc_pm_";     // PC locals: party member by combo value
 
 const float SCNUI_MAP_SIZE = 300.0;      // pixels; the map is square
@@ -187,6 +189,10 @@ json ScUiLayout(object oPC)
     jButtons = JsonArrayInsert(jButtons, NuiId(NuiButton(JsonString("Ready")), SCNUI_READY));
     jButtons = JsonArrayInsert(jButtons, NuiId(NuiButton(JsonString("End battle")), SCNUI_END));
     jControls = JsonArrayInsert(jControls, NuiHeight(NuiRow(jButtons), 36.0));
+    json jCamera = JsonArray();
+    jCamera = JsonArrayInsert(jCamera, NuiId(NuiButton(JsonString("Follow ship")), SCNUI_FOLLOW));
+    jCamera = JsonArrayInsert(jCamera, NuiId(NuiButton(JsonString("Return to shore")), SCNUI_SHORE));
+    jControls = JsonArrayInsert(jControls, NuiHeight(NuiRow(jCamera), 36.0));
 
     json jMap = NuiDrawList(NuiSpacer(), JsonInt(1), ScUiMapList());
     jMap = NuiWidth(NuiHeight(jMap, SCNUI_MAP_SIZE), SCNUI_MAP_SIZE);
