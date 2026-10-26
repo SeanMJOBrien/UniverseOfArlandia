@@ -26,6 +26,109 @@ const float SCNUI_MAP_SIZE = 300.0;      // pixels; the map is square
 const float SCNUI_CONTROL_WIDTH = 270.0;
 const float SCNUI_ROW_HEIGHT = 30.0;
 
+// Map
+
+float ScRad(float fDegrees)
+{
+    return fDegrees * 0.0174533;
+}
+
+json ScUiRect(json jList, int nR, int nG, int nB, float fX, float fY, float fW, float fH)
+{
+    json jPoints = JsonArray();
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + fW)); jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + fW)); jPoints = JsonArrayInsert(jPoints, JsonFloat(fY + fH));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY + fH));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
+    return JsonArrayInsert(jList, NuiDrawListPolyLine(JsonBool(TRUE), NuiColor(nR, nG, nB), JsonBool(TRUE), JsonFloat(1.0), jPoints));
+}
+
+json ScUiGridLine(json jList, float fX1, float fY1, float fX2, float fY2)
+{
+    return JsonArrayInsert(jList, NuiDrawListLine(JsonBool(TRUE), NuiColor(120, 150, 175, 90), JsonFloat(1.0),
+        NuiVec(fX1, fY1), NuiVec(fX2, fY2)));
+}
+
+// Screen position of a cell centre.
+float ScUiX(int nCX) { float fCell = SCNUI_MAP_SIZE / SC_CELLS; return (nCX + 0.5) * fCell; }
+float ScUiY(int nCY) { float fCell = SCNUI_MAP_SIZE / SC_CELLS; return SCNUI_MAP_SIZE - (nCY + 0.5) * fCell; }
+
+// The draw list itself cannot be bound, so the map is a fixed list: static items for
+// the sea, shore and grid, and for each ship a hull outline, a label and a target line
+// whose points, colour, rectangle and text are bound and pushed by ScUiPushMap.
+string ScUiBind(string sName, int nShip)
+{
+    return "sc" + sName + IntToString(nShip);
+}
+
+json ScUiMapList()
+{
+    float fCell = SCNUI_MAP_SIZE / SC_CELLS;
+    json jList = JsonArray();
+    jList = ScUiRect(jList, 24, 52, 84, 0.0, 0.0, SCNUI_MAP_SIZE, SCNUI_MAP_SIZE);                              // sea
+    jList = ScUiRect(jList, 96, 86, 50, 0.0, SCNUI_MAP_SIZE - SC_SEA_MIN_Y * fCell, SCNUI_MAP_SIZE, SC_SEA_MIN_Y * fCell); // shore
+    int i;
+    for (i = 0; i <= SC_CELLS; i += 2)
+    {
+        jList = ScUiGridLine(jList, i * fCell, 0.0, i * fCell, SCNUI_MAP_SIZE);
+        jList = ScUiGridLine(jList, 0.0, i * fCell, SCNUI_MAP_SIZE, i * fCell);
+    }
+    jList = JsonArrayInsert(jList, NuiDrawListLine(NuiBind("sctle"), NuiColor(255, 220, 90, 160), JsonFloat(1.0),
+        NuiBind("scta"), NuiBind("sctb")));
+    for (i = 1; i <= SC_SHIPS; i++)
+    {
+        jList = JsonArrayInsert(jList, NuiDrawListPolyLine(JsonBool(TRUE), NuiBind(ScUiBind("col", i)), JsonBool(TRUE),
+            JsonFloat(2.0), NuiBind(ScUiBind("pts", i))));
+        jList = JsonArrayInsert(jList, NuiDrawListText(JsonBool(TRUE), NuiColor(240, 240, 240),
+            NuiBind(ScUiBind("lr", i)), NuiBind(ScUiBind("lt", i))));
+    }
+    return jList;
+}
+
+void ScUiPushShip(object oPC, int nToken, int nShip)
+{
+    object oShip = ScShip(nShip);
+    float fCell = SCNUI_MAP_SIZE / SC_CELLS;
+    float fX = ScUiX(ScCX(oShip));
+    float fY = ScUiY(ScCY(oShip));
+    float fAngle = ScHead(oShip) * 45.0;
+    int nR = 70; int nG = 130; int nB = 230;
+    if (ScSide(oShip) == 2) { nR = 220; nG = 70; nB = 60; }
+    if (!ScIsLive(oShip)) { nR = 110; nG = 110; nB = 110; }
+    float fTipA = ScRad(fAngle);
+    float fLeftA = ScRad(fAngle + 140.0);
+    float fRightA = ScRad(fAngle - 140.0);
+    json jPoints = JsonArray();
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.75 * fCell * cos(fTipA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.75 * fCell * sin(fTipA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.55 * fCell * cos(fLeftA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.55 * fCell * sin(fLeftA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.55 * fCell * cos(fRightA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.55 * fCell * sin(fRightA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.75 * fCell * cos(fTipA)));
+    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.75 * fCell * sin(fTipA)));
+    NuiSetBind(oPC, nToken, ScUiBind("pts", nShip), jPoints);
+    NuiSetBind(oPC, nToken, ScUiBind("col", nShip), NuiColor(nR, nG, nB));
+    NuiSetBind(oPC, nToken, ScUiBind("lr", nShip), NuiRect(fX - 22.0, fY + 0.8 * fCell, 90.0, 16.0));
+    NuiSetBind(oPC, nToken, ScUiBind("lt", nShip), JsonString(ScName(oShip) + " " + IntToString(ScClamp(GetLocalInt(oShip, "sc_hull"), 0, 999))));
+}
+
+void ScUiPushMap(object oPC, int nToken)
+{
+    int i;
+    for (i = 1; i <= SC_SHIPS; i++) ScUiPushShip(oPC, nToken, i);
+    object oPlayer = ScShip(1);
+    object oTarget = GetLocalObject(oPlayer, "sc_o_tgt");
+    int bLine = ScIsLive(oPlayer) && ScIsLive(oTarget);
+    NuiSetBind(oPC, nToken, "sctle", JsonBool(bLine));
+    if (bLine)
+    {
+        NuiSetBind(oPC, nToken, "scta", NuiVec(ScUiX(ScCX(oPlayer)), ScUiY(ScCY(oPlayer))));
+        NuiSetBind(oPC, nToken, "sctb", NuiVec(ScUiX(ScCX(oTarget)), ScUiY(ScCY(oTarget))));
+    }
+}
+
 // Window layout
 
 json ScUiRow(string sLabel, json jElement)
@@ -85,7 +188,7 @@ json ScUiLayout(object oPC)
     jButtons = JsonArrayInsert(jButtons, NuiId(NuiButton(JsonString("End battle")), SCNUI_END));
     jControls = JsonArrayInsert(jControls, NuiHeight(NuiRow(jButtons), 36.0));
 
-    json jMap = NuiDrawList(NuiSpacer(), JsonInt(1), NuiBind(SCNUI_MAP));
+    json jMap = NuiDrawList(NuiSpacer(), JsonInt(1), ScUiMapList());
     jMap = NuiWidth(NuiHeight(jMap, SCNUI_MAP_SIZE), SCNUI_MAP_SIZE);
 
     json jTop = JsonArray();
@@ -96,81 +199,6 @@ json ScUiLayout(object oPC)
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiRow(jTop), SCNUI_MAP_SIZE + 6.0));
     jCol = JsonArrayInsert(jCol, NuiHeight(NuiText(NuiBind(SCNUI_LOG), TRUE, NUI_SCROLLBARS_AUTO), 150.0));
     return NuiCol(jCol);
-}
-
-// Map
-
-float ScRad(float fDegrees)
-{
-    return fDegrees * 0.0174533;
-}
-
-json ScUiRect(json jList, int nR, int nG, int nB, float fX, float fY, float fW, float fH)
-{
-    json jPoints = JsonArray();
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + fW)); jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + fW)); jPoints = JsonArrayInsert(jPoints, JsonFloat(fY + fH));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY + fH));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX));      jPoints = JsonArrayInsert(jPoints, JsonFloat(fY));
-    return JsonArrayInsert(jList, NuiDrawListPolyLine(JsonBool(TRUE), NuiColor(nR, nG, nB), JsonBool(TRUE), JsonFloat(1.0), jPoints));
-}
-
-json ScUiGridLine(json jList, float fX1, float fY1, float fX2, float fY2)
-{
-    return JsonArrayInsert(jList, NuiDrawListLine(JsonBool(TRUE), NuiColor(120, 150, 175, 90), JsonFloat(1.0),
-        NuiVec(fX1, fY1), NuiVec(fX2, fY2)));
-}
-
-// Screen position of a cell centre.
-float ScUiX(int nCX) { float fCell = SCNUI_MAP_SIZE / SC_CELLS; return (nCX + 0.5) * fCell; }
-float ScUiY(int nCY) { float fCell = SCNUI_MAP_SIZE / SC_CELLS; return SCNUI_MAP_SIZE - (nCY + 0.5) * fCell; }
-
-json ScUiShip(json jList, object oShip)
-{
-    float fCell = SCNUI_MAP_SIZE / SC_CELLS;
-    float fX = ScUiX(ScCX(oShip));
-    float fY = ScUiY(ScCY(oShip));
-    float fAngle = ScHead(oShip) * 45.0;
-    int nR = 70; int nG = 130; int nB = 230;
-    if (ScSide(oShip) == 2) { nR = 220; nG = 70; nB = 60; }
-    if (!ScIsLive(oShip)) { nR = 110; nG = 110; nB = 110; }
-    json jPoints = JsonArray();
-    float fTipA = ScRad(fAngle);
-    float fLeftA = ScRad(fAngle + 140.0);
-    float fRightA = ScRad(fAngle - 140.0);
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.75 * fCell * cos(fTipA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.75 * fCell * sin(fTipA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.55 * fCell * cos(fLeftA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.55 * fCell * sin(fLeftA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.55 * fCell * cos(fRightA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.55 * fCell * sin(fRightA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fX + 0.75 * fCell * cos(fTipA)));
-    jPoints = JsonArrayInsert(jPoints, JsonFloat(fY - 0.75 * fCell * sin(fTipA)));
-    jList = JsonArrayInsert(jList, NuiDrawListPolyLine(JsonBool(TRUE), NuiColor(nR, nG, nB), JsonBool(TRUE), JsonFloat(2.0), jPoints));
-    string sLabel = ScName(oShip) + " " + IntToString(ScClamp(GetLocalInt(oShip, "sc_hull"), 0, 999));
-    return JsonArrayInsert(jList, NuiDrawListText(JsonBool(TRUE), NuiColor(240, 240, 240), NuiRect(fX - 22.0, fY + 0.8 * fCell, 90.0, 16.0), JsonString(sLabel)));
-}
-
-json ScUiMapList()
-{
-    float fCell = SCNUI_MAP_SIZE / SC_CELLS;
-    json jList = JsonArray();
-    jList = ScUiRect(jList, 24, 52, 84, 0.0, 0.0, SCNUI_MAP_SIZE, SCNUI_MAP_SIZE);                              // sea
-    jList = ScUiRect(jList, 96, 86, 50, 0.0, SCNUI_MAP_SIZE - SC_SEA_MIN_Y * fCell, SCNUI_MAP_SIZE, SC_SEA_MIN_Y * fCell); // shore
-    int i;
-    for (i = 0; i <= SC_CELLS; i += 2)
-    {
-        jList = ScUiGridLine(jList, i * fCell, 0.0, i * fCell, SCNUI_MAP_SIZE);
-        jList = ScUiGridLine(jList, 0.0, i * fCell, SCNUI_MAP_SIZE, i * fCell);
-    }
-    object oPlayer = ScShip(1);
-    object oTarget = GetLocalObject(oPlayer, "sc_o_tgt");
-    if (ScIsLive(oPlayer) && ScIsLive(oTarget))
-        jList = JsonArrayInsert(jList, NuiDrawListLine(JsonBool(TRUE), NuiColor(255, 220, 90, 160), JsonFloat(1.0),
-            NuiVec(ScUiX(ScCX(oPlayer)), ScUiY(ScCY(oPlayer))), NuiVec(ScUiX(ScCX(oTarget)), ScUiY(ScCY(oTarget)))));
-    for (i = 1; i <= SC_SHIPS; i++) jList = ScUiShip(jList, ScShip(i));
-    return jList;
 }
 
 // Status text and binds
@@ -198,7 +226,7 @@ string ScUiStatus()
 void ScUiPush(object oPC, int nToken)
 {
     object oPlayer = ScShip(1);
-    NuiSetBind(oPC, nToken, SCNUI_MAP, ScUiMapList());
+    ScUiPushMap(oPC, nToken);
     NuiSetBind(oPC, nToken, SCNUI_STATUS, JsonString(ScUiStatus()));
     NuiSetBind(oPC, nToken, SCNUI_LOG, JsonString(GetLocalString(GetModule(), SC_LOG)));
     NuiSetBind(oPC, nToken, SCNUI_SPEED, JsonInt(GetLocalInt(oPlayer, "sc_o_speed")));

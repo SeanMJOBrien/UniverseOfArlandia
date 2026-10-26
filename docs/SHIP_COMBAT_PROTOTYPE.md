@@ -75,7 +75,7 @@ These are the points most likely to need a fix, since none of the code has run i
 1. The shore tiles: row 1 uses tile 7 (water on the north edge, grass on the south). If the shore looks wrong, the tile or its orientation needs changing in `shiptest.are`.
 2. Ship movement: the ships glide square to square with `SetObjectVisualTransform` translation (the technique `inc_shiparrive.nss` already uses). Turns are instant 45 degree snaps with `SetFacing`.
 3. Ship height: ships are at z 0.0. If they float above or sink into the water, set the translate Z in `ScShowAt`.
-4. The Ship Orders window: layout, the map (drawn with NUI draw-list items), and the combo boxes. The map is redrawn every second and after each change.
+4. The Ship Orders window: layout, the map (drawn with NUI draw-list items), and the combo boxes. The draw list cannot be bound as a whole, so the map is a fixed list of items (sea, shore, grid, and an outline, label and target line per ship) whose points, colours and text are bound and pushed every second and after each change.
 5. Whether changing a combo or box fires a `watch` event. The handler writes the orders then and only pushes a redraw when a value changed, so a repeated event does nothing.
 6. Henchman pilot: confirm Garrick appears in the Pilot box after he joins. The box lists the party when the window opens, so join him before using the gong.
 7. Visual effects on hits use `VFX_IMP_FLAME_M` and `VFX_FNF_SMOKE_PUFF` at the squares' world positions.
