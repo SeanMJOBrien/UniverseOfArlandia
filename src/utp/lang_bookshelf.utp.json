@@ -35,7 +35,7 @@
   "Description": {
     "type": "cexolocstring",
     "value": {
-      "0": "Primers in the tongues of the world, six volumes each. Take a volume and activate it to study."
+      "0": "Primers in the tongues of the world. Take a volume and activate it to study."
     }
   },
   "DisarmDC": {

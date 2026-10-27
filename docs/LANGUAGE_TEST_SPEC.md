@@ -11,7 +11,7 @@ Scope: the NWScript-only package (`export/uoa_language_system_nwscript.erf`) imp
 | NWNX Chat path (section K) | Not testable in the package or alone. Needs the server with the plugin and two clients. |
 | Tutoring (`.tutor`), PC-only exposure from a real second player | Not testable. Needs a second player. Cases I6 to I10 cover what can be checked alone. |
 | Typed `[text]` voice script (`dmfi_voice_exe`) | Not in the package. Use the `.lang` window or talk mode. |
-| Exposure gain | Slow with the defaults (n x n x 20 points at one point per 30 seconds). It is off by default; section I turns it on and shortens it. |
+| Exposure gain | Slow with the defaults (1 point of 1000 per heard line, at most one per 30 seconds). It is off by default; section I turns it on and shortens it. |
 
 ## Setup
 
@@ -46,15 +46,17 @@ Unless a case names another character, use Tester.
 
 | Id | Steps | Expected |
 |---|---|---|
-| B1 | Open the bookshelf. | It contains 66 books, one of each volume. Take Goblin volume 1 and volume 2. |
-| B2 | Activate Goblin volume 2 first. | Refused: volumes are read in order. Fluency unchanged. |
-| B3 | Activate Goblin volume 1. | Message "You study Goblin, volume 1 of 6. Volume 2 is next. You can start 1 more language." `.languages` shows Goblin 1. |
-| B4 | Activate Goblin volume 1 again. | Nothing changes. |
-| B5 | Activate Goblin volume 2. | Goblin 2. Free slots stay at one. |
-| B6 | Take Elven volume 1 and activate it. | Elven 1. Zero free slots. |
-| B7 | Take Dwarven volume 1 and activate it. | Refused with a message about languages known against the total allowed. Dwarven not learned. |
-| B8 | Activate Goblin volumes 3 to 6 in order. | Fluency rises by one each time. After volume 6 `.languages` shows Goblin 6. |
-| B9 | Check that the books are still in the inventory. | All books remain (not consumed). |
+| B1 | Open the bookshelf. | It contains 66 books, one of each volume. Take Goblin volumes 1, 2 and 3. |
+| B2 | Activate Goblin volume 2 first. | Refused: "You cannot follow this. Start with an earlier book of Goblin." The book stays in the inventory. Fluency unchanged. |
+| B3 | Activate Goblin volume 1. | Message "You study the book and it is used up. Your Goblin is now 16% of fluent. You can start 1 more language." `.languages` shows Goblin (16%). The book is gone from the inventory. |
+| B4 | Take another Goblin volume 1 and activate it. | "You already know everything this book teaches of Goblin." The book is kept. |
+| B5 | Activate Goblin volume 2. | Goblin 33%. Free slots stay at one. The book is used up. |
+| B6 | Take Elven volume 1 and activate it. | Elven 16%. Zero free slots. |
+| B7 | Take Dwarven volume 1 and activate it. | Refused with a message about languages known against the total allowed. Dwarven not learned. The book is kept. |
+| B8 | Activate Goblin volumes 3 to 6 in order. | Fluency rises by about 167 points each time. After volume 6 `.languages` shows Goblin fluent. |
+| B9 | Set `lang_book_volumes` = 3 and use fresh characters. Read volumes 1 to 3. | Volume 1 gives 33%, volume 2 gives 66%, volume 3 makes the character fluent. Volume 4 reads "The text is unreadable." |
+| B9a | Give a Goblin book the local ints `lang_book_gain` = 100 and `lang_book_max` = 250. Read it at 0%, then at 20%, then at 25%. | 10%, then 25%, then "You already know everything this book teaches." A book that gives points is used up. |
+| B9b | Give a book `lang_book_min` = 500 and `lang_book_gain` = 100. Read it at 30%. | "You cannot follow this yet. It needs 50% of Goblin and you have 30%." The book is kept. |
 | B10 | Close and reopen the shelf after removing a volume. | The missing volume is restored (`lang_shelf_fill`). |
 | B11 | As Tester2 (Intelligence 8), activate Goblin volume 1. | Refused: no slots. |
 
@@ -149,13 +151,13 @@ Advancement by listening is off by default. Set the module variables in the tool
 | Id | Steps | Expected |
 |---|---|---|
 | I1 | No variables set. With Goblin 1, talk to Gruk in Goblin repeatedly for several minutes. | No exposure points and no advancement. |
-| I2 | `lang_exp_on` = 1. Repeat I1. | One point per 30 seconds at most. 20 points are needed for level 2. |
-| I3 | `lang_exp_on` = 1, `lang_exp_unit` = 1, `lang_exp_cooldown` = 1. Choose the Goblin option repeatedly. | One point about every second. One point advances Goblin 1 to 2 with the message "Your grasp of Goblin has improved to 2 of 6." Level 2 needs four points. |
-| I4 | `lang_exp_on` = 1, `lang_exp_unit` = 0, `lang_exp_cooldown` = 0. | Same as I2 (zero keeps the file values). |
-| I5 | Set `lang_exp_on` = 2 after I3. | Advancement stops. Books still raise the level. |
-| I6 | `lang_exp_on` = 1, `lang_exp_pc_only` = 1, unit 1, cooldown 1. Repeat I3 with Gruk. | No points: Gruk is an NPC. |
+| I2 | `lang_exp_on` = 1. Repeat I1. | One point (1 of 1000) per 30 seconds at most. |
+| I3 | `lang_exp_on` = 1, `lang_exp_gain` = 25, `lang_exp_cooldown` = 1. Choose the Goblin option repeatedly. | 25 points about every second. Each time the percentage passes a multiple of ten the message "Your grasp of Goblin has improved to 20%." (and so on) appears. |
+| I4 | `lang_exp_on` = 1, `lang_exp_gain` = 0, `lang_exp_cooldown` = 0. | Same as I2 (zero keeps the file values). |
+| I5 | Set `lang_exp_on` = 2 after I3. | Advancement stops. Books still add points. |
+| I6 | `lang_exp_on` = 1, `lang_exp_pc_only` = 1, gain 25, cooldown 1. Repeat I3 with Gruk. | No points: Gruk is an NPC. |
 | I7 | As I6, and set the local int `lang_trainer` = 1 on Gruk (toolset variable on the creature). | Gruk gives points again, one per cooldown. |
-| I8 | As I6, add the action `act_lang_exp` (parameters `language` = goblin, `points` = 3) to a dialog reply. Choose that reply with Goblin 1 and unit 1. | The points arrive at once, ignoring PC-only mode and the cooldown. Goblin 1 advances to 2 with 1 point and the remaining points count toward level 3. |
+| I8 | As I6, add the action `act_lang_exp` (parameters `language` = goblin, `points` = 3) to a dialog reply. Use `points` = 300 for a larger step. Choose that reply with Goblin at 16%. | The points arrive at once, ignoring PC-only mode and the cooldown: Goblin rises by 300 points to 46%. |
 | I9 | As I8 with `lang_exp_on` unset. | No points from the action. |
 | I10 | As I8 with the action's `language` = elven and Tester not knowing Elven. | Nothing happens. |
 | I11 | Two players, `lang_exp_pc_only` = 1: player A speaks Goblin in talk mode, player B has Goblin 1. | B earns points from A's lines. Needs a second player. |
@@ -202,7 +204,7 @@ Set `NWNX_CHAT_SKIP=no` in `config/nwserver.env` and restart. This is Phase 0 of
 
 ## L. Interpreter henchman
 
-Hire or add a henchman. Give the henchman languages through the creature variable `lang_known` in the toolset (for example `,6:6,` Goblin 6 and `,4:3,` Dwarven 3) or use a race with an innate language. Set `lang_interp_on` = 1.
+Hire or add a henchman. Give the henchman languages through the creature variable `lang_pts` in the toolset (for example `,6:1000,` Goblin fluent and `,4:500,` Dwarven 50 percent; the older `lang_known` with levels 1 to 6 is converted) or use a race with an innate language. Set `lang_interp_on` = 1.
 
 | Id | Steps | Expected |
 |---|---|---|

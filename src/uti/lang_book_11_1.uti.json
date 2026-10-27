@@ -27,13 +27,13 @@
   "DescIdentified": {
     "type": "cexolocstring",
     "value": {
-      "0": "A primer in Abyssal, volume 1 of 6. Activate it to study; volumes must be read in order. Study volume 2 next."
+      "0": "A primer in Abyssal, volume 1 of 6. Activate it to study; the book is used up. Each volume needs the fluency the one before it gives. Study volume 2 next."
     }
   },
   "Description": {
     "type": "cexolocstring",
     "value": {
-      "0": "A primer in Abyssal, volume 1 of 6. Activate it to study; volumes must be read in order. Study volume 2 next."
+      "0": "A primer in Abyssal, volume 1 of 6. Activate it to study; the book is used up. Each volume needs the fluency the one before it gives. Study volume 2 next."
     }
   },
   "Identified": {

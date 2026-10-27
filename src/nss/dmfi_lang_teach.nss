@@ -3,8 +3,8 @@
 // Needs LANGCFG_TUTOR_ENABLED (or the module variable lang_tutor_on). The teacher
 // types .tutor, picks a nearby player character and one of their own languages,
 // and presses Offer. The learner gets a second window with Accept and Decline.
-// An accepted lesson raises the learner one level in that language, up to the
-// teacher's own level. A new language takes a slot (Intelligence) unless slots
+// An accepted lesson raises the learner by the lesson gain (lang_tutor_gain, in
+// fluency points of 1000) in that language, up to the teacher's own fluency. A new language takes a slot (Intelligence) unless slots
 // are ignored (lang_slots_ignore). The same learner can take another lesson in
 // the same language only after the cooldown. Events are handled by
 // lang_teach_event.
@@ -31,6 +31,15 @@ const string TUTOR_VAR_LANG = "tutor_lang_";
 const string TUTOR_VAR_FROM = "tutor_from";
 const string TUTOR_VAR_OFFER_LANG = "tutor_offer_lang";
 
+// The learner's fluency after a lesson: the lesson gain, up to the teacher's own fluency.
+int LangTutorResult(object oTeacher, object oLearner, int iLang)
+{
+    int iNew = LangFluency(oLearner, iLang) + LangCfgTutorGain();
+    int iTeacher = LangFluency(oTeacher, iLang);
+    if (iNew > iTeacher) iNew = iTeacher;
+    return iNew;
+}
+
 // "" if oTeacher may give oLearner a lesson in iLang now, else the reason.
 string LangTutorCheck(object oTeacher, object oLearner, int iLang)
 {
@@ -44,7 +53,7 @@ string LangTutorCheck(object oTeacher, object oLearner, int iLang)
     int iTeacherLevel = LangFluency(oTeacher, iLang);
     int iLearnerLevel = LangFluency(oLearner, iLang);
     if (iTeacherLevel < 1) return "You do not speak " + LangName(iLang) + ".";
-    if (iLearnerLevel >= DMFI_LANG_NATIVE_LEVEL) return GetName(oLearner) + " already speaks " + LangName(iLang) + " fluently.";
+    if (iLearnerLevel >= DMFI_LANG_FLUENT) return GetName(oLearner) + " already speaks " + LangName(iLang) + " fluently.";
     if (iLearnerLevel >= iTeacherLevel) return GetName(oLearner) + " already knows as much " + LangName(iLang) + " as you do.";
     if (iLearnerLevel == 0 && !LangCfgSlotsIgnore() && LangSlotsFree(oLearner) < 1)
         return GetName(oLearner) + " has no spare language slot.";
@@ -139,8 +148,8 @@ void LangTutorShowOffer(object oTeacher, object oLearner, int iLang)
     SetLocalObject(oLearner, TUTOR_VAR_FROM, oTeacher);
     SetLocalInt(oLearner, TUTOR_VAR_OFFER_LANG, iLang);
 
-    int iNext = LangFluency(oLearner, iLang) + 1;
-    string sText = GetName(oTeacher) + " offers to teach you " + LangName(iLang) + " (you would reach " + IntToString(iNext) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ").";
+    int iNext = LangTutorResult(oTeacher, oLearner, iLang);
+    string sText = GetName(oTeacher) + " offers to teach you " + LangName(iLang) + " (you would reach " + LangPercent(iNext) + ").";
     json jRow = JsonArray();
     jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Accept")), TUTOR_ACCEPT));
     jRow = JsonArrayInsert(jRow, NuiId(NuiButton(JsonString("Decline")), TUTOR_DECLINE));
@@ -204,15 +213,14 @@ void LangTutorAnswer(object oLearner, int nToken, int bAccept)
         SendMessageToPC(oLearner, "You have no spare language slot.");
         return;
     }
-    LangListSet(oLearner, iLang, iLevel + 1);
-    DeleteLocalInt(oLearner, DMFI_LANG_VAR_EXP + IntToString(iLang));
-    LangSaveExp(oLearner, iLang);
+    int iResult = LangTutorResult(oTeacher, oLearner, iLang);
+    LangListSet(oLearner, iLang, iResult);
 
     string sKey = "lang_tutorcd_" + ObjectToString(oLearner) + "_" + IntToString(iLang);
     SetLocalInt(GetModule(), sKey, 1);
     AssignCommand(GetModule(), DelayCommand(IntToFloat(LangCfgTutorCooldown()), DeleteLocalInt(GetModule(), sKey)));
 
-    string sResult = IntToString(iLevel + 1) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL);
+    string sResult = LangPercent(iResult);
     SendMessageToPC(oLearner, GetName(oTeacher) + " teaches you " + LangName(iLang) + ". You now have " + sResult + ".");
     SendMessageToPC(oTeacher, "You teach " + GetName(oLearner) + " " + LangName(iLang) + ". They now have " + sResult + ".");
 }

@@ -14,12 +14,14 @@
 //
 // Known languages come from: a hlslang_<id> widget or babelfish in the
 // inventory, the race/class/subrace default, and the lang_known list stored as
-// a local string on the PC (",4:3,10:2," = id:fluency). Locals on a PC are saved
-// with the character, so the list, the chosen speaking language and the talk
-// mode survive relogs.
+// a local string on the PC (",4:350,10:1000," = id:fluency points). The list, the
+// chosen speaking language and the talk mode are also written to the campaign
+// database, so they survive relogs.
 //
-// Fluency runs 1-6. Native languages are 6 and listeners get the full text;
-// a partial speaker catches only part of it, and improves by listening.
+// Fluency is a number of points from 1 to 1000 (0 = does not know the language).
+// Native languages are 1000 and listeners get the full text; a partial speaker
+// catches the share of the words their points give (350 = 35 percent of the
+// words), and improves by listening, books and tutoring.
 //
 // With talk mode on (.speak <language>), LangHandleTalk, called from
 // OnPlayerChat, turns ordinary talk and whispers into the language.
@@ -31,7 +33,7 @@
 //   .speak <language>   choose the language [text] is spoken in
 //   .learn              hint only: languages are learned from books (dmfi_lang_book)
 // DM only:
-//   .teach <language> [1-6]  give the DMFI target a language at a fluency level, no slot needed
+//   .teach <language> [points]  give the DMFI target a language at a fluency (1-1000, or a level 1-6 of six), no slot needed
 
 #include "dmfi_lang_cfg"
 
@@ -51,20 +53,22 @@ const string DMFI_LANG_VAR_DLV_TEXT = "lang_dlv_text";
 const string DMFI_LANG_VAR_DLV_RANGE = "lang_dlv_range";
 // Set (saved with the character) when the player turned off translations in the .lang window.
 const string DMFI_LANG_VAR_NUI_OFF = "lang_nui_off";
-const string DMFI_LANG_VAR_EXP = "lang_exp_";
 
+// The known languages as ",id:points,". DMFI_LANG_VAR_KNOWN is the older list, with
+// levels 1-6 in place of points; it is converted when first read (LangMigrateKnown).
+const string DMFI_LANG_VAR_POINTS = "lang_pts";
 const string DMFI_LANG_VAR_KNOWN = "lang_known";
 const string DMFI_LANG_VAR_SLOTS_USED = "lang_slotsused";
 const string DMFI_LANG_VAR_SPEAKING = "hls_MyLanguage";
 const string DMFI_LANG_VAR_SPEAKING_NAME = "hls_MyLanguageName";
 
-// Fluency: 1 basic .. 6 fluent. Native languages (race, class, widget) are 6.
-// Fluent speakers read the plain text; levels 1-5 catch part of it.
-// A learned language starts at DMFI_LANG_LEARN_LEVEL and grows with exposure.
-const int DMFI_LANG_NATIVE_LEVEL = 6;
-const int DMFI_LANG_LEARN_LEVEL = 1;
-// Percent of the words a listener catches, per fluency level.
-const int DMFI_LANG_CHANCE_PER_LEVEL = 16;
+// Fluency is a number of points: 0 does not know the language, 1000 is fluent.
+// Native languages (race, class, widget) are 1000. Fluent speakers read the plain
+// text; fewer points catch that share of the words (a thousandth each).
+const int DMFI_LANG_FLUENT = 1000;
+// Hand-set values up to this are levels of six (6 = fluent); larger values are points.
+// It keeps the values written for the old six-level scale working (LangPoints).
+const int DMFI_LANG_LEGACY_LEVELS = 6;
 // Words a listener does not know: TRUE shows them in the foreign language (the
 // same scrambled word every time), FALSE hides runs of them as "...".
 const int DMFI_LANG_SHOW_FOREIGN = TRUE;
@@ -366,20 +370,30 @@ int GetDefaultRacialLanguage(object oPC, int iRename)
     return 0;
 }
 
-// Entries look like ",4:3,10:2," (id:level). Older entries without a level
-// (",4,") count as fluent.
-int LangListLevel(object oPC, int iLang)
+// A hand-set fluency in points: 1-6 are levels of six (6 = 1000), 7-1000 are points,
+// larger values are fluent. 0 or less is 0.
+int LangPoints(int iValue)
 {
-    string sKnown = GetLocalString(oPC, DMFI_LANG_VAR_KNOWN);
+    if (iValue <= 0) return 0;
+    if (iValue <= DMFI_LANG_LEGACY_LEVELS) return iValue * DMFI_LANG_FLUENT / DMFI_LANG_LEGACY_LEVELS;
+    if (iValue > DMFI_LANG_FLUENT) return DMFI_LANG_FLUENT;
+    return iValue;
+}
+
+// "35%" for 350 points.
+string LangPercent(int iPoints)
+{
+    return IntToString(iPoints / 10) + "%";
+}
+
+// Points of iLang in a list like ",4:350,10:1000,"; -1 if the language is not in it.
+int LangPtsFind(string sList, int iLang)
+{
     string sKey = "," + IntToString(iLang) + ":";
-    int iPos = FindSubString(sKnown, sKey);
-    if (iPos != -1)
-    {
-        string sRest = GetStringRight(sKnown, GetStringLength(sKnown) - iPos - GetStringLength(sKey));
-        return StringToInt(GetStringLeft(sRest, FindSubString(sRest, ",")));
-    }
-    if (FindSubString(sKnown, "," + IntToString(iLang) + ",") != -1) return DMFI_LANG_NATIVE_LEVEL;
-    return 0;
+    int iPos = FindSubString(sList, sKey);
+    if (iPos == -1) return -1;
+    string sRest = GetStringRight(sList, GetStringLength(sList) - iPos - GetStringLength(sKey));
+    return StringToInt(GetStringLeft(sRest, FindSubString(sRest, ",")));
 }
 
 string LangListWithout(string sKnown, int iLang)
@@ -393,11 +407,53 @@ string LangListWithout(string sKnown, int iLang)
     return GetStringLeft(sKnown, iPos + 1) + GetStringRight(sAfter, GetStringLength(sAfter) - iEnd - 1);
 }
 
+// Converts the older list ",4:3,10:2," (levels 1-6; ",4," with no level = fluent) to
+// points and adds the languages the points list does not have yet. Clears the
+// older list.
+void LangMigrateKnown(object oObject)
+{
+    string sOld = GetLocalString(oObject, DMFI_LANG_VAR_KNOWN);
+    if (sOld == "") return;
+    string sNew = GetLocalString(oObject, DMFI_LANG_VAR_POINTS);
+    if (sNew == "") sNew = ",";
+    string sRest = sOld;
+    while (sRest != "")
+    {
+        int iComma = FindSubString(sRest, ",");
+        string sEntry = sRest;
+        if (iComma == -1) sRest = "";
+        else
+        {
+            sEntry = GetStringLeft(sRest, iComma);
+            sRest = GetStringRight(sRest, GetStringLength(sRest) - iComma - 1);
+        }
+        if (sEntry == "") continue;
+        int iColon = FindSubString(sEntry, ":");
+        int iLang = StringToInt(sEntry);
+        int iLevel = DMFI_LANG_LEGACY_LEVELS;
+        if (iColon != -1) iLevel = StringToInt(GetStringRight(sEntry, GetStringLength(sEntry) - iColon - 1));
+        if (iLang > 0 && LangPtsFind(sNew, iLang) == -1)
+            sNew += IntToString(iLang) + ":" + IntToString(LangPoints(iLevel)) + ",";
+    }
+    SetLocalString(oObject, DMFI_LANG_VAR_POINTS, sNew);
+    DeleteLocalString(oObject, DMFI_LANG_VAR_KNOWN);
+}
+
+// Fluency points from the known-languages list: 0 if the language is not in it.
+int LangListLevel(object oPC, int iLang)
+{
+    if (GetLocalString(oPC, DMFI_LANG_VAR_KNOWN) != "") LangMigrateKnown(oPC);
+    int iPoints = LangPtsFind(GetLocalString(oPC, DMFI_LANG_VAR_POINTS), iLang);
+    if (iPoints < 0) return 0;
+    return iPoints;
+}
+
+
 // --- persistence
 // Local variables on a player are lost when the player logs out, so the
 // language state is also written to the campaign database (character-specific
 // files in the server's database folder, no NWNX needed). LangLoad restores it
-// when the player enters; every change calls LangSave or LangSaveExp.
+// when the player enters; every change calls LangSave or LangSaveKnown.
 
 // Campaign database name. Each account (public CD key) gets its own file,
 // <CD key>.sqlite3, with its characters' rows told apart by account and
@@ -413,11 +469,14 @@ string LangDb(object oPC)
     return sKey;
 }
 
-void LangSaveExp(object oPC, int iLang)
+
+// Writes only the known-languages list (the older list is written empty once converted).
+void LangSaveKnown(object oPC)
 {
-    if (!GetIsPC(oPC)) return;
-    string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
-    SetCampaignInt(LangDb(oPC), sVar, GetLocalInt(oPC, sVar), oPC);
+    if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
+    string sDb = LangDb(oPC);
+    SetCampaignString(sDb, DMFI_LANG_VAR_POINTS, GetLocalString(oPC, DMFI_LANG_VAR_POINTS), oPC);
+    SetCampaignString(sDb, DMFI_LANG_VAR_KNOWN, GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), oPC);
 }
 
 // Writes the whole language state of oPC.
@@ -425,20 +484,19 @@ void LangSave(object oPC)
 {
     if (!GetIsPC(oPC) || GetIsDM(oPC)) return;
     string sDb = LangDb(oPC);
-    SetCampaignString(sDb, DMFI_LANG_VAR_KNOWN, GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), oPC);
+    LangSaveKnown(oPC);
     SetCampaignInt(sDb, DMFI_LANG_VAR_SEED, GetLocalInt(oPC, DMFI_LANG_VAR_SEED), oPC);
     SetCampaignInt(sDb, DMFI_LANG_VAR_SLOTS_USED, GetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED), oPC);
     SetCampaignInt(sDb, DMFI_LANG_VAR_SPEAKING, GetLocalInt(oPC, DMFI_LANG_VAR_SPEAKING), oPC);
     SetCampaignInt(sDb, DMFI_LANG_VAR_TALK, GetLocalInt(oPC, DMFI_LANG_VAR_TALK), oPC);
     SetCampaignInt(sDb, DMFI_LANG_VAR_NUI_OFF, GetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF), oPC);
-    int iLang;
-    for (iLang = 1; iLang <= 13; iLang++) LangSaveExp(oPC, iLang);
     SetCampaignInt(sDb, DMFI_LANG_DB_MARK, 1, oPC);
 }
 
 // Copies the language state stored in campaign database sDb onto oPC.
 void LangRestore(object oPC, string sDb)
 {
+    SetLocalString(oPC, DMFI_LANG_VAR_POINTS, GetCampaignString(sDb, DMFI_LANG_VAR_POINTS, oPC));
     SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, GetCampaignString(sDb, DMFI_LANG_VAR_KNOWN, oPC));
     SetLocalInt(oPC, DMFI_LANG_VAR_SEED, GetCampaignInt(sDb, DMFI_LANG_VAR_SEED, oPC));
     SetLocalInt(oPC, DMFI_LANG_VAR_SLOTS_USED, GetCampaignInt(sDb, DMFI_LANG_VAR_SLOTS_USED, oPC));
@@ -450,12 +508,7 @@ void LangRestore(object oPC, string sDb)
     }
     SetLocalInt(oPC, DMFI_LANG_VAR_TALK, GetCampaignInt(sDb, DMFI_LANG_VAR_TALK, oPC));
     SetLocalInt(oPC, DMFI_LANG_VAR_NUI_OFF, GetCampaignInt(sDb, DMFI_LANG_VAR_NUI_OFF, oPC));
-    int iLang;
-    for (iLang = 1; iLang <= 13; iLang++)
-    {
-        int iExp = GetCampaignInt(sDb, DMFI_LANG_VAR_EXP + IntToString(iLang), oPC);
-        if (iExp) SetLocalInt(oPC, DMFI_LANG_VAR_EXP + IntToString(iLang), iExp);
-    }
+    LangMigrateKnown(oPC);
 }
 
 // Restores the language state when a player enters (once per session). A
@@ -469,7 +522,10 @@ void LangLoad(object oPC)
 
     string sDb = LangDb(oPC);
     if (GetCampaignInt(sDb, DMFI_LANG_DB_MARK, oPC))
+    {
         LangRestore(oPC, sDb);
+        LangSaveKnown(oPC);
+    }
     else if (sDb != DMFI_LANG_DB && GetCampaignInt(DMFI_LANG_DB, DMFI_LANG_DB_MARK, oPC))
     {
         LangRestore(oPC, DMFI_LANG_DB);
@@ -479,23 +535,33 @@ void LangLoad(object oPC)
         LangSave(oPC);
 }
 
-void LangListSet(object oPC, int iLang, int iLevel)
+// Sets the fluency points of iLang (0-1000) without writing the database.
+void LangListPut(object oPC, int iLang, int iPoints)
 {
-    string sKnown = LangListWithout(GetLocalString(oPC, DMFI_LANG_VAR_KNOWN), iLang);
+    if (GetLocalString(oPC, DMFI_LANG_VAR_KNOWN) != "") LangMigrateKnown(oPC);
+    if (iPoints < 0) iPoints = 0;
+    if (iPoints > DMFI_LANG_FLUENT) iPoints = DMFI_LANG_FLUENT;
+    string sKnown = LangListWithout(GetLocalString(oPC, DMFI_LANG_VAR_POINTS), iLang);
     if (sKnown == "") sKnown = ",";
-    SetLocalString(oPC, DMFI_LANG_VAR_KNOWN, sKnown + IntToString(iLang) + ":" + IntToString(iLevel) + ",");
+    SetLocalString(oPC, DMFI_LANG_VAR_POINTS, sKnown + IntToString(iLang) + ":" + IntToString(iPoints) + ",");
+}
+
+// Sets the fluency points of iLang (0-1000) and saves the character's language state.
+void LangListSet(object oPC, int iLang, int iPoints)
+{
+    LangListPut(oPC, iLang, iPoints);
     LangSave(oPC);
 }
 
-// 0 = does not know it .. 5 = fluent.
+// 0 = does not know it .. 1000 = fluent.
 int LangFluency(object oPC, int iLang)
 {
     if (iLang <= 0) return 0;
-    if (GetIsDM(oPC) || GetIsDMPossessed(oPC)) return DMFI_LANG_NATIVE_LEVEL;
+    if (GetIsDM(oPC) || GetIsDMPossessed(oPC)) return DMFI_LANG_FLUENT;
     if (GetIsObjectValid(GetItemPossessedBy(oPC, "hlslang_" + IntToString(iLang))) ||
         GetIsObjectValid(GetItemPossessedBy(oPC, "babelfish")) ||
         LangInnate(oPC, iLang))
-        return DMFI_LANG_NATIVE_LEVEL;
+        return DMFI_LANG_FLUENT;
     return LangListLevel(oPC, iLang);
 }
 
@@ -516,47 +582,38 @@ int LangExposureSourceOk(object oListener, object oSource)
     return GetLocalInt(oSource, DMFI_LANG_TRAINER_VAR) == 1;
 }
 
-// Adds iPoints exposure points and applies any level gained. No checks.
-void LangAddExposure(object oListener, int iLang, int iPoints = 1)
+// Adds fluency points to a language the listener partly knows (iPoints, or the
+// exposure gain setting if iPoints is below 1). No checks. Tells the listener each
+// time the percentage passes a multiple of ten.
+void LangAddExposure(object oListener, int iLang, int iPoints = 0)
 {
-    int iLevel = LangListLevel(oListener, iLang);
-    if (iLevel < 1 || iLevel >= DMFI_LANG_NATIVE_LEVEL) return;
-    if (LangFluency(oListener, iLang) >= DMFI_LANG_NATIVE_LEVEL) return; // native by other means
+    int iOld = LangListLevel(oListener, iLang);
+    if (iOld < 1 || iOld >= DMFI_LANG_FLUENT) return;
+    if (LangFluency(oListener, iLang) >= DMFI_LANG_FLUENT) return; // native by other means
 
-    string sVar = DMFI_LANG_VAR_EXP + IntToString(iLang);
-    int iExp = GetLocalInt(oListener, sVar) + iPoints;
-    int iUnit = LangCfgExpUnit();
-    int bGained = FALSE;
-    while (iLevel < DMFI_LANG_NATIVE_LEVEL && iExp >= iLevel * iLevel * iUnit)
-    {
-        iExp -= iLevel * iLevel * iUnit;
-        iLevel++;
-        bGained = TRUE;
-    }
-    if (bGained)
-    {
-        LangListSet(oListener, iLang, iLevel);
-        SendMessageToPC(oListener, "Your grasp of " + LangName(iLang) + " has improved to " + IntToString(iLevel) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ".");
-    }
-    if (iLevel >= DMFI_LANG_NATIVE_LEVEL || iExp <= 0) DeleteLocalInt(oListener, sVar);
-    else SetLocalInt(oListener, sVar, iExp);
-    LangSaveExp(oListener, iLang);
+    if (iPoints < 1) iPoints = LangCfgExpGain();
+    int iNew = iOld + iPoints;
+    if (iNew > DMFI_LANG_FLUENT) iNew = DMFI_LANG_FLUENT;
+    LangListPut(oListener, iLang, iNew);
+    LangSaveKnown(oListener);
+    if (iNew / 100 > iOld / 100)
+        SendMessageToPC(oListener, "Your grasp of " + LangName(iLang) + " has improved to " + LangPercent(iNew) + ".");
 }
 
-// A line in iLang was heard from oSource: one point, at most once per cooldown
-// per listener and language, if advancement is on and the source counts.
+// A line in iLang was heard from oSource: the exposure gain, at most once per
+// cooldown per listener and language, if advancement is on and the source counts.
 void LangGainExposure(object oListener, int iLang, object oSource = OBJECT_INVALID)
 {
     if (!LangCfgExpEnabled()) return;
     if (!LangExposureSourceOk(oListener, oSource)) return;
     int iLevel = LangListLevel(oListener, iLang);
-    if (iLevel < 1 || iLevel >= DMFI_LANG_NATIVE_LEVEL) return;
+    if (iLevel < 1 || iLevel >= DMFI_LANG_FLUENT) return;
 
     string sCooldown = "lang_expcd_" + ObjectToString(oListener) + "_" + IntToString(iLang);
     if (GetLocalInt(GetModule(), sCooldown)) return;
     SetLocalInt(GetModule(), sCooldown, 1);
     AssignCommand(GetModule(), DelayCommand(IntToFloat(LangCfgExpCooldown()), DeleteLocalInt(GetModule(), sCooldown)));
-    LangAddExposure(oListener, iLang, 1);
+    LangAddExposure(oListener, iLang);
 }
 
 // The language [text] is spoken in: the chosen one, else the racial default.
@@ -618,7 +675,7 @@ string LangKnownSummary(object oPC)
         if (!iLevel) continue;
         if (sOut != "") sOut += ", ";
         sOut += LangName(iLang);
-        if (iLevel < DMFI_LANG_NATIVE_LEVEL) sOut += " (" + IntToString(iLevel) + "/" + IntToString(DMFI_LANG_NATIVE_LEVEL) + ")";
+        if (iLevel < DMFI_LANG_FLUENT) sOut += " (" + LangPercent(iLevel) + ")";
     }
     if (sOut == "") sOut = "none";
     return sOut;
@@ -679,26 +736,25 @@ void LangCmdTeach(object oDM, string sArg)
     object oTarget = GetLocalObject(oDM, "dmfi_univ_target");
     if (!GetIsObjectValid(oTarget)) oTarget = GetLocalObject(oDM, "dmfi_VoiceTarget");
 
-    // "<language> [level 1-6]"
-    int iLevel = DMFI_LANG_NATIVE_LEVEL;
+    // "<language> [points 1-1000, or level 1-6 of six]"
+    int iLevel = DMFI_LANG_FLUENT;
     int iSpace = FindSubString(sArg, " ");
     string sName = sArg;
     if (iSpace != -1)
     {
         sName = GetStringLeft(sArg, iSpace);
-        iLevel = StringToInt(GetStringRight(sArg, GetStringLength(sArg) - iSpace - 1));
+        iLevel = LangPoints(StringToInt(GetStringRight(sArg, GetStringLength(sArg) - iSpace - 1)));
         if (iLevel < 1) iLevel = 1;
-        if (iLevel > DMFI_LANG_NATIVE_LEVEL) iLevel = DMFI_LANG_NATIVE_LEVEL;
     }
     int iLang = LangFromName(sName);
     if (!GetIsObjectValid(oTarget) || !iLang)
     {
-        SendMessageToPC(oDM, ".teach <language> [level 1-6] gives the language to your current DMFI target (default level 6).");
+        SendMessageToPC(oDM, ".teach <language> [points] gives the language to your current DMFI target at 1-1000 fluency points (default 1000 = fluent). A value of 1-6 counts as a level of six.");
         return;
     }
     LangListSet(oTarget, iLang, iLevel);
-    SendMessageToPC(oDM, GetName(oTarget) + " now speaks " + LangName(iLang) + " at level " + IntToString(iLevel) + ".");
-    SendMessageToPC(oTarget, "You have learned " + LangName(iLang) + " (level " + IntToString(iLevel) + " of " + IntToString(DMFI_LANG_NATIVE_LEVEL) + ").");
+    SendMessageToPC(oDM, GetName(oTarget) + " now speaks " + LangName(iLang) + " at " + LangPercent(iLevel) + " (" + IntToString(iLevel) + " points).");
+    SendMessageToPC(oTarget, "You have learned " + LangName(iLang) + " (" + LangPercent(iLevel) + ").");
 }
 
 // Handles .languages, .speak, .learn (hint) and .teach. Returns TRUE if the message
@@ -745,8 +801,8 @@ string LangScramble(int iLang, string sSaid)
 }
 
 // --- which words a character knows
-// A character of fluency f knows a given word of a language when a hash of
-// (the character's seed, the language, the word) falls below f * 16 percent.
+// A character of fluency f (points of 1000) knows a given word of a language when
+// a hash of (the character's seed, the language, the word) falls below f in 1000.
 // The result depends only on those three things, so the same word is always
 // readable or always masked for that character, in every sentence and every
 // conversation, and the set of known words only grows as fluency rises.
@@ -779,7 +835,7 @@ string LangWordCore(string sWord)
 
 int LangKnowsWord(object oPC, int iLang, string sWord, int iFluency)
 {
-    if (iFluency >= DMFI_LANG_NATIVE_LEVEL) return TRUE;
+    if (iFluency >= DMFI_LANG_FLUENT) return TRUE;
     string sCore = LangWordCore(sWord);
     if (sCore == "") return TRUE;       // punctuation or a number: nothing to hide
     if (iFluency <= 0) return FALSE;
@@ -788,7 +844,7 @@ int LangKnowsWord(object oPC, int iLang, string sWord, int iFluency)
     int i;
     for (i = 0; i < GetStringLength(sCore); i++)
         iHash = (iHash * 31 + FindSubString(DMFI_LANG_WORD_CHARS, GetSubString(sCore, i, 1)) + 1) % 1000003;
-    return (iHash % 100) < iFluency * DMFI_LANG_CHANCE_PER_LEVEL;
+    return (iHash % 1000) < iFluency;
 }
 
 // sText as oListener (of iFluency in iLang) reads or hears it. Words the
@@ -838,7 +894,7 @@ int LangSpeakerFluency(object oSpeaker, int iLang)
 {
     if (GetIsPC(oSpeaker) && !GetIsDM(oSpeaker) && !GetIsDMPossessed(oSpeaker))
         return LangFluency(oSpeaker, iLang);
-    return DMFI_LANG_NATIVE_LEVEL;
+    return DMFI_LANG_FLUENT;
 }
 
 // The line as it is spoken aloud (speech bubble and chat line): the language's
@@ -848,7 +904,7 @@ string LangSpoken(int iLang, string sSaid, object oSpeaker)
 {
     int iFluency = LangSpeakerFluency(oSpeaker, iLang);
     // Emotes (*...*) span words, so a line containing one is scrambled whole.
-    if (iFluency >= DMFI_LANG_NATIVE_LEVEL || FindSubString(sSaid, "*") != -1)
+    if (iFluency >= DMFI_LANG_FLUENT || FindSubString(sSaid, "*") != -1)
         return LangScramble(iLang, sSaid);
 
     if (iLang == 9 && GetStringLength(sSaid) > DMFI_LANG_CANT_MAX_LENGTH)
@@ -983,7 +1039,7 @@ string LangSignLine(object oSigner, object oViewer, int iLang, string sSaid)
 
     int iFluency = LangFluency(oViewer, iLang);
     string sLine;
-    if (iFluency >= DMFI_LANG_NATIVE_LEVEL)
+    if (iFluency >= DMFI_LANG_FLUENT)
         sLine = DMFI_LANG_SIGN_FLUENT + sSaid;
     else if (iFluency > 0)
     {
@@ -1060,7 +1116,7 @@ void LangSpeak(object oShouter, int iTranslate, string sSaid, float fRange = 20.
                 sLine = LangSignLine(oShouter, oEavesdrop, iTranslate, sSaid);
             else if (oEavesdrop == oShouter)
                 sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
-            else if (iFluency >= DMFI_LANG_NATIVE_LEVEL)
+            else if (iFluency >= DMFI_LANG_FLUENT)
                 sLine = GetName(oShouter) + " says in " + sLanguageName + ": " + LangGarble(sSaid, iFluency, iTranslate, oEavesdrop, oShouter, iSpeakerFluency);
             else if (iFluency > 0)
             {

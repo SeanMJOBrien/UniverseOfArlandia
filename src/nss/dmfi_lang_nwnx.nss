@@ -60,7 +60,7 @@ void LangNwnxSpeak(object oSpeaker, int iChannel, int iLang, string sSaid, float
         {
             int iFluency = LangFluency(oListener, iLang);
             string sLine;
-            if (oListener == oSpeaker || iFluency >= DMFI_LANG_NATIVE_LEVEL)
+            if (oListener == oSpeaker || iFluency >= DMFI_LANG_FLUENT)
                 sLine = sTag + LangGarble(sSaid, iFluency, iLang, oListener, oSpeaker, iSpeakerFluency);
             else if (iFluency > 0)
             {

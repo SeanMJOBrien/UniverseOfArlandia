@@ -13,7 +13,7 @@ void LangShelfRestock(object oShelf)
     for (iLang = 1; iLang <= LANG_SHELF_LAST_LANGUAGE; iLang++)
     {
         if (!LangIsLearnable(iLang)) continue;
-        for (iVolume = 1; iVolume <= DMFI_LANG_BOOK_VOLUMES; iVolume++)
+        for (iVolume = 1; iVolume <= LangCfgBookVolumes(); iVolume++)
         {
             string sResRef = DMFI_LANG_BOOK_PREFIX + IntToString(iLang) + "_" + IntToString(iVolume);
             if (!GetIsObjectValid(GetItemPossessedBy(oShelf, sResRef)))

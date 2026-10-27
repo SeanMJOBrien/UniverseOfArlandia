@@ -152,8 +152,8 @@ def main():
     elara = creature(goblin, "lang_elara", "Elara", "the Elf", 1, 1, "lang_tester", [],
                      desc="Elf language tester. An ordinary NPC (no lang_trainer).")
     boddy = creature(goblin, "lang_boddy", "Boddyknock", "the Interpreter", 0, 0, "lang_hire",
-                     [var("lang_known", "string", ",6:6,1:3,7:6,"), var("lang_dialect_old_dwarven", "int", 5)], hench=True,
-                     desc="Dwarf henchman. Dwarven 6 (racial), Goblin 6, Elven 3, Draconic 6 (lang_known). Studied old_dwarven to level 5.")
+                     [var("lang_pts", "string", ",6:1000,1:500,7:1000,"), var("lang_dialect_old_dwarven", "int", 5)], hench=True,
+                     desc="Dwarf henchman. Dwarven fluent (racial), Goblin 1000, Elven 500, Draconic 1000 (lang_pts). Studied old_dwarven to 833 (level 5 of 6).")
     gruk = copy.deepcopy(goblin); gruk["Equip_ItemList"] = s("list", [])
     for name, c in (("lang_thorin", thorin), ("lang_elara", elara), ("lang_boddy", boddy)):
         to_gff({"__data_type": "UTC ", **{k: v for k, v in c.items() if k != "__data_type"}}, res / f"{name}.utc")
@@ -218,7 +218,7 @@ def main():
     ifo["Mod_OnActvtItem"] = s("resref", "lang_on_act")
     ifo["Mod_OnClientEntr"] = s("resref", "lang_on_enter")
     ifo["Mod_Description"] = loc("Single-player test module for the language system. See docs/LANGUAGE_TEST_MODULE.md.")
-    settings = [("lang_exp_on", 1), ("lang_exp_unit", 2), ("lang_exp_cooldown", 2),
+    settings = [("lang_exp_on", 1), ("lang_exp_gain", 25), ("lang_exp_cooldown", 2),
                 ("lang_interp_on", 1), ("lang_tutor_on", 1)]
     ifo["VarTable"] = s("list", [var(k, "int", v) for k, v in settings])
     to_gff(ifo, res / "module.ifo")

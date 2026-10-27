@@ -51,13 +51,15 @@ int LangNpcLanguage(object oNPC)
     return GetDefaultRacialLanguage(oNPC, 0);
 }
 
-// The level limit for a line: the lower of the line's maxlevel and the speaker's
-// npc_lang_cap, ignoring one that is not set. 0 means no limit.
+// The fluency limit for a line, in points: the lower of the line's maxlevel and the
+// speaker's npc_lang_cap, ignoring one that is not set. 0 means no limit. Both are
+// hand-set: 1-6 count as levels of six, 7-1000 as points (LangPoints).
 int LangLineCap(object oNPC, int iLineCap)
 {
-    int iNpcCap = GetLocalInt(oNPC, DMFI_LANG_CAP_VAR);
-    if (iNpcCap <= 0 || iNpcCap > DMFI_LANG_NATIVE_LEVEL) iNpcCap = 0;
-    if (iLineCap <= 0 || iLineCap > DMFI_LANG_NATIVE_LEVEL) iLineCap = 0;
+    iLineCap = LangPoints(iLineCap);
+    int iNpcCap = LangPoints(GetLocalInt(oNPC, DMFI_LANG_CAP_VAR));
+    if (iNpcCap <= 0 || iNpcCap > DMFI_LANG_FLUENT) iNpcCap = 0;
+    if (iLineCap <= 0 || iLineCap > DMFI_LANG_FLUENT) iLineCap = 0;
     if (!iNpcCap) return iLineCap;
     if (!iLineCap) return iNpcCap;
     return iNpcCap < iLineCap ? iNpcCap : iLineCap;
@@ -75,8 +77,8 @@ int LangCapped(int iFluency, int iCap)
 int LangStudiedCap(object oReader, string sDialect, int iCap)
 {
     if (iCap <= 0 || sDialect == "") return iCap;
-    int iStudied = GetLocalInt(oReader, DMFI_LANG_STUDIED_PREFIX + sDialect);
-    if (iStudied >= DMFI_LANG_NATIVE_LEVEL) return 0;
+    int iStudied = LangPoints(GetLocalInt(oReader, DMFI_LANG_STUDIED_PREFIX + sDialect));
+    if (iStudied >= DMFI_LANG_FLUENT) return 0;
     if (iStudied > iCap) return iStudied;
     return iCap;
 }
@@ -129,7 +131,7 @@ string LangTextParts(string sText, int bNarration)
 // stay, so it joins cleanly to narration beside it. bPrefix adds "(Language) ".
 string LangReadSpeech(object oPC, object oNPC, string sSpeech, int iLang, int iFluency, int iCap, int bPrefix)
 {
-    if (iFluency >= DMFI_LANG_NATIVE_LEVEL) return sSpeech;
+    if (iFluency >= DMFI_LANG_FLUENT) return sSpeech;
     string sLead = "";
     string sTrail = "";
     while (GetStringLeft(sSpeech, 1) == " ")
@@ -253,7 +255,7 @@ const string DMFI_LANG_INTERP_KEY = "lang_interp_key";
 // words it knows with "..." for each run it does not. "" if nothing.
 string LangInterpWords(object oHench, int iLang, string sText, int iLevel)
 {
-    if (iLevel >= DMFI_LANG_NATIVE_LEVEL) return sText;
+    if (iLevel >= DMFI_LANG_FLUENT) return sText;
     string sOut = "";
     int bLastDots = FALSE;
     string sRest = sText;
@@ -296,7 +298,7 @@ object LangInterpreter(object oPC, int iLang)
         if (GetIsDead(oHench) || GetArea(oHench) != GetArea(oPC)) continue;
         if (GetDistanceBetween(oHench, oPC) > fRange) continue;
         int iLevel = LangFluency(oHench, iLang);
-        if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
+        if (iLevel > LangPoints(LangCfgInterpMaxLevel())) iLevel = LangPoints(LangCfgInterpMaxLevel());
         if (iLevel > iBest)
         {
             iBest = iLevel;
@@ -320,12 +322,12 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions,
     if (!iLang) return;
     int iCap = LangLineCap(oNPC, iLineCap);
     int iPlayer = LangCapped(LangFluency(oPC, iLang), iCap);
-    if (iPlayer >= DMFI_LANG_NATIVE_LEVEL) return;
+    if (iPlayer >= DMFI_LANG_FLUENT) return;
 
     object oHench = LangInterpreter(oPC, iLang);
     if (!GetIsObjectValid(oHench)) return;
     int iLevel = LangFluency(oHench, iLang);
-    if (iLevel > LangCfgInterpMaxLevel()) iLevel = LangCfgInterpMaxLevel();
+    if (iLevel > LangPoints(LangCfgInterpMaxLevel())) iLevel = LangPoints(LangCfgInterpMaxLevel());
     iLevel = LangCapped(iLevel, LangStudiedCap(oHench, sDialect, iCap));
     if (iLevel <= iPlayer) return;
 
@@ -346,7 +348,7 @@ void LangDialogInterpret(object oPC, object oNPC, string sText, string sOptions,
     string sLine;
     if (sWords == "")
         sLine = "I cannot make out a word of it.";
-    else if (iLevel >= DMFI_LANG_NATIVE_LEVEL)
+    else if (iLevel >= DMFI_LANG_FLUENT)
         sLine = "The " + LangRaceName(oNPC) + sVerb + ": " + sWords;
     else
         sLine = "The " + LangRaceName(oNPC) + sVerb + ", as best I can tell: " + sWords;

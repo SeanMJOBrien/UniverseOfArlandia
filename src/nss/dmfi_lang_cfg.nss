@@ -20,13 +20,23 @@ const string LANGCFG_VAR_EXP_ENABLED = "lang_exp_on";
 const int LANGCFG_EXP_PC_ONLY = FALSE;
 const string LANGCFG_VAR_EXP_PC_ONLY = "lang_exp_pc_only";
 
-// Points to leave level n: n * n * this.
-const int LANGCFG_EXP_UNIT = 20;
-const string LANGCFG_VAR_EXP_UNIT = "lang_exp_unit";
+// Fluency points (of 1000) gained for one heard line.
+const int LANGCFG_EXP_GAIN = 1;
+const string LANGCFG_VAR_EXP_GAIN = "lang_exp_gain";
 
 // Seconds between points for one listener and language.
 const int LANGCFG_EXP_COOLDOWN = 30;
 const string LANGCFG_VAR_EXP_COOLDOWN = "lang_exp_cooldown";
+
+// --- Books
+// Fluency is a number from 0 (unknown) to 1000 (fluent). A language book teaches
+// a range of it. This is how many volumes of books lead from nothing to fluent,
+// so with 6 each volume is worth about 167 points and volume n needs (n-1)/6 of
+// fluency before it can be followed. A book item can override its own numbers with
+// the local ints lang_book_min (fluency needed), lang_book_gain (points added) and
+// lang_book_max (the most it can take a reader to). A book is used up when read.
+const int LANGCFG_BOOK_VOLUMES = 6;
+const string LANGCFG_VAR_BOOK_VOLUMES = "lang_book_volumes";
 
 // --- Language slots
 // TRUE: the Intelligence limit on starting new languages is removed for every
@@ -37,10 +47,14 @@ const string LANGCFG_VAR_SLOTS_IGNORE = "lang_slots_ignore";
 // --- Tutoring by player characters (.tutor)
 // A character fluent in a language can offer one lesson to a nearby character.
 // The learner accepts or declines. An accepted lesson raises the learner by one
-// level (starting a new language needs a free slot unless slots are ignored) and
-// cannot raise the learner above the teacher's own level.
+// number of fluency points (starting a new language needs a free slot unless
+// slots are ignored) and cannot raise the learner above the teacher's own fluency.
 const int LANGCFG_TUTOR_ENABLED = FALSE;
 const string LANGCFG_VAR_TUTOR_ENABLED = "lang_tutor_on";
+
+// Fluency points (of 1000) one lesson gives; 167 is a sixth of the way to fluent.
+const int LANGCFG_TUTOR_GAIN = 167;
+const string LANGCFG_VAR_TUTOR_GAIN = "lang_tutor_gain";
 
 // Seconds before the same learner can take another lesson in the same language.
 const int LANGCFG_TUTOR_COOLDOWN = 3600;
@@ -71,8 +85,9 @@ const string LANGCFG_VAR_NWNX_WINDOW_LOG = "lang_nwnx_log";
 const int LANGCFG_INTERP_ENABLED = FALSE;
 const string LANGCFG_VAR_INTERP_ENABLED = "lang_interp_on";
 
-// Highest level a henchman provides (6 = a fluent interpreter gives the whole line).
-const int LANGCFG_INTERP_MAX_LEVEL = 6;
+// Highest fluency a henchman provides: 1000 for a fluent interpreter who gives the
+// whole line. Values 1 to 6 count as levels of six (6 = fluent), 7 to 1000 as points.
+const int LANGCFG_INTERP_MAX_LEVEL = 1000;
 const string LANGCFG_VAR_INTERP_MAX_LEVEL = "lang_interp_max_level";
 
 // Metres between the henchman and the player.
@@ -98,10 +113,12 @@ int LangCfgInt(string sVar, int iFile)
 
 int LangCfgExpEnabled()    { return LangCfgFlag(LANGCFG_VAR_EXP_ENABLED, LANGCFG_EXP_ENABLED); }
 int LangCfgExpPcOnly()     { return LangCfgFlag(LANGCFG_VAR_EXP_PC_ONLY, LANGCFG_EXP_PC_ONLY); }
-int LangCfgExpUnit()       { return LangCfgInt(LANGCFG_VAR_EXP_UNIT, LANGCFG_EXP_UNIT); }
+int LangCfgExpGain()       { return LangCfgInt(LANGCFG_VAR_EXP_GAIN, LANGCFG_EXP_GAIN); }
+int LangCfgBookVolumes()   { return LangCfgInt(LANGCFG_VAR_BOOK_VOLUMES, LANGCFG_BOOK_VOLUMES); }
 int LangCfgExpCooldown()   { return LangCfgInt(LANGCFG_VAR_EXP_COOLDOWN, LANGCFG_EXP_COOLDOWN); }
 int LangCfgSlotsIgnore()   { return LangCfgFlag(LANGCFG_VAR_SLOTS_IGNORE, LANGCFG_SLOTS_IGNORE); }
 int LangCfgTutorEnabled()  { return LangCfgFlag(LANGCFG_VAR_TUTOR_ENABLED, LANGCFG_TUTOR_ENABLED); }
+int LangCfgTutorGain()     { return LangCfgInt(LANGCFG_VAR_TUTOR_GAIN, LANGCFG_TUTOR_GAIN); }
 int LangCfgTutorCooldown() { return LangCfgInt(LANGCFG_VAR_TUTOR_COOLDOWN, LANGCFG_TUTOR_COOLDOWN); }
 int LangCfgTutorRange()    { return LangCfgInt(LANGCFG_VAR_TUTOR_RANGE, LANGCFG_TUTOR_RANGE); }
 int LangCfgNwnxEnabled()    { return LangCfgFlag(LANGCFG_VAR_NWNX_ENABLED, LANGCFG_NWNX_ENABLED); }
