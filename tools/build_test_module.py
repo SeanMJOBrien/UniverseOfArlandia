@@ -98,7 +98,9 @@ def tablet_dialog():
     replies = [node("Read on.", [link(1, "cond_lang_line", params(TABLET_PAGES[1], 1))], "EntriesList"),
                node("Read on.", [link(2, "cond_lang_line", params(TABLET_PAGES[2], 2))], "EntriesList"),
                node("Step back.", [], "EntriesList")]
-    return dialog(entries, replies, [link(0, "cond_lang_line", params(TABLET_PAGES[0], 0))])
+    # fallback root: shown if the language condition script fails, so the dialog never opens empty
+    entries.append(node("The runes are too worn to read.", [], "RepliesList"))
+    return dialog(entries, replies, [link(0, "cond_lang_line", params(TABLET_PAGES[0], 0)), link(len(entries) - 1)])
 
 # --- creatures -----------------------------------------------------------
 def creature(base, resref, first, last, race, appearance, convo, variables, hench=False, desc=""):
