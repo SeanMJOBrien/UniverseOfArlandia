@@ -180,6 +180,7 @@ def main():
     tablet["OnUsed"] = s("resref", "lang_tablet_use")
     tablet["Useable"], tablet["HasInventory"], tablet["Static"] = s("byte", 1), s("byte", 0), s("byte", 0)
     tablet["ItemList"] = s("list", [])
+    tablet["VarTable"] = s("list", [var("npc_lang_descriptor", "string", "tablet")])
     tablet["OnClosed"] = s("resref", "")
     tablet["OnOpen"] = s("resref", "")
     to_gff({"__data_type": "UTP ", **{k: v for k, v in tablet.items() if k != "__data_type"}}, res / "lang_tablet.utp")

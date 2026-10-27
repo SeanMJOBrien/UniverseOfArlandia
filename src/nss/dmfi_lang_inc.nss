@@ -888,6 +888,7 @@ string LangSpoken(int iLang, string sSaid, object oSpeaker)
 
 const int DMFI_LANG_SIGN_DROW = 13;
 const string DMFI_LANG_RACE_TAG = "<race>";
+const string DMFI_LANG_DESCRIPTOR_VAR = "npc_lang_descriptor";
 const string DMFI_LANG_SIGN_FLUENT = "The <race> signs, ";
 const string DMFI_LANG_SIGN_PARTIAL = "The <race> does not speak, but uses sign, you can only make out: ";
 const string DMFI_LANG_SIGN_NONE = "The <race> does not speak, but moves their hands and fingers in rapid patterns.";
@@ -898,9 +899,13 @@ int LangIsSign(int iLang)
     return iLang == DMFI_LANG_SIGN_DROW;
 }
 
-// The race as it reads in a description: "Elf", "Man", "Dwarf", ...
+// The race as it reads in a description: "Elf", "Man", "Dwarf", ... A creature or
+// placeable with the local string npc_lang_descriptor reads as that text instead
+// (for example "tablet" or "stone voice").
 string LangRaceName(object oCreature)
 {
+    string sDescriptor = GetLocalString(oCreature, DMFI_LANG_DESCRIPTOR_VAR);
+    if (sDescriptor != "") return sDescriptor;
     if (GetStringLowerCase(GetSubRace(oCreature)) == "drow") return "Drow";
     switch (GetRacialType(oCreature))
     {

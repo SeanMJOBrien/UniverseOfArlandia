@@ -187,6 +187,8 @@ For a partial viewer, each word is either known or not, decided by the same fixe
 
 `<race>` is the signer's race: Dwarf, Elf, Gnome, Halfling, Half-elf, Half-orc, Man, Goblin, Orc, Lizardfolk, Dragon, or Drow for a character with the subrace "drow". Any other race reads as "Creature". `LangRaceName` in `dmfi_lang_inc.nss` holds the list.
 
+A creature or placeable can carry the local string `npc_lang_descriptor`, which replaces the race everywhere `<race>` is used: in sign descriptions, in the interpreter henchman's lines and in dialog lines. For example, a tablet with `npc_lang_descriptor` = "tablet" is described as "The tablet says, as best I can tell: ...". Without it, a placeable reads as "Creature".
+
 The same text rules apply in chat (typed `[text]`, the window, talk mode, NWNX) and in NPC dialog. The sign lines are also written to the `.lang` window log. An NPC signs when its local int `npc_language` is 13.
 
 ## Dialog variables
