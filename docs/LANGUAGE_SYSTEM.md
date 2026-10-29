@@ -95,6 +95,20 @@ A builder can give any book its own numbers with local ints on the item (toolset
 
 Setting `lang_book_gain` or `lang_book_max` puts the book on its own numbers; the volume number is then ignored, and a book can teach any range, for example a 100-point phrasebook with `lang_book_gain` = 100 and `lang_book_max` = 250. The language comes from the item tag.
 
+#### Overlapping books
+
+The ranges of different books may overlap. A book works for any reader whose fluency is at least `lang_book_min` and below `lang_book_max`, and it raises the reader to the lesser of the reader's fluency plus the gain, and `lang_book_max`. The default gain is the whole range from min to max, so by default a book takes any eligible reader to its maximum.
+
+Example: a book with `lang_book_min` = 300 and `lang_book_max` = 450, read by a character at 350. The book is accepted because 350 is at least 300. The default gain of 150 would give 500, which is capped at 450, so the character ends at 450 and the book is used up.
+
+| Fluency before reading | Result |
+|---|---|
+| below 300 | refused as too advanced; the book is kept |
+| 300 to 449 | raised to 450; the book is used up |
+| 450 or more | refused with "You already know everything this book teaches"; the book is kept |
+
+A reader near the top of the range uses up the book for a small gain (a reader at 449 gains 1 point). Setting `lang_book_gain` on the book limits what it gives: with min 300, max 450 and gain 100, a reader at 350 reaches 450 and a reader at 320 reaches 420. Series of overlapping books are built the same way, for example 0 to 300, 200 to 500 and 400 to 700.
+
 ### Language slots
 
 A character may start a new language only while a slot is free, unless `lang_slots_ignore` is on, which removes the limit for every source. The slot total is the base Intelligence modifier (`(Intelligence - 10) / 2`, minimum 0, ability bonuses from items and spells are not counted). The first book of a new language uses one slot. Later books of that language use none. Native languages never use slots.
