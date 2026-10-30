@@ -14,20 +14,20 @@ from selenium.webdriver.common.by import By
 STATIC_PAGES = [
     "/app/news.html",
     "/app/description.html",
-    "/screenshots.html",
-    "/interests.html",
-    "/domains.html",
-    "/crafting.html",
-    "/races.html",
-    "/classes.html",
-    "/feats.html",
-    "/grades.html",
-    "/talents.html",
+    "/app/screenshots.html",
+    "/app/interests.html",
+    "/app/domains.html",
+    "/app/Crafting.html",
+    "/app/races.html",
+    "/app/classes.html",
+    "/app/feats.html",
+    "/app/grades.html",
+    "/app/talents.html",
     "/app/downloads.html",
     "/app/links.html",
     "/app/contact.html",
-    "/installation.html",
-    "/factory.html",
+    "/app/installation.html",
+    "/app/factory.html",
 ]
 
 
@@ -48,12 +48,12 @@ class TestStaticPagesSmoke:
 # ---------------------------------------------------------------------------
 class TestScreenshots:
     def test_contains_at_least_one_image(self, driver, base_url):
-        driver.get(f"{base_url}/screenshots.html")
+        driver.get(f"{base_url}/app/screenshots.html")
         imgs = driver.find_elements(By.CSS_SELECTOR, "img")
         assert len(imgs) > 0, "No <img> elements on screenshots page"
 
     def test_lightbox_js_is_referenced(self, driver, base_url):
-        driver.get(f"{base_url}/screenshots.html")
+        driver.get(f"{base_url}/app/screenshots.html")
         scripts = driver.find_elements(By.CSS_SELECTOR, "script[src]")
         srcs = [s.get_attribute("src") for s in scripts]
         has_lightbox = any(
@@ -98,7 +98,7 @@ class TestDescription:
 # ---------------------------------------------------------------------------
 class TestCrafting:
     def test_body_has_content(self, driver, base_url):
-        driver.get(f"{base_url}/crafting.html")
+        driver.get(f"{base_url}/app/Crafting.html")
         assert len(driver.find_element(By.CSS_SELECTOR, "body").text.strip()) > 20
 
 
@@ -106,7 +106,7 @@ class TestCrafting:
 # races.html / classes.html — character info pages
 # ---------------------------------------------------------------------------
 class TestCharacterPages:
-    @pytest.mark.parametrize("path", ["/races.html", "/classes.html", "/feats.html"])
+    @pytest.mark.parametrize("path", ["/app/races.html", "/app/classes.html", "/app/feats.html"])
     def test_body_has_content(self, driver, base_url, path):
         driver.get(f"{base_url}{path}")
         assert len(driver.find_element(By.CSS_SELECTOR, "body").text.strip()) > 20
