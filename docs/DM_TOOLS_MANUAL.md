@@ -18,6 +18,7 @@ well as a logged-in DM for most tools.
 8. [Conflict placeables](#8-conflict-placeables)
 9. [Coordinates and terrain codes](#9-coordinates-and-terrain-codes)
 10. [How time is tracked](#10-how-time-is-tracked)
+11. [Domain ownership and access](#11-domain-ownership-and-access)
 
 ---
 
@@ -430,19 +431,31 @@ Interest is settled when the account is opened, not by the heartbeat (`_bank.nss
 The account item remembers the holder's online ticks at its last settlement
 (`GPmark`, `IVmark`) and catches up for the time since:
 
-- **Normal interest:** each full 576 ticks of the holder's online time grows the
-  balance `GP` by `iNormalInterest` % (1%, compounding). Up to 400 days are applied
-  in one settlement.
-- **Investments:** a deposit sets `IVdelay` to `iInvestmentDelay * 576` ticks (20
-  days). It counts down by the holder's online ticks and shows as matured (`-1`)
-  when the term is over; the player can then take the money back.
-- **Known fault, behaviour kept:** the old heartbeat code never applied the
-  investment gain `iInvestmentInterest`, because it tested a stale copy of
-  `IVdelay`. Investments pay back the principal only, and still do. See `TODO.md`.
+- **Normal interest:** `iNormalInterest` % per month (2%, a month being
+  `iBankMonthDays` = 28 bank days), added each full 576 ticks of the holder's
+  online time, compounding. The part of a gold piece
+  that rounds off is carried (`GPfrac`), so small balances grow too. Up to 400 days
+  are applied in one settlement.
+- **Investments:** a deposit locks the principal for `iInvestmentDelay` bank days
+  (20). The rate (`IVrate`, tenths of a percent per month) and the term (`IVdays`)
+  are stored on the item at purchase, so changing the settings later never alters
+  a deal in progress. The term counts down by the holder's online ticks. When it
+  ends the principal grows once by `(1 + rate) ^ (term / iBankMonthDays)`,
+  which is `iInvestmentInterest` % per month (3%) compounded daily, with a month of
+  28 bank days. It shows as matured (`-1`) and the player can then take it out.
+  An investment bought before this rule has no `IVrate` and is paid back at face
+  value.
+- **Compare with the normal account:** over a 20-day term the investment returns
+  about 2.1% and the same money in the normal account about 1.4%.
 
 An account earns only while its holder is logged in and carrying it.
 
 ### Game calendar (house rent)
+
+The module runs 2 real minutes per game hour, so a game day is 48 real minutes.
+The calendar has 12 months of 28 days: a game month is about 22.4 real hours and a
+game year (336 days) about 11.2 real days. A bank day (576 ticks, 58 online
+minutes) is a little longer than a game day.
 
 House and apartment rent does not touch a bank account. It is paid in gold straight
 from the player's purse when they rent or pay a month at the structure. The
@@ -455,3 +468,44 @@ timer.
 
 An older `<Planet>&<Area>&Rent&<Slot>` counter is still written to the goldbag when
 rent is paid, but nothing reads it for expiry.
+
+---
+
+## 11. Domain ownership and access
+
+A domain has one owner, recorded in its Interests record and on every object placed
+in it. Other characters can be given the use of one structure or the whole domain.
+A grant lets them use a structure (collect, hire, rent) but never build or destroy.
+
+### Chat commands (DMs, standing in the domain)
+
+| Command | What it does |
+|---|---|
+| `.wdomain` | Shows the owner, how long they have been away, whether the domain is for sale, and every access grant. |
+| `.wowner <Character Name> [keep] [force]` | Gives the domain to another character. Stand in the domain's outdoor area, not inside a structure. |
+| `.wgrant <Character Name> [slot]` | Lets a character use one structure (slot 1 to 10) or, with no slot, the whole domain. |
+| `.wrevoke <Character Name> [slot]` | Takes that access away. |
+
+`.wowner` updates the Interests record and the `Master` of every object in the
+area, keeps slot contents and stock, and restarts the production timers from the
+new owner's clock, so nothing is lost and the next item is a full period away.
+Access grants are cleared unless you add `keep`. Renters keep their tenancy. The
+command refuses a name the server has never recorded (a typo guard) unless you add
+`force`. If the old owner is online their unimported structure data is copied first.
+
+Two limits: guild members hold the hall owner's name in their own data, so a guild
+hall changing hands loses its members' membership; and structure data that was
+never imported from an offline owner's character stays on that character, so the
+new owner's structures start unconfigured.
+
+### Buying an abandoned domain
+
+At a domain's sign, a player who is not its owner sees an offer once the owner has
+been away for `iDomainAbandonedDays` real days (365). "Away" is the real-world
+`LastSeen_<Name>` time, written when a character logs in or out and every 5
+minutes; a character with no recorded time is never treated as away. The price is
+`iDomainAbandonedGP` (5000 GP, taken from the buyer and removed from the game).
+The buyer receives the domain exactly as `.wowner` would hand it over, with access
+grants cleared. The old owner is not paid or notified, and nothing returns the
+domain to them except a DM using `.wowner`.
+

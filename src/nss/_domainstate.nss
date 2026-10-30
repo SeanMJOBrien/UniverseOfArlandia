@@ -22,6 +22,7 @@
 
 #include "aps_include"
 #include "_module"
+#include "_string_utils"
 #include "inc_sqlite_time"
 
 const string DSTATE_PREFIX = "DS&";
@@ -93,12 +94,23 @@ object DomainFindOnlinePC(string sName)
     return OBJECT_INVALID;
 }
 
+// The domain's owner: field 1 of its Interests record ("D&1&<owner>&2&..."), which
+// exists for every domain whichever area a script runs in. Structure interiors
+// also carry it as the area local "Master", used when there is no record.
+string DomainOwnerName(object oArea)
+{
+    string sRecord = GetPersistentString(GetModule(), GetLocalString(oArea, "Planet") + "&" + GetLocalString(oArea, "Area") + "&Interests");
+    string sOwner = Between(sRecord, "&1&", "&2&");
+    if (sOwner == "") { sOwner = GetLocalString(oArea, "Master"); }
+    return sOwner;
+}
+
 // The online-tick count that drives this domain's production: the owner's, read
 // live when they are logged in and from the mirror otherwise. A domain with no
 // recorded owner falls back to the speaker's own clock, as before.
 int DomainOwnerTicks(object oPC, object oArea)
 {
-    string sOwner = GetLocalString(oArea, "Master");
+    string sOwner = DomainOwnerName(oArea);
     object oOwner = oPC;
     if ((sOwner != "") && (sOwner != GetName(oPC)))
     {
@@ -128,11 +140,12 @@ void DomainStateCopyString(object oGoldbag, string sKey)
 // their goldbag holds the real data) or the domain was already imported.
 void DomainStateMigrate(object oPC, object oArea)
 {
+    if (!GetIsObjectValid(oPC)) { return; }
     string sPlanet = GetLocalString(oArea, "Planet");
     string sArea = GetLocalString(oArea, "Area");
     string sBase = sPlanet + "&" + sArea;
     if (DomainStateGetInt(sBase + "&Migrated") == 1) { return; }
-    string sOwner = GetLocalString(oArea, "Master");
+    string sOwner = DomainOwnerName(oArea);
     if ((sOwner == "") || (sOwner != GetName(oPC))) { return; }
     object oGoldbag = GetItemPossessedBy(oPC, "goldbag");
     if (!GetIsObjectValid(oGoldbag)) { return; }

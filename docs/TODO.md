@@ -25,12 +25,14 @@ Done and deployed: owner online clock, domain state in pwdata, caserne, lazy ban
 - **Guild member count in the guild dialog.** Suggested and dropped: the game has no guild roster (the XP bonus counts guild members in the party). Decide whether to add a roster.
 - **Inactive characters cleanup (DM web console page).** List by days since `LastSeen`, with holdings; preview, then actions: mark abandoned, release structure slots, purge clock and language rows, remove all. Offline-only, archive rows before deleting, audit log, protected list, run in the module via the command queue.
   - Decide: default threshold (60, 90 or 180 days); automatic weekly count on Overview only, or auto-mark with login warning; whether to also demolish placed objects or just free the slot; whether the console ever deletes `.bic` files; character renames/deletes.
-- **DM domain controls (chosen next).** On the console domain page: "Set owner" (writes `Master`, keeps grants and stock), and grant/revoke a slot or the whole domain for a named character. All audited. Decide: whether a new owner inherits stock and markers; whether the previous owner is notified.
-- **Purchase of abandoned domains (in-game).** Not chosen yet. Decide: price rule (fraction of build cost), whether the old owner may reclaim, how long a domain must be abandoned. Ownership is per domain (one `Master`), so per-building sale would need a per-slot owner field and a migration of the `Master` checks (`cond_domain004`/`005`/`019`); selling the whole domain is the cheaper option.
 
 ## Follow-ups from the owner-clock change
 
-- **Investment gain never paid (existing bug, behaviour kept).** The old heartbeat tested a stale copy of `IVdelay`, so `iInvestmentInterest` was never applied and investments return only the principal. Decide the intended gain (documented 3% per day over the 20-day term, which would be 1000 -> 1600) and add it to `BankSettle` in `_bank.nss` where the term reaches -1.
+- **Bank rates:** normal accounts 2% per month, investments 3% per month, both added daily with a 28-bank-day month (`iBankMonthDays`). Over a 20-day term that is about 1.4% against 2.1%. Revisit if players do not bother with either.
+- **Bank settings control.** Mock only (see the DM console prototype). The module still reads compiled constants; build the `dm_setting` table, the loader and the queue op.
+- **Domain ownership.** `.wowner`, `.wgrant`, `.wrevoke`, `.wdomain` and the abandoned-domain purchase are implemented (365 days away, 5000 GP, `_module.nss`). To decide: whether the old owner is notified or paid, a waiting period before a sale, and an owner index so structure data can be imported at login rather than at first dialog.
+- **Test in game:** `.wowner` on a test domain, a purchase by a second character after setting `LastSeen_<owner>` back, and the "for sale" dialog node.
+
 - **Guild membership** is now lazy (`_guild.nss`, `GuildEnd`). Verify in game: join a guild, check days left in the guild dialog and the XP bonus, relog.
 - **Verify in game after deploy:** owner opens an extractor (migrates old data, timer shown); granted user sees the same numbers; owner offline, grantee sees frozen timer; casern, factory and farm dialogs; bank open after some play time (interest, investment term); `OnlineTicks&<Name>` and `LastSeen_<Name>` rows appear in `pwdata`.
 - **Old goldbag markers** (`<Planet>&<Area><Slot>`, `Counter<i>`) are now dead data on every goldbag. Clean up later once migration is confirmed.

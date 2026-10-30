@@ -59,7 +59,7 @@ sMes = sMes+"This structure is linked to the "+ColorText("Factory (slot "+IntToS
 ////////////////////////////////////////////////////////////////////////////////
 // Structures that do not go through domain_content build their own line here.
 if(iStructure==3){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainCasernSummary(StringToInt(GetStringRight(GetName(OBJECT_SELF),1)),GetLocalInt(oArea,"Bonus"),DomainOwnerTicks(oPC,oArea)-DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter")));}
-if(iStructure==9){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainGuildSummary(oGoldbag,GetLocalString(oArea,"Master")));}
+if(iStructure==9){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainGuildSummary(oGoldbag,DomainOwnerName(oArea)));}
 string sProduction = GetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);
 DeleteLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);
 if(sProduction!=""){if(sMes==""){sMes = sProduction;}else{sMes = sProduction+"\n\n"+sMes;}}

@@ -19,6 +19,7 @@
 #include "dmb_nui_inc"
 #include "_webmap"
 #include "_unitrent"
+#include "_domaintransfer"
 #include "dmfi_lang_nui"
 #include "dmfi_lang_teach"
 #include "dmfi_lang_nwnx"
@@ -43,6 +44,7 @@ string DmbTrim(string sText)
 void DmbChatUsage(object oPC)
 {
     SendMessageToPC(oPC, "World-builder commands: .wjump <X_Y> | .warea <tagprefix> [X_Y] | .wcluster [X_Y] | .wunits <count> [sizes]  (coordinates use m for negative, e.g. m3_5)");
+    SendMessageToPC(oPC, "Domain commands (stand in the domain): .wdomain | .wowner <Character Name> [keep] [force] | .wgrant <Character Name> [slot] | .wrevoke <Character Name> [slot]");
 }
 
 // Resolve the command's target coordinate: the explicit argument, or the
@@ -282,6 +284,131 @@ void DmbCmdUnits(object oPC, string sArgs)
     SendMessageToPC(oPC, "Rental door set: " + IntToString(iCount) + " unit(s), sizes " + sFull + " (1 small, 2 medium, 3 large).");
 }
 
+
+// --- Domain ownership and access ------------------------------------------
+
+// The domain the DM is standing in: its world coordinate and the outdoor area.
+// Sets bInterior when the DM is inside a structure, where the owner cannot be moved.
+string DmbDomainSummary(object oPC, object oArea)
+{
+    string sOwner = DomainOwnerName(oArea);
+    if (sOwner == "") return "";
+    int iAway = DomainDaysAway(sOwner);
+    string sAway = "last seen unknown (not recorded yet)";
+    if (iAway == 0) sAway = "online or seen today";
+    else if (iAway > 0) sAway = "away " + IntToString(iAway) + " day(s)";
+    string sSale = "";
+    if (DomainIsAbandoned(oArea)) sSale = " FOR SALE at " + IntToString(iDomainAbandonedGP) + " GP";
+    return "Owner: " + sOwner + ", " + sAway + sSale;
+}
+
+// Split "Name With Spaces 3" into the name and a trailing word. A trailing word is
+// only taken when it is one of the allowed flags or a number, never part of a name.
+string DmbTrailing(string sArgs, int bNumber)
+{
+    int iLast = -1; int iAt;
+    while ((iAt = FindSubString(GetStringRight(sArgs, GetStringLength(sArgs) - iLast - 1), " ")) != -1) { iLast = iLast + iAt + 1; }
+    if (iLast == -1) return "";
+    string sWord = GetStringRight(sArgs, GetStringLength(sArgs) - iLast - 1);
+    if (bNumber) { if (IntToString(StringToInt(sWord)) == sWord) return sWord; return ""; }
+    string sLow = GetStringLowerCase(sWord);
+    if ((sLow == "keep") || (sLow == "force")) return sLow;
+    return "";
+}
+
+string DmbStripTrailing(string sArgs, string sWord)
+{
+    if (sWord == "") return sArgs;
+    return DmbTrim(GetStringLeft(sArgs, GetStringLength(sArgs) - GetStringLength(sWord)));
+}
+
+// Is this a character the server has met? A typo guard, bypassed with "force".
+int DmbKnownCharacter(string sName)
+{
+    if (DomainFindOnlinePC(sName) != OBJECT_INVALID) return TRUE;
+    return (GetPersistentInt(GetModule(), DOMAIN_SEEN_KEY + sName) > 0) || (GetPersistentInt(GetModule(), "LastLogin_" + sName) > 0) || (GetPersistentInt(GetModule(), DOMAIN_CLOCK_KEY + sName) > 0);
+}
+
+void DmbCmdDomain(object oPC)
+{
+    object oArea = GetArea(oPC);
+    string sSummary = DmbDomainSummary(oPC, oArea);
+    if (sSummary == "") { SendMessageToPC(oPC, "This is not a domain."); return; }
+    SendMessageToPC(oPC, sSummary);
+    string sPlanet = GetLocalString(oArea, "Planet");
+    string sArea = DomainAreaOf(oArea);
+    string sGrants = "";
+    int iSlot;
+    for (iSlot = DOMAINUSER_ALL_SLOTS; iSlot <= DOMAINUSER_MAX_SLOT; iSlot++)
+    {
+        string sList = DomainUsersList(sPlanet, sArea, iSlot);
+        if (sList != "")
+        {
+            string sWho = GetStringRight(GetStringLeft(sList, GetStringLength(sList) - 1), GetStringLength(sList) - 2);
+            string sWhere = "whole domain";
+            if (iSlot > 0) sWhere = "slot " + IntToString(iSlot);
+            sGrants += "\n  " + sWhere + ": " + sWho;
+        }
+    }
+    if (sGrants == "") sGrants = " none";
+    SendMessageToPC(oPC, "Access grants:" + sGrants);
+}
+
+void DmbCmdOwner(object oPC, string sArgs)
+{
+    object oArea = GetArea(oPC);
+    if (GetLocalString(oArea, "AreaExit") != "") { SendMessageToPC(oPC, "Stand in the domain's outdoor area, not inside a structure."); return; }
+    if (DomainOwnerName(oArea) == "") { SendMessageToPC(oPC, "This is not a domain."); return; }
+    int bForce = FALSE; int bKeep = FALSE;
+    string sFlag = DmbTrailing(sArgs, FALSE);
+    while (sFlag != "")
+    {
+        if (sFlag == "force") bForce = TRUE; else bKeep = TRUE;
+        sArgs = DmbStripTrailing(sArgs, sFlag);
+        sFlag = DmbTrailing(sArgs, FALSE);
+    }
+    if (sArgs == "") { SendMessageToPC(oPC, "Usage: .wowner <Character Name> [keep] [force]   (keep = keep the access grants)"); return; }
+    if (!bForce && !DmbKnownCharacter(sArgs))
+    {
+        SendMessageToPC(oPC, sArgs + " is not a character the server has recorded. Check the spelling, or add 'force'.");
+        return;
+    }
+    string sOld = DomainOwnerName(oArea);
+    int iCount = DomainTransferOwner(oArea, sArgs, !bKeep);
+    SendMessageToPC(oPC, "Domain moved from " + sOld + " to " + sArgs + ". " + IntToString(iCount) + " object(s) updated. Production timers restarted.");
+}
+
+void DmbCmdGrant(object oPC, string sArgs, int bGrant)
+{
+    object oArea = GetArea(oPC);
+    string sPlanet = GetLocalString(oArea, "Planet");
+    string sArea = DomainAreaOf(oArea);
+    if (DomainOwnerName(oArea) == "") { SendMessageToPC(oPC, "This is not a domain."); return; }
+    int iSlot = DOMAINUSER_ALL_SLOTS;
+    string sSlot = DmbTrailing(sArgs, TRUE);
+    if (sSlot != "") { iSlot = StringToInt(sSlot); sArgs = DmbStripTrailing(sArgs, sSlot); }
+    if ((sArgs == "") || (iSlot < 0) || (iSlot > DOMAINUSER_MAX_SLOT))
+    {
+        SendMessageToPC(oPC, "Usage: .wgrant|.wrevoke <Character Name> [slot 1-10]   (no slot = the whole domain)");
+        return;
+    }
+    string sWhere = "the whole domain";
+    if (iSlot > 0) sWhere = "slot " + IntToString(iSlot);
+    if (bGrant)
+    {
+        DomainAddUser(sArgs, sPlanet, sArea, iSlot);
+        SendMessageToPC(oPC, sArgs + " may now use " + sWhere + ".");
+    }
+    else
+    {
+        DomainRemoveUser(sArgs, sPlanet, sArea, iSlot);
+        SendMessageToPC(oPC, sArgs + " no longer has access to " + sWhere + ".");
+    }
+    string sVerbWord = "revoked";
+    if (bGrant) sVerbWord = "granted";
+    WriteTimestampedLogEntry("DM " + GetName(oPC) + " " + sVerbWord + " " + sArgs + " on " + sPlanet + "&" + sArea + " " + sWhere);
+}
+
 void main()
 {
     object oPC = GetPCChatSpeaker();
@@ -341,5 +468,9 @@ void main()
     else if (sVerb == ".warea")    DmbCmdArea(oPC, sArgs);
     else if (sVerb == ".wcluster") DmbCmdCluster(oPC, sArgs);
     else if (sVerb == ".wunits")   DmbCmdUnits(oPC, sArgs);
+    else if (sVerb == ".wdomain")  DmbCmdDomain(oPC);
+    else if (sVerb == ".wowner")   DmbCmdOwner(oPC, sArgs);
+    else if (sVerb == ".wgrant")   DmbCmdGrant(oPC, sArgs, TRUE);
+    else if (sVerb == ".wrevoke")  DmbCmdGrant(oPC, sArgs, FALSE);
     else                           DmbChatUsage(oPC);
 }
