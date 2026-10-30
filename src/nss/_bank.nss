@@ -13,21 +13,51 @@
 //   IVmark        holder ticks when IVdelay was last brought up to date
 // The old per-tick "GPdelay" is migrated into GPmark on first settlement.
 //
-// Normal interest is iNormalInterest % per month (iBankMonthDays bank days),
+// Normal interest is a monthly rate (BankNormalRate10, 2% by default) over a month of BankMonthDays bank days,
 // added daily on the holder's online time. The fraction of a gold piece it
 // rounds off is carried (GPfrac) so small balances still grow.
 //
 // An investment locks its principal for a term. At purchase the rate
-// (IVrate, tenths of a percent per month) and the term (IVdays) are stored on
+// (IVrate, tenths of a percent per month), the term (IVdays) and the month length (IVmonth) are stored on
 // the item, so a later change to the settings never alters a deal in progress.
 // When the term ends the principal is grown once at that rate, compounded daily
 // over the term, and then waits to be collected. Investments bought before this
 // change have no IVrate and are paid back at face value, as they were bought.
 
+#include "aps_include"
 #include "_module"
 
 const int BANK_TICKS_PER_DAY = 576;       // one day of online time (6 s heartbeat)
 const int BANK_MAX_DAYS_PER_SETTLE = 400; // keeps one settlement inside the instruction limit
+
+// --- Settings -------------------------------------------------------------
+// The DM page (www/dm_bank.php) stores these as BankSetting_<name> in pwdata and
+// the module reads them every time, so a change applies to the next account
+// opened with no restart. When a setting has never been saved, the compiled
+// default in _module.nss is used. Rates are in tenths of a percent per month.
+
+const string BANK_SETTING = "BankSetting_";
+
+int BankSetting(string sName, int iDefault)
+{
+    string sValue = GetPersistentString(GetModule(), BANK_SETTING + sName);
+    if (sValue == "") { return iDefault; }
+    return StringToInt(sValue);
+}
+
+int BankNormalRate10()  { return BankSetting("normal10", iNormalInterest * 10); }
+int BankInvestRate10()  { return BankSetting("rate10", iInvestmentInterest * 10); }
+int BankMonthDays()     { return BankSetting("month", iBankMonthDays); }
+int BankTermDays()      { return BankSetting("term", iInvestmentDelay); }
+int BankAccountPrice()  { return BankSetting("price", iAccount); }
+int BankInvestmentsOpen() { return BankSetting("open", 1); }
+
+// 20 -> "2", 15 -> "1.5"
+string BankPercentText(int iTenths)
+{
+    if ((iTenths % 10) == 0) { return IntToString(iTenths / 10); }
+    return IntToString(iTenths / 10) + "." + IntToString(iTenths % 10);
+}
 
 int BankHolderTicks(object oPC)
 {
@@ -40,7 +70,9 @@ void BankPayInvestmentGain(object oAccount)
     int iRate = GetLocalInt(oAccount, "IVrate");
     int iDays = GetLocalInt(oAccount, "IVdays");
     if ((iRate <= 0) || (iDays <= 0)) { return; }
-    float fGrowth = pow(1.0 + IntToFloat(iRate) / 1000.0, IntToFloat(iDays) / IntToFloat(iBankMonthDays));
+    int iMonth = GetLocalInt(oAccount, "IVmonth");
+    if (iMonth <= 0) { iMonth = BankMonthDays(); }
+    float fGrowth = pow(1.0 + IntToFloat(iRate) / 1000.0, IntToFloat(iDays) / IntToFloat(iMonth));
     SetLocalInt(oAccount, "IV", FloatToInt(IntToFloat(GetLocalInt(oAccount, "IV")) * fGrowth));
 }
 
@@ -48,10 +80,11 @@ void BankPayInvestmentGain(object oAccount)
 void BankStartInvestment(object oPC, object oAccount, int iPrincipal)
 {
     SetLocalInt(oAccount, "IV", iPrincipal);
-    SetLocalInt(oAccount, "IVdelay", iInvestmentDelay * BANK_TICKS_PER_DAY);
+    SetLocalInt(oAccount, "IVdelay", BankTermDays() * BANK_TICKS_PER_DAY);
     SetLocalInt(oAccount, "IVmark", BankHolderTicks(oPC));
-    SetLocalInt(oAccount, "IVrate", iInvestmentInterest * 10);
-    SetLocalInt(oAccount, "IVdays", iInvestmentDelay);
+    SetLocalInt(oAccount, "IVrate", BankInvestRate10());
+    SetLocalInt(oAccount, "IVdays", BankTermDays());
+    SetLocalInt(oAccount, "IVmonth", BankMonthDays());
 }
 
 // Bring an account up to date for the time its holder has been online.
@@ -76,7 +109,7 @@ void BankSettle(object oPC, object oAccount)
     if (iGP > 0)
     {
         float fGP = IntToFloat(iGP) + GetLocalFloat(oAccount, "GPfrac");
-        float fDaily = pow(1.0 + IntToFloat(iNormalInterest) / 100.0, 1.0 / IntToFloat(iBankMonthDays));
+        float fDaily = pow(1.0 + IntToFloat(BankNormalRate10()) / 1000.0, 1.0 / IntToFloat(BankMonthDays()));
         fGP = fGP * pow(fDaily, IntToFloat(iDays));
         iGP = FloatToInt(fGP);
         SetLocalInt(oAccount, "GP", iGP);

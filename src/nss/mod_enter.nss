@@ -1,6 +1,6 @@
 #include "aps_include"
 #include "_module"
-#include "_domainstate"
+#include "_domainindex"
 #include "inc_mappin"
 #include "dmfi_lang_inc"
 ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +157,7 @@ if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers)
 // Last login (real-world Unix timestamp, from the native SQLite clock)
 SetPersistentInt(oModule,"LastLogin_"+sName,SQLite_GetTimeStamp());
 DomainClockSync(oPC);
+DomainIndexImportFor(oPC);
 // Language state is restored from the campaign database
 LangLoad(oPC);
 // Language hint: [text] speaks in your language, .languages lists the options

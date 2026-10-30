@@ -52,6 +52,7 @@ int iUnitRentLarge =    1000;                   //*// GP rent per term for a lar
 //
 int iDomainRentDays =   30;                     //*// Game days a month's house rent buys (see _domainuser.nss's expiry clock).
 int iDomainAbandonedDays=365;                    //*// Real days an owner must be away before their domain can be bought by another player.
+int iDomainSaleWaitDays= 30;                    //*// Real days between an owner being 365 days away (notice, email) and the domain going on sale.
 int iDomainAbandonedGP=  5000;                  //*// GP price to buy an abandoned domain. The gold leaves the game.
 int iDomainMailItems =  10;                     //*// Max. items a mailbox can contain (out of sent mails).
 ////////////////////////////////////////////////////////////////////////////////

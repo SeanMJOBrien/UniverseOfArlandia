@@ -19,6 +19,7 @@ well as a logged-in DM for most tools.
 9. [Coordinates and terrain codes](#9-coordinates-and-terrain-codes)
 10. [How time is tracked](#10-how-time-is-tracked)
 11. [Domain ownership and access](#11-domain-ownership-and-access)
+12. [DM web pages and email alerts](#12-dm-web-pages-and-email-alerts)
 
 ---
 
@@ -424,8 +425,19 @@ marks it). The old goldbag values are left in place and no longer used.
   Counter`, worked out when read (`_guild.nss`). Nothing runs per heartbeat. A paid
   term is `iDomainGuildMB * 576` ticks. Terms from the old countdown (`GuildMB`)
   are converted the first time they are read.
+- **Guild roster** (`_guildroster.nss`): each member's remaining ticks are mirrored
+  to `GuildMember&<hall owner>&<character>` when they join, renew, leave, log in
+  or out, and every 5 minutes. A member's clock only moves while they are online,
+  so the mirrored figure stays right while they are away. The hall's first dialog
+  shows how many members have time left, how many are online and the first eight
+  names.
 
 ### Bank accounts
+
+Rates, term, month length, account price and whether investments are open are read
+from `BankSetting_<name>` rows in `pwdata` each time they are needed, falling back
+to the compiled values in `_module.nss`. The DM page `dm_bank.php` edits them
+(section 12).
 
 Interest is settled when the account is opened, not by the heartbeat (`_bank.nss`).
 The account item remembers the holder's online ticks at its last settlement
@@ -498,14 +510,87 @@ hall changing hands loses its members' membership; and structure data that was
 never imported from an offline owner's character stays on that character, so the
 new owner's structures start unconfigured.
 
-### Buying an abandoned domain
+### Domain owner index
 
-At a domain's sign, a player who is not its owner sees an offer once the owner has
-been away for `iDomainAbandonedDays` real days (365). "Away" is the real-world
-`LastSeen_<Name>` time, written when a character logs in or out and every 5
-minutes; a character with no recorded time is never treated as away. The price is
-`iDomainAbandonedGP` (5000 GP, taken from the buyer and removed from the game).
-The buyer receives the domain exactly as `.wowner` would hand it over, with access
-grants cleared. The old owner is not paid or notified, and nothing returns the
-domain to them except a DM using `.wowner`.
+`DomainIndex&<Character>` in `pwdata` lists the domains each character owns. It is
+built once from the Interests records shortly after the module loads, and kept up
+to date when a domain is created, destroyed or handed over. When an owner logs in,
+the structure data of every domain they own is imported from their character at
+once, instead of at the first structure dialog.
+
+### Inactive owners, the notice and buying an abandoned domain
+
+An owner is inactive once they have been away `iDomainAbandonedDays` real days
+(365). "Away" is the real-world `LastSeen_<Name>` time, written when a character
+logs in or out and every 5 minutes. A character with no recorded time is given
+one by the first sweep, so every owner has a full 365 days from then to return.
+
+The sweep runs after the module loads and every 6 hours. When an owner passes 365
+days, each of their domains is noticed once. If their account has registered an
+email address, a message is queued saying the domain goes on sale in
+`iDomainSaleWaitDays` (30) days unless they log in. Logging in with the owner
+character is enough, and it resets the clock.
+
+After the waiting period (395 days away) a player at the domain's sign is offered
+the domain for `iDomainAbandonedGP` (5000 GP, taken from the buyer and removed from
+the game). The buyer receives it exactly as `.wowner` would hand it over, with
+access grants cleared and the notice record reset. The old owner is emailed if they
+registered one. Nothing returns the domain to them except a DM using `.wowner`.
+`.wdomain` shows whether an owner is inactive, how many days remain before the
+sale, and whether email alerts are on.
+
+### Email alerts (players)
+
+Any player can type `.email you@example.com` in game to register an address for
+their account, `.email` to see it and `.email off` to remove it. It is stored by
+player account, so it covers every character on that account. The message is
+cleared from chat. The address is not verified: anyone using the account can set
+it, and the server cannot tell whether it is the owner's.
+
+---
+
+## 12. DM web pages and email alerts
+
+These pages are part of the PHP site. Log in from the DM area on the home page
+first; every page checks that session and every change needs the page's form token.
+
+### Bank (`dm_bank.php`)
+
+Sets the normal account rate, the account price, the investment rate, term and
+month length, and opens or closes new investments. Rates are percent per month in
+steps of 0.1. Values are checked against their limits, written to `pwdata` and
+recorded in the `dm_audit` table. The module reads them the next time an account is
+opened, so no restart is needed. A running investment keeps the rate and term it was
+bought with. The page also shows what 1000 GP returns under the current values and
+warns when investing returns less than a normal account. The defaults shown for a
+setting that has never been saved must match `_module.nss`.
+
+### Inactive accounts (`dm_inactive.php`)
+
+Lists player accounts, oldest first, whose newest character has not been saved for
+365 days. The server vault has one folder per account (the public CD key) with one
+`.bic` per character; a `.bic` is rewritten whenever the character is saved, and
+the later of that time and the character's `LastSeen_` record counts. Each account
+shows its characters, when each was last saved, whether it has an email registered
+and the domains its characters own.
+
+The page changes nothing by itself. To remove an account's characters, type its
+folder name and press the button. The `.bic` files are moved to
+`servervault_removed/<date>/<account>/` next to the vault, so a mistake can be undone
+by moving them back; emptying that folder is a separate manual step. An account
+with any character active in the last 365 days is refused. Domains and placed
+objects are never touched. Hand a domain over with `.wowner`, or remove its objects
+by hand in game.
+
+The web server must be able to read the vault, and write to its parent folder to
+remove characters. Set `UOA_VAULT` to the vault path if it is not
+`/home/qlippoth/uoa/server/servervault`.
+
+### Sending the emails
+
+The module only queues messages, in the `mail_outbox` table. Send them by running
+`php tools/send_outbox.php` on the host from cron every 15 minutes. It uses PHP's
+`mail()`, so the host needs a working mail setup (sendmail or equivalent). Set
+`$mail_from` in `www/uoa.php` to the sender address. A message that fails five times
+stays in the table unsent.
 

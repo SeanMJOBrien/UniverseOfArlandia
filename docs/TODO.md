@@ -9,31 +9,34 @@
   - Work: the item blueprint and palette entry; item read and write functions beside `LangSave`, `LangLoad` and `LangSaveExp` in `dmfi_lang_inc.nss`; creation of a missing item on entry; a one-time copy from sqlite onto the item; ERF build and docs.
   - Open points: items are saved only when characters are exported (about every 20 minutes and at server exit), so a crash can lose recent progress; a DM could copy the item to give another character the same languages; and which other information belongs on the item.
 
-## Game clocks
+## Domain clock and ownership
 
-- Consider the effects of moving the bank-interest and caserne clocks off the engine heartbeat counters and into the database (real-time timestamps). Today bank interest (`GPdelay`/`IVdelay` on the account item) and caserne troops (`Counter` on the goldbag) only advance while a player is logged in, and bank accounts only earn while the card is carried. Questions to settle first:
-  - Should interest and troops accrue while the owner is offline? That is a large economic change (balance, inflation, catch-up on login after a long absence).
-  - Where would the timestamp live for a bank card that is an item (follows the character) versus a caserne (belongs to a structure)?
-  - Migration of existing `GPdelay`, `IVdelay` and caserne goldbag markers, and what happens to a half-run investment.
-  - Caserne shares one clock for all five levels and resets it on collection; a timestamp version needs the same reset semantics.
-  - See "How time is tracked" in `DM_TOOLS_MANUAL.md`.
+Deployed: owner online clock, domain state in pwdata, caserne, lazy bank and guild, factory timer, NWNX_Item, `.wowner`/`.wgrant`/`.wrevoke`/`.wdomain`, abandoned-domain purchase (365 days away, 5000 GP), monthly bank rates.
 
-## Domain clock and ownership (decisions pending)
+Built and compiled, not yet deployed or tested: guild roster, owner index with login import, inactivity sweep with a 30-day waiting period and email queue, `.email`, bank settings read from `pwdata`, `dm_bank.php`, `dm_inactive.php`, `tools/send_outbox.php`.
 
-Done and deployed: owner online clock, domain state in pwdata, caserne, lazy bank, factory timer, NWNX_Item. Guild lazy is built but not yet deployed. Background: see "How time is tracked" in `DM_TOOLS_MANUAL.md`. Production, casern troops and guild terms run on the goldbag `Counter` of whoever opens the dialog; bank interest runs on the account item; rent runs on the game calendar.
+## To decide
 
-- **Guild member count in the guild dialog.** Suggested and dropped: the game has no guild roster (the XP bonus counts guild members in the party). Decide whether to add a roster.
-- **Inactive characters cleanup (DM web console page).** List by days since `LastSeen`, with holdings; preview, then actions: mark abandoned, release structure slots, purge clock and language rows, remove all. Offline-only, archive rows before deleting, audit log, protected list, run in the module via the command queue.
-  - Decide: default threshold (60, 90 or 180 days); automatic weekly count on Overview only, or auto-mark with login warning; whether to also demolish placed objects or just free the slot; whether the console ever deletes `.bic` files; character renames/deletes.
+- **Old owner payment.** A sold domain's price leaves the game. Decide whether the old owner is paid (to a bank account, which needs them online) or stays unpaid.
+- **Verify email addresses.** `.email` stores whatever is typed. Decide whether to send a confirmation link first so nobody can register someone else's address.
+- **Offline accrual.** Whether bank interest and caserne troops should ever accrue while the owner is offline. No change proposed.
+- **Bank rates.** Normal accounts 2% per month, investments 3% per month, both added daily with a 28-bank-day month. Over 20 days that is about 1.4% against 2.1%. Revisit if players ignore both.
 
-## Follow-ups from the owner-clock change
+## To build
 
-- **Bank rates:** normal accounts 2% per month, investments 3% per month, both added daily with a 28-bank-day month (`iBankMonthDays`). Over a 20-day term that is about 1.4% against 2.1%. Revisit if players do not bother with either.
-- **Bank settings control.** Mock only (see the DM console prototype). The module still reads compiled constants; build the `dm_setting` table, the loader and the queue op.
-- **Domain ownership.** `.wowner`, `.wgrant`, `.wrevoke`, `.wdomain` and the abandoned-domain purchase are implemented (365 days away, 5000 GP, `_module.nss`). To decide: whether the old owner is notified or paid, a waiting period before a sale, and an owner index so structure data can be imported at login rather than at first dialog.
-- **Test in game:** `.wowner` on a test domain, a purchase by a second character after setting `LastSeen_<owner>` back, and the "for sale" dialog node.
+- **Web console.** The console prototype (DM console, queue, spawning, world map, quests) is still a mock. The Bank and Inactive pages are the first real pages, on the existing PHP site.
+- **Owner-less structure data.** An owner who never opened a structure after the update leaves its setup on their character file; a buyer of their domain then starts unconfigured. Importing at login covers owners who return; for the rest consider reading the `.bic` offline.
+- **Clean up old goldbag markers** (`<Planet>&<Area><Slot>`, `Counter<i>`) once the import is confirmed.
+- **Guild halls changing hands** lose their members, who hold the old owner's name in their own data. Consider moving the roster and the `Guild` strings when a hall is handed over.
 
-- **Guild membership** is now lazy (`_guild.nss`, `GuildEnd`). Verify in game: join a guild, check days left in the guild dialog and the XP bonus, relog.
-- **Verify in game after deploy:** owner opens an extractor (migrates old data, timer shown); granted user sees the same numbers; owner offline, grantee sees frozen timer; casern, factory and farm dialogs; bank open after some play time (interest, investment term); `OnlineTicks&<Name>` and `LastSeen_<Name>` rows appear in `pwdata`.
-- **Old goldbag markers** (`<Planet>&<Area><Slot>`, `Counter<i>`) are now dead data on every goldbag. Clean up later once migration is confirmed.
-- **Cleanup page** can use `LastSeen_<Name>` (real-world unix time) directly; it is written by `DomainClockSync`.
+## To test in game and on the site
+
+- Owner opens an extractor: old data imports and the timer shows. A granted user sees the same numbers. An offline owner's timer is frozen. Casern, factory and farm dialogs.
+- Log in as an owner: structure data imports at login (check `DS&...&Migrated` rows).
+- `OnlineTicks&<Name>`, `LastSeen_<Name>`, `Account&<Name>` and `DomainIndex&<Name>` rows appear in `pwdata`; the index backfill logs "Domain owner index built." after the module loads.
+- Bank: open after some play (interest and investment term); change a value in `dm_bank.php` and see it in the shop dialog and the next investment.
+- Guild: join, renew, leave, log in/out; the hall dialog shows the roster.
+- `.email`, `.email off`; set `LastSeen_<owner>` back 365+ days and wait for a sweep: `mail_outbox` gets a row and `tools/send_outbox.php` sends it. With 395+ days away the sign offers the sale; `.wdomain` shows the state.
+- `.wowner`, `.wgrant`, `.wrevoke` on a test domain.
+- `dm_inactive.php` against the real vault (and write access for removal). It has only been syntax-checked.
+- `dm_bank.php` saves and the module reads the values.

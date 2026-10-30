@@ -19,11 +19,8 @@
 // Not moved: guild members hold the hall's Master name in their own goldbag
 // ("Guild"), so a guild hall changing hands loses its members' membership.
 
-#include "_domainstate"
+#include "_domainindex"
 #include "_domainuser"
-#include "inc_sqlite_time"
-
-const int DOMAIN_SECONDS_PER_DAY = 86400;
 
 // Replace the owner in the Interests record, leaving the rest as it was.
 void DomainSetOwnerRecord(string sPlanet, string sArea, string sNewOwner)
@@ -36,23 +33,21 @@ void DomainSetOwnerRecord(string sPlanet, string sArea, string sNewOwner)
     SetPersistentString(GetModule(), sKey, GetStringLeft(sRecord, iFrom + 3) + sNewOwner + GetStringRight(sRecord, GetStringLength(sRecord) - iTo));
 }
 
-// Whole real days since the character was last seen, or -1 when never recorded.
-int DomainDaysAway(string sName)
+// Real days an owner must be away before their domain can be bought: the
+// inactivity period (a notice goes out then) plus the waiting period.
+int DomainSaleAfterDays()
 {
-    if (DomainFindOnlinePC(sName) != OBJECT_INVALID) { return 0; }
-    int iSeen = GetPersistentInt(GetModule(), DOMAIN_SEEN_KEY + sName);
-    if (iSeen <= 0) { return -1; }
-    return (SQLite_GetTimeStamp() - iSeen) / DOMAIN_SECONDS_PER_DAY;
+    return iDomainAbandonedDays + iDomainSaleWaitDays;
 }
 
-// Can another player buy this domain? Its owner must have been away for
-// iDomainAbandonedDays. A domain whose owner was never recorded is not for sale.
+// Can another player buy this domain? A domain whose owner was never recorded
+// is not for sale.
 int DomainIsAbandoned(object oArea)
 {
     string sOwner = DomainOwnerName(oArea);
     if (sOwner == "") { return FALSE; }
     int iAway = DomainDaysAway(sOwner);
-    return ((iAway >= 0) && (iAway >= iDomainAbandonedDays));
+    return ((iAway >= 0) && (iAway >= DomainSaleAfterDays()));
 }
 
 // The new owner's online ticks: live if they are logged in, mirrored otherwise.
@@ -88,9 +83,12 @@ int DomainTransferOwner(object oArea, string sNewOwner, int bClearGrants)
     string sOld = DomainOwnerName(oArea);
 
     // Bring any unimported goldbag data across first, while the old owner could still be online.
-    DomainStateMigrate(DomainFindOnlinePC(sOld), oArea);
+    DomainStateMigrateFor(DomainFindOnlinePC(sOld), sPlanet, sArea);
 
     DomainSetOwnerRecord(sPlanet, sArea, sNewOwner);
+    DomainIndexRemove(sOld, sPlanet, sArea);
+    DomainIndexAdd(sNewOwner, sPlanet, sArea);
+    DeletePersistentVariable(GetModule(), DOMAIN_NOTICED_KEY + sPlanet + "&" + sArea);
     int iCount;
     object oObject = GetFirstObjectInArea(oArea);
     while (GetIsObjectValid(oObject))

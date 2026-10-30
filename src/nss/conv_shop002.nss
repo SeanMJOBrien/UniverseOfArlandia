@@ -117,7 +117,7 @@ iIV = GetLocalInt(oItem,"IV");
 iIVdelay = GetLocalInt(oItem,"IVdelay");
 
 // Account price
-iPrice = iAccount;
+iPrice = BankAccountPrice();
 SetCustomToken(10135,IntToString(iPrice));
 SetLocalInt(oPC,"Price",iPrice);
 
@@ -125,9 +125,9 @@ SetLocalInt(oPC,"Price",iPrice);
 SetCustomToken(10136,IntToString(iGP));
 
 // Investments
-SetCustomToken(10137,IntToString(iNormalInterest));
-SetCustomToken(10138,IntToString(iInvestmentInterest));
-SetCustomToken(10139,IntToString(iInvestmentDelay));
+SetCustomToken(10137,BankPercentText(BankNormalRate10()));
+SetCustomToken(10138,BankPercentText(BankInvestRate10()));
+SetCustomToken(10139,IntToString(BankTermDays()));
 SetCustomToken(10140,IntToString(iIV));
 SetCustomToken(10141,IntToString(iIVdelay/576));
  }

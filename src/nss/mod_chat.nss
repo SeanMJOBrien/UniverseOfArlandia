@@ -295,11 +295,14 @@ string DmbDomainSummary(object oPC, object oArea)
     if (sOwner == "") return "";
     int iAway = DomainDaysAway(sOwner);
     string sAway = "last seen unknown (not recorded yet)";
+    string sSale = "";
     if (iAway == 0) sAway = "online or seen today";
     else if (iAway > 0) sAway = "away " + IntToString(iAway) + " day(s)";
-    string sSale = "";
     if (DomainIsAbandoned(oArea)) sSale = " FOR SALE at " + IntToString(iDomainAbandonedGP) + " GP";
-    return "Owner: " + sOwner + ", " + sAway + sSale;
+    else if (iAway >= iDomainAbandonedDays) sSale = " INACTIVE, sale opens in " + IntToString(DomainSaleAfterDays() - iAway) + " day(s)";
+    string sMail = "no email registered";
+    if (DomainEmailFor(sOwner) != "") sMail = "email alerts on";
+    return "Owner: " + sOwner + ", " + sAway + sSale + ", " + sMail;
 }
 
 // Split "Name With Spaces 3" into the name and a trailing word. A trailing word is
@@ -409,6 +412,34 @@ void DmbCmdGrant(object oPC, string sArgs, int bGrant)
     WriteTimestampedLogEntry("DM " + GetName(oPC) + " " + sVerbWord + " " + sArgs + " on " + sPlanet + "&" + sArea + " " + sWhere);
 }
 
+// --- .email: a player's opt-in alerts about their domains ------------------
+
+void ChatCmdEmail(object oPC, string sArgs)
+{
+    string sKey = DOMAIN_EMAIL_KEY + GetPCPlayerName(oPC);
+    string sNow = GetPersistentString(GetModule(), sKey);
+    string sLow = GetStringLowerCase(sArgs);
+    if (sArgs == "")
+    {
+        if (sNow == "") SendMessageToPC(oPC, "No email registered. Type .email you@example.com to get an alert before a domain of yours goes up for sale. Type .email off to remove it.");
+        else SendMessageToPC(oPC, "Alerts go to " + sNow + " for every character on this account. Type .email off to stop them.");
+        return;
+    }
+    if (sLow == "off")
+    {
+        DeletePersistentVariable(GetModule(), sKey);
+        SendMessageToPC(oPC, "Email alerts are off and the address is removed.");
+        return;
+    }
+    if (!DomainEmailLooksValid(sArgs))
+    {
+        SendMessageToPC(oPC, "That does not look like an email address. Example: .email you@example.com");
+        return;
+    }
+    SetPersistentString(GetModule(), sKey, sArgs);
+    SendMessageToPC(oPC, "Saved. If you stay away for " + IntToString(iDomainAbandonedDays) + " days, we email " + sArgs + " " + IntToString(iDomainSaleWaitDays) + " days before a domain of yours can be bought by someone else. Anyone using this account can change it.");
+}
+
 void main()
 {
     object oPC = GetPCChatSpeaker();
@@ -422,6 +453,12 @@ void main()
         {
             SetPCChatMessage("");
             LangNuiOpen(oPC);
+            return;
+        }
+        if (GetStringLowerCase(GetStringLeft(sLangMsg, 6)) == ".email")
+        {
+            SetPCChatMessage("");
+            ChatCmdEmail(oPC, DmbTrim(GetStringRight(sLangMsg, GetStringLength(sLangMsg) - 6)));
             return;
         }
         if (GetStringLowerCase(sLangMsg) == ".tutor")

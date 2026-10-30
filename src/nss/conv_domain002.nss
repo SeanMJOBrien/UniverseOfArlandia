@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_domainindex"
 void main()
 {
 object oModule = GetModule();
@@ -19,6 +20,7 @@ DestroyObject(GetLocalObject(oPC,"DomainPla4"));DeleteLocalObject(oPC,"DomainPla
 DestroyObject(GetLocalObject(oPC,"DomainPla5"));DeleteLocalObject(oPC,"DomainPla5");
 DestroyObject(GetLocalObject(oPC,"DomainItem"));DeleteLocalObject(oPC,"DomainItem");
 
+DomainIndexAdd(sName,sPlanet,sArea);
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&Interests","D&1&"+sName+"&2&_01__02__03__04__05__06__07__08__09__10_"+sName+"'s Domain_11_&3&1&4&");
 
 FloatingTextStringOnCreature("Domain built",oPC);

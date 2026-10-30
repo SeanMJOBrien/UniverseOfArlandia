@@ -24,6 +24,7 @@
 #include "_module"
 #include "_string_utils"
 #include "inc_sqlite_time"
+#include "_guildroster"
 
 const string DSTATE_PREFIX = "DS&";
 const string DOMAIN_CLOCK_KEY = "OnlineTicks&";   // + character name
@@ -80,6 +81,8 @@ void DomainClockSync(object oPC)
     string sName = GetName(oPC);
     SetPersistentInt(GetModule(), DOMAIN_CLOCK_KEY + sName, GetLocalInt(oGoldbag, "Counter"));
     SetPersistentInt(GetModule(), DOMAIN_SEEN_KEY + sName, SQLite_GetTimeStamp());
+    SetPersistentString(GetModule(), "Account&" + sName, GetPCPlayerName(oPC));
+    GuildRosterSync(oPC);
 }
 
 // The logged-in PC called sName, or OBJECT_INVALID.
@@ -136,16 +139,14 @@ void DomainStateCopyString(object oGoldbag, string sKey)
 }
 
 // Copy a domain's slot contents, markers and links from the OWNER's goldbag into
-// the domain state, once. Does nothing unless the speaker is the owner (only
-// their goldbag holds the real data) or the domain was already imported.
-void DomainStateMigrate(object oPC, object oArea)
+// the domain state, once. Does nothing unless oPC is the owner (only their goldbag
+// holds the real data) or the domain was already imported.
+void DomainStateMigrateFor(object oPC, string sPlanet, string sArea)
 {
     if (!GetIsObjectValid(oPC)) { return; }
-    string sPlanet = GetLocalString(oArea, "Planet");
-    string sArea = GetLocalString(oArea, "Area");
     string sBase = sPlanet + "&" + sArea;
     if (DomainStateGetInt(sBase + "&Migrated") == 1) { return; }
-    string sOwner = DomainOwnerName(oArea);
+    string sOwner = Between(GetPersistentString(GetModule(), sBase + "&Interests"), "&1&", "&2&");
     if ((sOwner == "") || (sOwner != GetName(oPC))) { return; }
     object oGoldbag = GetItemPossessedBy(oPC, "goldbag");
     if (!GetIsObjectValid(oGoldbag)) { return; }
@@ -167,4 +168,9 @@ void DomainStateMigrate(object oPC, object oArea)
         }
     }
     DomainStateSetInt(sBase + "&Migrated", 1);
+}
+
+void DomainStateMigrate(object oPC, object oArea)
+{
+    DomainStateMigrateFor(oPC, GetLocalString(oArea, "Planet"), GetLocalString(oArea, "Area"));
 }

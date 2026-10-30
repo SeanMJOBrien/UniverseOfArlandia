@@ -41,9 +41,9 @@ if(iIVdelay==-1){i = 1;}
 else if(iChoice2==1)
   {
      if(iChoice3==0){if(iIVdelay>0){i = 1;}}
-else if(iChoice3==1){iPrice = 1000;if(iGold>=iPrice){i = 1;}}
-else if(iChoice3==2){iPrice = 5000;if(iGold>=iPrice){i = 1;}}
-else if(iChoice3==3){iPrice = 10000;if(iGold>=iPrice){i = 1;}}
+else if(iChoice3==1){iPrice = 1000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==2){iPrice = 5000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==3){iPrice = 10000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
   }
 else if(iChoice2==2)
   {

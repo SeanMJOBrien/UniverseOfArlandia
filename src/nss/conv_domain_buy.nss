@@ -18,7 +18,10 @@ void main()
         return;
     }
     TakeGoldFromCreature(iDomainAbandonedGP, oPC, TRUE);
+    string sOldEmail = DomainEmailFor(sOwner);
     DomainTransferOwner(oArea, GetName(oPC), TRUE);
+    MailQueue(sOldEmail, "Your Universe of Arlandia domain was sold",
+        "Hello,\n\nThe domain of " + sOwner + " at " + GetLocalString(oArea, "Planet") + " " + GetLocalString(oArea, "Area") + " was bought by another player after " + sOwner + " had been away for more than " + IntToString(DomainSaleAfterDays()) + " days.\n\nIf you think this is a mistake, ask a DM.\n\nTo stop these messages, type .email off in game.\n");
     SetName(OBJECT_SELF, GetName(oPC) + "'s Domain");
     FloatingTextStringOnCreature("The domain is now yours.", oPC, FALSE);
     WriteTimestampedLogEntry(GetName(oPC) + " bought the abandoned domain of " + sOwner + " for " + IntToString(iDomainAbandonedGP) + " GP.");

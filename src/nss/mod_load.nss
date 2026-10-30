@@ -3,6 +3,7 @@
 #include "nwnx_sql"
 #include "nwnx_events"
 #include "_module"
+#include "_domainindex"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 object oModule = GetModule();
@@ -84,5 +85,9 @@ ExecuteScript("dmb_cluster_boot",oModule);
 // DM-built cluster tiles (restore Creator-tool creatures - must run after
 // dmb_cluster_boot above, which stamps the member area locals this depends on)
 ExecuteScript("dmb_clucre_boot",oModule);
+////////////////////////////////////////////////////////////////////////////////
+// Domain owner index (built once) and the first away-owner sweep
+DelayCommand(20.0,DomainIndexBackfill(0));
+DelayCommand(120.0,DomainNoticeSweep(0));
 ////////////////////////////////////////////////////////////////////////////////
 }
