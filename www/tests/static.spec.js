@@ -27,22 +27,22 @@ async function assertStaticPage(page, path) {
 // Smoke-test every static page in one parametrised block
 // ---------------------------------------------------------------------------
 const staticPages = [
-  '/news.html',
-  '/description.html',
-  '/screenshots.html',
-  '/interests.html',
-  '/domains.html',
-  '/Crafting.html',
-  '/races.html',
-  '/classes.html',
-  '/feats.html',
-  '/grades.html',
-  '/talents.html',
-  '/downloads.html',
-  '/links.html',
-  '/contact.html',
-  '/installation.html',
-  '/factory.html',
+  '/app/news.html',
+  '/app/description.html',
+  '/app/screenshots.html',
+  '/app/interests.html',
+  '/app/domains.html',
+  '/app/Crafting.html',
+  '/app/races.html',
+  '/app/classes.html',
+  '/app/feats.html',
+  '/app/grades.html',
+  '/app/talents.html',
+  '/app/downloads.html',
+  '/app/links.html',
+  '/app/contact.html',
+  '/app/installation.html',
+  '/app/factory.html',
 ];
 
 for (const path of staticPages) {
@@ -57,7 +57,7 @@ for (const path of staticPages) {
 
 test.describe('news.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/news.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/news.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page loads without blank body', async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe('news.html', () => {
 
 test.describe('description.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/description.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/description.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('contains descriptive content about the module', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('description.html', () => {
 
 test.describe('screenshots.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/screenshots.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/screenshots.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('contains at least one image', async ({ page }) => {
@@ -100,7 +100,7 @@ test.describe('screenshots.html', () => {
 
 test.describe('races.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/races.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/races.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -111,7 +111,7 @@ test.describe('races.html', () => {
 
 test.describe('classes.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/classes.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/classes.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -122,7 +122,7 @@ test.describe('classes.html', () => {
 
 test.describe('downloads.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/downloads.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/downloads.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -138,7 +138,7 @@ test.describe('downloads.html', () => {
 
 test.describe('contact.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/contact.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/contact.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -149,7 +149,7 @@ test.describe('contact.html', () => {
 
 test.describe('Crafting.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/Crafting.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/Crafting.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -160,7 +160,7 @@ test.describe('Crafting.html', () => {
 
 test.describe('interests.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/interests.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/interests.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -171,7 +171,7 @@ test.describe('interests.html', () => {
 
 test.describe('domains.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/domains.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/domains.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {

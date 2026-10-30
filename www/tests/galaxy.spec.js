@@ -34,11 +34,11 @@ function parseGalaxyParams(href) {
 // ---------------------------------------------------------------------------
 // Graceful degradation — always testable
 // ---------------------------------------------------------------------------
-test.describe('galaxy.php — without DB', () => {
+test.describe('app/galaxy.php — without DB', () => {
   for (const url of [
-    '/galaxy.php?planet=infos',
-    '/galaxy.php?planet=Space&system=Arlandia',
-    '/galaxy.php?planet=Arlandia',
+    '/app/galaxy.php?planet=infos',
+    '/app/galaxy.php?planet=Space&system=Arlandia',
+    '/app/galaxy.php?planet=Arlandia',
   ]) {
     test(`${url} responds without a PHP crash`, async ({ page }) => {
       test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
@@ -55,10 +55,10 @@ test.describe('galaxy.php — without DB', () => {
 // ---------------------------------------------------------------------------
 // ?planet=infos — DM player admin panel
 // ---------------------------------------------------------------------------
-test.describe('galaxy.php?planet=infos — player admin panel', () => {
+test.describe('app/galaxy.php?planet=infos — player admin panel', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
-    await page.goto('/galaxy.php?planet=infos', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=infos', { waitUntil: 'domcontentloaded' });
   });
 
   test('page title is present', async ({ page }) => {
@@ -103,12 +103,12 @@ test.describe('galaxy.php?planet=infos — player admin panel', () => {
   test('has Actualise refresh link', async ({ page }) => {
     const links = page.locator('a').filter({ hasText: 'Actualise' });
     await expect(links.first()).toBeVisible();
-    await expect(links.first()).toHaveAttribute('href', 'galaxy.php?planet=infos');
+    await expect(links.first()).toHaveAttribute('href', 'app/galaxy.php?planet=infos');
   });
 
   test('reset success message renders after redirect', async ({ page }) => {
     // Simulate the redirect that happens after a successful reset POST
-    await page.goto('/galaxy.php?planet=infos&reset_success=TestChar', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=infos&reset_success=TestChar', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('.feedback-message')).toBeVisible();
     await expect(page.locator('.feedback-message')).toContainText('TestChar');
     await expect(page.locator('.feedback-message')).toContainText('0,0');
@@ -118,10 +118,10 @@ test.describe('galaxy.php?planet=infos — player admin panel', () => {
 // ---------------------------------------------------------------------------
 // ?planet=Space — star-system space map
 // ---------------------------------------------------------------------------
-test.describe('galaxy.php?planet=Space — space map', () => {
+test.describe('app/galaxy.php?planet=Space — space map', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
-    await page.goto('/galaxy.php?planet=Space&system=Meth', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&system=Meth', { waitUntil: 'domcontentloaded' });
   });
 
   test('page title is present', async ({ page }) => {
@@ -153,7 +153,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   // heading (see galaxy.php $system_centers / $planetname).
   // -------------------------------------------------------------------------
   test('arrow links pan by exactly one sector in the expected direction', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
     expect(parseGalaxyParams(await arrowLink(page, 'North').getAttribute('href')))
       .toEqual({ galaxyx: 2, galaxyy: 4 });
@@ -166,7 +166,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('clicking East re-renders the map at the new sector', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
     await arrowLink(page, 'East').click();
     await page.waitForLoadState('domcontentloaded');
@@ -185,7 +185,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('axis labels pan by exactly 15 tiles after an East click', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
     const before = (await page.locator('td.map-col-label').allTextContents())
       .map(Number);
@@ -203,7 +203,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('axis labels pan by exactly 15 tiles after a North click', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
     const before = (await page.locator('td.map-row-label').allTextContents())
       .map(Number);
@@ -221,7 +221,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('East then West round-trips back to the original sector', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3', { waitUntil: 'domcontentloaded' });
 
     await arrowLink(page, 'East').click();
     await page.waitForLoadState('domcontentloaded');
@@ -234,7 +234,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('negative sectors render correctly (West then South from origin)', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
 
     await arrowLink(page, 'West').click();
     await page.waitForLoadState('domcontentloaded');
@@ -259,7 +259,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('heading remains non-blank after arrow navigation drops system=', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&system=Meth&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&system=Meth&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="map-heading"]')).toHaveText('Meth');
 
     await arrowLink(page, 'East').click();
@@ -274,12 +274,12 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('heading switches to a different system when panning into its territory', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=0&galaxyy=0', { waitUntil: 'domcontentloaded' });
     const here = (await page.locator('[data-testid="map-heading"]').textContent())?.trim();
 
     test.skip(here === 'Space', 'No *SystemCenter data seeded — skipping system-transition test');
 
-    await page.goto('/galaxy.php?planet=Space&galaxyx=2&galaxyy=0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=0', { waitUntil: 'domcontentloaded' });
     const there = (await page.locator('[data-testid="map-heading"]').textContent())?.trim();
 
     expect(there).not.toBe('Space');
@@ -287,13 +287,13 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('heading shows "Space" when far (>2 sectors / 30 tiles) from any known system', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('[data-testid="map-heading"]')).toHaveText('Space');
     await expect(page.locator('body')).not.toContainText('Fatal error');
   });
 
   test('clicking the heading centers the viewport on that system\'s home sector', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=3&galaxyy=0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=3&galaxyy=0', { waitUntil: 'domcontentloaded' });
     const heading = page.locator('[data-testid="map-heading"]');
     const name = (await heading.textContent())?.trim();
 
@@ -313,7 +313,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
   });
 
   test('heading is plain text (not a link) when showing "Space"', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Space&galaxyx=100&galaxyy=100', { waitUntil: 'domcontentloaded' });
     const heading = page.locator('[data-testid="map-heading"]');
     await expect(heading).toHaveText('Space');
     expect(await heading.locator('a').count()).toBe(0);
@@ -323,7 +323,7 @@ test.describe('galaxy.php?planet=Space — space map', () => {
 // ---------------------------------------------------------------------------
 // ?planet=<name> — planet surface map
 // ---------------------------------------------------------------------------
-test.describe('galaxy.php?planet=<name> — planet surface map', () => {
+test.describe('app/galaxy.php?planet=<name> — planet surface map', () => {
   // We use a planet name from the CLAUDE.md architecture description.
   // If no planets exist in the DB, these tests show "service offline" and we skip.
   let testPlanet = '';
@@ -334,7 +334,7 @@ test.describe('galaxy.php?planet=<name> — planet surface map', () => {
     try {
       const response = await request.get('/index.php');
       const html = await response.text();
-      // Planet links look like: href="galaxy.php?planet=NAME&login=..."
+      // Planet links look like: href="app/galaxy.php?planet=NAME&login=..."
       const match = html.match(/galaxy\.php\?planet=([^&"]+)&login/);
       if (match) testPlanet = decodeURIComponent(match[1]);
     } catch {
@@ -344,7 +344,7 @@ test.describe('galaxy.php?planet=<name> — planet surface map', () => {
 
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !testPlanet, 'Database not connected or no planet data found');
-    await page.goto(`/galaxy.php?planet=${encodeURIComponent(testPlanet)}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/app/galaxy.php?planet=${encodeURIComponent(testPlanet)}`, { waitUntil: 'domcontentloaded' });
   });
 
   test('planet name shown as heading', async ({ page }) => {

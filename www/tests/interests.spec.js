@@ -21,10 +21,10 @@ test.beforeAll(async ({ request }) => {
 // ---------------------------------------------------------------------------
 // Graceful degradation
 // ---------------------------------------------------------------------------
-test.describe('interests.php — without DB', () => {
+test.describe('app/interests.php — without DB', () => {
   test('shows "service offline" without a PHP crash', async ({ page }) => {
     test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
-    await page.goto('/interests.php?planet=TestPlanet&area=0_0', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/interests.php?planet=TestPlanet&area=0_0', { waitUntil: 'domcontentloaded' });
     const body = await page.textContent('body');
     expect(body).toContain('service offline');
     await expect(page.locator('body')).not.toContainText('Fatal error');
@@ -35,7 +35,7 @@ test.describe('interests.php — without DB', () => {
 // ---------------------------------------------------------------------------
 // Common page structure — present for every interest type when DB is connected
 // ---------------------------------------------------------------------------
-test.describe('interests.php — common structure', () => {
+test.describe('app/interests.php — common structure', () => {
   /** planet and area discovered at runtime from live galaxy data */
   let testPlanet = '';
   let testArea   = '';
@@ -45,7 +45,7 @@ test.describe('interests.php — common structure', () => {
     try {
       // galaxy.php renders tile <a> links to interests.php when interests exist.
       // We scrape the first one to get a real planet+area combination.
-      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const response = await request.get('/app/galaxy.php?planet=Space&system=Arlandia');
       const html = await response.text();
       const match = html.match(/interests\.php\?planet=([^&"]+)&area=([^&"]+)/);
       if (match) {
@@ -60,7 +60,7 @@ test.describe('interests.php — common structure', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !testPlanet, 'Database not connected or no interest data found');
     await page.goto(
-      `/interests.php?planet=${encodeURIComponent(testPlanet)}&area=${encodeURIComponent(testArea)}`,
+      `/app/interests.php?planet=${encodeURIComponent(testPlanet)}&area=${encodeURIComponent(testArea)}`,
       { waitUntil: 'domcontentloaded' }
     );
   });
@@ -104,7 +104,7 @@ test.describe('interests.php — common structure', () => {
 // ---------------------------------------------------------------------------
 // Interest type: Domain (inttype === 'D')
 // ---------------------------------------------------------------------------
-test.describe('interests.php — Domain interest type', () => {
+test.describe('app/interests.php — Domain interest type', () => {
   let domainPlanet = '';
   let domainArea   = '';
 
@@ -112,7 +112,7 @@ test.describe('interests.php — Domain interest type', () => {
     if (!dbAvailable) return;
     try {
       // Search galaxy map for domain tiles (domain tile filenames contain "_doma")
-      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const response = await request.get('/app/galaxy.php?planet=Space&system=Arlandia');
       const html = await response.text();
       // Domain interest links use inttype='D', so the interest URL is the same as others
       // Try to find a domain interest by checking the tile alt text
@@ -130,7 +130,7 @@ test.describe('interests.php — Domain interest type', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !domainPlanet, 'No domain interest data found in DB');
     await page.goto(
-      `/interests.php?planet=${encodeURIComponent(domainPlanet)}&area=${encodeURIComponent(domainArea)}`,
+      `/app/interests.php?planet=${encodeURIComponent(domainPlanet)}&area=${encodeURIComponent(domainArea)}`,
       { waitUntil: 'domcontentloaded' }
     );
   });
@@ -151,14 +151,14 @@ test.describe('interests.php — Domain interest type', () => {
 // ---------------------------------------------------------------------------
 // Interest type: Dungeon (inttype === '2')
 // ---------------------------------------------------------------------------
-test.describe('interests.php — Dungeon interest type', () => {
+test.describe('app/interests.php — Dungeon interest type', () => {
   let dungeonPlanet = '';
   let dungeonArea   = '';
 
   test.beforeAll(async ({ request }) => {
     if (!dbAvailable) return;
     try {
-      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const response = await request.get('/app/galaxy.php?planet=Space&system=Arlandia');
       const html = await response.text();
       const match = html.match(/href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'[^>]*><img[^>]+src='[^']*dung[^']*'/);
       if (match) {
@@ -174,7 +174,7 @@ test.describe('interests.php — Dungeon interest type', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !dungeonPlanet, 'No dungeon interest data found in DB');
     await page.goto(
-      `/interests.php?planet=${encodeURIComponent(dungeonPlanet)}&area=${encodeURIComponent(dungeonArea)}`,
+      `/app/interests.php?planet=${encodeURIComponent(dungeonPlanet)}&area=${encodeURIComponent(dungeonArea)}`,
       { waitUntil: 'domcontentloaded' }
     );
   });
@@ -199,14 +199,14 @@ test.describe('interests.php — Dungeon interest type', () => {
 // ---------------------------------------------------------------------------
 // Interest type: Town (inttype === '1')
 // ---------------------------------------------------------------------------
-test.describe('interests.php — Town interest type', () => {
+test.describe('app/interests.php — Town interest type', () => {
   let townPlanet = '';
   let townArea   = '';
 
   test.beforeAll(async ({ request }) => {
     if (!dbAvailable) return;
     try {
-      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const response = await request.get('/app/galaxy.php?planet=Space&system=Arlandia');
       const html = await response.text();
       const match = html.match(/href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'[^>]*><img[^>]+src='[^']*_town[^']*'/);
       if (match) {
@@ -222,7 +222,7 @@ test.describe('interests.php — Town interest type', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !townPlanet, 'No town interest data found in DB');
     await page.goto(
-      `/interests.php?planet=${encodeURIComponent(townPlanet)}&area=${encodeURIComponent(townArea)}`,
+      `/app/interests.php?planet=${encodeURIComponent(townPlanet)}&area=${encodeURIComponent(townArea)}`,
       { waitUntil: 'domcontentloaded' }
     );
   });
@@ -243,14 +243,14 @@ test.describe('interests.php — Town interest type', () => {
 // ---------------------------------------------------------------------------
 // Interest type: Animal Reserve (inttype === '5')
 // ---------------------------------------------------------------------------
-test.describe('interests.php — Animal Reserve interest type', () => {
+test.describe('app/interests.php — Animal Reserve interest type', () => {
   let reservePlanet = '';
   let reserveArea   = '';
 
   test.beforeAll(async ({ request }) => {
     if (!dbAvailable) return;
     try {
-      const response = await request.get('/galaxy.php?planet=Space&system=Arlandia');
+      const response = await request.get('/app/galaxy.php?planet=Space&system=Arlandia');
       const html = await response.text();
       const match = html.match(/href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'[^>]*><img[^>]+src='[^']*anre[^']*'/);
       if (match) {
@@ -266,7 +266,7 @@ test.describe('interests.php — Animal Reserve interest type', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable || !reservePlanet, 'No animal reserve interest data found in DB');
     await page.goto(
-      `/interests.php?planet=${encodeURIComponent(reservePlanet)}&area=${encodeURIComponent(reserveArea)}`,
+      `/app/interests.php?planet=${encodeURIComponent(reservePlanet)}&area=${encodeURIComponent(reserveArea)}`,
       { waitUntil: 'domcontentloaded' }
     );
   });
@@ -289,6 +289,6 @@ test.describe('interests.php — Animal Reserve interest type', () => {
 // Interest types without page-specific fields (Castle, Ruins, Resource
 // mountain, Amusement place) — interests.php only renders the common
 // planet/area/title structure for these, already exercised by the
-// "interests.php — common structure" describe block above. No additional
+// "app/interests.php — common structure" describe block above. No additional
 // type-specific markup exists in interests.php to assert on.
 // ---------------------------------------------------------------------------

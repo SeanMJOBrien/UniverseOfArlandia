@@ -41,7 +41,7 @@ mysqli_close($link);
             margin: 0;
             padding: 0 30px;
             background-color: #000;
-            background-image: url('app/assets/UOA_BG2.jpg');
+            background-image: url('assets/UOA_BG2.jpg');
             color: #FFFFFF;
             font-family: Arial, sans-serif;
         }
@@ -98,7 +98,7 @@ mysqli_close($link);
 
     <?php if ($registered): ?>
         <p class="success" data-testid="register-success">
-            Account created. <a target="_top" href="index.php">Log in</a> with your CD key
+            Account created. <a target="_top" href="../index.php">Log in</a> with your CD key
             and password — the map will show the areas your characters have discovered.
         </p>
     <?php else: ?>
@@ -133,7 +133,7 @@ mysqli_close($link);
         </form>
     <?php endif; ?>
 
-    <p><a target="_top" href="index.php">Back to the site</a></p>
+    <p><a target="_top" href="../index.php">Back to the site</a></p>
 </div>
 
 </body>

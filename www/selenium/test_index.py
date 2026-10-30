@@ -49,7 +49,7 @@ class TestIndexStructure:
     def test_status_iframe_src(self, driver, base_url):
         driver.get(f"{base_url}/index.php")
         iframe = driver.find_element(By.CSS_SELECTOR, 'iframe[name="Status"]')
-        assert iframe.get_attribute("src").endswith("statut.php")
+        assert iframe.get_attribute("src").endswith("app/statut.php")
         assert "status-iframe" in iframe.get_attribute("class")
 
     @pytest.mark.parametrize("href,label", [
@@ -131,7 +131,7 @@ class TestIndexDmLogin:
         driver.get(f"{base_url}/index.php?logout=1")
         pw = driver.find_element(By.CSS_SELECTOR, 'input[type="password"][name="login"]')
         assert pw.is_displayed()
-        dm_links = driver.find_elements(By.CSS_SELECTOR, 'a[href*="galaxy.php?planet=infos"]')
+        dm_links = driver.find_elements(By.CSS_SELECTOR, 'a[href*="app/galaxy.php?planet=infos"]')
         assert len(dm_links) == 0, "DM link should not appear after logout"
 
     def test_wrong_password_keeps_form(self, driver, base_url):
@@ -155,7 +155,7 @@ class TestIndexDmLogin:
         driver.execute_script('document.querySelector(\'form[name="dmarea"]\').submit()')
         wait = WebDriverWait(driver, 8)
         info_link = wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'a[href*="galaxy.php?planet=infos"]'))
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'a[href*="app/galaxy.php?planet=infos"]'))
         )
         assert info_link.is_displayed()
         logout = driver.find_element(By.CSS_SELECTOR, 'a[href="index.php?logout=1"]')

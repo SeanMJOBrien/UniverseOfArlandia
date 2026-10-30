@@ -155,7 +155,7 @@ Without the dump, the site runs but shows no planets, players, or map data. The 
 
 ### How the DB probe works
 
-Both test suites probe `galaxy.php?planet=infos` at session start. That page calls `die("service offline")` immediately when MySQL is unreachable. The test suites check for this string and skip DB-dependent tests if found. This means **the full suite runs without MySQL** — you just get 19 skips instead of 0.
+Both test suites probe `app/galaxy.php?planet=infos` at session start. That page calls `die("service offline")` immediately when MySQL is unreachable. The test suites check for this string and skip DB-dependent tests if found. This means **the full suite runs without MySQL** — you just get 19 skips instead of 0.
 
 ---
 
@@ -194,10 +194,10 @@ Expected results with MySQL and data: all pass (DM login test also needs `UOA_DM
 
 ```
 tests/
-├── helpers/db.js        # probes galaxy.php?planet=infos; returns false if offline
+├── helpers/db.js        # probes app/galaxy.php?planet=infos; returns false if offline
 ├── index.spec.js        # index.php — structure, nav links, DM login
-├── galaxy.spec.js       # galaxy.php — map render, infos panel, player table
-├── statut.spec.js       # statut.php — server status widget
+├── galaxy.spec.js       # app/galaxy.php — map render, infos panel, player table
+├── statut.spec.js       # app/statut.php — server status widget
 ├── interests.spec.js    # interests.php — interest area detail view
 └── static.spec.js       # 16 static HTML pages + lightbox gallery
 ```
@@ -250,7 +250,7 @@ This is the most important file. It provides all shared fixtures and hooks:
 | Item | What it does |
 |---|---|
 | `php_server` fixture (session) | Starts `php -S localhost:8766`; tears down after all tests |
-| `db_available` fixture (session) | Probes `galaxy.php?planet=infos`; returns bool |
+| `db_available` fixture (session) | Probes `app/galaxy.php?planet=infos`; returns bool |
 | `driver` fixture (function) | Creates a fresh Chrome WebDriver per test; quits on teardown unless `KEEP_OPEN=true` |
 | `base_url` fixture (session) | Returns `http://localhost:8766` |
 | `pytest_runtest_makereport` hook | After each test call: saves PNG to `selenium/screenshots/`, passes relative path to `extras.image()` so report embeds it |
@@ -290,8 +290,8 @@ selenium/
 ├── pytest.ini           # pytest config
 ├── requirements.txt     # Python dependencies
 ├── test_index.py        # index.php
-├── test_galaxy.py       # galaxy.php (offline + online variants)
-├── test_statut.py       # statut.php
+├── test_galaxy.py       # app/galaxy.php (offline + online variants)
+├── test_statut.py       # app/statut.php
 ├── test_interests.py    # interests.php
 └── test_static.py       # 16 static HTML pages + lightbox
 ```

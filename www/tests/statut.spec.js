@@ -17,10 +17,10 @@ test.beforeAll(async ({ request }) => {
   dbAvailable = await isDbConnected(request);
 });
 
-test.describe('statut.php — without DB', () => {
+test.describe('app/statut.php — without DB', () => {
   test('shows "service offline" without a PHP crash', async ({ page }) => {
     test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
-    await page.goto('/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto('/app/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
     const body = await page.textContent('body');
     expect(body).toContain('service offline');
     await expect(page.locator('body')).not.toContainText('Fatal error');
@@ -28,12 +28,12 @@ test.describe('statut.php — without DB', () => {
   });
 });
 
-test.describe('statut.php — page structure', () => {
+test.describe('app/statut.php — page structure', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
     // Use a generous timeout — server-side @file_get_contents to the NWN API
     // can take several seconds before the page outputs anything.
-    await page.goto('/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto('/app/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
   });
 
   test('has meta refresh tag set to 60 seconds', async ({ page }) => {
@@ -57,10 +57,10 @@ test.describe('statut.php — page structure', () => {
   });
 });
 
-test.describe('statut.php — online content', () => {
+test.describe('app/statut.php — online content', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
-    await page.goto('/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto('/app/statut.php', { waitUntil: 'domcontentloaded', timeout: 30000 });
   });
 
   test('shows "Online" indicator', async ({ page }) => {

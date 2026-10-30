@@ -113,7 +113,7 @@ Any future schema file needs the same manual application.
 
 ### Verification
 
-With a session holding `player_cdkey=UP7M73CG`, `galaxy.php` renders 32
+With a session holding `player_cdkey=UP7M73CG`, `app/galaxy.php` renders 32
 Arland tiles and 1 Galaxia tile, matching the 32 and 1 `WMap_` entries
 in the live database; an anonymous request on the same planets renders
 none and shows the login notice.

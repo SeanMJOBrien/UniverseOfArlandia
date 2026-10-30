@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Generate www/uoa.php with Docker-safe DB credentials from env vars.
+# Generate www/app/uoa.php with Docker-safe DB credentials from env vars.
 # Overwrites the file only inside the container (bind-mount); host file unchanged.
-cat > /var/www/html/www/uoa.php <<'PHPEOF'
+cat > /var/www/html/www/app/uoa.php <<'PHPEOF'
 <?php
 $host    = getenv('DB_HOST')     ?: 'db';
 $port    = getenv('DB_PORT')     ?: '3306';

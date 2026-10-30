@@ -200,7 +200,7 @@ in-game to the site.
 - **Expected:** A real-world last-login time appears and updates.
 
 ### 4.7 State-changing actions are DM-gated and CSRF-protected
-- **Steps:** As a non-DM, attempt `playerInfo.php`'s `reset_player` action.
+- **Steps:** As a non-DM, attempt `app/playerInfo.php`'s `reset_player` action.
   Then, as a DM, submit a state-changing form with a missing or altered CSRF
   token.
 - **Expected:** Both refused. Covers `f43c281` and `133af5b`.

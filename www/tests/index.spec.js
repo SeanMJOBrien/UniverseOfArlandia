@@ -64,7 +64,7 @@ test.describe('index.php — page structure', () => {
   test('status iframe targets statut.php', async ({ page }) => {
     const iframe = page.locator('iframe[name="Status"]');
     await expect(iframe).toBeAttached();
-    await expect(iframe).toHaveAttribute('src', 'statut.php');
+    await expect(iframe).toHaveAttribute('src', 'app/statut.php');
     await expect(iframe).toHaveClass(/status-iframe/);
   });
 
@@ -156,7 +156,7 @@ test.describe('index.php — DM login', () => {
     test.skip(!dbAvailable, 'Database not connected');
     await page.goto('/index.php?logout=1', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('input[type="password"][name="login"]')).toBeVisible();
-    await expect(page.locator('a[href*="galaxy.php?planet=infos"]')).toHaveCount(0);
+    await expect(page.locator('a[href*="app/galaxy.php?planet=infos"]')).toHaveCount(0);
   });
 
   test('wrong password keeps login form visible', async ({ page }) => {
@@ -175,7 +175,7 @@ test.describe('index.php — DM login', () => {
     await page.locator('input[type="password"][name="login"]').fill(dmPassword);
     await page.locator('form[name="dmarea"]').evaluate(f => f.submit());
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.locator('a[href*="galaxy.php?planet=infos"]')).toBeVisible();
+    await expect(page.locator('a[href*="app/galaxy.php?planet=infos"]')).toBeVisible();
     await expect(page.locator('a[href="index.php?logout=1"]')).toBeVisible();
   });
 });

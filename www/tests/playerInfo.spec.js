@@ -20,10 +20,10 @@ test.beforeAll(async ({ request }) => {
 // ---------------------------------------------------------------------------
 // Graceful degradation — always testable
 // ---------------------------------------------------------------------------
-test.describe('playerInfo.php — without DB', () => {
+test.describe('app/playerInfo.php — without DB', () => {
   test('responds without an unhandled PHP crash', async ({ page }) => {
     test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
-    await page.goto('/playerInfo.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/playerInfo.php', { waitUntil: 'domcontentloaded' });
     const body = await page.textContent('body');
     expect(body).toContain('Database connection failed');
     await expect(page.locator('body')).not.toContainText('Fatal error');
@@ -33,10 +33,10 @@ test.describe('playerInfo.php — without DB', () => {
 // ---------------------------------------------------------------------------
 // With DB — player table
 // ---------------------------------------------------------------------------
-test.describe('playerInfo.php — player management panel', () => {
+test.describe('app/playerInfo.php — player management panel', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
-    await page.goto('/playerInfo.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/playerInfo.php', { waitUntil: 'domcontentloaded' });
   });
 
   test('page loads without PHP errors', async ({ page }) => {
@@ -73,7 +73,7 @@ test.describe('playerInfo.php — player management panel', () => {
 // ---------------------------------------------------------------------------
 // Reset action — requires an authenticated DM session
 // ---------------------------------------------------------------------------
-test.describe('playerInfo.php — reset action (DM session required)', () => {
+test.describe('app/playerInfo.php — reset action (DM session required)', () => {
   const dmPassword = process.env.UOA_DM_PASSWORD;
 
   test.beforeEach(async ({ page }) => {
@@ -86,7 +86,7 @@ test.describe('playerInfo.php — reset action (DM session required)', () => {
   });
 
   test('reset button is visible once a DM session is active', async ({ page }) => {
-    await page.goto('/playerInfo.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/playerInfo.php', { waitUntil: 'domcontentloaded' });
     const buttons = page.locator('table button');
     const count = await buttons.count();
     // Zero is valid if there is no player data at all; if there IS a row, it must have a button.
@@ -99,7 +99,7 @@ test.describe('playerInfo.php — reset action (DM session required)', () => {
   });
 
   test('reset action shows a success or error feedback message', async ({ page }) => {
-    await page.goto('/playerInfo.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/playerInfo.php', { waitUntil: 'domcontentloaded' });
     const button = page.locator('table button').first();
     test.skip((await button.count()) === 0, 'No player rows with a reset button to exercise');
 

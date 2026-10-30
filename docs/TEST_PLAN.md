@@ -143,7 +143,7 @@ breakdown; the cases below are the top-level summary for this date range.
 #### TC-004 — `galaxy.php` Space-view heading reflects current viewport
 - **Commits:** `c969709`, `378a16f`, `aa43279`
 - **Preconditions:** Web stack running, DB reachable.
-- **Steps:** Open `galaxy.php?planet=Space`. Pan the view using the
+- **Steps:** Open `app/galaxy.php?planet=Space`. Pan the view using the
   compass arrows (N/E/S/W) several sectors in each direction, including
   crossing into negative sector coordinates.
 - **Expected:** The page heading text updates to reflect the sector/system

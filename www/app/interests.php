@@ -61,7 +61,7 @@ if (!$area_readable) {
         <style>
             body {
                 margin: 0; padding: 40px 30px;
-                background-image: url('app/assets/UOA_BG2.jpg');
+                background-image: url('assets/UOA_BG2.jpg');
                 color: #FFFFFF; font-family: Arial, sans-serif; text-align: center;
             }
             a { color: #00FFFF; }
@@ -73,7 +73,7 @@ if (!$area_readable) {
         <p class="lbl" data-testid="interest-undiscovered">You have not discovered this area yet.</p>
         <?php if (!player_is_logged_in()): ?>
             <p>
-                <a target="_top" href="index.php">Log in</a> with your CD key, or
+                <a target="_top" href="../index.php">Log in</a> with your CD key, or
                 <a target="_top" href="register.php">register</a> — type <code>.web</code> in game for your code.
             </p>
         <?php endif; ?>
@@ -93,7 +93,7 @@ if (!$area_readable) {
         body {
             margin: 0;
             padding: 0 30px;
-            background-image: url('app/assets/UOA_BG2.jpg');
+            background-image: url('assets/UOA_BG2.jpg');
             color: #FFFFFF;
             font-family: Arial, sans-serif;
         }

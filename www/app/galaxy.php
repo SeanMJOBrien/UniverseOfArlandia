@@ -198,7 +198,7 @@ function build_tile_data(
 function render_map_tile(array $t): string {
     $out = '<td class="map-tile" data-tile="' . htmlspecialchars($t['tiletype2']) . '" data-coords="' . $t['XX'] . ',' . $t['YY'] . '">';
     if ($t['tile_visible'] || $t['space_visible']) {
-        $img = '<img src="app/assets/' . htmlspecialchars($t['tiletype2']) . '.gif" alt="' . htmlspecialchars($t['alt']) . '">';
+        $img = '<img src="assets/' . htmlspecialchars($t['tiletype2']) . '.gif" alt="' . htmlspecialchars($t['alt']) . '">';
         if ($t['href'] !== '') {
             $out .= '<a title="' . htmlspecialchars($t['alt']) . '" href="' . htmlspecialchars($t['href']) . '">' . $img . '</a>';
         } else {
@@ -235,7 +235,7 @@ $tiletype   = encoded_field($planet_row, 3);
             background-color: #000;
             color: #FFFFFF;
             font-family: Arial, sans-serif;
-            background-image: url('app/assets/UOA_BG2.jpg');
+            background-image: url('assets/UOA_BG2.jpg');
         }
         a { color: #FFFFFF; }
         a:hover { color: #00FF00; }
@@ -397,7 +397,7 @@ $tiletype   = encoded_field($planet_row, 3);
     <br>
     <div style="text-align:center;">
         <p><span class="lbl"><u><?= htmlspecialchars($planet) ?></u></span></p>
-        <img src="app/assets/<?= htmlspecialchars($tiletype) ?>.jpg" alt="<?= htmlspecialchars($planet) ?>">
+        <img src="assets/<?= htmlspecialchars($tiletype) ?>.jpg" alt="<?= htmlspecialchars($planet) ?>">
     </div>
 
 <?php else: ?>
@@ -461,7 +461,7 @@ $tiletype   = encoded_field($planet_row, 3);
     <?php if (!$is_dm && !player_is_logged_in()): ?>
         <p class="map-notice" data-testid="map-login-notice">
             This map shows only the areas you have discovered.
-            <a target="_top" href="index.php">Log in</a> with your CD key, or
+            <a target="_top" href="../index.php">Log in</a> with your CD key, or
             <a target="_top" href="register.php">register</a> — type
             <code>.web</code> in game to get your code.
         </p>
@@ -490,15 +490,15 @@ $tiletype   = encoded_field($planet_row, 3);
         <table border="0" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="33%"></td>
-                <td width="34%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx ?>&galaxyy=<?= $galaxyy + 1 ?>"><img border="0" src="app/assets/Arrow_N.gif" alt="North"></a></td>
+                <td width="34%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx ?>&galaxyy=<?= $galaxyy + 1 ?>"><img border="0" src="assets/Arrow_N.gif" alt="North"></a></td>
                 <td width="33%"></td>
             </tr><tr>
-                <td width="33%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx - 1 ?>&galaxyy=<?= $galaxyy ?>"><img border="0" src="app/assets/Arrow_W.gif" alt="West"></a></td>
+                <td width="33%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx - 1 ?>&galaxyy=<?= $galaxyy ?>"><img border="0" src="assets/Arrow_W.gif" alt="West"></a></td>
                 <td width="34%"></td>
-                <td width="33%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx + 1 ?>&galaxyy=<?= $galaxyy ?>"><img border="0" src="app/assets/Arrow_E.gif" alt="East"></a></td>
+                <td width="33%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx + 1 ?>&galaxyy=<?= $galaxyy ?>"><img border="0" src="assets/Arrow_E.gif" alt="East"></a></td>
             </tr><tr>
                 <td width="33%"></td>
-                <td width="34%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx ?>&galaxyy=<?= $galaxyy - 1 ?>"><img border="0" src="app/assets/Arrow_S.gif" alt="South"></a></td>
+                <td width="34%" style="text-align:center;"><a href="galaxy.php?planet=Space&galaxyx=<?= $galaxyx ?>&galaxyy=<?= $galaxyy - 1 ?>"><img border="0" src="assets/Arrow_S.gif" alt="South"></a></td>
                 <td width="33%"></td>
             </tr>
         </table>
@@ -537,16 +537,16 @@ $tiletype   = encoded_field($planet_row, 3);
                     $cal  = get_pw('Calendar');
                     $hour = (int)between($cal, '/C3/', '/C4/');
                     if ($hour >= 8 && $hour <= 20) {
-                        echo '<img src="app/assets/time_day.gif" alt="Day">';
+                        echo '<img src="assets/time_day.gif" alt="Day">';
                     } else {
-                        echo '<img src="app/assets/time_night.gif" alt="Night">';
+                        echo '<img src="assets/time_night.gif" alt="Night">';
                     }
                     $weather_icons = ['0' => 'clear', '1' => 'rain', '2' => 'snow', '3' => 'fog', '4' => 'storm'];
                     $weather = encoded_field(get_pw($planet), 11);
                     $icon    = $weather_icons[$weather] ?? 'clear';
                     ?>
                     <br><br>
-                    <img src="app/assets/weather_<?= htmlspecialchars($icon) ?>.gif" alt="<?= ucfirst($icon) ?>">
+                    <img src="assets/weather_<?= htmlspecialchars($icon) ?>.gif" alt="<?= ucfirst($icon) ?>">
                 </td>
             </tr>
         </table>
@@ -561,7 +561,7 @@ $tiletype   = encoded_field($planet_row, 3);
         echo '<tr>';
         if ($Y === $half + 1) {
             // Header row: column numbers
-            echo '<td><img src="app/assets/black.gif"></td>';
+            echo '<td><img src="assets/black.gif"></td>';
             for ($X = -$half; $X < $half + 1; $X++) {
                 echo '<td class="map-col-label" style="background:#005064;text-align:center;">' . ($X + $galaxyx * 15) . '</td>';
             }
