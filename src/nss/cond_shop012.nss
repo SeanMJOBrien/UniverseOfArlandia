@@ -1,9 +1,11 @@
+#include "_bank"
 int StartingConditional()
 {
 object oPC = GetPCSpeaker();
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 object oItem = GetItemPossessedBy(oPC,sPlanet+"account");
+BankSettle(oPC,oItem);
 int iGP = GetLocalInt(oItem,"GP");
 int iIV = GetLocalInt(oItem,"IV");
 int iIVdelay = GetLocalInt(oItem,"IVdelay");

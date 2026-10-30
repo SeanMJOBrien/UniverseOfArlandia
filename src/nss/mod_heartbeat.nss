@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_domainstate"
 #include "nwnx_admin"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -85,11 +86,12 @@ else if(iCounter==iReset-360){FloatingTextStringOnCreature("Server reboot in 30 
 // PCs only
 if(!GetIsDM(oPC)){
 ////////////////////////////////////////////////////////////////////////////////
-// Bank accounts
-while(GetIsObjectValid(oItem)){if(GetStringRight(GetTag(oItem),7)=="account"){oObject = oItem;iGP = GetLocalInt(oObject,"GP");iGPdelay = GetLocalInt(oObject,"GPdelay");iIV = GetLocalInt(oObject,"IV");iIVdelay = GetLocalInt(oObject,"IVdelay");SetLocalInt(oObject,"GPdelay",iGPdelay+1);if(iGPdelay>=576){DeleteLocalInt(oObject,"GPdelay");SetLocalInt(oObject,"GP",iGP+(iGP*iNormalInterest/100));}if((iIV!=0)&&(iIVdelay>=0)){SetLocalInt(oObject,"IVdelay",iIVdelay-1);if(iIVdelay==-1){SetLocalInt(oObject,"IV",iIV+(iIV*iInvestmentInterest/100*iInvestmentDelay));}}}oItem = GetNextItemInInventory(oPC);}
+// Bank accounts: interest is settled when the account is opened (_bank.nss), not here.
 ////////////////////////////////////////////////////////////////////////////////
 // Counter
 SetLocalInt(oGoldbag,"Counter",GetLocalInt(oGoldbag,"Counter")+1);
+// Mirror the online clock to pwdata so a structure owner's timers can be read while they are offline.
+if(GetLocalInt(oGoldbag,"Counter")%DOMAIN_CLOCK_SYNC_TICKS==0){DomainClockSync(oPC);}
 ////////////////////////////////////////////////////////////////////////////////
 // Domain relax room & bath
      if((GetName(oArea)=="Home")&&(GetLocalFloat(oPC,"SitX")!=0.0)){if((GetPosition(oPC).x==GetLocalFloat(oPC,"SitX"))&&(GetPosition(oPC).y==GetLocalFloat(oPC,"SitY"))){if(GetLocalInt(oPC,"Wait")>=12){iRand = Random(5)+1;if(iRand==1){iAbility = ABILITY_CHARISMA;}else if(iRand==2){iAbility = ABILITY_CONSTITUTION;}else if(iRand==3){iAbility = ABILITY_DEXTERITY;}else if(iRand==4){iAbility = ABILITY_INTELLIGENCE;}else if(iRand==5){iAbility = ABILITY_STRENGTH;}else if(iRand==6){iAbility = ABILITY_WISDOM;}ApplyEffectToObject(DURATION_TYPE_PERMANENT,EffectAbilityIncrease(iAbility,1),oPC);FloatingTextStringOnCreature("you feel good",oPC);DeleteLocalInt(oPC,"Wait");}SetLocalInt(oPC,"Wait",GetLocalInt(oPC,"Wait")+1);}else{DeleteLocalFloat(oPC,"SitX");DeleteLocalFloat(oPC,"SitY");DeleteLocalInt(oPC,"Relax");}}

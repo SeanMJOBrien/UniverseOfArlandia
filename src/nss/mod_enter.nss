@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_domainstate"
 #include "inc_mappin"
 #include "nwnx_time"
 #include "dmfi_lang_inc"
@@ -156,6 +157,7 @@ DeleteLocalObject(oPC,"DestroyIt");
 if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers);SetPersistentInt(oModule,"Players",iPlayers);}
 // Last login (real-world Unix timestamp, requires the NWNX_Time plugin)
 SetPersistentInt(oModule,"LastLogin_"+sName,NWNX_Time_GetTimeStamp());
+DomainClockSync(oPC);
 // Language state is restored from the campaign database
 LangLoad(oPC);
 // Language hint: [text] speaks in your language, .languages lists the options

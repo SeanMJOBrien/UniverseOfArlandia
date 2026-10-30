@@ -1,10 +1,11 @@
 // _domaininfo - production summary lines for the domain structure's first
 // dialog (conv_domain006 / domain_content).
 //
-// The domain clock is the per-player goldbag "Counter", one tick per module
-// heartbeat (6 seconds) while that player is online. A structure yields one
+// The domain clock is the OWNER's online ticks (goldbag "Counter", one tick per
+// module heartbeat of 6 seconds while they are online; see _domainstate). A structure yields one
 // item every iTicksPerItem ticks, up to a per-container cap.
 
+#include "_domainstate"
 #include "_string_utils"
 #include "_module"
 
@@ -76,9 +77,9 @@ string DomainSlotField(string sStored, int iField)
 // Summary for the stored-slot producers (extractor, farm, field, sawmill).
 // Call AFTER the structure's accrual has run and written the string back, with
 // iTicksPerItem and iCap as already adjusted for the structure level and bonus.
-string DomainStoredSlotSummary(object oGoldbag, string sPlanet, string sArea, int iSlot, int iCounter, int iTicksPerItem, int iCap, string sNoun)
+string DomainStoredSlotSummary(string sPlanet, string sArea, int iSlot, int iCounter, int iTicksPerItem, int iCap, string sNoun)
 {
-    string sStored = GetLocalString(oGoldbag, sPlanet + "&" + sArea + IntToString(iSlot));
+    string sStored = DomainStateGetString(sPlanet + "&" + sArea + IntToString(iSlot));
     string sKey = sPlanet + "&" + sArea + IntToString(iSlot) + "Counter";
     int iConfigured; int iReady; int iSoonest = -1; int i;
     for (i = 1; i <= 5; i++)
@@ -90,7 +91,7 @@ string DomainStoredSlotSummary(object oGoldbag, string sPlanet, string sArea, in
         int iHeld = StringToInt(GetStringRight(sField, GetStringLength(sField) - iPct - 1));
         iConfigured++;
         iReady += iHeld;
-        iSoonest = DomainSoonest(iSoonest, DomainTicksToNext(sResource, iHeld, iCap, iCounter, GetLocalInt(oGoldbag, sKey + IntToString(i)), iTicksPerItem));
+        iSoonest = DomainSoonest(iSoonest, DomainTicksToNext(sResource, iHeld, iCap, iCounter, DomainStateGetInt(sKey + IntToString(i)), iTicksPerItem));
     }
     return DomainProductionSummary(iConfigured, iReady, iSoonest, sNoun);
 }
@@ -132,4 +133,34 @@ string DomainHouseSummary(string sTenant, int iDaysLeft)
 {
     if (sTenant == "") return "For rent.";
     return "Rented by " + sTenant + ", paid for " + IntToString(iDaysLeft) + " more day(s).";
+}
+
+// Factory: opening the dialog already collects finished goods, so there is no
+// "ready" count. What is useful is when the next product is due and whether a
+// product is held up for want of input materials from the linked structures.
+// Ticks until a product slot's next item, ignoring inputs; -1 when no product.
+int DomainFactoryWait(string sProduct, int iCounter, int iLastCounter, int iTicksPerItem)
+{
+    if (sProduct == "") return -1;
+    int iLeft = iTicksPerItem - (iCounter - iLastCounter);
+    if (iLeft < 0) iLeft = 0;
+    return iLeft;
+}
+
+// Does this product need an input (tag set) of which none is in stock?
+int DomainFactoryStarved(string sProduct, string sTag1, int iNum1, string sTag2, int iNum2)
+{
+    if (sProduct == "") return FALSE;
+    if ((sTag1 != "") && (iNum1 <= 0)) return TRUE;
+    if ((sTag2 != "") && (iNum2 <= 0)) return TRUE;
+    return FALSE;
+}
+
+string DomainFactorySummary(int iProducts, int iSoonest, int iStarved)
+{
+    if (iProducts == 0) return "No product is set yet.";
+    string sOut = "Products set: " + IntToString(iProducts) + "\nNext product due in: " + DomainFormatWait(iSoonest);
+    if (iSoonest == 0) sOut = "Products set: " + IntToString(iProducts) + "\nNext product: any moment now.";
+    if (iStarved > 0) sOut += "\nWaiting for input materials: " + IntToString(iStarved) + " product(s). Stock the linked structures.";
+    return sOut;
 }

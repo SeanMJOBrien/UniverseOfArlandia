@@ -1,4 +1,5 @@
 #include "aps_include"
+#include "_domainstate"
 #include "inc_persist"
 #include "inc_mappin"
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,6 +17,8 @@ object oArea;
 // to fire in that case. May run twice on the dead-PC path below (harmless,
 // ExportMinimap upserts the same value).
 if(GetIsObjectValid(oPC)&&GetIsPC(oPC)){ExportMinimap(oPC,GetArea(oPC));MapPin_SavePCMapPins(oPC);}
+// Final mirror of the online clock (and last-seen time) for offline reads.
+DomainClockSync(oPC);
 ////////////////////////////////////////////////////////////////////////////////
 // Execute area_exit before and delete players area variables
 DeleteLocalString(oPC,"PlayerAreaTo");

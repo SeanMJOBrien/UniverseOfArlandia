@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "_domainuser"
 ////////////////////////////////////////////////////////////////////////////////
@@ -9,6 +10,7 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
+DomainStateMigrate(oPC,oArea);
 object oObjects = GetFirstObjectInArea(oArea);
 int iChoice2 = GetLocalInt(OBJECT_SELF,"Choice2");
 location lLoc;int i;
@@ -67,11 +69,11 @@ DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iChoic
 // domain-wide grant (slot 0) is untouched; only the owner revokes that.
 DomainClearSlot(sPlanet,sArea,iChoice2);
 DomainRentClear(sPlanet,sArea,iChoice2);
-DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2));
-DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter");
+DomainStateDeleteString(sPlanet+"&"+sArea+IntToString(iChoice2));
+DomainStateDeleteInt(sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter");
 DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iChoice2));
 DeleteLocalInt(oGoldbag,sPlanet+"&BoardPriv");
-while(i<9){i++;DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter"+IntToString(i));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iChoice2)+IntToString(i));}
+while(i<9){i++;DomainStateDeleteInt(sPlanet+"&"+sArea+IntToString(iChoice2)+"Counter"+IntToString(i));DomainStateDeleteInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iChoice2)+IntToString(i));}
 ////////////////////////////////////////////////////////////////////////////////
 while(GetIsObjectValid(oObjects))
   {

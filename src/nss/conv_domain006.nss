@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "_module"
 #include "_domaininfo"
@@ -11,6 +12,7 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
+DomainStateMigrate(oPC,oArea);
 //
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
@@ -29,7 +31,7 @@ if(((iStructure>=5)&&(iStructure<=8))||(iStructure==21))
 while(i<9)
   {
 i++;
-iNum = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
+iNum = DomainStateGetInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(i));
 if(iNum==1)
    {
@@ -46,7 +48,7 @@ i=0;
 while(i<9)
   {
 i++;
-iNum = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(i)+IntToString(iSlot));
+iNum = DomainStateGetInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(i)+IntToString(iSlot));
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(i));
 if(iNum==1)
    {
@@ -56,7 +58,7 @@ sMes = sMes+"This structure is linked to the "+ColorText("Factory (slot "+IntToS
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Structures that do not go through domain_content build their own line here.
-if(iStructure==3){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainCasernSummary(StringToInt(GetStringRight(GetName(OBJECT_SELF),1)),GetLocalInt(oArea,"Bonus"),GetLocalInt(oGoldbag,"Counter")-GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter")));}
+if(iStructure==3){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainCasernSummary(StringToInt(GetStringRight(GetName(OBJECT_SELF),1)),GetLocalInt(oArea,"Bonus"),DomainOwnerTicks(oPC,oArea)-DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter")));}
 if(iStructure==9){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainGuildSummary(oGoldbag,GetLocalString(oArea,"Master")));}
 string sProduction = GetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);
 DeleteLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);

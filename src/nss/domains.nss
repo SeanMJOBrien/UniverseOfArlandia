@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "colors_inc"
 #include "_string_utils"
@@ -626,7 +627,7 @@ sBP = "structureflag";fX = 0.0;fY = -8.0;fZ = 0.0;fF = 90.0;lLoc = DomainLoc(OBJ
 sBP = "zep_cabin001";fX = 0.0;fY = 0.0;fZ = 0.0;fF = 90.0;lLoc = DomainLoc(OBJECT_SELF,fPX,fPY,fPZ,fX,fY,fZ,fF,iRot);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc);SetLocalObject(oPla,"StructureFlag",oFlag);SetLocalString(oPla,"Master",sMaster);SetLocalInt(oPla,"Slot",iSlot);SetLocalInt(oPla,"Structure",iChoice3);SetLocalInt(oPla,"DontSave",1);if(iDomainIni==0){ApplyEffectAtLocation(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_FNF_DISPEL_DISJUNCTION),lLoc);}SetLocalObject(OBJECT_SELF,IntToString(iSlot)+"Pla1",oPla);
 sBP = "zep_doorway_dag";fX = -2.0;fY = -2.9;fZ = 0.0;fF = 90.0;lLoc = DomainLoc(OBJECT_SELF,fPX,fPY,fPZ,fX,fY,fZ,fF,iRot);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc);SetLocalObject(oPla,"StructureFlag",oFlag);SetLocalString(oPla,"Master",sMaster);SetLocalInt(oPla,"Slot",iSlot);SetLocalInt(oPla,"Structure",iChoice3);SetLocalInt(oPla,"DontSave",1);if(iDomainIni==0){ApplyEffectAtLocation(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_FNF_DISPEL_DISJUNCTION),lLoc);}SetLocalObject(OBJECT_SELF,IntToString(iSlot)+"Pla2",oPla);SetUseableFlag(oPla,FALSE);
 sBP = "zep_sign003";fX = -4.5;fY = -3.7;fZ = 0.0;fF = 180.0;lLoc = DomainLoc(OBJECT_SELF,fPX,fPY,fPZ,fX,fY,fZ,fF,iRot);oPla = CreateObject(OBJECT_TYPE_PLACEABLE,sBP,lLoc);SetLocalObject(oPla,"StructureFlag",oFlag);SetLocalString(oPla,"Master",sMaster);SetLocalInt(oPla,"Slot",iSlot);SetLocalInt(oPla,"Structure",iChoice3);SetLocalInt(oPla,"DontSave",1);if(iDomainIni==0){ApplyEffectAtLocation(DURATION_TYPE_INSTANT,EffectVisualEffect(VFX_FNF_DISPEL_DISJUNCTION),lLoc);}SetLocalObject(OBJECT_SELF,IntToString(iSlot)+"Pla2",oPla);SetPlotFlag(oPla,TRUE);SetUseableFlag(oPla,TRUE);SetName(oPla,"Casern");
-if(iDomainIni==0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",GetLocalInt(oGoldbag,"Counter"));}
+if(iDomainIni==0){DomainStateMigrate(oPC,GetArea(oPC));DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",GetLocalInt(oGoldbag,"Counter"));}
       }
 if(((iDomainIni==0)&&(iLevel==1))||((iDomainIni==1)&&(iLevel>1)))
       {

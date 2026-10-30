@@ -1,4 +1,5 @@
 #include "_module"
+#include "_bank"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +111,7 @@ SetLocalInt(oPC,"Price",iPrice);
 else if(GetTag(oStore)=="store010")
  {
 oItem = GetItemPossessedBy(oPC,sPlanet+"account");
+BankSettle(oPC,oItem);
 iGP = GetLocalInt(oItem,"GP");
 iIV = GetLocalInt(oItem,"IV");
 iIVdelay = GetLocalInt(oItem,"IVdelay");

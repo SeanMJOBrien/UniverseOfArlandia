@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "dmfi_dmw_inc"
 #include "_domainuser"
@@ -10,6 +11,7 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
+DomainStateMigrate(oPC,oArea);
 //
 object oObjects = GetFirstObjectInArea(oArea);
 int iChoice1 = GetLocalInt(OBJECT_SELF,"Choice1");
@@ -80,7 +82,7 @@ DeleteLocalInt(oGoldbag,sPlanet+"&BoardPriv");
 DomainClearAllGrants(sPlanet,sArea);
 j=0;while(j<10){j++;DomainRentClear(sPlanet,sArea,j);}
 DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Interests");
-while(j<10){j++;DeletePersistentVariable(oModule,sPlanet+"&"+sArea+IntToString(j));DeleteLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(j));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter");DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(j));i=0;while(i<9){i++;DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(j)+"Counter"+IntToString(i));DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(j)+IntToString(i));}}
+while(j<10){j++;DeletePersistentVariable(oModule,sPlanet+"&"+sArea+IntToString(j));DomainStateDeleteString(sPlanet+"&"+sArea+IntToString(j));DomainStateDeleteInt(sPlanet+"&"+sArea+IntToString(j)+"Counter");DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(j));i=0;while(i<9){i++;DomainStateDeleteInt(sPlanet+"&"+sArea+IntToString(j)+"Counter"+IntToString(i));DomainStateDeleteInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(j)+IntToString(i));}}
   }
  }
 ////////////////////////////////////////////////////////////////////////////////
