@@ -21,9 +21,16 @@ if (isset($_GET['logout'])) {
     header('Location: index.php');
     exit();
 }
+$dm_login_error = '';
 if (isset($_POST['login'])) {
-    if (csrf_verify() && $dmlogin !== '' && password_verify($_POST['login'], $dmlogin)) {
+    if (!csrf_verify()) {
+        $dm_login_error = 'Session expired or cookies are blocked. Reload the page and try again.';
+    } elseif ($dmlogin === '') {
+        $dm_login_error = 'DM login is not configured on this server.';
+    } elseif (password_verify($_POST['login'], $dmlogin)) {
         $_SESSION['is_dm'] = true;
+    } else {
+        $dm_login_error = 'Wrong DM password.';
     }
 }
 $is_dm = $_SESSION['is_dm'] ?? false;
@@ -142,6 +149,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
 
         .dm-area input[type="password"] { width: 8em; font-size: 0.9em; }
         .dm-area-title { color: #66CCFF; }
+        .dm-login-error { color: #FF9966; font-size: 0.85em; margin: 4px 0 0; }
 
         .player-area input[type="text"],
         .player-area input[type="password"] { width: 8em; font-size: 0.9em; margin-bottom: 3px; }
@@ -236,6 +244,9 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token()) ?>">
                     <input type="password" name="login" value="">
                     <input type="submit" value="connect">
+                    <?php if ($dm_login_error !== ''): ?>
+                    <p class="dm-login-error" role="alert"><?= htmlspecialchars($dm_login_error) ?></p>
+                    <?php endif; ?>
                 </form>
                 <?php else: ?>
                 <h2 class="section-title dm-area-title">DM area :</h2>
