@@ -22,7 +22,7 @@
 
 #include "aps_include"
 #include "_module"
-#include "nwnx_sql"
+#include "inc_sqlite_time"
 
 const string DSTATE_PREFIX = "DS&";
 const string DOMAIN_CLOCK_KEY = "OnlineTicks&";   // + character name
@@ -70,16 +70,6 @@ void DomainStateDeleteString(string sKey)
 
 // --- Owner online clock ---------------------------------------------------
 
-// Real-world unix time, from the database clock. The NWNX_Time plugin is not
-// shipped in the server image, so ask MySQL; 0 if the query fails.
-int DomainRealTime()
-{
-    if (!NWNX_SQL_ExecuteQuery("SELECT UNIX_TIMESTAMP()")) { return 0; }
-    if (!NWNX_SQL_ReadyToReadNextRow()) { return 0; }
-    NWNX_SQL_ReadNextRow();
-    return StringToInt(NWNX_SQL_ReadDataInActiveRow(0));
-}
-
 // Mirror a player's online ticks and last-seen time to pwdata. Cheap: two writes.
 void DomainClockSync(object oPC)
 {
@@ -88,7 +78,7 @@ void DomainClockSync(object oPC)
     if (!GetIsObjectValid(oGoldbag)) { return; }
     string sName = GetName(oPC);
     SetPersistentInt(GetModule(), DOMAIN_CLOCK_KEY + sName, GetLocalInt(oGoldbag, "Counter"));
-    SetPersistentInt(GetModule(), DOMAIN_SEEN_KEY + sName, DomainRealTime());
+    SetPersistentInt(GetModule(), DOMAIN_SEEN_KEY + sName, SQLite_GetTimeStamp());
 }
 
 // The logged-in PC called sName, or OBJECT_INVALID.

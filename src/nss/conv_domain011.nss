@@ -1,3 +1,4 @@
+#include "_guild"
 #include "aps_include"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +23,7 @@ int iGain = GetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iS
 if(iChoice1==1)
  {
 SetLocalString(oGoldbag,"Guild",sMaster);
-SetLocalInt(oGoldbag,"GuildMB",iDomainGuildMB*576);
+GuildSetTicks(oGoldbag,iDomainGuildMB*576);
 SetLocalInt(oGoldbag,"GuildLevel",iLevel);FloatingTextStringOnCreature("Guild level : "+IntToString(iLevel),oPC);
 TakeGoldFromCreature(iPrice1,oPC,TRUE);
 
@@ -33,7 +34,7 @@ else if(iLevel>=3){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToSt
 // Renew membership
 else if(iChoice1==2)
  {
-SetLocalInt(oGoldbag,"GuildMB",iDomainGuildMB*576);
+GuildSetTicks(oGoldbag,iDomainGuildMB*576);
 SetLocalInt(oGoldbag,"GuildLevel",iLevel);FloatingTextStringOnCreature("Guild level : "+IntToString(iLevel),oPC);
 TakeGoldFromCreature(iPrice2,oPC,TRUE);
 
@@ -45,7 +46,7 @@ else if(iLevel>=3){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToSt
 else if(iChoice1==3)
  {
 DeleteLocalString(oGoldbag,"Guild");
-DeleteLocalInt(oGoldbag,"GuildMB");
+GuildClear(oGoldbag);
 DeleteLocalInt(oGoldbag,"GuildLevel");
  }
 ////////////////////////////////////////////////////////////////////////////////

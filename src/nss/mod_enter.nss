@@ -154,8 +154,8 @@ DeleteLocalObject(oPC,"DestroyIt");
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers);SetPersistentInt(oModule,"Players",iPlayers);}
-// Last login (real-world Unix timestamp, from the database clock)
-SetPersistentInt(oModule,"LastLogin_"+sName,DomainRealTime());
+// Last login (real-world Unix timestamp, from the native SQLite clock)
+SetPersistentInt(oModule,"LastLogin_"+sName,SQLite_GetTimeStamp());
 DomainClockSync(oPC);
 // Language state is restored from the campaign database
 LangLoad(oPC);

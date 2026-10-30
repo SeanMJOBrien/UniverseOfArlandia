@@ -1,3 +1,4 @@
+#include "_guild"
 #include "aps_include"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +204,7 @@ else if(iChoice1==6)
 while((GetIsObjectValid(oItems))&&(i<=4)){if(GetTag(oItems)=="cr_plantcommon"){i++;DestroyObject(oItems);}oItems = GetNextItemInInventory(oPC);}
 
 GiveGoldToCreature(oPC,20);
-int n;int iXP = 5;object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GetLocalInt(oGoldbag,"GuildMB");if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}
+int n;int iXP = 5;object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GuildTicksLeft(oGoldbag);if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}
 GiveXPToCreature(oPC,iXP);
  }
 ////////////////////////////////////////////////////////////////////////////////

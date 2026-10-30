@@ -387,7 +387,7 @@ game date only moves while the server is up.
 
 `mod_heartbeat` adds 1 to the `Counter` on each connected player's goldbag every
 heartbeat. The same value is mirrored to `pwdata` (`OnlineTicks&<Name>`) together
-with a real-world `LastSeen_<Name>` unix time, at login, at logout and every
+with a real-world `LastSeen_<Name>` unix time (read from the native SQLite clock, `inc_sqlite_time.nss`; the NWNX_Time plugin is not in the server image), at login, at logout and every
 `DOMAIN_CLOCK_SYNC_TICKS` (50 ticks, 5 minutes). A server crash loses at most that
 much of a player's play time on the mirror, never the other way.
 
@@ -418,8 +418,11 @@ marks it). The old goldbag values are left in place and no longer used.
   for levels 1 to 5), less the area bonus. Troops waiting are `ticks passed /
   cost`. Collecting resets the clock. There is no separate training period; a
   troop is available as soon as it has been produced.
-- **Guild membership**: still the member's own goldbag `GuildMB`, which falls by 1
-  per tick. A paid term is `iDomainGuildMB * 576` ticks.
+- **Guild membership**: the member's own clock. The term is stored as an end point
+  (`GuildEnd`, a goldbag `Counter` value) and the ticks left are `GuildEnd -
+  Counter`, worked out when read (`_guild.nss`). Nothing runs per heartbeat. A paid
+  term is `iDomainGuildMB * 576` ticks. Terms from the old countdown (`GuildMB`)
+  are converted the first time they are read.
 
 ### Bank accounts
 

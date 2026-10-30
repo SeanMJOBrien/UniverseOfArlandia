@@ -5,6 +5,7 @@
 // module heartbeat of 6 seconds while they are online; see _domainstate). A structure yields one
 // item every iTicksPerItem ticks, up to a per-container cap.
 
+#include "_guild"
 #include "_domainstate"
 #include "_string_utils"
 #include "_module"
@@ -121,9 +122,9 @@ string DomainCasernSummary(int iLevel, int iBonus, int iHBPassed)
 // Guild: the speaker's own membership of THIS guild (the hall's Master).
 string DomainGuildSummary(object oGoldbag, string sMaster)
 {
-    if (GetLocalString(oGoldbag, "Guild") != sMaster || GetLocalInt(oGoldbag, "GuildMB") <= 0)
+    if (GetLocalString(oGoldbag, "Guild") != sMaster || GuildTicksLeft(oGoldbag) <= 0)
         return "You are not a member of this guild.";
-    int iTicks = GetLocalInt(oGoldbag, "GuildMB");
+    int iTicks = GuildTicksLeft(oGoldbag);
     return "Your membership: " + IntToString(iTicks / DOMAIN_TICKS_PER_DAY) + " day(s) left, about " + DomainFormatWait(iTicks) + " of play time.\n"
          + "The XP bonus needs " + IntToString(iDomainGuildMin) + " guild members together.";
 }

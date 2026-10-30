@@ -1,3 +1,4 @@
+#include "_guild"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -6,7 +7,7 @@ object oPC = GetPCSpeaker();
 object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sMaster = GetLocalString(oArea,"Master");
-int iGuildMB = GetLocalInt(oGoldbag,"GuildMB");
+int iGuildMB = GuildTicksLeft(oGoldbag);
 int iPrice1 = iDomainGuildGP;
 int iPrice2 = ((iDomainGuildMB*576)-iGuildMB)*iDomainGuildGP/(iDomainGuildMB*576);
 ////////////////////////////////////////////////////////////////////////////////

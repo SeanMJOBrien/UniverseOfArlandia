@@ -1,3 +1,4 @@
+#include "_guild"
 #include "nw_i0_plot"
 #include "_module"
 void main()
@@ -8,7 +9,7 @@ object oStore = GetNearestObject(OBJECT_TYPE_STORE);
 object oArea = GetArea(oPC);
 //
 string sGuild = GetLocalString(oGoldbag,"Guild");
-int iGuild = GetLocalInt(oGoldbag,"GuildMB");
+int iGuild = GuildTicksLeft(oGoldbag);
 object oMember = GetFirstFactionMember(oPC);
 int iLevel = GetLocalInt(oGoldbag,"GuildLevel");
 int iLevel2 = GetLocalInt(oArea,"Level");

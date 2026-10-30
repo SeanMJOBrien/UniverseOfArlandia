@@ -1,3 +1,4 @@
+#include "_guild"
 #include "aps_include"
 #include "_module"
 #include "_hench_gear"
@@ -56,7 +57,7 @@ SetName(oItem,GetStringLeft(sItemName,FindSubString(sItemName," (")));
 // Domain school xps bonus when buying a talent
 if((GetStringLeft(sItemTag,4)=="tal_")&&(GetStringLeft(GetTag(oArea),8)=="h_school")&&(GetLocalInt(oItem,"XpGiven")!=1))
  {
-int n;int iXP = 50;object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GetLocalInt(oGoldbag,"GuildMB");if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}
+int n;int iXP = 50;object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GuildTicksLeft(oGoldbag);if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}
 SetLocalInt(oItem,"XpGiven",1);GiveXPToCreature(oPC,iXP);FloatingTextStringOnCreature(IntToString(iXP)+" xps",oPC);
  }
 ////////////////////////////////////////////////////////////////////////////////

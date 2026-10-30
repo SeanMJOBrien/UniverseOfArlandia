@@ -116,8 +116,7 @@ if((GetIsObjectValid(oFamiliar4))&&(GetLocalString(oGoldbag,"Familiar4")=="")){i
 // Gold weight
 // Qlippoth disabled   if(GetLocalInt(oPC,"Gold")!=iGold){SetLocalInt(oPC,"Gold",iGold);DelayCommand(0.1,ExecuteScript("gold",oPC));}
 ////////////////////////////////////////////////////////////////////////////////
-// Guild membership
-if(GetLocalInt(oGoldbag,"GuildMB")>0){SetLocalInt(oGoldbag,"GuildMB",GetLocalInt(oGoldbag,"GuildMB")-1);}
+// Guild membership: the term is an end point on the member's clock (_guild.nss), nothing to do per heartbeat.
 ////////////////////////////////////////////////////////////////////////////////
 // Mount
 if((GetPhenoType(oPC)>4)&&(GetPhenoType(oPC)<14)){iRand = Random(15);if(iRand>13){AssignCommand(oPC,PlaySound("c_horsexxx_dead"));}else if(iRand>11){AssignCommand(oPC,PlaySound("c_horsexxx_slct"));}}

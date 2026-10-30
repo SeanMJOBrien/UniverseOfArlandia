@@ -1,3 +1,4 @@
+#include "_guild"
 #include "_module"
 #include "aps_include"
 #include "_loot"
@@ -21,7 +22,7 @@ float fBarbarian;float fBard;float fCleric;float fDruid;float fFighter;float fMo
 float fXP;float fPoints;float fDiff;float fLevels;float fTable;int iXP;int f;int i;object oNew;object oEnigm;int iPen;
 ////////////////////////////////////////////////////////////////////////////////
 // XPs
-int n;string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GetLocalInt(oGoldbag,"GuildMB");while(GetIsObjectValid(oFaction)){if((iGuild>0)&&(GetLocalString(GetItemPossessedBy(oFaction,"goldbag"),"Guild")==sGuild)&&(GetArea(oFaction)==GetArea(oPC))&&(GetDistanceBetween(oFaction,oPC)<=50.0)){n++;}if((GetArea(oFaction)==GetArea(oPC))&&(GetDistanceToObject(oFaction)<=50.0)&&(GetStringLeft(GetTag(oFaction),8)!="henchani")&&(GetLocalInt(oFaction,"Clone")==0)){i++;}oFaction = GetNextFactionMember(oPC);}
+int n;string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GuildTicksLeft(oGoldbag);while(GetIsObjectValid(oFaction)){if((iGuild>0)&&(GetLocalString(GetItemPossessedBy(oFaction,"goldbag"),"Guild")==sGuild)&&(GetArea(oFaction)==GetArea(oPC))&&(GetDistanceBetween(oFaction,oPC)<=50.0)){n++;}if((GetArea(oFaction)==GetArea(oPC))&&(GetDistanceToObject(oFaction)<=50.0)&&(GetStringLeft(GetTag(oFaction),8)!="henchani")&&(GetLocalInt(oFaction,"Clone")==0)){i++;}oFaction = GetNextFactionMember(oPC);}
 //
 f++;SetLocalObject(oArea,IntToString(f)+"PartyMember",oPC);
 oFaction = GetFirstFactionMember(oPC);
