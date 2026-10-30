@@ -1,5 +1,6 @@
 #include "aps_include"
 #include "_module"
+#include "_domaininfo"
 #include "dmfi_dmw_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -17,6 +18,10 @@ int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
 object oStructure;string sName;string sMes;int iNum;int i;
 ////////////////////////////////////////////////////////////////////////////////
 ExecuteScript("conv_dm_varempty",OBJECT_SELF);
+////////////////////////////////////////////////////////////////////////////////
+// Runs first: it leaves a production summary on the structure (DOMAIN_INFO_VAR)
+// that is prepended to the info text below.
+if((iStructure==5)||(iStructure==6)||(iStructure==7)||(iStructure==8)||(iStructure==11)||(iStructure==21)){ExecuteScript("domain_content",OBJECT_SELF);}
 ////////////////////////////////////////////////////////////////////////////////
 // Check if structure linked
 if(((iStructure>=5)&&(iStructure<=8))||(iStructure==21))
@@ -50,6 +55,12 @@ sMes = sMes+"This structure is linked to the "+ColorText("Factory (slot "+IntToS
   }
  }
 ////////////////////////////////////////////////////////////////////////////////
+// Structures that do not go through domain_content build their own line here.
+if(iStructure==3){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainCasernSummary(StringToInt(GetStringRight(GetName(OBJECT_SELF),1)),GetLocalInt(oArea,"Bonus"),GetLocalInt(oGoldbag,"Counter")-GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter")));}
+if(iStructure==9){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainGuildSummary(oGoldbag,GetLocalString(oArea,"Master")));}
+string sProduction = GetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);
+DeleteLocalString(OBJECT_SELF,DOMAIN_INFO_VAR);
+if(sProduction!=""){if(sMes==""){sMes = sProduction;}else{sMes = sProduction+"\n\n"+sMes;}}
 if(sMes==""){sMes = "No special information";}
 ////////////////////////////////////////////////////////////////////////////////
 if(iStructure==1){DeleteLocalInt(OBJECT_SELF,"ChoiceDone1");SetCustomToken(10500,"Airship :\n\n"+sMes);}else{SetLocalInt(OBJECT_SELF,"ChoiceDone1",1);}
@@ -73,7 +84,5 @@ if(iStructure==18){DeleteLocalInt(OBJECT_SELF,"ChoiceDone18");SetCustomToken(105
 if(iStructure==19){DeleteLocalInt(OBJECT_SELF,"ChoiceDone19");SetCustomToken(10500,"Temple :\n\n"+sMes);}else{SetLocalInt(OBJECT_SELF,"ChoiceDone19",1);}
 if(iStructure==20){DeleteLocalInt(OBJECT_SELF,"ChoiceDone20");SetCustomToken(10500,"Tower :\n\n"+sMes);}else{SetLocalInt(OBJECT_SELF,"ChoiceDone20",1);}
 if(iStructure==21){DeleteLocalInt(OBJECT_SELF,"ChoiceDone21");SetCustomToken(10500,"Sawmill :\n\n"+sMes);}else{SetLocalInt(OBJECT_SELF,"ChoiceDone21",1);}
-////////////////////////////////////////////////////////////////////////////////
-if((iStructure==5)||(iStructure==6)||(iStructure==7)||(iStructure==8)||(iStructure==11)||(iStructure==21)){ExecuteScript("domain_content",OBJECT_SELF);}
 ////////////////////////////////////////////////////////////////////////////////
 }

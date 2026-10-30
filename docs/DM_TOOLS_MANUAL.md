@@ -17,6 +17,7 @@ well as a logged-in DM for most tools.
 7. [Rental doors and apartment buildings](#7-rental-doors-and-apartment-buildings)
 8. [Conflict placeables](#8-conflict-placeables)
 9. [Coordinates and terrain codes](#9-coordinates-and-terrain-codes)
+10. [How time is tracked](#10-how-time-is-tracked)
 
 ---
 
@@ -365,3 +366,76 @@ Planet `Arland`, coordinate `0_0` is the starting city, Arlandia.
 
 Commands that take a coordinate use the tile you are standing on when you leave
 it out.
+
+---
+
+## 10. How time is tracked
+
+The module has three separate clocks. Which one an activity uses decides
+whether it keeps running while the player is offline, and whether it survives a
+server restart.
+
+| Clock | Counts | Runs while owner offline? | Where it is stored |
+|---|---|---|---|
+| Player tick (`Counter`) | One tick per module heartbeat, 6 real seconds. 576 ticks = one "day" (about 58 real minutes) | No. Only players logged in and not DMs | On the player's `goldbag` item, saved with the character |
+| Item tick | Same heartbeat, counted on a single item | No. Only while that item is in the inventory of a logged-in player | Local ints on the item (`account`, bank card) |
+| Game calendar | The in-game date (28-day months) | Yes. It is the module's calendar, so it ticks for everyone | The `pwdata` database, as an absolute day number |
+
+The module calendar itself is saved to the `Calendar` key in `pwdata` every game
+hour and when the server shuts down, then restored on load (`mod_load`). It
+therefore survives restarts, but the game date only moves while the server is up.
+
+### Player tick (`goldbag` `Counter`)
+
+`mod_heartbeat` adds 1 to `Counter` for each connected player on every module
+heartbeat. A structure records the counter value at its last production in a
+`<Planet>&<Area><Slot>Counter` local on the same goldbag, and the number of items
+due is `(Counter - recorded) / ticks per item`.
+
+- **Domain production** (extractor, farm, field, sawmill, factory): one item per
+  `hours * 24` ticks, shortened by the area bonus, halved at structure level 5,
+  and capped by the container size (doubled at level 3). The first dialog of an
+  extractor, farm, field and sawmill shows the stock ready and the time to the
+  next item. Factories are not shown because their output depends on the linked
+  input structures.
+- **Casern troops** (`conv_domain007`): one clock per casern, `Counter - recorded`.
+  A level costs `iDomainCasern * 20 * factor` ticks (factor 1, 2, 3, 5, 7 for
+  levels 1 to 5), less the area bonus. Henchmen waiting are
+  `ticks passed / cost`. Collecting resets the clock. There is no separate
+  training period; a troop is available as soon as it has been produced.
+- **Guild membership**: the `GuildMB` local on the goldbag falls by 1 per tick. A
+  paid term is `iDomainGuildMB * 576` ticks.
+
+All of these are stored on the goldbag of the player who is talking to the
+structure, so a user who was granted access sees and advances their own goldbag,
+not the owner's.
+
+### Item tick (bank accounts)
+
+Every heartbeat, `mod_heartbeat` looks through each online player's inventory for
+items whose tag ends in `account`:
+
+- **Normal interest:** `GPdelay` rises by 1 each tick. At 576 ticks (one day) the
+  balance `GP` grows by `iNormalInterest` % (1% per day, compounding) and the
+  counter resets.
+- **Investments:** a deposit sets `IVdelay` to `iInvestmentDelay * 576` ticks (20
+  days). It falls by 1 per tick and, when it reaches the end, the investment `IV`
+  grows by `iInvestmentInterest` % (3%) per day for the delay length. The player
+  can take the money back once the delay has run out.
+
+If the account item is not carried by a logged-in player, it earns nothing.
+
+### Game calendar (house rent)
+
+House and apartment rent does not touch a bank account. It is paid in gold
+straight from the player's purse when they rent or pay a month at the structure.
+The expiry is stored as an absolute game day in `pwdata`
+(`<Planet>&<Area>&Domain&<Slot>Until`, see `DomainRentExtend` in
+`_domainuser.nss`) and `DomainRentDaysLeft` is that day minus today's
+`DomainGameDay()`. A month buys `iDomainRentDays` (30) game days. It counts down
+for offline tenants too. An expired tenancy is released the next time somebody
+looks at the slot, not on a timer.
+
+An older `<Planet>&<Area>&Rent&<Slot>` counter is still written to the goldbag when
+rent is paid, but nothing decrements it any more.
+

@@ -8,3 +8,12 @@
   - Setting: `LANG_STORE` with `db` (today's sqlite behavior, the default), `item` or `both` (item as the source of truth, sqlite as backup).
   - Work: the item blueprint and palette entry; item read and write functions beside `LangSave`, `LangLoad` and `LangSaveExp` in `dmfi_lang_inc.nss`; creation of a missing item on entry; a one-time copy from sqlite onto the item; ERF build and docs.
   - Open points: items are saved only when characters are exported (about every 20 minutes and at server exit), so a crash can lose recent progress; a DM could copy the item to give another character the same languages; and which other information belongs on the item.
+
+## Game clocks
+
+- Consider the effects of moving the bank-interest and caserne clocks off the engine heartbeat counters and into the database (real-time timestamps). Today bank interest (`GPdelay`/`IVdelay` on the account item) and caserne troops (`Counter` on the goldbag) only advance while a player is logged in, and bank accounts only earn while the card is carried. Questions to settle first:
+  - Should interest and troops accrue while the owner is offline? That is a large economic change (balance, inflation, catch-up on login after a long absence).
+  - Where would the timestamp live for a bank card that is an item (follows the character) versus a caserne (belongs to a structure)?
+  - Migration of existing `GPdelay`, `IVdelay` and caserne goldbag markers, and what happens to a half-run investment.
+  - Caserne shares one clock for all five levels and resets it on collection; a timestamp version needs the same reset semantics.
+  - See "How time is tracked" in `DM_TOOLS_MANUAL.md`.

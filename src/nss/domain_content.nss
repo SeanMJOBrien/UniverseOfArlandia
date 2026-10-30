@@ -1,6 +1,7 @@
 #include "aps_include"
 #include "_domainuser"
 #include "_module"
+#include "_domaininfo"
 #include "dmfi_dmw_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -97,6 +98,9 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+
+// Summary for the first dialog (conv_domain006 prepends it to the structure info).
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(oGoldbag,sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"resource"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Factory
@@ -436,6 +440,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(oGoldbag,sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"animal"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Field
@@ -510,6 +515,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(oGoldbag,sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"plant"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Sawmill
@@ -584,6 +590,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(oGoldbag,sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"plank"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // House
@@ -603,6 +610,7 @@ SendMessageToPC(oPC,"Rent : "+IntToString(DomainRentDaysLeft(sPlanet,sArea,iSlot
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),iRent);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
   }
+if(sRent!=""){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainHouseSummary(sRent,DomainRentDaysLeft(sPlanet,sArea,iSlot)));}
 SetCustomToken(10604,IntToString(iDomainHouseGP));SetLocalInt(OBJECT_SELF,"Price1",iDomainHouseGP);SetLocalInt(OBJECT_SELF,"Price2",iDomainHouseGP);if(sRent==""){sRent = "nobody";}SetCustomToken(10605,sRent);
  }
 ////////////////////////////////////////////////////////////////////////////////
