@@ -12,6 +12,13 @@ int iNormalInterest =   2;                      //*// Normal account interest ra
 int iInvestmentInterest=3;                      //*// Investment interest rate per month in %, compounded daily (see iInvestmentMonthDays).
 int iBankMonthDays =    28;                     //*// Bank days in one month, for the monthly interest rates of accounts and investments.
 int iInvestmentDelay =  20;                     //*// Investment delay in days until the money can be taken back.
+int iBankDayTicks =     576;                    //*// Bank day length in 6-second heartbeats of online time (576 = about 58 minutes).
+int iBankMove1 =        100;                    //*// Deposit and withdraw: first amount offered.
+int iBankMove2 =        500;                    //*// Deposit and withdraw: second amount offered.
+int iBankMove3 =        1000;                   //*// Deposit and withdraw: third amount offered.
+int iBankInvest1 =      1000;                   //*// Investment: first amount offered.
+int iBankInvest2 =      5000;                   //*// Investment: second amount offered.
+int iBankInvest3 =      10000;                  //*// Investment: third amount offered.
 ////////////////////////////////////////////////////////////////////////////////
 // Challenges
 int iMonsterChallenge = 100;                    //*// XPs won or lost in monster challenge (success vs fail).

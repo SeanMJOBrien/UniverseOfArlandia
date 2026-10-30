@@ -18,18 +18,14 @@ int iPrice;int i;
 // Deposit
 if(iChoice1==1)
  {
-     if(iChoice2==1){iPrice = 100;}
-else if(iChoice2==2){iPrice = 500;}
-else if(iChoice2==3){iPrice = 1000;}
+iPrice = BankMoveAmount(iChoice2);
 SetLocalInt(oItem,"GP",iGP+iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);
 FloatingTextStringOnCreature("Account GP : "+IntToString(iGP+iPrice),oPC);
  }
 // Withdraw
 else if(iChoice1==2)
  {
-     if(iChoice2==1){iPrice = 100;}
-else if(iChoice2==2){iPrice = 500;}
-else if(iChoice2==3){iPrice = 1000;}
+iPrice = BankMoveAmount(iChoice2);
 SetLocalInt(oItem,"GP",iGP-iPrice);GiveGoldToCreature(oPC,iPrice);
 FloatingTextStringOnCreature("Account GP : "+IntToString(iGP-iPrice),oPC);
  }
@@ -44,9 +40,9 @@ DestroyObject(oItem);
 else if(iChoice1==4)
  {
      if(iChoice2==0){GiveGoldToCreature(oPC,iIV);DeleteLocalInt(oItem,"IV");DeleteLocalInt(oItem,"IVdelay");DeleteLocalInt(oItem,"IVmark");DeleteLocalInt(oItem,"IVrate");DeleteLocalInt(oItem,"IVdays");FloatingTextStringOnCreature("Investment gain : "+IntToString(iIV),oPC);}
-else if(iChoice3==1){iPrice = 1000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
-else if(iChoice3==2){iPrice = 5000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
-else if(iChoice3==3){iPrice = 10000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
+else if(iChoice3==1){iPrice = BankInvestAmount(1);BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);BankInvestmentNotice(oPC,oItem);}
+else if(iChoice3==2){iPrice = BankInvestAmount(2);BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);BankInvestmentNotice(oPC,oItem);}
+else if(iChoice3==3){iPrice = BankInvestAmount(3);BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);BankInvestmentNotice(oPC,oItem);}
  }
 // Bank notes
 else if(iChoice1==5)

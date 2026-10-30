@@ -129,7 +129,15 @@ SetCustomToken(10137,BankPercentText(BankNormalRate10()));
 SetCustomToken(10138,BankPercentText(BankInvestRate10()));
 SetCustomToken(10139,IntToString(BankTermDays()));
 SetCustomToken(10140,IntToString(iIV));
-SetCustomToken(10141,IntToString(iIVdelay/576));
+SetCustomToken(10141,BankTermText(iIVdelay));
+SetCustomToken(10142,BankPlayTime(BankTermDays()*BankDayTicks()));
+SetCustomToken(10143,IntToString(BankInvestmentValue(BankInvestAmount(1),BankInvestRate10(),BankTermDays(),BankMonthDays())));
+SetCustomToken(10144,IntToString(BankInvestmentValue(BankInvestAmount(2),BankInvestRate10(),BankTermDays(),BankMonthDays())));
+SetCustomToken(10145,IntToString(BankInvestmentValue(BankInvestAmount(3),BankInvestRate10(),BankTermDays(),BankMonthDays())));
+SetCustomToken(10146,IntToString(BankInvestmentValue(iIV,GetLocalInt(oItem,"IVrate"),GetLocalInt(oItem,"IVdays"),GetLocalInt(oItem,"IVmonth"))));
+SetCustomToken(10147,IntToString(iGP*BankNormalRate10()/1000));
+SetCustomToken(10148,BankDayText());
+for(i=1;i<=3;i++){SetCustomToken(10189+i,IntToString(BankMoveAmount(i)));SetCustomToken(10192+i,IntToString(BankInvestAmount(i)));}
  }
 ////////////////////////////////////////////////////////////////////////////////
 }

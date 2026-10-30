@@ -434,7 +434,7 @@ marks it). The old goldbag values are left in place and no longer used.
 
 ### Bank accounts
 
-Rates, term, month length, account price and whether investments are open are read
+Rates, term, month length, bank-day length, account price, the deposit/withdraw and investment amounts offered, and whether investments are open are read
 from `BankSetting_<name>` rows in `pwdata` each time they are needed, falling back
 to the compiled values in `_module.nss`. The DM page `dm_bank.php` edits them
 (section 12).
@@ -557,11 +557,14 @@ first; every page checks that session and every change needs the page's form tok
 ### Bank (`dm_bank.php`)
 
 Sets the normal account rate, the account price, the investment rate, term and
-month length, and opens or closes new investments. Rates are percent per month in
+month length, the length of a bank day in minutes of play, the three deposit/withdraw
+amounts and the three investment amounts the dialog offers, and opens or closes new
+investments. The dialog texts (terms, payouts, time left) are built from these values,
+so they always match the page. Bank-note values are fixed by their items. Rates are percent per month in
 steps of 0.1. Values are checked against their limits, written to `pwdata` and
 recorded in the `dm_audit` table. The module reads them the next time an account is
 opened, so no restart is needed. A running investment keeps the rate and term it was
-bought with. The page also shows what 1000 GP returns under the current values and
+bought with. The page also shows what each investment amount returns under the current values and
 warns when investing returns less than a normal account. The defaults shown for a
 setting that has never been saved must match `_module.nss`.
 

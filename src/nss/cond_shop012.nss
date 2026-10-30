@@ -18,17 +18,13 @@ int iPrice;int i;
 // Deposit
 if(iChoice1==1)
  {
-     if(iChoice2==1){iPrice = 100;}
-else if(iChoice2==2){iPrice = 500;}
-else if(iChoice2==3){iPrice = 1000;}
+iPrice = BankMoveAmount(iChoice2);
 if(iGold>=iPrice){i = 1;}
  }
 // Withdraw
 else if(iChoice1==2)
  {
-     if(iChoice2==1){iPrice = 100;}
-else if(iChoice2==2){iPrice = 500;}
-else if(iChoice2==3){iPrice = 1000;}
+iPrice = BankMoveAmount(iChoice2);
 if(iGP>=iPrice){i = 1;}
  }
 // Investment
@@ -41,9 +37,9 @@ if(iIVdelay==-1){i = 1;}
 else if(iChoice2==1)
   {
      if(iChoice3==0){if(iIVdelay>0){i = 1;}}
-else if(iChoice3==1){iPrice = 1000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
-else if(iChoice3==2){iPrice = 5000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
-else if(iChoice3==3){iPrice = 10000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==1){iPrice = BankInvestAmount(1);if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==2){iPrice = BankInvestAmount(2);if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==3){iPrice = BankInvestAmount(3);if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
   }
 else if(iChoice2==2)
   {

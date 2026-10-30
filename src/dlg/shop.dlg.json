@@ -3325,7 +3325,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Are you sure you want to close your account ? You will get all the GP holds on it before it closes."
+            "0": "Are you sure you want to close your account ? You will get all the GP held on it. An investment that is still running is returned as the amount you invested, without its interest."
           }
         }
       },
@@ -3607,7 +3607,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Your actual investment :\n\n<CUSTOM10140> GP placed for <CUSTOM10141> days."
+            "0": "Your investment :\n\n<CUSTOM10140> GP invested.\nTime left : <CUSTOM10141>.\nAt the end of the term you receive <CUSTOM10146> GP. Until then the money cannot be taken back, except by closing the account, which returns only the amount you invested."
           }
         }
       },
@@ -3820,7 +3820,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "If you lend your money to our bank, It means you can not withdraw it until the delay passes. But the interest rate will be higher than on the normal account :\n\nDelay : <CUSTOM10139> days.\nInterest rate : <CUSTOM10138> % per month, compounded daily and paid with your money when the delay is over.\n\nPay attention. Once you have chosen an amount, you have no choice than wait until the delay is passed to get the money back. Also, you can not change the amount until the delay is totally passed. Choose an amount to invest :"
+            "0": "Investing means lending part of your money to the bank for a fixed term.\n\nTerm : <CUSTOM10139> bank days, which is about <CUSTOM10142> of play. A bank day is <CUSTOM10148>; time spent logged out does not count.\nInterest : <CUSTOM10138> % per month, compounded daily and paid once, with your money, when the term ends.\nYou receive : <CUSTOM10193> GP gives <CUSTOM10143> GP, <CUSTOM10194> GP gives <CUSTOM10144> GP, <CUSTOM10195> GP gives <CUSTOM10145> GP.\n\nPay attention. The money is locked until the term is over. You can hold one investment at a time, and its rate and term are fixed on the day you invest. Closing your account early returns only the amount you invested. Choose an amount to invest :"
           }
         }
       },
@@ -3988,7 +3988,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "It is done. Your money is invested."
+            "0": "It is done. You invested <CUSTOM10140> GP. In <CUSTOM10141> you receive <CUSTOM10146> GP."
           }
         }
       },
@@ -4240,7 +4240,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Your account holds <CUSTOM10136> GP."
+            "0": "Your account holds <CUSTOM10136> GP.\n\nAt <CUSTOM10137> % per month it earns about <CUSTOM10147> GP per month of bank days (<CUSTOM10148> each). Interest is added as you play, and it is only counted when you are logged in."
           }
         }
       },
@@ -4369,7 +4369,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "How much ?"
+            "0": "How much ?\n\nDeposits and withdrawals take effect at once. Money on the account earns <CUSTOM10137> % per month, added every bank day (<CUSTOM10148>)."
           }
         }
       },
@@ -4636,7 +4636,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "It costs <CUSTOM10135> GP to open an account in our bank. Remember that the money hold in our bank will benefit from an interest rate of <CUSTOM10137> % per month, added every day."
+            "0": "Opening an account costs <CUSTOM10135> GP.\n\nWhat it means: the GP you keep on the account earn <CUSTOM10137> % per month, added every bank day. A bank day is <CUSTOM10148>; it is not calendar time, and nothing is added while you are logged out. You can deposit and withdraw at any time, and you get everything back when you close the account."
           }
         }
       },
@@ -5004,7 +5004,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "Choose an option :"
+            "0": "Bank notes are paper money. A note is worth exactly its face value, earns no interest, and can be exchanged for gold again at a bank. Choose an option :"
           }
         }
       },
@@ -9794,7 +9794,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "10000 GP."
+            "0": "<CUSTOM10195> GP."
           }
         }
       },
@@ -9874,7 +9874,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "5000 GP."
+            "0": "<CUSTOM10194> GP."
           }
         }
       },
@@ -9946,7 +9946,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "1000 GP."
+            "0": "<CUSTOM10193> GP."
           }
         }
       },
@@ -10201,7 +10201,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "1000 GP."
+            "0": "<CUSTOM10192> GP."
           }
         }
       },
@@ -10281,7 +10281,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "500 GP."
+            "0": "<CUSTOM10191> GP."
           }
         }
       },
@@ -10353,7 +10353,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "100 GP."
+            "0": "<CUSTOM10190> GP."
           }
         }
       },
