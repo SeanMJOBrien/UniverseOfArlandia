@@ -6,6 +6,7 @@ require __DIR__ . '/dm_common.php';
 
 $tools = [
     ['dm_bank.php', 'Bank', 'Interest rates, investment term, amounts offered, account price and the length of a bank day.'],
+    ['dm_rentals.php', 'Rentals', 'Who rents which house or unit, where, for how much, and how many game days of rent are left.'],
     ['dm_inactive.php', 'Inactive accounts', 'Player accounts not seen for a year, their characters and domains; archive the character files by hand.'],
     ['galaxy.php?planet=infos', 'Informations', 'Server information and the character reset.'],
     ['playerInfo.php', 'Player information', 'Look up a player and reset a character\'s location.'],

@@ -571,6 +571,16 @@ bought with. The page also shows what each investment amount returns under the c
 warns when investing returns less than a normal account. The defaults shown for a
 setting that has never been saved must match `_module.nss`.
 
+### Rentals (`dm_rentals.php`)
+
+Read-only list of every rented domain house and rental-door unit: the tenant, where
+it is (planet and area, or the door's area tag and position), the unit or slot, the
+rent per period, and the game days of rent left (red when 3 or fewer, "overdue" when
+past). The filter box matches a tenant name or place. A tenancy whose clock has not
+started shows "clock not started"; the module starts it the first time the house or
+door is used. Rent amounts on this page are the defaults in `_module.nss`; if you
+change those, change them in `dm_rentals.php` too.
+
 ### Inactive accounts (`dm_inactive.php`)
 
 Lists player accounts, oldest first, whose newest character has not been saved for
