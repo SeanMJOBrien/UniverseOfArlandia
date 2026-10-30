@@ -1,7 +1,9 @@
+#include "dmfi_lang_nwnx"
 #include "aps_include"
 #include "nwnx_sql"
 #include "nwnx_events"
 #include "_module"
+#include "_domainindex"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 object oModule = GetModule();
@@ -61,6 +63,8 @@ DestroyCampaignDatabase("AdvAreaSnap");
 // Corpse gold auto-loot. Creatures have no OnUsed event, so clicking a body is
 // only visible through NWNX - see loot_gold.nss.
 NWNX_Events_SubscribeEvent("NWNX_ON_OBJECT_USE_BEFORE","loot_gold");
+// Language chat: per-listener speech bubbles (needs NWNX_CHAT_SKIP=no)
+LangNwnxInit();
 ////////////////////////////////////////////////////////////////////////////////
 // Sounds
 ExecuteScript("sound_ini",oModule);
@@ -81,5 +85,9 @@ ExecuteScript("dmb_cluster_boot",oModule);
 // DM-built cluster tiles (restore Creator-tool creatures - must run after
 // dmb_cluster_boot above, which stamps the member area locals this depends on)
 ExecuteScript("dmb_clucre_boot",oModule);
+////////////////////////////////////////////////////////////////////////////////
+// Domain owner index (built once) and the first away-owner sweep
+DelayCommand(20.0,DomainIndexBackfill(0));
+DelayCommand(120.0,DomainNoticeSweep(0));
 ////////////////////////////////////////////////////////////////////////////////
 }

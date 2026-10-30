@@ -1,3 +1,4 @@
+#include "_guild"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -17,7 +18,7 @@ object oFire = GetNearestObjectByTag("campfire",oPC);
 int iRace = GetLocalInt(oGoldbag,"Race");
 //
 string sGuild = GetLocalString(oGoldbag,"Guild");
-int iGuild = GetLocalInt(oGoldbag,"GuildMB");
+int iGuild = GuildTicksLeft(oGoldbag);
 object oMember = GetFirstFactionMember(oPC);
 //
 object oFood;object oRoll;int iBroken;int n;

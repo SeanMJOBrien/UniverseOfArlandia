@@ -263,6 +263,38 @@ Each task is self-contained with enough context to act on without reading other 
 
 ---
 
+## FEATURES
+
+---
+
+### WEB-13: Add OAuth login for player accounts (link a provider to a CD-key account)
+- **status**: todo — provider and hosting questions open (see **open questions**)
+- **action**: Let players log in with an OAuth provider (Discord recommended) instead of, or alongside, a password. OAuth proves identity but not CD-key ownership, so it links to an existing CD-key account and does not replace the `.web` registration code.
+- **files**:
+  - `docker/mysql-init/` — new migration: `web_player_identities(provider, provider_user_id, cdkey, created)`, unique key on `(provider, provider_user_id)`; make `web_players.pass_hash` nullable
+  - `www/oauth_start.php`, `www/oauth_callback.php` — new; authorization code flow with PKCE
+  - `www/player_auth.php` — functions to link an identity and look up the CD key by identity
+  - `www/register.php` — "Continue with <provider>" in place of choosing a password; the CD key and `.web` code are still required
+  - `www/index.php` — "Log in with <provider>" button
+  - `tests/PlayerAuthTest.php` — cover link and lookup
+- **pattern**:
+  ```
+  1. Registration: CD key + .web code verified, then OAuth callback inserts the identity linked to that CD key.
+  2. Login: callback finds the identity, sets $_SESSION['player_cdkey'] (same as player_login()), session_regenerate_id(true).
+  3. Unlinked identity at login: redirect to register.php.
+  ```
+- **constraint**:
+  - Store a random `state` and the PKCE verifier in the session; check `state` with `hash_equals()`.
+  - Client ID and secret go in `uoa.php` or a dedicated config include, never in git.
+  - The provider needs a registered redirect URI on a public HTTPS hostname (localhost is fine for testing).
+  - The DM reset path for a CD key must also clear linked identities.
+  - DM login (`$_SESSION['is_dm']`) stays on its current mechanism. If OAuth is added there, use an allowlist of provider user IDs.
+  - `league/oauth2-client` is an option, but a hand-written cURL exchange avoids adding Composer to a plain-PHP site.
+- **open questions**: Which provider (Discord, Google, GitHub, several)? OAuth alongside passwords or replacing them? Is the site reachable on a public HTTPS hostname?
+- **verify**: A new player registers with CD key + `.web` code + provider, logs out, logs back in with the provider, and sees their discovered map tiles. An unlinked identity is sent to registration. A tampered `state` is rejected.
+
+---
+
 ## Also fixed during this pass (not originally on this list)
 
 ### Silent graceful-degradation failure on PHP 8.1+

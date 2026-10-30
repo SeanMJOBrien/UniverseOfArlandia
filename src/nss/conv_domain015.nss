@@ -1,3 +1,4 @@
+#include "_domainstate"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +7,7 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
+DomainStateMigrate(oPC,oArea);
 //
 int iChoice1 = GetLocalInt(OBJECT_SELF,"Choice1");
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
@@ -21,7 +23,7 @@ if(iChoice1==0)
 while(i<9)
   {
 i++;
-iNum = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
+iNum = DomainStateGetInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(i));
 iLevel = StringToInt(GetStringRight(GetName(oStructure),1));
 
@@ -55,7 +57,7 @@ else if(iChoice1>0)
  {
 if(iChoice1<7)
   {
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(iChoice1),1);
+DomainStateSetInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(iChoice1),1);
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(iChoice1));
      if(GetLocalInt(oStructure,"Structure")==5){sName = "Extractor";}
 else if(GetLocalInt(oStructure,"Structure")==6){sName = "Factory";}
@@ -66,7 +68,7 @@ FloatingTextStringOnCreature(sName+" on slot "+IntToString(iChoice1)+" linked",o
   }
 else
   {
-DeleteLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(iChoice1-10));
+DomainStateDeleteInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(iChoice1-10));
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(iChoice1));
      if(GetLocalInt(oStructure,"Structure")==5){sName = "Extractor";}
 else if(GetLocalInt(oStructure,"Structure")==6){sName = "Factory";}

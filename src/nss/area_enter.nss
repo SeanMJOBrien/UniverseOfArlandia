@@ -1,3 +1,4 @@
+#include "_guild"
 #include "aps_include"
 #include "_module"
 #include "zep_inc_phenos"
@@ -8,6 +9,7 @@
 #include "inc_persist"
 #include "_shipname"
 #include "_spacenav"
+#include "lang_demo_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,6 +44,8 @@ object oHenchs;string sMission;string sMissPlanet;string sMissArea;int iNumber;s
 ////////////////////////////////////////////////////////////////////////////////
 // PCs
 if((GetIsObjectValid(oPC))&&((GetIsPC(oPC))||(GetIsDMPossessed(oPC))||(GetIsDM(oPC)))){
+// Language demo: a Goblin-speaking goblin beside the plot giver
+if(GetIsPC(oPC)){LangDemoSpawn(oPC);}
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetIsDM(oPC)){sDM = "1";}else{sDM = "0";}SetPersistentString(oModule,"Player"+IntToString(GetLocalInt(oModule,sName)),sPCName+"&1&"+sName+"&2&"+sPlanet+"&3&"+sArea+"&4&"+sDM+"&5&");
@@ -113,7 +117,7 @@ if((GetIsObjectValid(GetItemPossessedBy(oPC,"lizardhead")))&&(GetStringLeft(sInt
 if((GetIsObjectValid(GetItemPossessedBy(oPC,"lostshield")))&&(GetStringLeft(sInterests,1)!="7")){DestroyObject(GetItemPossessedBy(oPC,"lostshield"));}
 ////////////////////////////////////////////////////////////////////////////////
 // Discovering the area
-if(GetLocalInt(oPC,"Discover")>0){int n;int iXP = GetLocalInt(oPC,"Discover");object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GetLocalInt(oGoldbag,"GuildMB");if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}DelayCommand(1.0,GiveXPToCreature(oPC,iXP));DelayCommand(1.0,FloatingTextStringOnCreature("you discover a new area : "+IntToString(iXP)+" xps",oPC));DelayCommand(1.1,DeleteLocalInt(oPC,"Discover"));}
+if(GetLocalInt(oPC,"Discover")>0){int n;int iXP = GetLocalInt(oPC,"Discover");object oMember = GetFirstFactionMember(oPC);string sGuild = GetLocalString(oGoldbag,"Guild");int iGuild = GuildTicksLeft(oGoldbag);if(iGuild>0){while(GetIsObjectValid(oMember)){if((GetLocalString(GetItemPossessedBy(oMember,"goldbag"),"Guild")==sGuild)&&(GetArea(oMember)==GetArea(oPC))&&(GetDistanceBetween(oMember,oPC)<=50.0)){n++;}oMember = GetNextFactionMember(oPC);}if(n>=iDomainGuildMin){if(GetLocalInt(oGoldbag,"GuildLevel")>=3){iXP = iXP*(100+iDomainGuildXP3)/100;}else{iXP = iXP*(100+iDomainGuildXP1)/100;}}}DelayCommand(1.0,GiveXPToCreature(oPC,iXP));DelayCommand(1.0,FloatingTextStringOnCreature("you discover a new area : "+IntToString(iXP)+" xps",oPC));DelayCommand(1.1,DeleteLocalInt(oPC,"Discover"));}
 ////////////////////////////////////////////////////////////////////////////////
 // Enigm items
 if(GetLocalInt(oGoldbag,"Enigm")>0){while(GetIsObjectValid(oItem)){if((oItem!=oGoldbag)&&(GetLocalInt(oItem,"Enigm")!=0)){DestroyObject(oItem);}oItem = GetNextItemInInventory(oPC);}DeleteLocalInt(oGoldbag,"Enigm");}

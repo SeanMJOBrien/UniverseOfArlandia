@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "_domainuser"
 #include "_module"
@@ -28,8 +29,9 @@ int iChoice5 = GetLocalInt(OBJECT_SELF,"Choice5");
 string sBP = GetLocalString(OBJECT_SELF,"BP"+IntToString(iChoice1));
 int iPrice = GetLocalInt(OBJECT_SELF,"Price"+IntToString(iChoice1));
 //
-int iCounter = GetLocalInt(oGoldbag,"Counter");
-int iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
+DomainStateMigrate(oPC,oArea);
+int iCounter = DomainOwnerTicks(oPC,oArea);
+int iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
 //
 float fX = GetPosition(OBJECT_SELF).x;
 float fY = GetPosition(OBJECT_SELF).y;
@@ -82,7 +84,7 @@ else if(iChoice3==10){iClass = CLASS_TYPE_SORCERER;}
 else if(iChoice3==11){iClass = CLASS_TYPE_WIZARD;}
 
 SetLocalInt(oNew,"Race",iAppearance);SetLocalInt(oNew,"Class",iClass);SetLocalInt(oNew,"Level",iChoice1);SetLocalInt(oNew,"Head",iHead);SetLocalInt(oNew,"HenchAction",15);ExecuteScript("henchs",oNew);
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iOrigCounter+GetLocalInt(OBJECT_SELF,"Days"+IntToString(iChoice1)));
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iOrigCounter+GetLocalInt(OBJECT_SELF,"Days"+IntToString(iChoice1)));
 TakeGoldFromCreature(GetLocalInt(OBJECT_SELF,"Price"+IntToString(iChoice1)),oPC,TRUE);
  }
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +97,7 @@ SetPersistentString(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot),IntT
 // Extractor
 else if(iStructure==5)
  {
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -148,15 +150,15 @@ else if(iChoice1==2){sVar2 = sBP+"%0";}
 else if(iChoice1==3){sVar3 = sBP+"%0";}
 else if(iChoice1==4){sVar4 = sBP+"%0";}
 else if(iChoice1==5){sVar5 = sBP+"%0";}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
   }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Factory
 else if(iStructure==6)
  {
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -259,15 +261,15 @@ else if(iChoice1==4){sVar4 = sBP+"%001%"+sTag1+"%002%"+sTag2+"%003%"+IntToString
 else if(iChoice1==5){sVar5 = sBP+"%001%"+sTag1+"%002%"+sTag2+"%003%"+IntToString(i)+"%004%"+IntToString(i)+"%005%0%006%";}
 
 if(iChoice4==2){FloatingTextStringOnCreature(sName+" will be crafted with automatic resources",oPC);}else{FloatingTextStringOnCreature(IntToString(i)+" "+sName+" will be crafted",oPC);}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
   }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Farm
 else if(iStructure==7)
  {
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -320,7 +322,7 @@ else if(iChoice1==2){sVar2 = sBP+"%0";fX = fX+5.0;fY = fY+3.0;}
 else if(iChoice1==3){sVar3 = sBP+"%0";fX = fX+5.0;fY = fY+13.0;}
 else if(iChoice1==4){sVar4 = sBP+"%0";}
 else if(iChoice1==5){sVar5 = sBP+"%0";}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
 
 if(iChoice1<=3)
    {
@@ -339,13 +341,13 @@ else if(iChoice1==3){sBP3 = sBP;}
 SetPersistentString(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot),sBP1+"_A_"+sBP2+"_B_"+sBP3+"_C_");
    }
   }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Field
 else if(iStructure==8)
  {
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -398,15 +400,15 @@ else if(iChoice1==2){sVar2 = sBP+"%0";}
 else if(iChoice1==3){sVar3 = sBP+"%0";}
 else if(iChoice1==4){sVar4 = sBP+"%0";}
 else if(iChoice1==5){sVar5 = sBP+"%0";}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
   }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Sawmill
 else if(iStructure==21)
  {
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -459,9 +461,9 @@ else if(iChoice1==2){sVar2 = sBP+"%0";}
 else if(iChoice1==3){sVar3 = sBP+"%0";}
 else if(iChoice1==4){sVar4 = sBP+"%0";}
 else if(iChoice1==5){sVar5 = sBP+"%0";}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(iChoice1),iCounter);
   }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Hall
@@ -487,7 +489,7 @@ DomainSetRented(oPC,sPlanet,sArea,iSlot);
 // Absolute expiry day, readable by anyone and restart-proof (_domainuser.nss).
 DomainRentExtend(sPlanet,sArea,iSlot,iDomainRentDays);
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),17280);
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
 TakeGoldFromCreature(iPrice,oPC,TRUE);
 
      if(iLevel>=5){SetPersistentInt(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot)+"Gain",iGain+(iPrice/1));}

@@ -18,7 +18,7 @@ j++;
      if(j==1) {oObject = GetItemInSlot(INVENTORY_SLOT_ARMS,oPC);sBP = "brokenitem";}
 else if(j==2) {oObject = GetItemInSlot(INVENTORY_SLOT_BELT,oPC);sBP = "brokenitem";}
 else if(j==3) {oObject = GetItemInSlot(INVENTORY_SLOT_BOOTS,oPC);sBP = "brokenitem";}
-else if(j==4) {oObject = GetItemInSlot(INVENTORY_SLOT_CARMOUR,oPC);sBP = "brokenitem";}
+else if(j==4) {continue;} // creature hide: exempt from wear and breakage
 else if(j==5) {oObject = GetItemInSlot(INVENTORY_SLOT_CHEST,oPC);sBP = "brokenarmor";}
 else if(j==6) {oObject = GetItemInSlot(INVENTORY_SLOT_CLOAK,oPC);sBP = "brokenitem";}
 else if(j==7) {oObject = GetItemInSlot(INVENTORY_SLOT_HEAD,oPC);sBP = "brokenhelmet";}

@@ -1,0 +1,1214 @@
+{
+  "__data_type": "UTP ",
+  "AnimationState": {
+    "type": "byte",
+    "value": 0
+  },
+  "Appearance": {
+    "type": "dword",
+    "value": 1
+  },
+  "AutoRemoveKey": {
+    "type": "byte",
+    "value": 0
+  },
+  "BodyBag": {
+    "type": "byte",
+    "value": 0
+  },
+  "CloseLockDC": {
+    "type": "byte",
+    "value": 0
+  },
+  "Comment": {
+    "type": "cexostring",
+    "value": "Contains one of each lang_book_* item; lang_shelf_fill restocks it."
+  },
+  "Conversation": {
+    "type": "resref",
+    "value": ""
+  },
+  "CurrentHP": {
+    "type": "short",
+    "value": 40
+  },
+  "Description": {
+    "type": "cexolocstring",
+    "value": {
+      "0": "Primers in the tongues of the world. Take a volume and activate it to study."
+    }
+  },
+  "DisarmDC": {
+    "type": "byte",
+    "value": 15
+  },
+  "Faction": {
+    "type": "dword",
+    "value": 1
+  },
+  "Fort": {
+    "type": "byte",
+    "value": 0
+  },
+  "Hardness": {
+    "type": "byte",
+    "value": 0
+  },
+  "HasInventory": {
+    "type": "byte",
+    "value": 1
+  },
+  "HP": {
+    "type": "short",
+    "value": 40
+  },
+  "Interruptable": {
+    "type": "byte",
+    "value": 0
+  },
+  "KeyName": {
+    "type": "cexostring",
+    "value": ""
+  },
+  "KeyRequired": {
+    "type": "byte",
+    "value": 0
+  },
+  "Lockable": {
+    "type": "byte",
+    "value": 0
+  },
+  "Locked": {
+    "type": "byte",
+    "value": 0
+  },
+  "LocName": {
+    "type": "cexolocstring",
+    "value": {
+      "0": "Language Bookshelf"
+    }
+  },
+  "OnClick": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnClosed": {
+    "type": "resref",
+    "value": "lang_shelf_fill"
+  },
+  "OnDamaged": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnDeath": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnDisarm": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnHeartbeat": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnInvDisturbed": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnLock": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnMeleeAttacked": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnOpen": {
+    "type": "resref",
+    "value": "lang_shelf_fill"
+  },
+  "OnSpellCastAt": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnTrapTriggered": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnUnlock": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnUsed": {
+    "type": "resref",
+    "value": ""
+  },
+  "OnUserDefined": {
+    "type": "resref",
+    "value": ""
+  },
+  "OpenLockDC": {
+    "type": "byte",
+    "value": 25
+  },
+  "PaletteID": {
+    "type": "byte",
+    "value": 4
+  },
+  "Plot": {
+    "type": "byte",
+    "value": 1
+  },
+  "PortraitId": {
+    "type": "word",
+    "value": 365
+  },
+  "Ref": {
+    "type": "byte",
+    "value": 0
+  },
+  "Static": {
+    "type": "byte",
+    "value": 0
+  },
+  "Tag": {
+    "type": "cexostring",
+    "value": "lang_bookshelf"
+  },
+  "TemplateResRef": {
+    "type": "resref",
+    "value": "lang_bookshelf"
+  },
+  "TrapDetectable": {
+    "type": "byte",
+    "value": 1
+  },
+  "TrapDetectDC": {
+    "type": "byte",
+    "value": 0
+  },
+  "TrapDisarmable": {
+    "type": "byte",
+    "value": 1
+  },
+  "TrapFlag": {
+    "type": "byte",
+    "value": 0
+  },
+  "TrapOneShot": {
+    "type": "byte",
+    "value": 1
+  },
+  "TrapType": {
+    "type": "byte",
+    "value": 0
+  },
+  "Type": {
+    "type": "byte",
+    "value": 0
+  },
+  "Useable": {
+    "type": "byte",
+    "value": 1
+  },
+  "Will": {
+    "type": "byte",
+    "value": 0
+  },
+  "ItemList": {
+    "type": "list",
+    "value": [
+      {
+        "__struct_id": 0,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 1,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 2,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 3,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 4,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 5,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_1_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 6,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 7,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 0
+        }
+      },
+      {
+        "__struct_id": 8,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 9,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 10,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 11,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_2_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 12,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 13,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 14,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 15,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 1
+        }
+      },
+      {
+        "__struct_id": 16,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 17,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_3_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 18,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 19,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 20,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 21,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 22,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 23,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_4_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 2
+        }
+      },
+      {
+        "__struct_id": 24,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 25,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 26,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 27,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 28,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 29,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_5_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 30,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 31,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 3
+        }
+      },
+      {
+        "__struct_id": 32,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 33,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 34,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 35,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_6_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 36,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 37,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 38,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 39,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 4
+        }
+      },
+      {
+        "__struct_id": 40,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 41,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_7_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 42,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 43,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 44,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 45,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 46,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 47,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_10_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 5
+        }
+      },
+      {
+        "__struct_id": 48,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 49,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 50,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 51,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 52,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 53,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_11_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 54,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 55,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 6
+        }
+      },
+      {
+        "__struct_id": 56,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 57,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 58,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 2
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 59,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_12_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 3
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 60,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_1"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 4
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 61,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_2"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 5
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 62,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_3"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 6
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 63,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_4"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 7
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 7
+        }
+      },
+      {
+        "__struct_id": 64,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_5"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 0
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 8
+        }
+      },
+      {
+        "__struct_id": 65,
+        "InventoryRes": {
+          "type": "resref",
+          "value": "lang_book_13_6"
+        },
+        "Repos_PosX": {
+          "type": "word",
+          "value": 1
+        },
+        "Repos_PosY": {
+          "type": "word",
+          "value": 8
+        }
+      }
+    ]
+  }
+}

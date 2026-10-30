@@ -1,10 +1,12 @@
 #include "_module"
+#include "_bank"
 void main()
 {
 object oPC = GetPCSpeaker();
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 object oItem = GetItemPossessedBy(oPC,sPlanet+"account");
+BankSettle(oPC,oItem);
 int iGP = GetLocalInt(oItem,"GP");
 int iIV = GetLocalInt(oItem,"IV");
 int iIVdelay = GetLocalInt(oItem,"IVdelay");
@@ -41,10 +43,10 @@ DestroyObject(oItem);
 // Manage investments
 else if(iChoice1==4)
  {
-     if(iChoice2==0){GiveGoldToCreature(oPC,iIV);DeleteLocalInt(oItem,"IV");DeleteLocalInt(oItem,"IVdelay");FloatingTextStringOnCreature("Investment gain : "+IntToString(iIV),oPC);}
-else if(iChoice3==1){iPrice = 1000;SetLocalInt(oItem,"IV",iPrice);SetLocalInt(oItem,"IVdelay",iInvestmentDelay*576);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(iInvestmentDelay)+" days",oPC);}
-else if(iChoice3==2){iPrice = 5000;SetLocalInt(oItem,"IV",iPrice);SetLocalInt(oItem,"IVdelay",iInvestmentDelay*576);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(iInvestmentDelay)+" days",oPC);}
-else if(iChoice3==3){iPrice = 10000;SetLocalInt(oItem,"IV",iPrice);SetLocalInt(oItem,"IVdelay",iInvestmentDelay*576);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(iInvestmentDelay)+" days",oPC);}
+     if(iChoice2==0){GiveGoldToCreature(oPC,iIV);DeleteLocalInt(oItem,"IV");DeleteLocalInt(oItem,"IVdelay");DeleteLocalInt(oItem,"IVmark");DeleteLocalInt(oItem,"IVrate");DeleteLocalInt(oItem,"IVdays");FloatingTextStringOnCreature("Investment gain : "+IntToString(iIV),oPC);}
+else if(iChoice3==1){iPrice = 1000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
+else if(iChoice3==2){iPrice = 5000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
+else if(iChoice3==3){iPrice = 10000;BankStartInvestment(oPC,oItem,iPrice);TakeGoldFromCreature(iPrice,oPC,TRUE);FloatingTextStringOnCreature("Investment : "+IntToString(iPrice)+", Delay : "+IntToString(BankTermDays())+" days",oPC);}
  }
 // Bank notes
 else if(iChoice1==5)

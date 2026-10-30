@@ -1,7 +1,8 @@
 #include "aps_include"
 #include "_module"
+#include "_domainindex"
 #include "inc_mappin"
-#include "nwnx_time"
+#include "dmfi_lang_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +154,13 @@ DeleteLocalObject(oPC,"DestroyIt");
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers);SetPersistentInt(oModule,"Players",iPlayers);}
-// Last login (real-world Unix timestamp, requires the NWNX_Time plugin)
-SetPersistentInt(oModule,"LastLogin_"+sName,NWNX_Time_GetTimeStamp());
+// Last login (real-world Unix timestamp, from the native SQLite clock)
+SetPersistentInt(oModule,"LastLogin_"+sName,SQLite_GetTimeStamp());
+DomainClockSync(oPC);
+DomainIndexImportFor(oPC);
+// Language state is restored from the campaign database
+LangLoad(oPC);
+// Language hint: [text] speaks in your language, .languages lists the options
+DelayCommand(15.0,SendMessageToPC(oPC,"Tip: .lang opens a window to speak in any language you know. .speak <language> makes your normal talk come out in it (.speak off stops); .languages lists what you know and books teach more."));
 ////////////////////////////////////////////////////////////////////////////////
 }

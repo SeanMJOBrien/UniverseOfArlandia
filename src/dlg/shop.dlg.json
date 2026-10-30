@@ -3820,7 +3820,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "If you lend your money to our bank, It means you can not withdraw it until the delay passes. But the interest rate will be higher than on the normal account :\n\nDelay : <CUSTOM10139> days.\nInterest rate : <CUSTOM10138> % pro day.\n\nPay attention. Once you have chosen an amount, you have no choice than wait until the delay is passed to get the money back. Also, you can not change the amount until the delay is totally passed. Choose an amount to invest :"
+            "0": "If you lend your money to our bank, It means you can not withdraw it until the delay passes. But the interest rate will be higher than on the normal account :\n\nDelay : <CUSTOM10139> days.\nInterest rate : <CUSTOM10138> % per month, compounded daily and paid with your money when the delay is over.\n\nPay attention. Once you have chosen an amount, you have no choice than wait until the delay is passed to get the money back. Also, you can not change the amount until the delay is totally passed. Choose an amount to invest :"
           }
         }
       },
@@ -4636,7 +4636,7 @@
         "Text": {
           "type": "cexolocstring",
           "value": {
-            "0": "It costs <CUSTOM10135> GP to open an account in our bank. Remember that the money hold in our bank will benefit from an interest rate of <CUSTOM10137> % pro day."
+            "0": "It costs <CUSTOM10135> GP to open an account in our bank. Remember that the money hold in our bank will benefit from an interest rate of <CUSTOM10137> % per month, added every day."
           }
         }
       },

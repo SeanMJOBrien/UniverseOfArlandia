@@ -1,3 +1,4 @@
+#include "_domainstate"
 ////////////////////////////////////////////////////////////////////////////////
 int StartingConditional(){
 ////////////////////////////////////////////////////////////////////////////////
@@ -6,6 +7,7 @@ object oGoldbag = GetItemPossessedBy(oPC,"goldbag");
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 string sArea = GetLocalString(oArea,"Area");
+DomainStateMigrate(oPC,oArea);
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
 //
@@ -13,7 +15,7 @@ int iChoice1 = GetLocalInt(OBJECT_SELF,"Choice1");
 //
 int iNum;string sVar;string sVar1;string sVar2;string sVar3;string sVar4;string sVar5;string sBP1L;string sBP2L;string sBP3L;string sBP4L;string sBP5L;string sNum11;string sNum21;string sNum31;string sNum41;string sNum51;string sNum12;string sNum22;string sNum32;string sNum42;string sNum52;int iNum11;int iNum21;int iNum31;int iNum41;int iNum51;int iNum12;int iNum22;int iNum32;int iNum42;int iNum52;string sNum1;string sNum2;string sNum3;string sNum4;string sNum5;int iNum1;int iNum2;int iNum3;int iNum4;int iNum5;
 ////////////////////////////////////////////////////////////////////////////////
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);

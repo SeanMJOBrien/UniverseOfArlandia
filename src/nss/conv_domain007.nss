@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "_module"
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,8 +16,9 @@ int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
 int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iLevel = StringToInt(GetStringRight(GetName(OBJECT_SELF),1));
 //
-int iCounter = GetLocalInt(oGoldbag,"Counter");
-int iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
+DomainStateMigrate(oPC,oArea);
+int iCounter = DomainOwnerTicks(oPC,oArea);
+int iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
 int iHBPassed = iCounter-iOrigCounter;
 int iChoice1 = GetLocalInt(OBJECT_SELF,"Choice1");
 //

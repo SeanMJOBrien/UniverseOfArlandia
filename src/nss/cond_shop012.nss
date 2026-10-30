@@ -1,9 +1,11 @@
+#include "_bank"
 int StartingConditional()
 {
 object oPC = GetPCSpeaker();
 object oArea = GetArea(OBJECT_SELF);
 string sPlanet = GetLocalString(oArea,"Planet");
 object oItem = GetItemPossessedBy(oPC,sPlanet+"account");
+BankSettle(oPC,oItem);
 int iGP = GetLocalInt(oItem,"GP");
 int iIV = GetLocalInt(oItem,"IV");
 int iIVdelay = GetLocalInt(oItem,"IVdelay");
@@ -39,9 +41,9 @@ if(iIVdelay==-1){i = 1;}
 else if(iChoice2==1)
   {
      if(iChoice3==0){if(iIVdelay>0){i = 1;}}
-else if(iChoice3==1){iPrice = 1000;if(iGold>=iPrice){i = 1;}}
-else if(iChoice3==2){iPrice = 5000;if(iGold>=iPrice){i = 1;}}
-else if(iChoice3==3){iPrice = 10000;if(iGold>=iPrice){i = 1;}}
+else if(iChoice3==1){iPrice = 1000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==2){iPrice = 5000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
+else if(iChoice3==3){iPrice = 10000;if((iGold>=iPrice)&&(BankInvestmentsOpen()==1)){i = 1;}}
   }
 else if(iChoice2==2)
   {

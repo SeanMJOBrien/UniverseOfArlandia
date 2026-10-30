@@ -1,3 +1,4 @@
+#include "_domainstate"
 #include "aps_include"
 #include "dmfi_dmw_inc"
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,8 +18,9 @@ int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iStructure = GetLocalInt(OBJECT_SELF,"Structure");
 int iLevel = StringToInt(GetStringRight(GetName(OBJECT_SELF),1));
 //
-int iCounter = GetLocalInt(oGoldbag,"Counter");
-int iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
+DomainStateMigrate(oPC,oArea);
+int iCounter = DomainOwnerTicks(oPC,oArea);
+int iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
 int iHBPassed = iCounter-iOrigCounter;
 int iDays = iHBPassed/576;
 int iTavernGain;
@@ -54,7 +56,7 @@ if(iDays>0)
 if(iLevel>=2){iTavernGain = 10*iDays;}
 if(iLevel>=4){iTavernGain = iTavernGain*3;}
 if(iLevel>=5){if(Random(4)==0){iTavernGain = iTavernGain*2;FloatingTextStringOnCreature("shows took place in your tavern",oPC);}}
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
     }
    }
 if(iGain>0){GiveGoldToCreature(oPC,iGain+(iGain*iGainBonus/100)+iTavernGain);FloatingTextStringOnCreature("you earn some rewards",oPC);DeletePersistentVariable(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot)+"Gain");}

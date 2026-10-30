@@ -1,6 +1,8 @@
+#include "_domainstate"
 #include "aps_include"
 #include "_domainuser"
 #include "_module"
+#include "_domaininfo"
 #include "dmfi_dmw_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -17,7 +19,8 @@ int iSlot = GetLocalInt(OBJECT_SELF,"Slot");
 int iLevel = StringToInt(GetStringRight(GetName(OBJECT_SELF),1));
 string sRent = GetPersistentString(oModule,sPlanet+"&"+sArea+"&Domain&"+IntToString(iSlot));
 //
-int iCounter = GetLocalInt(oGoldbag,"Counter");
+DomainStateMigrate(oPC,oArea);
+int iCounter = DomainOwnerTicks(oPC,oArea);
 //
 object oNew;object oStructure;string sBP;string sNum;int iDays;int iNum;int iNumR;int iOrigCounter;int iHBPassed;int iRent;int i;int j;
 string sVar;string sVar1;string sVar2;string sVar3;string sVar4;string sVar5;string sVar6;string sVar7;string sVar8;string sVar9;string sVar10;string sBP1L;string sBP2L;string sBP3L;string sBP4L;string sBP5L;string sNum1R;string sNum2R;string sNum3R;string sNum4R;string sNum5R;int iNum1;int iNum2;int iNum3;int iNum4;int iNum5;
@@ -32,7 +35,7 @@ iDays = iDomainExtractor*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
 if(iLevel>=5){iDays = iDays/2;}
 
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -49,9 +52,9 @@ sBP5L = GetStringLeft(sVar5,FindSubString(sVar5,"%"));sNum5R = GetStringRight(sV
 while(i<5)
   {
 i++;
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
-if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
+if(iHBPassed<0){DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
@@ -63,7 +66,7 @@ else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=i
 else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
   }
 sNum1R = IntToString(iNum1);
@@ -78,7 +81,7 @@ sVar3 = sBP3L+"%"+sNum3R;
 sVar4 = sBP4L+"%"+sNum4R;
 sVar5 = sBP5L+"%"+sNum5R;
 
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
 //
 oNew = CreateItemOnObject(sBP1L);sVar1 = GetName(oNew);DestroyObject(oNew);
 oNew = CreateItemOnObject(sBP2L);sVar2 = GetName(oNew);DestroyObject(oNew);
@@ -97,6 +100,9 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+
+// Summary for the first dialog (conv_domain006 prepends it to the structure info).
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"resource"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Factory
@@ -108,7 +114,7 @@ iDays = iDomainFactory*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
 if(iLevel>=5){iDays = iDays/2;}
 
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -128,14 +134,14 @@ i=0;
 while(i<9)
  {
 i++;
-iNum = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
+iNum = DomainStateGetInt(sPlanet+"&"+sArea+"&DomainLink&"+IntToString(iSlot)+IntToString(i));
 oStructure = GetLocalObject(oArea,"StructureFlag"+IntToString(i));
 if(iNum==1)
   {
 // Update other structures resources and items
 SetLocalObject(oStructure,"PC",oPC);ExecuteScript("domain_content",oStructure);
 // Take new variables
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(i));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(i));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -265,7 +271,7 @@ if(sBP4Lc!=""){sVar4 = sBP4Lc+"%"+sNum4Rb;}else{sVar4 = sBP4Lb+"%"+sNum4Rb;}
 if(sBP5Lc!=""){sVar5 = sBP5Lc+"%"+sNum5Rb;}else{sVar5 = sBP5Lb+"%"+sNum5Rb;}
 ////////////////////////////////////////
    }
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(i),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(i),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
   }
  }
 ////////////////////////////////////////
@@ -274,9 +280,9 @@ i=0;
 while(i<5)
   {
 i++;
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
-if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
+if(iHBPassed<0){DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
@@ -288,7 +294,7 @@ else if((i==3)&&(sBP3!="")){iNumR = iNum;if(iNumR>iNum31){iNumR = iNum31;}if(iNu
 else if((i==4)&&(sBP4!="")){iNumR = iNum;if(iNumR>iNum41){iNumR = iNum41;}if(iNumR>iNum42){iNumR = iNum42;}if(iNumR>iDomainContainer-iNum4){iNumR = iDomainContainer-iNum4;}if(iNumR<0){iNumR=0;}iNum4 = iNum4+iNumR;iNum41 = iNum41-iNumR;iNum42 = iNum42-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 else if((i==5)&&(sBP5!="")){iNumR = iNum;if(iNumR>iNum51){iNumR = iNum51;}if(iNumR>iNum52){iNumR = iNum52;}if(iNumR>iDomainContainer-iNum5){iNumR = iDomainContainer-iNum5;}if(iNumR<0){iNumR=0;}iNum5 = iNum5+iNumR;iNum51 = iNum51-iNumR;iNum52 = iNum52-iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
   }
 ////////////////////////////////////////
@@ -336,7 +342,7 @@ sVar3 = sBP3+"%001%"+sTag31+"%002%"+sTag32+"%003%"+sNum31+"%004%"+sNum32+"%005%"
 sVar4 = sBP4+"%001%"+sTag41+"%002%"+sTag42+"%003%"+sNum41+"%004%"+sNum42+"%005%"+sNum4+"%006%";
 sVar5 = sBP5+"%001%"+sTag51+"%002%"+sTag52+"%003%"+sNum51+"%004%"+sNum52+"%005%"+sNum5+"%006%";
 
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
 ////////////////////////////////////////
 if((GetStringLeft(sBP1,1)=="2")||(GetStringLeft(sBP1,1)=="3")||(GetStringLeft(sBP1,1)=="4")){sUpgrade0 = GetStringLeft(sBP1,1);sBP1 = GetStringRight(sBP1,GetStringLength(sBP1)-1);}oNew = CreateItemOnObject(sBP1);sVar = GetName(oNew);if(sUpgrade0=="2"){sVar = "Improved "+sVar;}else if(sUpgrade0=="3"){sVar = "Quality "+sVar;}else if(sUpgrade0=="4"){sVar = "Precious "+sVar;}DestroyObject(oNew);if((GetStringLeft(sTag11,1)=="2")||(GetStringLeft(sTag11,1)=="3")||(GetStringLeft(sTag11,1)=="4")){sUpgrade1 = GetStringLeft(sTag11,1);sTag11 = GetStringRight(sTag11,GetStringLength(sTag11)-1);}oNew = CreateItemOnObject(sTag11);sVar1 = GetName(oNew);if(sUpgrade1=="2"){sVar1 = "Improved "+sVar1;}else if(sUpgrade1=="3"){sVar1 = "Quality "+sVar1;}else if(sUpgrade1=="4"){sVar1 = "Precious "+sVar1;}DestroyObject(oNew);if((GetStringLeft(sTag12,1)=="2")||(GetStringLeft(sTag12,1)=="3")||(GetStringLeft(sTag12,1)=="4")){sUpgrade2 = GetStringLeft(sTag12,1);sTag12 = GetStringRight(sTag12,GetStringLength(sTag12)-1);}oNew = CreateItemOnObject(sTag12);sVar2 = GetName(oNew);if(sUpgrade2=="2"){sVar2 = "Improved "+sVar2;}else if(sUpgrade2=="3"){sVar2 = "Quality "+sVar2;}else if(sUpgrade2=="4"){sVar2 = "Precious "+sVar2;}DestroyObject(oNew);if(sBP1!=""){sVar = "Unit 1 : "+sNum1+" "+ColorText(sVar,"g")+", "+sNum11+" "+ColorText(sVar1,"y")+", "+sNum12+" "+ColorText(sVar2,"y");}else{sVar = "";}SetCustomToken(10521,sVar);
 if((GetStringLeft(sBP2,1)=="2")||(GetStringLeft(sBP2,1)=="3")||(GetStringLeft(sBP2,1)=="4")){sUpgrade0 = GetStringLeft(sBP2,1);sBP2 = GetStringRight(sBP2,GetStringLength(sBP2)-1);}oNew = CreateItemOnObject(sBP2);sVar = GetName(oNew);if(sUpgrade0=="2"){sVar = "Improved "+sVar;}else if(sUpgrade0=="3"){sVar = "Quality "+sVar;}else if(sUpgrade0=="4"){sVar = "Precious "+sVar;}DestroyObject(oNew);if((GetStringLeft(sTag21,1)=="2")||(GetStringLeft(sTag21,1)=="3")||(GetStringLeft(sTag21,1)=="4")){sUpgrade1 = GetStringLeft(sTag21,1);sTag21 = GetStringRight(sTag21,GetStringLength(sTag21)-1);}oNew = CreateItemOnObject(sTag21);sVar1 = GetName(oNew);if(sUpgrade1=="2"){sVar1 = "Improved "+sVar1;}else if(sUpgrade1=="3"){sVar1 = "Quality "+sVar1;}else if(sUpgrade1=="4"){sVar1 = "Precious "+sVar1;}DestroyObject(oNew);if((GetStringLeft(sTag22,1)=="2")||(GetStringLeft(sTag22,1)=="3")||(GetStringLeft(sTag22,1)=="4")){sUpgrade2 = GetStringLeft(sTag22,1);sTag22 = GetStringRight(sTag22,GetStringLength(sTag22)-1);}oNew = CreateItemOnObject(sTag22);sVar2 = GetName(oNew);if(sUpgrade2=="2"){sVar2 = "Improved "+sVar2;}else if(sUpgrade2=="3"){sVar2 = "Quality "+sVar2;}else if(sUpgrade2=="4"){sVar2 = "Precious "+sVar2;}DestroyObject(oNew);if(sBP2!=""){sVar = "Unit 2 : "+sNum2+" "+ColorText(sVar,"g")+", "+sNum21+" "+ColorText(sVar1,"y")+", "+sNum22+" "+ColorText(sVar2,"y");}else{sVar = "";}SetCustomToken(10522,sVar);
@@ -344,6 +350,13 @@ if((GetStringLeft(sBP3,1)=="2")||(GetStringLeft(sBP3,1)=="3")||(GetStringLeft(sB
 if((GetStringLeft(sBP4,1)=="2")||(GetStringLeft(sBP4,1)=="3")||(GetStringLeft(sBP4,1)=="4")){sUpgrade0 = GetStringLeft(sBP4,1);sBP4 = GetStringRight(sBP4,GetStringLength(sBP4)-1);}oNew = CreateItemOnObject(sBP4);sVar = GetName(oNew);if(sUpgrade0=="2"){sVar = "Improved "+sVar;}else if(sUpgrade0=="3"){sVar = "Quality "+sVar;}else if(sUpgrade0=="4"){sVar = "Precious "+sVar;}DestroyObject(oNew);if((GetStringLeft(sTag41,1)=="2")||(GetStringLeft(sTag41,1)=="3")||(GetStringLeft(sTag41,1)=="4")){sUpgrade1 = GetStringLeft(sTag41,1);sTag41 = GetStringRight(sTag41,GetStringLength(sTag41)-1);}oNew = CreateItemOnObject(sTag41);sVar1 = GetName(oNew);if(sUpgrade1=="2"){sVar1 = "Improved "+sVar1;}else if(sUpgrade1=="3"){sVar1 = "Quality "+sVar1;}else if(sUpgrade1=="4"){sVar1 = "Precious "+sVar1;}DestroyObject(oNew);if((GetStringLeft(sTag42,1)=="2")||(GetStringLeft(sTag42,1)=="3")||(GetStringLeft(sTag42,1)=="4")){sUpgrade2 = GetStringLeft(sTag42,1);sTag42 = GetStringRight(sTag42,GetStringLength(sTag42)-1);}oNew = CreateItemOnObject(sTag42);sVar2 = GetName(oNew);if(sUpgrade2=="2"){sVar2 = "Improved "+sVar2;}else if(sUpgrade2=="3"){sVar2 = "Quality "+sVar2;}else if(sUpgrade2=="4"){sVar2 = "Precious "+sVar2;}DestroyObject(oNew);if(sBP4!=""){sVar = "Unit 4 : "+sNum4+" "+ColorText(sVar,"g")+", "+sNum41+" "+ColorText(sVar1,"y")+", "+sNum42+" "+ColorText(sVar2,"y");}else{sVar = "";}SetCustomToken(10524,sVar);
 if((GetStringLeft(sBP5,1)=="2")||(GetStringLeft(sBP5,1)=="3")||(GetStringLeft(sBP5,1)=="4")){sUpgrade0 = GetStringLeft(sBP5,1);sBP5 = GetStringRight(sBP5,GetStringLength(sBP5)-1);}oNew = CreateItemOnObject(sBP5);sVar = GetName(oNew);if(sUpgrade0=="2"){sVar = "Improved "+sVar;}else if(sUpgrade0=="3"){sVar = "Quality "+sVar;}else if(sUpgrade0=="4"){sVar = "Precious "+sVar;}DestroyObject(oNew);if((GetStringLeft(sTag51,1)=="2")||(GetStringLeft(sTag51,1)=="3")||(GetStringLeft(sTag51,1)=="4")){sUpgrade1 = GetStringLeft(sTag51,1);sTag51 = GetStringRight(sTag51,GetStringLength(sTag51)-1);}oNew = CreateItemOnObject(sTag51);sVar1 = GetName(oNew);if(sUpgrade1=="2"){sVar1 = "Improved "+sVar1;}else if(sUpgrade1=="3"){sVar1 = "Quality "+sVar1;}else if(sUpgrade1=="4"){sVar1 = "Precious "+sVar1;}DestroyObject(oNew);if((GetStringLeft(sTag52,1)=="2")||(GetStringLeft(sTag52,1)=="3")||(GetStringLeft(sTag52,1)=="4")){sUpgrade2 = GetStringLeft(sTag52,1);sTag52 = GetStringRight(sTag52,GetStringLength(sTag52)-1);}oNew = CreateItemOnObject(sTag52);sVar2 = GetName(oNew);if(sUpgrade2=="2"){sVar2 = "Improved "+sVar2;}else if(sUpgrade2=="3"){sVar2 = "Quality "+sVar2;}else if(sUpgrade2=="4"){sVar2 = "Precious "+sVar2;}DestroyObject(oNew);if(sBP5!=""){sVar = "Unit 5 : "+sNum5+" "+ColorText(sVar,"g")+", "+sNum51+" "+ColorText(sVar1,"y")+", "+sNum52+" "+ColorText(sVar2,"y");}else{sVar = "";}SetCustomToken(10525,sVar);
 
+{
+string sKey = sPlanet+"&"+sArea+IntToString(iSlot)+"Counter";
+int iSoon = DomainSoonest(DomainSoonest(DomainFactoryWait(sBP1,iCounter,DomainStateGetInt(sKey+"1"),iDays),DomainFactoryWait(sBP2,iCounter,DomainStateGetInt(sKey+"2"),iDays)),DomainSoonest(DomainSoonest(DomainFactoryWait(sBP3,iCounter,DomainStateGetInt(sKey+"3"),iDays),DomainFactoryWait(sBP4,iCounter,DomainStateGetInt(sKey+"4"),iDays)),DomainFactoryWait(sBP5,iCounter,DomainStateGetInt(sKey+"5"),iDays)));
+int iProducts = (sBP1!="")+(sBP2!="")+(sBP3!="")+(sBP4!="")+(sBP5!="");
+int iStarved = DomainFactoryStarved(sBP1,sTag11,iNum11,sTag12,iNum12)+DomainFactoryStarved(sBP2,sTag21,iNum21,sTag22,iNum22)+DomainFactoryStarved(sBP3,sTag31,iNum31,sTag32,iNum32)+DomainFactoryStarved(sBP4,sTag41,iNum41,sTag42,iNum42)+DomainFactoryStarved(sBP5,sTag51,iNum51,sTag52,iNum52);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainFactorySummary(iProducts,iSoon,iStarved));
+}
 DeleteLocalInt(oPC,sPlanet+"&"+sArea+"&Execute&"+IntToString(iSlot));
  }
 ////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +367,7 @@ iDays = iDomainFarm*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
 if(iLevel>=5){iDays = iDays/2;}
 
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -371,9 +384,9 @@ sBP5L = GetStringLeft(sVar5,FindSubString(sVar5,"%"));sNum5R = GetStringRight(sV
 while(i<5)
   {
 i++;
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
-if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
+if(iHBPassed<0){DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
@@ -385,7 +398,7 @@ else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=i
 else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
   }
 sNum1R = IntToString(iNum1);
@@ -400,7 +413,7 @@ sVar3 = sBP3L+"%"+sNum3R;
 sVar4 = sBP4L+"%"+sNum4R;
 sVar5 = sBP5L+"%"+sNum5R;
 
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
 //
 string s1a = "mn_small_ani001";string s1b = "Badger";
 string s2a = "henchani011";string s2b = "Dog";
@@ -436,6 +449,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"animal"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Field
@@ -445,7 +459,7 @@ iDays = iDomainField*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
 if(iLevel>=5){iDays = iDays/2;}
 
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -462,9 +476,9 @@ sBP5L = GetStringLeft(sVar5,FindSubString(sVar5,"%"));sNum5R = GetStringRight(sV
 while(i<5)
   {
 i++;
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
-if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
+if(iHBPassed<0){DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
@@ -476,7 +490,7 @@ else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=i
 else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
   }
 sNum1R = IntToString(iNum1);
@@ -491,7 +505,7 @@ sVar3 = sBP3L+"%"+sNum3R;
 sVar4 = sBP4L+"%"+sNum4R;
 sVar5 = sBP5L+"%"+sNum5R;
 
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
 //
 oNew = CreateItemOnObject(sBP1L);sVar1 = GetName(oNew);DestroyObject(oNew);
 oNew = CreateItemOnObject(sBP2L);sVar2 = GetName(oNew);DestroyObject(oNew);
@@ -510,6 +524,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"plant"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // Sawmill
@@ -519,7 +534,7 @@ iDays = iDomainSawmill*24;iDays = iDays-(iDays*iBonus/100);
 if(iLevel>=3){iDomainContainer = iDomainContainer*2;}
 if(iLevel>=5){iDays = iDays/2;}
 
-sVar = GetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot));
+sVar = DomainStateGetString(sPlanet+"&"+sArea+IntToString(iSlot));
 
 sVar1 = GetStringLeft(sVar,FindSubString(sVar,"_A_"));
 sVar2 = GetStringRight(GetStringLeft(sVar,FindSubString(sVar,"_B_")),GetStringLength(GetStringLeft(sVar,FindSubString(sVar,"_B_")))-FindSubString(sVar,"_A_")-3);
@@ -536,9 +551,9 @@ sBP5L = GetStringLeft(sVar5,FindSubString(sVar5,"%"));sNum5R = GetStringRight(sV
 while(i<5)
   {
 i++;
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i));
 iHBPassed = iCounter-iOrigCounter;
-if(iHBPassed<0){SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
+if(iHBPassed<0){DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iCounter);iHBPassed=0;}
 iNum = iHBPassed/iDays;
 iOrigCounter = iOrigCounter+(iNum*iDays);
 
@@ -550,7 +565,7 @@ else if((i==3)&&(sBP3L!="")){iNumR=iDomainContainer-iNum3;if(iNumR>iNum){iNumR=i
 else if((i==4)&&(sBP4L!="")){iNumR=iDomainContainer-iNum4;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum4=iNum4+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 else if((i==5)&&(sBP5L!="")){iNumR=iDomainContainer-iNum5;if(iNumR>iNum){iNumR=iNum;}if(iNumR<0){iNumR=0;}iNum5=iNum5+iNumR;iOrigCounter=iOrigCounter-((iNum-iNumR)*iDays);}
 
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter"+IntToString(i),iOrigCounter);
    }
   }
 sNum1R = IntToString(iNum1);
@@ -565,7 +580,7 @@ sVar3 = sBP3L+"%"+sNum3R;
 sVar4 = sBP4L+"%"+sNum4R;
 sVar5 = sBP5L+"%"+sNum5R;
 
-SetLocalString(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
+DomainStateSetString(sPlanet+"&"+sArea+IntToString(iSlot),sVar1+"_A_"+sVar2+"_B_"+sVar3+"_C_"+sVar4+"_D_"+sVar5+"_E_");
 //
 oNew = CreateItemOnObject(sBP1L);sVar1 = GetName(oNew);DestroyObject(oNew);
 oNew = CreateItemOnObject(sBP2L);sVar2 = GetName(oNew);DestroyObject(oNew);
@@ -584,6 +599,7 @@ SetCustomToken(10522,sVar2);
 SetCustomToken(10523,sVar3);
 SetCustomToken(10524,sVar4);
 SetCustomToken(10525,sVar5);
+SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainStoredSlotSummary(sPlanet,sArea,iSlot,iCounter,iDays,iDomainContainer,"plank"));
  }
 ////////////////////////////////////////////////////////////////////////////////
 // House
@@ -592,7 +608,7 @@ else if(iStructure==11)
 if(GetName(oPC)==sRent)
   {
 iRent = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot));
-iOrigCounter = GetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
+iOrigCounter = DomainStateGetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter");
 iHBPassed = iCounter-iOrigCounter;
 iRent = iRent-iHBPassed;
 
@@ -601,8 +617,9 @@ iRent = iRent-iHBPassed;
 SendMessageToPC(oPC,"Rent : "+IntToString(DomainRentDaysLeft(sPlanet,sArea,iSlot))+" days.");
 
 SetLocalInt(oGoldbag,sPlanet+"&"+sArea+"&Rent&"+IntToString(iSlot),iRent);
-SetLocalInt(oGoldbag,sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
+DomainStateSetInt(sPlanet+"&"+sArea+IntToString(iSlot)+"Counter",iCounter);
   }
+if(sRent!=""){SetLocalString(OBJECT_SELF,DOMAIN_INFO_VAR,DomainHouseSummary(sRent,DomainRentDaysLeft(sPlanet,sArea,iSlot)));}
 SetCustomToken(10604,IntToString(iDomainHouseGP));SetLocalInt(OBJECT_SELF,"Price1",iDomainHouseGP);SetLocalInt(OBJECT_SELF,"Price2",iDomainHouseGP);if(sRent==""){sRent = "nobody";}SetCustomToken(10605,sRent);
  }
 ////////////////////////////////////////////////////////////////////////////////
