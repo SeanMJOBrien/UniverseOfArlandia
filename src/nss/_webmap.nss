@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Universe of Arlandia - Per-player web map discovery
 //
-// The website map (galaxy.php / map-data.php) used to show a single, server
+// The website map (app/galaxy.php / app/map-data.php) used to show a single, server
 // wide discovery state: the first player to walk onto a tile appended "*" to
 // its terrain code in <Planet>AreasX<iX> and the tile became visible to
 // everyone. These helpers keep that global flag intact (DM tools and

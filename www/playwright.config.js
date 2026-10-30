@@ -24,7 +24,7 @@ module.exports = defineConfig({
     ? {
         webServer: {
           command: 'php -S localhost:8765',
-          url: 'http://localhost:8765/news.html',
+          url: 'http://localhost:8765/app/news.html',
           reuseExistingServer: true,
           timeout: 10000,
         },
