@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 dm_page_start('Bank');
-foreach ($messages as [$cls, $text]) echo '<div class="panel ' . h($cls) . '">' . h($text) . '</div>';
+foreach ($messages as $message) echo '<div class="panel ' . h($message[0]) . '">' . h($message[1]) . '</div>';
 
 $normal = bank_current($link, 'normal10', $settings['normal10']);
 $rate = bank_current($link, 'rate10', $settings['rate10']);

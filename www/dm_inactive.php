@@ -73,7 +73,7 @@ function scan_accounts(mysqli $link, string $vault, int $now): array {
             'email' => $player !== '' ? (inactive_pw($link, 'Email&' . $player) !== '') : false,
         ];
     }
-    usort($accounts, fn($a, $b) => $a['last'] <=> $b['last']);
+    usort($accounts, function ($a, $b) { return $a['last'] <=> $b['last']; });
     return $accounts;
 }
 
@@ -116,10 +116,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'remov
 
 $show_all = isset($_GET['all']);
 $accounts = scan_accounts($link, $vault, $now);
-$shown = array_filter($accounts, fn($a) => $show_all || $a['days'] >= $inactive_days);
+$shown = array_filter($accounts, function ($a) use ($show_all, $inactive_days) { return $show_all || $a['days'] >= $inactive_days; });
 
 dm_page_start('Inactive accounts');
-foreach ($messages as [$cls, $text]) echo '<div class="panel ' . h($cls) . '">' . h($text) . '</div>';
+foreach ($messages as $message) echo '<div class="panel ' . h($message[0]) . '">' . h($message[1]) . '</div>';
 ?>
 <div class="panel">
 <p>Accounts whose newest character file is at least <b><?= (int)$inactive_days ?> days</b> old, oldest first.

@@ -32,7 +32,7 @@ function dm_pw_get(mysqli $link, string $name): string {
     return $row['val'] ?? '';
 }
 
-function dm_pw_set(mysqli $link, string $name, string $val): void {
+function dm_pw_set(mysqli $link, string $name, string $val) {
     $stmt = mysqli_prepare($link,
         "INSERT INTO pwdata (player, tag, name, val, expire) VALUES ('~', 'uoa', ?, ?, 0)
          ON DUPLICATE KEY UPDATE val = VALUES(val), last = now()");
@@ -42,7 +42,7 @@ function dm_pw_set(mysqli $link, string $name, string $val): void {
 }
 
 /** Record a DM action. The table is created on first use. */
-function dm_audit(mysqli $link, string $action, string $detail): void {
+function dm_audit(mysqli $link, string $action, string $detail) {
     mysqli_query($link, "CREATE TABLE IF NOT EXISTS dm_audit (
         id INT AUTO_INCREMENT PRIMARY KEY, at INT NOT NULL,
         action VARCHAR(40) NOT NULL, detail VARCHAR(500) NOT NULL, ip VARCHAR(45) NOT NULL DEFAULT '')");
@@ -67,7 +67,7 @@ function dm_audit_recent(mysqli $link, string $action, int $limit = 15): array {
     return $rows;
 }
 
-function dm_page_start(string $title): void {
+function dm_page_start(string $title) {
     ?><!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= h($title) ?> - DM</title>
@@ -93,6 +93,6 @@ code{font:13px ui-monospace,monospace}
 <?php
 }
 
-function dm_page_end(): void {
+function dm_page_end() {
     echo "</main></body></html>\n";
 }
