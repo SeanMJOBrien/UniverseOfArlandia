@@ -68,7 +68,7 @@ def php_server():
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
-    _wait_for_server(f"{BASE_URL}/news.html")
+    _wait_for_server(f"{BASE_URL}/app/news.html")
     yield BASE_URL
     proc.terminate()
     proc.wait(timeout=5)
@@ -81,7 +81,7 @@ def php_server():
 def db_available(php_server):
     """Returns True when MySQL is reachable and galaxy.php renders content."""
     try:
-        with urllib.request.urlopen(f"{BASE_URL}/galaxy.php?planet=infos", timeout=5) as r:
+        with urllib.request.urlopen(f"{BASE_URL}/app/galaxy.php?planet=infos", timeout=5) as r:
             return b"service offline" not in r.read()
     except Exception:
         return False

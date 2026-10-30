@@ -21,10 +21,10 @@ test.beforeAll(async ({ request }) => {
 // ---------------------------------------------------------------------------
 // Graceful degradation — always testable
 // ---------------------------------------------------------------------------
-test.describe('register.php — without DB', () => {
+test.describe('app/register.php — without DB', () => {
   test('responds without an unhandled PHP crash', async ({ page }) => {
     test.skip(dbAvailable, 'DB is connected — graceful-degradation test not applicable');
-    await page.goto('/register.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/register.php', { waitUntil: 'domcontentloaded' });
     const body = await page.textContent('body');
     expect(body).toContain('service offline');
     await expect(page.locator('body')).not.toContainText('Fatal error');
@@ -35,10 +35,10 @@ test.describe('register.php — without DB', () => {
 // ---------------------------------------------------------------------------
 // Registration form
 // ---------------------------------------------------------------------------
-test.describe('register.php', () => {
+test.describe('app/register.php', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
-    await page.goto('/register.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/register.php', { waitUntil: 'domcontentloaded' });
   });
 
   test('shows the .web instructions and a CSRF-protected form', async ({ page }) => {
@@ -86,7 +86,7 @@ test.describe('index.php — player area', () => {
 
   test('offers a CD-key login and a register link', async ({ page }) => {
     await expect(page.getByTestId('player-login-form')).toBeVisible();
-    await expect(page.locator('a[href="register.php"]')).toHaveCount(1);
+    await expect(page.locator('a[href="app/register.php"]')).toHaveCount(1);
   });
 
   test('rejects an unknown CD key without revealing whether it exists', async ({ page }) => {
@@ -104,27 +104,27 @@ test.describe('index.php — player area', () => {
 // ---------------------------------------------------------------------------
 // Map gating for anonymous visitors
 // ---------------------------------------------------------------------------
-test.describe('galaxy.php — anonymous visitor', () => {
+test.describe('app/galaxy.php — anonymous visitor', () => {
   test.beforeEach(async ({ page }) => {
     test.skip(!dbAvailable, 'Database not connected');
   });
 
   test('shows the login prompt and draws no terrain tiles', async ({ page }) => {
-    await page.goto('/galaxy.php?planet=Alderan', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/galaxy.php?planet=Alderan', { waitUntil: 'domcontentloaded' });
     await expect(page.getByTestId('map-login-notice')).toBeVisible();
     // Tile cells still lay out the grid, they are just empty.
     await expect(page.locator('td.map-tile img')).toHaveCount(0);
   });
 
-  test('map-data.php reports every tile hidden', async ({ request }) => {
-    const response = await request.get('/map-data.php?planet=Alderan');
+  test('app/map-data.php reports every tile hidden', async ({ request }) => {
+    const response = await request.get('/app/map-data.php?planet=Alderan');
     const body = await response.json();
     expect(Array.isArray(body.tiles)).toBe(true);
     expect(body.tiles.some((tile) => tile.visible)).toBe(false);
   });
 
-  test('interests.php refuses an undiscovered area', async ({ page }) => {
-    const response = await page.goto('/interests.php?planet=Alderan&area=0_0', {
+  test('app/interests.php refuses an undiscovered area', async ({ page }) => {
+    const response = await page.goto('/app/interests.php?planet=Alderan&area=0_0', {
       waitUntil: 'domcontentloaded',
     });
     expect(response.status()).toBe(403);

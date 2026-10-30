@@ -1,7 +1,7 @@
 <?php
 /**
  * Shared start-up for the DM pages (dm_bank.php, dm_inactive.php).
- * Opens the database, requires the DM session set by the DM area on index.php,
+ * Opens the database, requires the DM session set by the DM area on ../index.php,
  * and provides pwdata access, an audit trail and the page frame.
  */
 session_start();
@@ -88,7 +88,7 @@ button.danger{border-color:var(--warn);background:var(--warn)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 code{font:13px ui-monospace,monospace}
 </style></head><body><main>
-<nav><a href="index.php">Home</a><a href="dm_bank.php">Bank</a><a href="dm_inactive.php">Inactive accounts</a></nav>
+<nav><a href="../index.php" target="_top">Home</a><a href="dm_tools.php">Tools</a><a href="dm_bank.php">Bank</a><a href="dm_inactive.php">Inactive accounts</a></nav>
 <h1><?= h($title) ?></h1>
 <?php
 }

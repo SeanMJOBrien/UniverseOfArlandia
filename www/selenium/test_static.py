@@ -12,8 +12,8 @@ from selenium.webdriver.common.by import By
 
 
 STATIC_PAGES = [
-    "/news.html",
-    "/description.html",
+    "/app/news.html",
+    "/app/description.html",
     "/screenshots.html",
     "/interests.html",
     "/domains.html",
@@ -23,9 +23,9 @@ STATIC_PAGES = [
     "/feats.html",
     "/grades.html",
     "/talents.html",
-    "/downloads.html",
-    "/links.html",
-    "/contact.html",
+    "/app/downloads.html",
+    "/app/links.html",
+    "/app/contact.html",
     "/installation.html",
     "/factory.html",
 ]
@@ -68,7 +68,7 @@ class TestScreenshots:
 # ---------------------------------------------------------------------------
 class TestDownloads:
     def test_has_at_least_one_link(self, driver, base_url):
-        driver.get(f"{base_url}/downloads.html")
+        driver.get(f"{base_url}/app/downloads.html")
         links = driver.find_elements(By.CSS_SELECTOR, "a[href]")
         assert len(links) > 0, "No links on downloads page"
 
@@ -78,7 +78,7 @@ class TestDownloads:
 # ---------------------------------------------------------------------------
 class TestNews:
     def test_body_has_content(self, driver, base_url):
-        driver.get(f"{base_url}/news.html")
+        driver.get(f"{base_url}/app/news.html")
         text = driver.find_element(By.CSS_SELECTOR, "body").text.strip()
         assert len(text) > 20, f"news.html body too short: {text!r}"
 
@@ -88,7 +88,7 @@ class TestNews:
 # ---------------------------------------------------------------------------
 class TestDescription:
     def test_body_has_content(self, driver, base_url):
-        driver.get(f"{base_url}/description.html")
+        driver.get(f"{base_url}/app/description.html")
         text = driver.find_element(By.CSS_SELECTOR, "body").text.strip()
         assert len(text) > 50, f"description.html body too short: {text!r}"
 

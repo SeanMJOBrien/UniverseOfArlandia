@@ -82,9 +82,9 @@ def _discover_planet(base_url: str) -> str:
 # ---------------------------------------------------------------------------
 class TestGalaxyOffline:
     @pytest.mark.parametrize("path", [
-        "/galaxy.php?planet=infos",
-        "/galaxy.php?planet=Space&system=Arlandia",
-        "/galaxy.php?planet=Arlandia",
+        "/app/galaxy.php?planet=infos",
+        "/app/galaxy.php?planet=Space&system=Arlandia",
+        "/app/galaxy.php?planet=Arlandia",
     ])
     def test_service_offline_no_crash(self, driver, base_url, db_available, path):
         if db_available:
@@ -102,13 +102,13 @@ class TestGalaxyInfos:
     def test_page_title(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos")
         assert driver.title == "UOA Galaxy Viewer"
 
     def test_player_table_column_headers(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos")
         table = driver.find_element(By.CSS_SELECTOR, "[data-testid='player-table']")
         table_text = table.text
         for col in ("Player", "Character", "Planet", "Area", "Action"):
@@ -117,7 +117,7 @@ class TestGalaxyInfos:
     def test_player_table_no_php_crash(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos")
         body_text = driver.find_element(By.CSS_SELECTOR, "body").text
         assert "Fatal error" not in body_text
         # Table must always be present
@@ -126,7 +126,7 @@ class TestGalaxyInfos:
     def test_reset_buttons_form_structure(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos")
         try:
             btn = driver.find_element(By.CSS_SELECTOR, "[data-testid='btn-reset-coords']")
         except Exception:
@@ -135,20 +135,20 @@ class TestGalaxyInfos:
         form = driver.execute_script("return arguments[0].closest('form')", btn)
         assert form.get_attribute("method") == "post"
         action = form.get_attribute("action")
-        assert "galaxy.php" in action and "planet=infos" in action
+        assert "app/galaxy.php" in action and "planet=infos" in action
 
     def test_actualise_refresh_link(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos")
         link = driver.find_element(By.CSS_SELECTOR, "[data-testid='refresh-link']")
         href = link.get_attribute("href")
-        assert "galaxy.php" in href and "planet=infos" in href
+        assert "app/galaxy.php" in href and "planet=infos" in href
 
     def test_reset_success_feedback_message(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=infos&reset_success=TestChar")
+        driver.get(f"{base_url}/app/galaxy.php?planet=infos&reset_success=TestChar")
         msg = driver.find_element(By.CSS_SELECTOR, ".feedback-message")
         assert msg.is_displayed()
         assert "TestChar" in msg.text
@@ -162,13 +162,13 @@ class TestGalaxySpaceMap:
     def test_page_title(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&system=Arlandia")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&system=Arlandia")
         assert driver.title == "UOA Galaxy Viewer"
 
     def test_compass_arrows_visible(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&system=Arlandia")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&system=Arlandia")
         for direction in ("North", "South", "East", "West"):
             img = driver.find_element(By.CSS_SELECTOR, f'img[alt="{direction}"]')
             assert img.is_displayed(), f'{direction} arrow not visible'
@@ -176,16 +176,16 @@ class TestGalaxySpaceMap:
     def test_compass_arrows_are_links(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&system=Arlandia")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&system=Arlandia")
         north_img = driver.find_element(By.CSS_SELECTOR, 'img[alt="North"]')
         north_link = driver.execute_script("return arguments[0].closest('a')", north_img)
         href = north_link.get_attribute("href")
-        assert "galaxy.php" in href and "planet=Space" in href
+        assert "app/galaxy.php" in href and "planet=Space" in href
 
     def test_map_grid_has_multiple_rows(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&system=Arlandia")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&system=Arlandia")
         tables = driver.find_elements(By.CSS_SELECTOR, "table")
         map_table = tables[-1]
         rows = map_table.find_elements(By.CSS_SELECTOR, "tr")
@@ -202,8 +202,8 @@ class TestGalaxySpaceMapNavigation:
     nearest-SystemCenter heading logic, and the click-to-recenter link.
     """
 
-    _BASE   = "/galaxy.php?planet=Space&galaxyx=2&galaxyy=3"
-    _ORIGIN = "/galaxy.php?planet=Space&galaxyx=0&galaxyy=0"
+    _BASE   = "/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=3"
+    _ORIGIN = "/app/galaxy.php?planet=Space&galaxyx=0&galaxyy=0"
 
     def test_arrow_links_pan_one_sector(self, driver, base_url, db_available):
         if not db_available:
@@ -287,7 +287,7 @@ class TestGalaxySpaceMapNavigation:
     def test_heading_non_blank_after_arrow_drops_system(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&system=Meth&galaxyx=0&galaxyy=0")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&system=Meth&galaxyx=0&galaxyy=0")
         assert _heading_u(driver).text.strip() == "Meth"
         _click_arrow(driver, "East")
         heading = _heading_u(driver).text.strip()
@@ -297,11 +297,11 @@ class TestGalaxySpaceMapNavigation:
     def test_heading_switches_system_when_panning(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&galaxyx=0&galaxyy=0")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&galaxyx=0&galaxyy=0")
         here = _heading_u(driver).text.strip()
         if here == "Space":
             pytest.skip("No *SystemCenter data seeded — skipping system-transition test")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&galaxyx=2&galaxyy=0")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&galaxyx=2&galaxyy=0")
         there = _heading_u(driver).text.strip()
         assert there != "Space"
         assert there != here
@@ -309,14 +309,14 @@ class TestGalaxySpaceMapNavigation:
     def test_heading_shows_space_when_far(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&galaxyx=100&galaxyy=100")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&galaxyx=100&galaxyy=100")
         assert _heading_u(driver).text.strip() == "Space"
         assert "Fatal error" not in driver.find_element(By.CSS_SELECTOR, "body").text
 
     def test_clicking_heading_centers_on_home_sector(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&galaxyx=3&galaxyy=0")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&galaxyx=3&galaxyy=0")
         heading_u = _heading_u(driver)
         name = heading_u.text.strip()
         if name == "Space":
@@ -336,7 +336,7 @@ class TestGalaxySpaceMapNavigation:
     def test_heading_is_plain_text_not_link_for_space(self, driver, base_url, db_available):
         if not db_available:
             pytest.skip("Database not connected")
-        driver.get(f"{base_url}/galaxy.php?planet=Space&galaxyx=100&galaxyy=100")
+        driver.get(f"{base_url}/app/galaxy.php?planet=Space&galaxyx=100&galaxyy=100")
         heading_u = _heading_u(driver)
         assert heading_u.text.strip() == "Space"
         assert not heading_u.find_elements(By.TAG_NAME, "a"), "Heading 'Space' should not be a link"
@@ -356,17 +356,17 @@ class TestGalaxyPlanetMap:
         return planet
 
     def test_planet_name_in_page(self, driver, base_url, test_planet):
-        driver.get(f"{base_url}/galaxy.php?planet={urllib.request.quote(test_planet)}")
+        driver.get(f"{base_url}/app/galaxy.php?planet={urllib.request.quote(test_planet)}")
         assert test_planet in driver.find_element(By.CSS_SELECTOR, "body").text
 
     def test_info_panel_has_position_and_level(self, driver, base_url, test_planet):
-        driver.get(f"{base_url}/galaxy.php?planet={urllib.request.quote(test_planet)}")
+        driver.get(f"{base_url}/app/galaxy.php?planet={urllib.request.quote(test_planet)}")
         body_text = driver.find_element(By.CSS_SELECTOR, "body").text
         assert "Position" in body_text
         assert "Level" in body_text
 
     def test_time_indicator_image(self, driver, base_url, test_planet):
-        driver.get(f"{base_url}/galaxy.php?planet={urllib.request.quote(test_planet)}")
+        driver.get(f"{base_url}/app/galaxy.php?planet={urllib.request.quote(test_planet)}")
         found = any(
             driver.find_elements(By.CSS_SELECTOR, f'img[alt="{alt}"]')
             for alt in ("Day", "Night")
@@ -374,7 +374,7 @@ class TestGalaxyPlanetMap:
         assert found, "No Day/Night time indicator image found"
 
     def test_weather_indicator_image(self, driver, base_url, test_planet):
-        driver.get(f"{base_url}/galaxy.php?planet={urllib.request.quote(test_planet)}")
+        driver.get(f"{base_url}/app/galaxy.php?planet={urllib.request.quote(test_planet)}")
         found = any(
             driver.find_elements(By.CSS_SELECTOR, f'img[alt="{alt}"]')
             for alt in ("Clear", "Rain", "Snow", "Fog", "Storm")
@@ -382,7 +382,7 @@ class TestGalaxyPlanetMap:
         assert found, "No weather indicator image found"
 
     def test_map_grid_renders(self, driver, base_url, test_planet):
-        driver.get(f"{base_url}/galaxy.php?planet={urllib.request.quote(test_planet)}")
+        driver.get(f"{base_url}/app/galaxy.php?planet={urllib.request.quote(test_planet)}")
         tables = driver.find_elements(By.CSS_SELECTOR, "table")
         assert tables, "No table found on planet page"
         rows = tables[-1].find_elements(By.CSS_SELECTOR, "tr")

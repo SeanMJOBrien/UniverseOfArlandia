@@ -22,7 +22,7 @@ www/erithorn-map/
 www/hos1-wiki/
 www/qarea/
 www/tfn-wiki/
-www/planetCreator.php
+www/app/planetCreator.php
 
 # Archives, DB dumps and credentials must never be committed
 *.7z

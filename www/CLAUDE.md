@@ -120,3 +120,11 @@ The DM login in `index.php` POSTs a password that is compared against `$dmlogin`
 ### NWN launcher
 
 `uoa.nwl` is a NWN launcher shortcut file pointing players directly to the server (`uoa.no-ip.org:5121`).
+
+## Layout
+
+Only `index.php`, `robots.txt` and `favicon.ico` are at the web root. All other pages,
+the includes (`uoa.php`, `helpers.php`, `player_auth.php`) and the static folders
+(`assets`, `css`, `js`, `images`) are in `app/`. `index.php` links to `app/<page>`;
+pages in `app/` link back with `../index.php`. There are no redirects from the old
+root addresses.

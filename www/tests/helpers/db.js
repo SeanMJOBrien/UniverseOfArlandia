@@ -5,7 +5,7 @@
  */
 async function isDbConnected(request) {
   try {
-    const response = await request.get('/galaxy.php?planet=infos', { timeout: 5000 });
+    const response = await request.get('/app/galaxy.php?planet=infos', { timeout: 5000 });
     const text = await response.text();
     return !text.includes('service offline');
   } catch {

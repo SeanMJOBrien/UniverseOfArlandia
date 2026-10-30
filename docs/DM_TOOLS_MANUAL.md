@@ -551,8 +551,11 @@ it, and the server cannot tell whether it is the owner's.
 
 ## 12. DM web pages and email alerts
 
-These pages are part of the PHP site. Log in from the DM area on the home page
-first; every page checks that session and every change needs the page's form token.
+These pages are part of the PHP site and live in `www/app/` with the rest of the site
+(only `index.php`, `robots.txt` and `favicon.ico` are at the web root). Log in from the
+DM area on the home page first, then use its **Tools** link, which opens `dm_tools.php`,
+the list of DM pages. Every page checks that session and every change needs the page's
+form token. The database settings are in `www/app/uoa.php`.
 
 ### Bank (`dm_bank.php`)
 
@@ -594,6 +597,6 @@ remove characters. Set `UOA_VAULT` to the vault path if it is not
 The module only queues messages, in the `mail_outbox` table. Send them by running
 `php tools/send_outbox.php` on the host from cron every 15 minutes. It uses PHP's
 `mail()`, so the host needs a working mail setup (sendmail or equivalent). Set
-`$mail_from` in `www/uoa.php` to the sender address. A message that fails five times
+`$mail_from` in `www/app/uoa.php` to the sender address. A message that fails five times
 stays in the table unsent.
 

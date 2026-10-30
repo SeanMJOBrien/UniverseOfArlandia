@@ -5,9 +5,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-include('uoa.php');
-include('helpers.php');
-include('player_auth.php');
+include(__DIR__ . '/app/uoa.php');
+include(__DIR__ . '/app/helpers.php');
+include(__DIR__ . '/app/player_auth.php');
 
 mysqli_report(MYSQLI_REPORT_OFF); // mysqli_connect() must return false, not throw, on failure
 $link = @mysqli_connect($host, $user, $pass, $data, (int)$port);
@@ -165,7 +165,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
     <tr style="height: 75%;">
         <td class="nav-cell">
             <h2 class="section-title">Server status :</h2>
-            <iframe name="Status" class="status-iframe" src="statut.php"></iframe>
+            <iframe name="Status" class="status-iframe" src="app/statut.php"></iframe>
 
             <h2 class="section-title">Connection :</h2>
             <p class="info-text">
@@ -175,29 +175,29 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
 
             <h2 class="section-title">Module :</h2>
             <nav class="nav-links">
-                <a target="UOA_Frame" href="news.html">Home/News</a><br>
-                <a target="UOA_Frame" href="description.html">Description</a><br>
-                <a target="UOA_Frame" href="screenshots.html">Screenshots</a><br>
-                <a target="UOA_Frame" href="interests.html">Interests</a><br>
-                <a target="UOA_Frame" href="domains.html">Domains</a><br>
-                <a target="UOA_Frame" href="Crafting.html">Crafting</a><br>
+                <a target="UOA_Frame" href="app/news.html">Home/News</a><br>
+                <a target="UOA_Frame" href="app/description.html">Description</a><br>
+                <a target="UOA_Frame" href="app/screenshots.html">Screenshots</a><br>
+                <a target="UOA_Frame" href="app/interests.html">Interests</a><br>
+                <a target="UOA_Frame" href="app/domains.html">Domains</a><br>
+                <a target="UOA_Frame" href="app/Crafting.html">Crafting</a><br>
             </nav>
 
             <h2 class="section-title">Characters :</h2>
             <nav class="nav-links">
-                <a target="UOA_Frame" href="races.html">Races</a><br>
-                <a target="UOA_Frame" href="classes.html">Classes</a><br>
-                <a target="UOA_Frame" href="feats.html">Feats</a><br>
-                <a target="UOA_Frame" href="grades.html">Grades</a><br>
-                <a target="UOA_Frame" href="talents.html">Talents</a><br>
+                <a target="UOA_Frame" href="app/races.html">Races</a><br>
+                <a target="UOA_Frame" href="app/classes.html">Classes</a><br>
+                <a target="UOA_Frame" href="app/feats.html">Feats</a><br>
+                <a target="UOA_Frame" href="app/grades.html">Grades</a><br>
+                <a target="UOA_Frame" href="app/talents.html">Talents</a><br>
             </nav>
 
             <h2 class="section-title">Community :</h2>
             <nav class="nav-links">
                 <a target="_blank" href="http://www.simtotal.com/uoa/forum/index.php">Forum</a><br>
-                <a target="UOA_Frame" href="downloads.html">Downloads</a><br>
-                <a target="UOA_Frame" href="links.html">Links</a><br>
-                <a target="UOA_Frame" href="contact.html">Contact</a><br>
+                <a target="UOA_Frame" href="app/downloads.html">Downloads</a><br>
+                <a target="UOA_Frame" href="app/links.html">Links</a><br>
+                <a target="UOA_Frame" href="app/contact.html">Contact</a><br>
             </nav>
 
             <div class="dm-area player-area">
@@ -213,7 +213,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                     <input type="password" name="player_password" placeholder="password" autocomplete="current-password">
                     <input type="submit" value="log in">
                 </form>
-                <p class="nav-links"><a target="UOA_Frame" href="register.php">Register</a></p>
+                <p class="nav-links"><a target="UOA_Frame" href="app/register.php">Register</a></p>
                 <?php else: ?>
                 <p class="info-text" data-testid="player-logged-in">
                     CD key <span class="ip-address"><?= htmlspecialchars(player_cdkey()) ?></span>
@@ -240,7 +240,8 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                 <?php else: ?>
                 <h2 class="section-title dm-area-title">DM area :</h2>
                 <p class="nav-links">
-                    <a target="UOA_Frame" href="galaxy.php?planet=infos">Informations</a><br>
+                    <a target="UOA_Frame" href="app/dm_tools.php">Tools</a><br>
+                    <a target="UOA_Frame" href="app/galaxy.php?planet=infos">Informations</a><br>
                     <a href="index.php?logout=1">Disconnect</a>
                 </p>
                 <?php endif; ?>
@@ -248,7 +249,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
         </td>
 
         <td class="main-content-cell">
-            <iframe name="UOA_Frame" class="content-iframe" src="news.html"></iframe>
+            <iframe name="UOA_Frame" class="content-iframe" src="app/news.html"></iframe>
         </td>
 
         <td class="nav-cell">
@@ -266,7 +267,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                 $planetstot = (int)substr($planet_data, -4, 3);
                 ?>
                 <a class="galaxy-link" target="UOA_Frame"
-                   href="galaxy.php?system=<?= urlencode($system_name) ?>&planet=Space">
+                   href="app/galaxy.php?system=<?= urlencode($system_name) ?>&planet=Space">
                     <?= htmlspecialchars($system_name) ?> :
                 </a><br>
                 <?php
@@ -279,7 +280,7 @@ $galaxytot  = (int)substr($galaxies, -4, 3);
                     if ($planet_name === '') continue;
                     ?>
                     <a class="planet-link" target="UOA_Frame"
-                       href="galaxy.php?planet=<?= urlencode($planet_name) ?>">
+                       href="app/galaxy.php?planet=<?= urlencode($planet_name) ?>">
                         <?= htmlspecialchars($planet_name) ?>
                     </a><br>
                     <?php

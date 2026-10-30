@@ -27,8 +27,8 @@ async function assertStaticPage(page, path) {
 // Smoke-test every static page in one parametrised block
 // ---------------------------------------------------------------------------
 const staticPages = [
-  '/news.html',
-  '/description.html',
+  '/app/news.html',
+  '/app/description.html',
   '/screenshots.html',
   '/interests.html',
   '/domains.html',
@@ -38,9 +38,9 @@ const staticPages = [
   '/feats.html',
   '/grades.html',
   '/talents.html',
-  '/downloads.html',
-  '/links.html',
-  '/contact.html',
+  '/app/downloads.html',
+  '/app/links.html',
+  '/app/contact.html',
   '/installation.html',
   '/factory.html',
 ];
@@ -57,7 +57,7 @@ for (const path of staticPages) {
 
 test.describe('news.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/news.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/news.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page loads without blank body', async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe('news.html', () => {
 
 test.describe('description.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/description.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/description.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('contains descriptive content about the module', async ({ page }) => {
@@ -122,7 +122,7 @@ test.describe('classes.html', () => {
 
 test.describe('downloads.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/downloads.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/downloads.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {
@@ -138,7 +138,7 @@ test.describe('downloads.html', () => {
 
 test.describe('contact.html', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/contact.html', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/contact.html', { waitUntil: 'domcontentloaded' });
   });
 
   test('page has body content', async ({ page }) => {

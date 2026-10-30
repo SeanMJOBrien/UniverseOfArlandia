@@ -11,9 +11,9 @@
 
 const { test, expect } = require('@playwright/test');
 
-test.describe('nwnservers.php', () => {
+test.describe('app/nwnservers.php', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/nwnservers.php', { waitUntil: 'domcontentloaded' });
+    await page.goto('/app/nwnservers.php', { waitUntil: 'domcontentloaded' });
   });
 
   test('page loads without PHP errors', async ({ page }) => {
