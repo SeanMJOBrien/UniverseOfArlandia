@@ -24,7 +24,9 @@ module.exports = defineConfig({
     ? {
         webServer: {
           command: 'php -S localhost:8765',
-          url: 'http://localhost:8765/app/news.html',
+          // Ready as soon as the port accepts connections; a missing page then
+          // fails only its own tests instead of aborting the whole run.
+          port: 8765,
           reuseExistingServer: true,
           timeout: 10000,
         },
