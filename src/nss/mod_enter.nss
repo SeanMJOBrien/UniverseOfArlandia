@@ -2,7 +2,6 @@
 #include "_module"
 #include "_domainstate"
 #include "inc_mappin"
-#include "nwnx_time"
 #include "dmfi_lang_inc"
 ////////////////////////////////////////////////////////////////////////////////
 void main(){
@@ -155,8 +154,8 @@ DeleteLocalObject(oPC,"DestroyIt");
 ////////////////////////////////////////////////////////////////////////////////
 // Website
 if(GetLocalInt(oModule,sName)==0){iPlayers++;SetLocalInt(oModule,sName,iPlayers);SetPersistentInt(oModule,"Players",iPlayers);}
-// Last login (real-world Unix timestamp, requires the NWNX_Time plugin)
-SetPersistentInt(oModule,"LastLogin_"+sName,NWNX_Time_GetTimeStamp());
+// Last login (real-world Unix timestamp, from the database clock)
+SetPersistentInt(oModule,"LastLogin_"+sName,DomainRealTime());
 DomainClockSync(oPC);
 // Language state is restored from the campaign database
 LangLoad(oPC);
