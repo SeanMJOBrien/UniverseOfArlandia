@@ -5,12 +5,12 @@
  *   php tools/send_outbox.php
  *
  * Run it from cron every 15 minutes or so. It uses PHP's mail(), so the host
- * needs a working sendmail or equivalent. Optional in www/app/uoa.php:
+ * needs a working sendmail or equivalent. Optional in www/public/app/uoa.php:
  *   $mail_from = 'uoa@yourdomain.example';
  * A message that fails 5 times is left in the table with sent_at empty.
  */
 if (PHP_SAPI !== 'cli') { http_response_code(404); exit; }
-include __DIR__ . '/../www/app/uoa.php';
+include __DIR__ . '/../www/public/app/uoa.php';
 
 mysqli_report(MYSQLI_REPORT_OFF);
 $link = @mysqli_connect($host, $user, $pass, $data, (int)($port ?? 3306));

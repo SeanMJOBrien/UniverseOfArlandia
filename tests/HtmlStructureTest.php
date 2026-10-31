@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class HtmlStructureTest extends TestCase
 {
-    private const WWW = __DIR__ . '/../www';
+    private const WWW = __DIR__ . '/../www/public/app';
 
     /** @return array<string, array{0: string}> */
     public static function htmlFileProvider(): array

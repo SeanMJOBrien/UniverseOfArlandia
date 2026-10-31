@@ -1,7 +1,7 @@
 <?php
 // Test bootstrap — sets up the environment for pure-function testing without a live DB.
 
-define('WWW_DIR', __DIR__ . '/../www');
+define('WWW_DIR', __DIR__ . '/../www/public/app');
 
 // Stub globals that sql.php sets (harmless to re-declare here first)
 $db_error       = '';

@@ -8,24 +8,15 @@ This is the web frontend for **Universe of Arlandia (UOA)**, a custom persistent
 
 ## Running locally
 
-Docker is the primary local dev environment — `docker compose up` from the repo root starts Apache + MySQL on port 88. The Apache DocumentRoot is `www/public/` (see `docker/apache-uoa.conf`).
+Docker is the primary local dev environment — `docker compose up` from the repo root starts Apache + MySQL on port 88. The Apache DocumentRoot is `www/public/` (see `docker/apache-uoa.conf`); everything outside `www/public/` (tests, docs, `node_modules`) is not served.
 
 To test PHP pages: `http://localhost:88/index.php`.
 
 ## Configuration
 
-All DB credentials and game settings live in `public/uoa.php` — this file is `include()`d by every PHP script that needs a DB connection:
+`www/public/app/uoa.php` is a loader with no secrets, `include()`d by every PHP script that needs a DB connection. The real values come from, in order: the file named by `UOA_CONFIG`, `/etc/uoa/uoa.local.php`, or `www/public/app/uoa.local.php` (git-ignored); anything not set there falls back to the `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, `NWN_PORT` and `DM_PASSWORD_HASH` environment variables. `docs/uoa.local.php.example` shows the variables (`$host`, `$user`, `$pass`, `$data`, `$nwnport`, `$dmlogin`, optional `$mail_from`). `$dmlogin` is a bcrypt hash, not the password.
 
-```
-$host = '127.0.0.1'
-$user = 'uoa'
-$pass = '...'
-$data = 'uoa'
-$nwnport = "5121"
-$dmlogin = "uoadm"
-```
-
-Do **not** commit credential changes to `public/uoa.php`.
+Never put real credentials in `uoa.php`; deployment is described in `docs/DEPLOY_WEB.md`.
 
 ## Architecture
 
@@ -52,31 +43,27 @@ Negative coordinates in keys are stored with `m` replacing `-` (e.g., `m3_5` = `
 ### Directory layout
 
 ```
-www/                  Apache DocumentRoot — PHP and HTML files served from here
-  index.php           Main shell — 3-column layout (nav, iframe content, star systems)
-  galaxy.php          Planet/space map viewer and DM admin panel (?planet=infos)
-  interests.php       Detail view for a map area (town, dungeon, castle, domain, etc.)
-  statut.php          Server status widget (iframe); pings NWN server via UDP
-  map-data.php        JSON API — returns tile grid for a planet or Space sector
-  register.php        Player registration (CD key + in-game .web code + password)
-  helpers.php         Shared PHP helpers: between(), tile_key(), encoded_field()
-  player_auth.php     Player login/registration + per-player map discovery lookups
-  uoa.php             Config only: DB credentials, NWN port, DM password
-  ServerInfo.php      UDP library for NWN BNES/BNER/BNXI/BNXR server queries
-  database-mysql.php  Legacy DB abstraction layer (not used by main pages)
-  logging.php         console_log() helper
-  playerInfo.php      Supplementary player info display
-  *.html              Static content pages (classes, crafting, races, downloads, etc.)
-  app/
-    assets/           All terrain tile GIFs and domain/screenshot JPGs
-    css/              Lightbox 2 stylesheet
-    js/               Lightbox 2 + Prototype/Scriptaculous scripts
-    images/           Lightbox UI chrome assets (close, loading, nav arrows)
-    news_fichiers/    Images embedded in news.html
-    Factory_fichiers/ Images embedded in factory.html
+www/                       dev files only; not served
+  public/                  Apache DocumentRoot - the only folder that is deployed
+    index.php              Main shell: 3-column layout (nav, iframe content, star systems)
+    robots.txt, favicon.ico
+    app/                   everything else of the site
+      galaxy.php           Planet/space map viewer and DM admin panel (?planet=infos)
+      interests.php        Detail view for a map area (town, dungeon, domain, ...)
+      statut.php           Server status widget (iframe); pings NWN server via UDP
+      map-data.php         JSON API: tile grid for a planet or Space sector
+      register.php         Player registration (CD key + in-game .web code + password)
+      helpers.php          Shared helpers: between(), tile_key(), encoded_field()
+      player_auth.php      Player login/registration + per-player map discovery
+      uoa.php              Config loader (no secrets; see Configuration)
+      dm_*.php             DM pages (tools, bank, rentals, inactive accounts)
+      ServerInfo.php       UDP library for NWN server queries
+      *.html               Static content pages
+      assets/ css/ js/ images/ news_fichiers/ Factory_fichiers/   static files
+  tests/ selenium/         Playwright and Selenium suites
+  chronicles-wiki, tfn-wiki, hos1-wiki, erithorn-map   wikis/maps managed outside git;
+                           mapped by Alias lines in docker/apache-uoa.conf
 ```
-
-PHP pages reference assets with `app/assets/forest.gif` etc. (root-relative from DocumentRoot).
 
 ### Map tile system
 
@@ -88,8 +75,8 @@ Interest type codes (first character of interest `val`):
 ### Map tile images
 
 All terrain tile GIFs (`forest.gif`, `plain_town.gif`, etc.) and domain/screenshot JPGs
-live in `www/app/assets/`. They are referenced from PHP and HTML as `app/assets/forest.gif`
-(root-relative from the DocumentRoot `www/`).
+live in `www/public/app/assets/`. They are referenced from PHP and HTML as `app/assets/forest.gif`
+(from `index.php`) or `assets/forest.gif` (from pages in `app/`).
 
 ### Per-player map discovery
 
@@ -123,8 +110,8 @@ The DM login in `index.php` POSTs a password that is compared against `$dmlogin`
 
 ## Layout
 
-Only `index.php`, `robots.txt` and `favicon.ico` are at the web root. All other pages,
+Only `index.php`, `robots.txt` and `favicon.ico` are at the web root (`www/public/`). All other pages,
 the includes (`uoa.php`, `helpers.php`, `player_auth.php`) and the static folders
-(`assets`, `css`, `js`, `images`) are in `app/`. `index.php` links to `app/<page>`;
+(`assets`, `css`, `js`, `images`) are in `www/public/app/`. `index.php` links to `app/<page>`;
 pages in `app/` link back with `../index.php`. There are no redirects from the old
 root addresses.

@@ -23,7 +23,7 @@ module.exports = defineConfig({
   ...(useOwnServer
     ? {
         webServer: {
-          command: 'php -S localhost:8765',
+          command: 'php -S localhost:8765 -t public',
           // Ready as soon as the port accepts connections; a missing page then
           // fails only its own tests instead of aborting the whole run.
           port: 8765,

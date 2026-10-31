@@ -1,0 +1,15 @@
+<?php
+// Copy to /etc/uoa/uoa.local.php (outside the web root and the git clone) and
+// fill in the real values. www/public/app/uoa.php loads it; git never overwrites it.
+// Make it readable by the web server user only, e.g. chmod 640, group www-data.
+$host    = '127.0.0.1';
+$port    = '3306';
+$user    = 'uoa';
+$pass    = 'CHANGE_ME';
+$data    = 'uoa';
+$nwnport = '5121';
+// Hash of the DM password, in single quotes. Make one with:
+//   php -r 'echo password_hash("YourPassword", PASSWORD_DEFAULT), "\n";'
+$dmlogin = '$2y$12$REPLACE_WITH_YOUR_HASH';
+// Optional: sender address for tools/send_outbox.php
+// $mail_from = 'noreply@example.org';

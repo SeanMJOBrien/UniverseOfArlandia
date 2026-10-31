@@ -196,7 +196,7 @@ breakdown; the cases below are the top-level summary for this date range.
 - **Expected:** **No test needed — refactor/cleanup only.** These commits
   delete dead files (`phpinfo.php`, `test.php`, `testmysql.php`, old
   crafting HTML duplicates) and move files between `www/`, `www/public/`,
-  and `www/app/` without changing behavior. Verification is just: site
+  and `www/public/app/` without changing behavior. Verification is just: site
   still loads (covered by TC-004/TC-005/TC-007's smoke passes) and none of
   the removed files are reachable (`curl -I` on their old paths should
   404, not required to be a fatal error but should not still work).

@@ -69,7 +69,7 @@ if((iCampDx!=0)||(iCampDy!=0))
     {
 sCandTile = GetAreaTile(oModule,sPlanet,iX+iCampDx,iY+iCampDy);
 // Exclude clouds(01)/gaz(22)/ocean(12)/seafloor(18) - same terrain this
-// planet's own galaxy map (www/app/galaxy.php) and area_creatures.nss:849's
+// planet's own galaxy map (www/public/app/galaxy.php) and area_creatures.nss:849's
 // tag-based camp exclusions already treat as invalid for ground camps.
 if((sCandTile!="")&&(sCandTile!="01")&&(sCandTile!="22")&&(sCandTile!="12")&&(sCandTile!="18"))
      {

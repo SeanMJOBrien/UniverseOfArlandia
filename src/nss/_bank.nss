@@ -31,7 +31,7 @@ const int BANK_SECONDS_PER_TICK = 6;
 const int BANK_MAX_DAYS_PER_SETTLE = 400; // keeps one settlement inside the instruction limit
 
 // --- Settings -------------------------------------------------------------
-// The DM page (www/app/dm_bank.php) stores these as BankSetting_<name> in pwdata and
+// The DM page (www/public/app/dm_bank.php) stores these as BankSetting_<name> in pwdata and
 // the module reads them every time, so a change applies to the next account
 // opened with no restart. When a setting has never been saved, the compiled
 // default in _module.nss is used. Rates are in tenths of a percent per month.
