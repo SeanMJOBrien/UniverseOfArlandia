@@ -151,8 +151,10 @@ if (!$area_readable) {
     // Field 8: mailbox flag is the last char before it is trimmed to '%'
     $var8b = substr($fields[8], -1);
     // Fields 1–10: trim to the '%' separator; field 11 (description) is not trimmed
+    $levels = [];
     for ($i = 1; $i <= 10; $i++) {
         $pct = strpos($fields[$i], '%');
+        $levels[$i] = $pct !== false ? (int)substr($fields[$i], $pct + 1) : 0;
         if ($pct !== false) $fields[$i] = substr($fields[$i], 0, $pct);
     }
     $var11 = $fields[11];
@@ -184,6 +186,96 @@ if (!$area_readable) {
             <td width="30%"><span class="lbl">Domain description :</span></td>
             <td width="70%"><span class="ok"><?= htmlspecialchars($var11) ?></span></td>
         </tr>
+    </table>
+
+    <?php
+    // What the structures in this domain offer to players. Slot 5 is always the
+    // central place, slot 8 the entry (with the mailbox) and slot 10 the walls;
+    // the other slots hold one of the buildings below. The access wording follows
+    // the module: producers and the casern answer to the owner and the players
+    // the owner approved (.wgrant); houses are rented by visitors; the rest are
+    // described in game as open to adventurers.
+    $structures = [
+        1  => ['Airship station',   'public', 'Travel to other cities and towns.'],
+        2  => ['Amusement place',   'public', 'Somewhere for the domain\'s people to have fun.'],
+        3  => ['Casern',            'owner',  'Produces henchmen for the owner.'],
+        4  => ['Dungeon',           'public', 'A fortified place for adventurers.'],
+        5  => ['Extractor',         'owner',  'Gathers rock resources from the planet.'],
+        6  => ['Factory',           'owner',  'Crafts resources and items into new items.'],
+        7  => ['Farm',              'owner',  'Raises livestock.'],
+        8  => ['Field',             'owner',  'Grows plant resources.'],
+        9  => ['Guild hall',        'public', 'Players can join the guild here.'],
+        10 => ['Hall',              'owner',  'The political and economic centre of the domain.'],
+        11 => ['House',             'rent',   'Visitors can rent it.'],
+        12 => ['Inn',               'public', 'A resting place for adventurers.'],
+        13 => ['Mission office',    'public', 'Jobs and missions.'],
+        14 => ['Personal house',    'owner',  'The home of the domain holder.'],
+        15 => ['School',            'public', 'Players learn or teach here.'],
+        16 => ['Shop',              'public', 'A special shop.'],
+        17 => ['Starship station',  'public', 'Travel to other planets.'],
+        18 => ['Tavern',            'public', 'A refreshing place for adventurers.'],
+        19 => ['Temple',            'public', 'A special shop for monks and clerics.'],
+        20 => ['Tower',             'public', 'Content like a dungeon, for adventurers.'],
+        21 => ['Sawmill',           'owner',  'Cuts trees from the planet.'],
+    ];
+    $access_text = [
+        'public' => ['Open to all players', 'ok'],
+        'rent'   => ['For rent', 'warn'],
+        'owner'  => ['Owner and approved users only', 'val'],
+        'passive' => ['Not interactive', 'lbl'],
+    ];
+    $fixed_slots = [
+        5  => ['Central place', 'public', 'A relaxing place for everyone in the domain.'],
+        8  => ['Entry', 'public', 'The way into the domain; holds the mailbox.'],
+        10 => ['Walls', 'passive', 'Protect the domain from outside danger.'],
+    ];
+    $cal = pw_value($link, 'Calendar');
+    $today = 0;
+    if (preg_match('~^(\d+)/C1/(\d+)/C2/(\d+)/C3/~', $cal, $cm)) {
+        $today = ((((int)$cm[1] * 12) + ((int)$cm[2] - 1)) * 28) + (int)$cm[3];
+    }
+    $features = [];
+    for ($i = 1; $i <= 10; $i++) {
+        $code = (int)$fields[$i];
+        if ($code === 0) continue;
+        $info = $fixed_slots[$i] ?? ($structures[$code] ?? null);
+        if ($info === null) continue;
+        $note = $info[2];
+        $access = $info[1];
+        if ($info[0] === 'House') {
+            $tenant = pw_value($link, $planet . '&' . $area . '&Domain&' . $i);
+            if ($tenant === '') {
+                $note = 'Free to rent.';
+            } else {
+                $access = 'owner';
+                $until = (int)pw_value($link, $planet . '&' . $area . '&Domain&' . $i . 'Until');
+                $note = 'Rented by ' . str_replace('~', "'", $tenant);
+                if ($until > 0 && $today > 0) {
+                    $left = $until - $today;
+                    $note .= $left >= 0 ? ', ' . $left . ' game day(s) of rent left.' : ', rent overdue.';
+                } else {
+                    $note .= '.';
+                }
+            }
+        }
+        $features[] = ['name' => $info[0], 'level' => $levels[$i], 'access' => $access, 'note' => $note];
+    }
+    ?>
+    <table class="info-table">
+        <tr>
+            <td colspan="3"><span class="lbl">What this domain offers :</span></td>
+        </tr>
+        <?php if (!$features): ?>
+        <tr><td colspan="3"><span class="val">Nothing built yet.</span></td></tr>
+        <?php endif; ?>
+        <?php foreach ($features as $f):
+            $a = $f['access'] === 'owner' && $f['name'] === 'House' ? ['Rented', 'val'] : ($access_text[$f['access']] ?? ['', 'val']); ?>
+        <tr>
+            <td width="22%"><span class="ok"><?= htmlspecialchars($f['name']) ?></span><?= $f['level'] > 0 ? ' <span class="lbl">level ' . (int)$f['level'] . '</span>' : '' ?></td>
+            <td width="26%"><span class="<?= $a[1] ?>"><?= htmlspecialchars($a[0]) ?></span></td>
+            <td><?= htmlspecialchars($f['note']) ?></td>
+        </tr>
+        <?php endforeach; ?>
     </table>
 
     <?php if ($var8b > 2):
