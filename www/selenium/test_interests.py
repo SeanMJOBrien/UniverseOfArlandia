@@ -12,34 +12,49 @@ import pytest
 from selenium.webdriver.common.by import By
 
 
+def _discover_planets(base_url: str) -> list[str]:
+    """Scrape all planet-surface links from index.php."""
+    try:
+        with urllib.request.urlopen(f"{base_url}/index.php", timeout=5) as r:
+            html = r.read().decode("utf-8", errors="replace")
+        names = re.findall(r'class="planet-link"[^>]*href="app/galaxy\.php\?planet=([^&"]+)"', html)
+        return [urllib.request.unquote(n) for n in names]
+    except Exception:
+        return []
+
+
 def _scrape_interest_url(base_url: str, tile_suffix: str = "") -> tuple[str, str]:
-    """Return (planet, area) from the first interest link on the space map.
+    """Return (planet, area) from the first interest link found on any planet's surface map.
     tile_suffix filters by GIF name (e.g. 'doma', 'dung') when set.
     """
-    try:
-        with urllib.request.urlopen(
-            f"{base_url}/app/galaxy.php?planet=Space&system=Arlandia", timeout=8
-        ) as r:
-            html = r.read().decode("utf-8", errors="replace")
+    import html as html_module
 
-        if tile_suffix:
-            pattern = (
-                rf"href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'"
-                rf"[^>]*><img[^>]+src='[^']*{re.escape(tile_suffix)}[^']*'"
-            )
-        else:
-            pattern = r"href='(interests\.php\?planet=[^&']+&area=[^&']+[^']+)'"
+    if tile_suffix:
+        pattern = (
+            rf'href="(interests\.php\?planet=[^"]+)"'
+            rf'[^>]*><img[^>]+src="[^"]*{re.escape(tile_suffix)}[^"]*"'
+        )
+    else:
+        pattern = r'href="(interests\.php\?planet=[^"]+)"'
 
-        m = re.search(pattern, html)
+    for planet in _discover_planets(base_url):
+        try:
+            with urllib.request.urlopen(
+                f"{base_url}/app/galaxy.php?planet={urllib.request.quote(planet)}", timeout=8
+            ) as r:
+                page_html = r.read().decode("utf-8", errors="replace")
+        except Exception:
+            continue
+
+        m = re.search(pattern, page_html)
         if not m:
-            return "", ""
-        raw = m.group(1)
+            continue
+        raw = html_module.unescape(m.group(1))
         pm = re.search(r"planet=([^&]+)", raw)
         am = re.search(r"area=([^&]+)", raw)
         if pm and am:
             return urllib.request.unquote(pm.group(1)), urllib.request.unquote(am.group(1))
-    except Exception:
-        pass
+
     return "", ""
 
 

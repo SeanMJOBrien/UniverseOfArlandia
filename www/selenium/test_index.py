@@ -53,12 +53,12 @@ class TestIndexStructure:
         assert "status-iframe" in iframe.get_attribute("class")
 
     @pytest.mark.parametrize("href,label", [
-        ("news.html",        "Home/News"),
-        ("description.html", "Description"),
-        ("screenshots.html", "Screenshots"),
-        ("interests.html",   "Interests"),
-        ("domains.html",     "Domains"),
-        ("crafting.html",    "Crafting"),
+        ("app/news.html",        "Home/News"),
+        ("app/description.html", "Description"),
+        ("app/screenshots.html", "Screenshots"),
+        ("app/interests.html",   "Interests"),
+        ("app/domains.html",     "Domains"),
+        ("app/Crafting.html",    "Crafting"),
     ])
     def test_module_nav_links(self, driver, base_url, href, label):
         driver.get(f"{base_url}/index.php")
@@ -67,7 +67,7 @@ class TestIndexStructure:
         assert link.get_attribute("target") == "UOA_Frame"
 
     @pytest.mark.parametrize("href", [
-        "races.html", "classes.html", "feats.html", "grades.html", "talents.html",
+        "app/races.html", "app/classes.html", "app/feats.html", "app/grades.html", "app/talents.html",
     ])
     def test_characters_nav_links(self, driver, base_url, href):
         driver.get(f"{base_url}/index.php")
@@ -76,7 +76,7 @@ class TestIndexStructure:
 
     def test_community_nav_links(self, driver, base_url):
         driver.get(f"{base_url}/index.php")
-        for href in ("downloads.html", "links.html", "contact.html"):
+        for href in ("app/downloads.html", "app/links.html", "app/contact.html"):
             link = driver.find_element(By.CSS_SELECTOR, f'a[href="{href}"]')
             assert link.is_displayed(), f"{href} link not visible"
 

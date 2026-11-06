@@ -71,7 +71,7 @@ def _discover_planet(base_url: str) -> str:
         with urllib.request.urlopen(f"{base_url}/index.php", timeout=5) as r:
             html = r.read().decode("utf-8", errors="replace")
         import re
-        m = re.search(r'galaxy\.php\?planet=([^&"]+)&login', html)
+        m = re.search(r'class="planet-link"[^>]*href="app/galaxy\.php\?planet=([^&"]+)"', html)
         return urllib.request.unquote(m.group(1)) if m else ""
     except Exception:
         return ""
